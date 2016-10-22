@@ -1,4 +1,4 @@
-using DiffEqBase, DifferentialEquations
+using DiffEqBase
 using Base.Test
 
 # write your own tests here
