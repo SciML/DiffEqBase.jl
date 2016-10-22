@@ -1,6 +1,8 @@
-module DifferentialEquationsBase
+module DiffEqBase
 
-  import Base: length, size, getindex, endof, show, print, max, linspace
+  using RecipesBase
+
+  import Base: length, size, getindex, endof, show, print
 
   "`DEProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
@@ -20,6 +22,10 @@ module DifferentialEquationsBase
   abstract Mesh
   "`Tableau`: Holds the information for a Runge-Kutta Tableau"
   abstract Tableau
+
+  "`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator"
+  abstract ODERKTableau <: Tableau
+
   "`DEIntegrator`: A DifferentialEquations Integrator type, used to initiate a solver."
   abstract DEIntegrator
   "`DEParameters`: Holds the parameters used in a DifferntialEquations model"
@@ -27,13 +33,16 @@ module DifferentialEquationsBase
 
   include("utils.jl")
   include("solutions.jl")
+  include("plotrecipes.jl")
+  include("tableaus.jl")
+
+  function solve end
 
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
          Tableau, DESensitivity, AbstractODESolution, AbstractPoissonProblem,
-         AbstractHeatProblem
+         AbstractHeatProblem, AbstractFEMSolution, ODERKTableau, ExplicitRKTableau, ImplicitRKTableau
 
   export recursivecopy!, @def, vecvecapply, numparameters, copyat_or_push!
-
 
 end # module

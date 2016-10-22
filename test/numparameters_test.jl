@@ -1,4 +1,4 @@
-using DifferentialEquations
+using DiffEqBase
 
 function test_num_parameters()
   f(x) = 2x
