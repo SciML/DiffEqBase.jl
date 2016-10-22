@@ -1,4 +1,4 @@
-# DifferentialEquationsBase
+# DifferentialEquationsBase.jl
 
 [![Build Status](https://travis-ci.org/ChrisRackauckas/DifferentialEquationsBase.jl.svg?branch=master)](https://travis-ci.org/ChrisRackauckas/DifferentialEquationsBase.jl)
 
