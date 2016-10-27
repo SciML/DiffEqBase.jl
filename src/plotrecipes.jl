@@ -9,7 +9,7 @@
     end
     label  --> reshape(names,1,length(names))
   else
-    if typeof(sol) <: SDESolution; denseplot=false; end
+    if typeof(sol) <: AbstractSDESolution; denseplot=false; end
 
     if denseplot && sol.dense # Generate the points from the plot from dense function
       plott = collect(Ranges.linspace(sol.t[1],sol.t[end],plotdensity))
