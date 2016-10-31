@@ -56,10 +56,9 @@
   end
   seriestype --> :path
   lw --> 3
-  xtickfont --> font(11)
-  ytickfont --> font(11)
-  legendfont --> font(11)
-  guidefont  --> font(11)
-  #layout --> length(u)
+  #xtickfont --> font(11)
+  #ytickfont --> font(11)
+  #legendfont --> font(11)
+  #guidefont  --> font(11)
   plott, plotseries
 end

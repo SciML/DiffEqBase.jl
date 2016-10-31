@@ -45,6 +45,6 @@ module DiffEqBase
          AbstractHeatProblem, AbstractFEMSolution, ODERKTableau, ExplicitRKTableau,
          ImplicitRKTableau, AbstractSDESolution
 
-  export recursivecopy!, @def, vecvecapply, numparameters, copyat_or_push!
+  export @def, numparameters
 
 end # module
