@@ -17,8 +17,9 @@ module DiffEqBase
   abstract DESolution
   abstract AbstractODESolution <: DESolution
   abstract AbstractSDESolution <: AbstractODESolution # Needed for plot recipes
+  abstract AbstractDDESolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractFEMSolution <: DESolution
-  abstract DESensitivity
+  abstract AbstractSensitivitySolution
   "`Mesh`: An abstract type which holds a (node,elem) pair and other information for a mesh"
   abstract Mesh
   "`Tableau`: Holds the information for a Runge-Kutta Tableau"
@@ -29,8 +30,9 @@ module DiffEqBase
 
   "`DEIntegrator`: A DifferentialEquations Integrator type, used to initiate a solver."
   abstract DEIntegrator
-  "`DEParameters`: Holds the parameters used in a DifferntialEquations model"
-  abstract DEParameters
+
+  abstract ParameterizedFunction <: Function
+  abstract SensitivityFunction <: ParameterizedFunction
 
   include("utils.jl")
   include("solutions.jl")
@@ -43,7 +45,8 @@ module DiffEqBase
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
          Tableau, DESensitivity, AbstractODESolution, AbstractPoissonProblem,
          AbstractHeatProblem, AbstractFEMSolution, ODERKTableau, ExplicitRKTableau,
-         ImplicitRKTableau, AbstractSDESolution
+         ImplicitRKTableau, AbstractSDESolution, ParameterizedFunction,
+         AbstractSensitivitySolution, SensitivityFunction
 
   export @def, numparameters
 
