@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, StochasticDiffEq, DiffEqDevTools
+using OrdinaryDiffEq, StochasticDiffEq, DiffEqDevTools, DiffEqProblemLibrary
 prob = prob_ode_2Dlinear
 
 ## Solve and plot
