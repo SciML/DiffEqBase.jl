@@ -7,6 +7,7 @@ module DiffEqBase
   "`DEProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
   abstract DEElement
+  abstract DESensitivity
   abstract AbstractODEProblem <: DEProblem
   abstract AbstractSDEProblem <: DEProblem
   abstract AbstractDAEProblem <: DEProblem
@@ -46,7 +47,7 @@ module DiffEqBase
          Tableau, DESensitivity, AbstractODESolution, AbstractPoissonProblem,
          AbstractHeatProblem, AbstractFEMSolution, ODERKTableau, ExplicitRKTableau,
          ImplicitRKTableau, AbstractSDESolution, ParameterizedFunction,
-         AbstractSensitivitySolution, SensitivityFunction
+         AbstractSensitivitySolution, SensitivityFunction, DESensitivity
 
   export @def, numparameters
 
