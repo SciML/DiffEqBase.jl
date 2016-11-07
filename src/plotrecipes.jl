@@ -17,7 +17,7 @@
       if plot_analytic
         plot_analytic_timeseries = Vector{typeof(sol.u)}(length(plott))
         for i in eachindex(plott)
-          tmp[i] = sol.prob.analytic(plott[i],sol.prob.u₀)
+          tmp[i] = sol.prob.analytic(plott[i],sol.prob.u0)
         end
       end
     else # Plot for not dense output use the timeseries itself

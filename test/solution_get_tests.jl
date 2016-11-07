@@ -13,10 +13,10 @@ print(STDOUT,sol)
 show(STDOUT,sol)
 
 srand(100)
-Δts = 1./2.^(10:-1:4) #14->7 good plot
+dts = 1./2.^(10:-1:4) #14->7 good plot
 
 prob2 = prob_sde_wave
-sim = test_convergence(Δts,prob2,numMonte=Int(1e1),alg=:EM)
+sim = test_convergence(dts,prob2,numMonte=Int(1e1),alg=:EM)
 
 length(sim)
 sim[1]
@@ -25,7 +25,7 @@ print(sim)
 show(sim)
 sim[end]
 
-sim = monteCarloSim(prob2,Δt=1/2^(3),save_timeseries=true,numMonte=5)
+sim = monteCarloSim(prob2,dt=1/2^(3),save_timeseries=true,numMonte=5)
 length(sim)
 sim[1]
 sim[1][1]
@@ -33,4 +33,4 @@ print(sim)
 show(sim)
 sim[end]
 
-sol[1] == prob.u₀ && sol[end] == sol.u
+sol[1] == prob.u0 && sol[end] == sol.u
