@@ -21,5 +21,5 @@ function print(io::IO, sol::DESolution)
 end
 
 function show(io::IO,sol::DESolution)
-  print(io,"$(typeof(sol)), $(length(sol)) timesteps, final value $(sol.u)")
+  print(io,"$(typeof(sol)), $(length(sol)) timesteps, final value $(sol[end])")
 end
