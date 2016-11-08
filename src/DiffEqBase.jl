@@ -8,7 +8,7 @@ module DiffEqBase
   abstract DEProblem
   abstract DEElement
   abstract DESensitivity
-  abstract AbstractODEProblem <: DEProblem
+  abstract AbstractODEProblem{uType,tType,isinplace} <: DEProblem
   abstract AbstractSDEProblem <: DEProblem
   abstract AbstractDAEProblem <: DEProblem
   abstract AbstractDDEProblem <: DEProblem
@@ -39,6 +39,7 @@ module DiffEqBase
   include("solutions.jl")
   include("plotrecipes.jl")
   include("tableaus.jl")
+  include("problems.jl")
 
   function solve end
 
@@ -50,5 +51,7 @@ module DiffEqBase
          AbstractSensitivitySolution, SensitivityFunction, DESensitivity
 
   export @def, numparameters
+
+  export ODEProblem, ODETestProblem
 
 end # module
