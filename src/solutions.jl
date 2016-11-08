@@ -1,9 +1,8 @@
-Base.length(sol::DESolution) = length(sol.t)
-Base.size(sol::DESolution) = (length(sol.t),size(sol.u))
+Base.length(sol::DESolution) = length(sol.u)
 Base.endof(sol::DESolution) = length(sol)
-Base.getindex(sol::DESolution,i::Int) = sol.timeseries[i]
-Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.timeseries[i][I...]
-Base.getindex(sol::DESolution,::Colon) = sol.timeseries
+Base.getindex(sol::DESolution,i::Int) = sol.u[i]
+Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.u[i][I...]
+Base.getindex(sol::DESolution,::Colon) = sol.u
 
 function print(io::IO, sol::DESolution)
   if sol.trueknown
@@ -15,7 +14,6 @@ function print(io::IO, sol::DESolution)
   println(io,"u: $(sol.u)")
   sol.trueknown && println(io,"errors: $(sol.errors)")
   sol.t!=[] && println(io,"t: $(sol.t)")
-  sol.timeseries!=[] && println(io,"timeseries: $(sol.timeseries)")
   sol.trueknown && sol.timeseries_analytic!=[] && println(io,"timeseries_analytic: $(sol.timeseries_analytic)")
   nothing
 end
