@@ -8,7 +8,7 @@ module DiffEqBase
   abstract DEProblem
   abstract DEElement
   abstract DESensitivity
-  abstract AbstractODEProblem{uType,tType,isinplace} <: DEProblem
+  abstract AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem
   abstract AbstractSDEProblem <: DEProblem
   abstract AbstractDAEProblem <: DEProblem
   abstract AbstractDDEProblem <: DEProblem
