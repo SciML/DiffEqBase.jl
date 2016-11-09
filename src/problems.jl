@@ -23,8 +23,8 @@ defines the solution if analytic is given.
 * `tspan`: The timespan for the problem.
 
 """
-type ODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace}
-  f::Base.Callable
+type ODEProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace}
+  f::F
   u0::uType
   tspan::Vector{tType}
 end
@@ -53,8 +53,8 @@ defines the solution if analytic is given.
 * `numvars`: The number of variables in the system
 
 """
-type ODETestProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace}
-  f::Base.Callable
+type ODETestProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace}
+  f::F
   u0::uType
   analytic::Base.Callable
   tspan::Vector{tType}
