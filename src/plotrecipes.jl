@@ -20,9 +20,9 @@
   end
 
   # Make component-wise plots
-  if typeof(sol.u) <:AbstractArray
-    for i in eachindex(sol.u)
-      tmp = Vector{eltype(sol.u)}(length(plot_timeseries))
+  if typeof(sol[1]) <:AbstractArray
+    for i in eachindex(sol[1])
+      tmp = Vector{eltype(sol[1])}(length(plot_timeseries))
       for j in 1:length(plot_timeseries)
         tmp[j] = plot_timeseries[j][i]
       end
@@ -44,7 +44,7 @@
       push!(plotseries,plot_analytic_timeseries)
     end
   end
-  
+
   seriestype --> :path
   lw --> 3
   #xtickfont --> font(11)

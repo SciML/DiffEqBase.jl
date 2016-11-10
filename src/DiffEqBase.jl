@@ -1,3 +1,6 @@
+
+__precompile__()
+
 module DiffEqBase
 
   using RecipesBase, Parameters, RecursiveArrayTools
@@ -38,11 +41,17 @@ module DiffEqBase
   include("utils.jl")
   include("solutions.jl")
   include("ode_algorithms.jl")
+  include("ode_default_alg.jl")
   include("plotrecipes.jl")
   include("tableaus.jl")
   include("problems.jl")
 
   function solve end
+
+  function solve(prob::DEProblem,args...;kwargs...)
+    alg,extra_kwargs = default_algorithm(prob;kwargs...)
+    solve(prob,alg,args...;kwargs...,extra_kwargs...)
+  end
 
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
@@ -62,7 +71,7 @@ module DiffEqBase
         DP8, Vern6, Vern7, Vern8, TanYam7, TsitPap8, Vern9, ImplicitEuler,
         Trapezoid, Rosenbrock23, Rosenbrock32, Feagin10, Feagin12, Feagin14
 
-  export DefaultODEAlgorithm
+  export default_algorithm
 
   export ODEInterfaceAlgorithm, dopri5, dop853, odex, seulex, radau, radau5
 

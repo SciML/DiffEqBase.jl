@@ -28,16 +28,9 @@ function eltype(sol::DESolution)
 end
 
 function print(io::IO, sol::DESolution)
-  if sol.trueknown
-    str="Analytical solution is known."
-  else
-    str="No analytical solution is known."
-  end
-  println(io,"$(typeof(sol)) with $(length(sol)) timesteps. $str")
+  println(io,"$(typeof(sol)) with $(length(sol)) timesteps.")
   println(io,"u: $(sol.u)")
-  sol.trueknown && println(io,"errors: $(sol.errors)")
-  sol.t!=[] && println(io,"t: $(sol.t)")
-  sol.trueknown && sol.timeseries_analytic!=[] && println(io,"timeseries_analytic: $(sol.timeseries_analytic)")
+  println(io,"t: $(sol.t)")
   nothing
 end
 

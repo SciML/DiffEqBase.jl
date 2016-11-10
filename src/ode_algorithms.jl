@@ -145,6 +145,3 @@ immutable ode45_fe <: ODEJLAlgorithm end
 abstract SundialsAlgorithm <: AbstractODEAlgorithm
 immutable CVODE_BDF <: SundialsAlgorithm end
 immutable CVODE_Adams <: SundialsAlgorithm end
-
-
-DefaultODEAlgorithm(alg_hints::Symbol...) = DP5
