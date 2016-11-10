@@ -26,7 +26,7 @@ defines the solution if analytic is given.
 type ODEProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
   f::F
   u0::uType
-  tspan::Vector{tType}
+  tspan::Tuple{tType,tType}
 end
 
 """
@@ -57,7 +57,7 @@ type ODETestProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,i
   f::F
   u0::uType
   analytic::Base.Callable
-  tspan::Vector{tType}
+  tspan::Tuple{tType,tType}
 end
 
 function ODEProblem(f::Base.Callable,u0,tspan)
@@ -65,7 +65,7 @@ function ODEProblem(f::Base.Callable,u0,tspan)
   ODEProblem{typeof(u0),eltype(tspan),Val{isinplace},typeof(f)}(f,u0,tspan)
 end
 
-function ODETestProblem(f::Base.Callable,u0,analytic,tspan=[0,1.0])
+function ODETestProblem(f::Base.Callable,u0,analytic,tspan=(0.0,1.0))
   isinplace = numparameters(f)>=3
   ODETestProblem{typeof(u0),eltype(tspan),Val{isinplace},typeof(f)}(f,u0,analytic,tspan)
 end
