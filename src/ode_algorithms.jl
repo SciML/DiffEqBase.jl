@@ -1,4 +1,7 @@
 abstract AbstractODEAlgorithm
+
+# OrdinaryDiffEq.jl Algorithms
+
 abstract OrdinaryDiffEqAlgorithm <: AbstractODEAlgorithm
 abstract OrdinaryDiffEqAdaptiveAlgorithm <: OrdinaryDiffEqAlgorithm
 
@@ -112,6 +115,8 @@ end
   adaptiveorder::Int=12
 end
 
+# ODEInterface.jl Algorithms
+
 abstract ODEInterfaceAlgorithm <: AbstractODEAlgorithm
 immutable dopri5 <: ODEInterfaceAlgorithm end
 immutable dop853 <: ODEInterfaceAlgorithm end
@@ -119,6 +124,8 @@ immutable odex <: ODEInterfaceAlgorithm end
 immutable seulex <: ODEInterfaceAlgorithm end
 immutable radau <: ODEInterfaceAlgorithm end
 immutable radau5 <: ODEInterfaceAlgorithm end
+
+# PR49 algorithms
 
 abstract ODEIterAlgorithm <: AbstractODEAlgorithm
 immutable feuler <: ODEIterAlgorithm end
@@ -131,6 +138,8 @@ immutable heun <: ODEIterAlgorithm end
 immutable rk4 <: ODEIterAlgorithm end
 immutable feh45 <: ODEIterAlgorithm end
 
+# ODE.jl algorithms
+
 abstract ODEJLAlgorithm <: AbstractODEAlgorithm
 immutable ode1 <: ODEJLAlgorithm end
 immutable ode23 <: ODEJLAlgorithm end
@@ -141,6 +150,8 @@ immutable ode2_midpoint <: ODEJLAlgorithm end
 immutable ode2_heun <: ODEJLAlgorithm end
 immutable ode4 <: ODEJLAlgorithm end
 immutable ode45_fe <: ODEJLAlgorithm end
+
+# Sundials.jl algorithms
 
 abstract SundialsAlgorithm <: AbstractODEAlgorithm
 immutable CVODE_BDF <: SundialsAlgorithm end
