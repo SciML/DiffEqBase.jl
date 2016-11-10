@@ -4,6 +4,29 @@ Base.getindex(sol::DESolution,i::Int) = sol.u[i]
 Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.u[i][I...]
 Base.getindex(sol::DESolution,::Colon) = sol.u
 
+function start(sol::DESolution)
+  #sol.tslocation = state
+  1
+end
+
+function next(sol::DESolution,state)
+  state += 1
+  #sol.tslocation = state
+  (sol,state)
+end
+
+function done(sol::DESolution,state)
+  state >= length(sol)
+end
+
+function eltype(sol::DESolution)
+  if typeof(sol[1]) <: AbstractArray
+    return typeof(sol[1][1])
+  else
+    return typeof(sol[1])
+  end
+end
+
 function print(io::IO, sol::DESolution)
   if sol.trueknown
     str="Analytical solution is known."
