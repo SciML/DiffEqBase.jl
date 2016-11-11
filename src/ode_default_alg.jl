@@ -10,7 +10,8 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
   end
 
   # If adaptivity is not set and the tType is not a float, turn off adaptivity
-  !(tType <: AbstractFloat) && (:adaptive ∉ keys(o)) && push!(extra_kwargs,adaptive=>false)
+  # Bad interaction with ForwardDiff
+  #!(tType <: AbstractFloat) && (:adaptive ∉ keys(o)) && push!(extra_kwargs,:adaptive=>false)
 
 
   if :nonstiff ∈ alg_hints
