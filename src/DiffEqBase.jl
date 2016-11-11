@@ -1,4 +1,3 @@
-
 __precompile__()
 
 module DiffEqBase
@@ -12,6 +11,7 @@ module DiffEqBase
   abstract DEElement
   abstract DESensitivity
   abstract AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem
+  abstract AbstractODETestProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
   abstract AbstractSDEProblem <: DEProblem
   abstract AbstractDAEProblem <: DEProblem
   abstract AbstractDDEProblem <: DEProblem
@@ -62,7 +62,8 @@ module DiffEqBase
 
   export @def, numparameters
 
-  export ODEProblem, ODETestProblem, ODESolution
+  export ODEProblem, ODETestProblem, ODESolution, ODETestSolution,
+         build_ode_solution
 
   # ODE Algorithms
 

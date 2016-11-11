@@ -53,7 +53,7 @@ defines the solution if analytic is given.
 * `numvars`: The number of variables in the system
 
 """
-type ODETestProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
+type ODETestProblem{uType,tType,isinplace,F} <: AbstractODETestProblem{uType,tType,isinplace,F}
   f::F
   u0::uType
   analytic::Base.Callable

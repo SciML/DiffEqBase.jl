@@ -1,3 +1,5 @@
+### Abstract Interface
+
 Base.length(sol::DESolution) = length(sol.u)
 Base.endof(sol::DESolution) = length(sol)
 Base.getindex(sol::DESolution,i::Int) = sol.u[i]
@@ -5,13 +7,13 @@ Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.u[i][I...]
 Base.getindex(sol::DESolution,::Colon) = sol.u
 
 function start(sol::DESolution)
-  #sol.tslocation = state
+  sol.tslocation = state
   1
 end
 
 function next(sol::DESolution,state)
   state += 1
-  #sol.tslocation = state
+  sol.tslocation = state
   (sol,state)
 end
 
@@ -28,35 +30,34 @@ function eltype(sol::DESolution)
 end
 
 function print(io::IO, sol::DESolution)
-  println(io,"$(typeof(sol)) with $(length(sol)) timesteps.")
+  println(io,"$(typeof(sol))")
   println(io,"u: $(sol.u)")
   println(io,"t: $(sol.t)")
   nothing
 end
 
 function show(io::IO,sol::DESolution)
-  print(io,"$(typeof(sol)), $(length(sol)) timesteps, final value $(sol[end])")
+  print(io,"$(typeof(sol))")
 end
 
 
-"""
-`ODESolution`
+### Concrete Types
 
-Holds the data for the solution to an ODE problem.
-
-### Fields
-
-* `u::Array{Float64}`: The solution
-* `u_analytic::AbstractArrayOrVoid`: The true solution at the final timepoint.
-* `errors`: A dictionary of the error calculations.
-* `t::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `save_timeseries=true`
-  is specified in the solver.
-* `prob::DEProblem`: Holds the problem object used to define the problem.
-
-"""
-type ODESolution{uType,uEltype,tType,rateType,P,A} <: AbstractODESolution
+type ODESolution{uType,tType,rateType,P,A} <: AbstractODESolution
   u::uType
-  u_analytic
+  t::tType
+  k::rateType
+  prob::P
+  alg::A
+  interp::Function
+  dense::Bool
+  tslocation::Int
+end
+(sol::ODESolution)(t) = sol.interp(t)
+
+type ODETestSolution{uType,uType2,uEltype,tType,rateType,P,A} <: AbstractODESolution
+  u::uType
+  u_analytic::uType2
   errors::Dict{Symbol,uEltype}
   t::tType
   k::rateType
@@ -64,17 +65,30 @@ type ODESolution{uType,uEltype,tType,rateType,P,A} <: AbstractODESolution
   alg::A
   interp::Function
   dense::Bool
+  tslocation::Int
+end
+(sol::ODETestSolution)(t) = sol.interp(t)
+
+function build_ode_solution{uType,tType,isinplace}(
+        prob::AbstractODEProblem{uType,tType,Val{isinplace}},
+        alg,t,u;dense=false,
+        k=[],interp = (tvals) -> nothing,kwargs...)
+  ODESolution(u,t,k,prob,alg,interp,dense,1)
 end
 
-function ODESolution{uType,tType,isinplace}(t,u,
-        prob::AbstractODEProblem{uType,tType,Val{isinplace}},
-        alg;u_analytic=[],k=[],saveat=[],
-        interp = (tvals) -> nothing,
-        timeseries_errors=true,dense_errors=true)
+function build_ode_solution{uType,tType,isinplace}(
+        prob::AbstractODETestProblem{uType,tType,Val{isinplace}},
+        alg,t,u;dense=false,
+        k=[],interp = (tvals) -> nothing,
+        timeseries_errors=true,dense_errors=true,kwargs...)
+
+  u_analytic = Vector{uType}(0)
+  for i in 1:size(u,1)
+    push!(u_analytic,prob.analytic(t[i],prob.u0))
+  end
 
   save_timeseries = length(u) > 2
 
-  dense = length(k)>1
   errors = Dict{Symbol,eltype(u[1])}()
   if !isempty(u_analytic)
     errors[:final] = mean(abs.(u[end]-u_analytic[end]))
@@ -91,7 +105,9 @@ function ODESolution{uType,tType,isinplace}(t,u,
       end
     end
   end
-  return(ODESolution(u,u_analytic,errors,t,k,prob,alg,interp,dense))
+  ODETestSolution(u,u_analytic,errors,t,k,prob,alg,interp,dense,1)
 end
 
-(sol::ODESolution)(t) = sol.interp(t)
+function build_ode_solution(sol::AbstractODESolution,u_analytic,errors)
+  ODETestSolution(sol.u,u_analytic,errors,sol.t,sol.k,sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation)
+end
