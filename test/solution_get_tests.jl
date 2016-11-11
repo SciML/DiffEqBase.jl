@@ -3,14 +3,13 @@ prob = prob_ode_2Dlinear
 
 ## Solve and plot
 println("Test getindex")
-tab = constructDormandPrince()
-sol =solve(prob,save_timeseries=true,adaptive=true,tableau=tab,abstol=1e-8,reltol=1e-7)
+sol =solve(prob,abstol=1e-8,reltol=1e-7)
 
-size(sol)
+length(sol)
 sol[1]
 sol[1,2]
-print(STDOUT,sol)
-show(STDOUT,sol)
+print(sol)
+show(sol)
 
 srand(100)
 dts = 1./2.^(10:-1:4) #14->7 good plot
@@ -33,4 +32,4 @@ print(sim)
 show(sim)
 sim[end]
 
-sol[1] == prob.u0 && sol[end] == sol.u
+sol[1] == prob.u0

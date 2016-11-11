@@ -23,10 +23,10 @@ defines the solution if analytic is given.
 * `tspan`: The timespan for the problem.
 
 """
-type ODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace}
-  f::Base.Callable
+type ODEProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
+  f::F
   u0::uType
-  tspan::Vector{tType}
+  tspan::Tuple{tType,tType}
 end
 
 """
@@ -53,24 +53,24 @@ defines the solution if analytic is given.
 * `numvars`: The number of variables in the system
 
 """
-type ODETestProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace}
-  f::Base.Callable
+type ODETestProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
+  f::F
   u0::uType
   analytic::Base.Callable
-  tspan::Vector{tType}
+  tspan::Tuple{tType,tType}
 end
 
 function ODEProblem(f::Base.Callable,u0,tspan)
   isinplace = numparameters(f)>=3
-  ODEProblem{typeof(u0),eltype(tspan),Val{isinplace}}(f,u0,tspan)
+  ODEProblem{typeof(u0),eltype(tspan),Val{isinplace},typeof(f)}(f,u0,tspan)
 end
 
-function ODETestProblem(f::Base.Callable,u0,analytic,tspan=[0,1.0])
+function ODETestProblem(f::Base.Callable,u0,analytic,tspan=(0.0,1.0))
   isinplace = numparameters(f)>=3
-  ODETestProblem{typeof(u0),eltype(tspan),Val{isinplace}}(f,u0,analytic,tspan)
+  ODETestProblem{typeof(u0),eltype(tspan),Val{isinplace},typeof(f)}(f,u0,analytic,tspan)
 end
 
-function print{uType,tType,isinplace}(io::IO, prob::AbstractODEProblem{uType,tType,Val{isinplace}})
+function print{uType,tType,isinplace,F}(io::IO, prob::AbstractODEProblem{uType,tType,Val{isinplace},F})
   println(io,"AbstractODEProblem")
   println(io,"Independent Variable Type: $uType")
   println(io,"Depdendent Variable Type: $tType")
@@ -78,7 +78,7 @@ function print{uType,tType,isinplace}(io::IO, prob::AbstractODEProblem{uType,tTy
   nothing
 end
 
-function show{uType,tType,isinplace}(io::IO,prob::AbstractODEProblem{uType,tType,Val{isinplace}})
+function show{uType,tType,isinplace,F}(io::IO,prob::AbstractODEProblem{uType,tType,Val{isinplace},F})
   println(io,"AbstractODEProblem{$uType,$tType,$isinplace}")
   nothing
 end

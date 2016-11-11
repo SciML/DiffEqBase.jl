@@ -1,14 +1,17 @@
+
+__precompile__()
+
 module DiffEqBase
 
-  using RecipesBase
+  using RecipesBase, Parameters, RecursiveArrayTools
   using Ranges # For plot recipes with units
-  import Base: length, size, getindex, endof, show, print
+  import Base: length, size, getindex, endof, show, print, next, start, done, eltype
 
   "`DEProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
   abstract DEElement
   abstract DESensitivity
-  abstract AbstractODEProblem{uType,tType,isinplace} <: DEProblem
+  abstract AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem
   abstract AbstractSDEProblem <: DEProblem
   abstract AbstractDAEProblem <: DEProblem
   abstract AbstractDDEProblem <: DEProblem
@@ -37,11 +40,18 @@ module DiffEqBase
 
   include("utils.jl")
   include("solutions.jl")
+  include("ode_algorithms.jl")
+  include("ode_default_alg.jl")
   include("plotrecipes.jl")
   include("tableaus.jl")
   include("problems.jl")
 
   function solve end
+
+  function solve(prob::DEProblem,args...;kwargs...)
+    alg,extra_kwargs = default_algorithm(prob;kwargs...)
+    solve(prob,alg,args...;kwargs...,extra_kwargs...)
+  end
 
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
@@ -52,6 +62,25 @@ module DiffEqBase
 
   export @def, numparameters
 
-  export ODEProblem, ODETestProblem
+  export ODEProblem, ODETestProblem, ODESolution
+
+  # ODE Algorithms
+
+  export OrdinaryDiffEqAlgorithm, OrdinaryDiffEqAdaptiveAlgorithm,
+        Euler, Midpoint, RK4, ExplicitRK, BS3, BS5, DP5, DP5Threaded, Tsit5,
+        DP8, Vern6, Vern7, Vern8, TanYam7, TsitPap8, Vern9, ImplicitEuler,
+        Trapezoid, Rosenbrock23, Rosenbrock32, Feagin10, Feagin12, Feagin14
+
+  export default_algorithm
+
+  export ODEInterfaceAlgorithm, dopri5, dop853, odex, seulex, radau, radau5
+
+  export ODEIterAlgorithm, feuler, rk23, feh45, feh78, ModifiedRosenbrockIntegrator,
+        midpoint, heun, rk4, rk45
+
+  export ODEJLAlgorithm, ode1, ode23, ode45, ode78, ode23s, ode2_midpoint, ode2_heun,
+        ode4, ode45_fe
+
+  export SundialsAlgorithm, CVODE_BDF, CVODE_Adams
 
 end # module
