@@ -1,13 +1,15 @@
 ### Abstract Interface
 
-Base.length(sol::DESolution) = length(sol.u)
+Base.length(sol::DESolution) = length(sol.t)
 Base.endof(sol::DESolution) = length(sol)
 Base.getindex(sol::DESolution,i::Int) = sol.u[i]
 Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.u[i][I...]
 Base.getindex(sol::DESolution,::Colon) = sol.u
+eachindex(sol::DESolution) = eachindex(sol.t)
+tuples(sol::DESolution) = tuple.(sol.t,sol.u)
 
 function start(sol::DESolution)
-  sol.tslocation = state
+  sol.tslocation = 1
   1
 end
 
@@ -73,7 +75,7 @@ function build_ode_solution{uType,tType,isinplace}(
         prob::AbstractODEProblem{uType,tType,Val{isinplace}},
         alg,t,u;dense=false,
         k=[],interp = (tvals) -> nothing,kwargs...)
-  ODESolution(u,t,k,prob,alg,interp,dense,1)
+  ODESolution(u,t,k,prob,alg,interp,dense,0)
 end
 
 function build_ode_solution{uType,tType,isinplace}(
@@ -105,7 +107,7 @@ function build_ode_solution{uType,tType,isinplace}(
       end
     end
   end
-  ODETestSolution(u,u_analytic,errors,t,k,prob,alg,interp,dense,1)
+  ODETestSolution(u,u_analytic,errors,t,k,prob,alg,interp,dense,0)
 end
 
 function build_ode_solution(sol::AbstractODESolution,u_analytic,errors)

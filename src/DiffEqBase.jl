@@ -4,7 +4,8 @@ module DiffEqBase
 
   using RecipesBase, Parameters, RecursiveArrayTools
   using Ranges # For plot recipes with units
-  import Base: length, size, getindex, endof, show, print, next, start, done, eltype
+  import Base: length, size, getindex, endof, show, print,
+               next, start, done, eltype, eachindex
 
   "`DEProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
