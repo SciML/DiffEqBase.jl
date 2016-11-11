@@ -1,58 +1,9 @@
-"""
-`ODEProblem`
-
-Wraps the data which defines an ODE problem
-
-```math
-\\frac{du}{dt} = f(t,u)
-```
-
-with initial condition ``u0``.
-
-### Constructors
-
-`ODEProblem(f,u0,tspan)` : Defines the ODE with the specified functions and
-defines the solution if analytic is given.
-
-### Fields
-
-* `f`: The drift function in the ODE.
-* `u0`: The initial condition.
-* `isinplace`: Determines whether the function `f` uses the in-place syntax `f(t,u,du)`
-  or not, `f(t,u)`
-* `tspan`: The timespan for the problem.
-
-"""
 type ODEProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
   f::F
   u0::uType
   tspan::Tuple{tType,tType}
 end
 
-"""
-`ODETestProblem`
-
-Wraps the data which defines an ODE problem
-
-```math
-\\frac{du}{dt} = f(t,u)
-```
-
-with initial condition ``u0``.
-
-### Constructors
-
-`ODETestProblem(f,u0,analytic,tspan=[0;1])` : Defines the ODE with the specified functions and
-defines the solution if analytic is given.
-
-### Fields
-
-* `f`: The drift function in the ODE.
-* `u0`: The initial condition.
-* `analytic`: A function which describes the solution.
-* `numvars`: The number of variables in the system
-
-"""
 type ODETestProblem{uType,tType,isinplace,F} <: AbstractODETestProblem{uType,tType,isinplace,F}
   f::F
   u0::uType
