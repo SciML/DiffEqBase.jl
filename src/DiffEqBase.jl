@@ -63,6 +63,9 @@ module DiffEqBase
 
   export @def, numparameters
 
+  export jac_exists, invjac_exists, hes_exists, invhes_exists,
+        paramjac_exists, pfunc_exists, pderiv_exists
+
   export ODEProblem, ODETestProblem, ODESolution, ODETestSolution,
          build_ode_solution
 
