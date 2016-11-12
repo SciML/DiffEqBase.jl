@@ -5,6 +5,7 @@ Base.endof(sol::DESolution) = length(sol)
 Base.getindex(sol::DESolution,i::Int) = sol.u[i]
 Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.u[i][I...]
 Base.getindex(sol::DESolution,::Colon) = sol.u
+Base.getindex(sol::DESolution,::Colon,i::Int...) = [sol.u[j][i...] for j in eachindex(sol)]
 eachindex(sol::DESolution) = eachindex(sol.t)
 tuples(sol::DESolution) = tuple.(sol.t,sol.u)
 
