@@ -13,15 +13,15 @@ end
 
 function ODEProblem(f::Base.Callable,u0,tspan)
   isinplace = numparameters(f)>=3
-  ODEProblem{typeof(u0),eltype(tspan),Val{isinplace},typeof(f)}(f,u0,tspan)
+  ODEProblem{typeof(u0),eltype(tspan),isinplace,typeof(f)}(f,u0,tspan)
 end
 
 function ODETestProblem(f::Base.Callable,u0,analytic,tspan=(0.0,1.0))
   isinplace = numparameters(f)>=3
-  ODETestProblem{typeof(u0),eltype(tspan),Val{isinplace},typeof(f)}(f,u0,analytic,tspan)
+  ODETestProblem{typeof(u0),eltype(tspan),isinplace,typeof(f)}(f,u0,analytic,tspan)
 end
 
-function print{uType,tType,isinplace,F}(io::IO, prob::AbstractODEProblem{uType,tType,Val{isinplace},F})
+function print{uType,tType,isinplace,F}(io::IO, prob::AbstractODEProblem{uType,tType,isinplace,F})
   println(io,"AbstractODEProblem")
   println(io,"Independent Variable Type: $uType")
   println(io,"Depdendent Variable Type: $tType")
@@ -29,7 +29,7 @@ function print{uType,tType,isinplace,F}(io::IO, prob::AbstractODEProblem{uType,t
   nothing
 end
 
-function show{uType,tType,isinplace,F}(io::IO,prob::AbstractODEProblem{uType,tType,Val{isinplace},F})
+function show{uType,tType,isinplace,F}(io::IO,prob::AbstractODEProblem{uType,tType,isinplace,F})
   println(io,"AbstractODEProblem{$uType,$tType,$isinplace}")
   nothing
 end

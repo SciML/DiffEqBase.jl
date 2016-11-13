@@ -73,14 +73,14 @@ end
 (sol::ODETestSolution)(t) = sol.interp(t)
 
 function build_ode_solution{uType,tType,isinplace}(
-        prob::AbstractODEProblem{uType,tType,Val{isinplace}},
+        prob::AbstractODEProblem{uType,tType,isinplace},
         alg,t,u;dense=false,
         k=[],interp = (tvals) -> nothing,kwargs...)
   ODESolution(u,t,k,prob,alg,interp,dense,0)
 end
 
 function build_ode_solution{uType,tType,isinplace}(
-        prob::AbstractODETestProblem{uType,tType,Val{isinplace}},
+        prob::AbstractODETestProblem{uType,tType,isinplace},
         alg,t,u;dense=false,
         k=[],interp = (tvals) -> nothing,
         timeseries_errors=true,dense_errors=true,kwargs...)
