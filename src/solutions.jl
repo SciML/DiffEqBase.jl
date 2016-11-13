@@ -1,6 +1,6 @@
 ### Abstract Interface
 
-Base.length(sol::DESolution) = length(sol.t)
+Base.length(sol::DESolution) = length(sol.u) # Must be on u for the test solutions!
 Base.endof(sol::DESolution) = length(sol)
 Base.getindex(sol::DESolution,i::Int) = sol.u[i]
 Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.u[i][I...]
