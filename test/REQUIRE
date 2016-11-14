@@ -1,5 +1,5 @@
-OrdinaryDiffEq
-StochasticDiffEq
-DiffEqDevTools
-DiffEqProblemLibrary
-Sundials
+OrdinaryDiffEq 0.1.1
+StochasticDiffEq 0.0.5
+DiffEqDevTools 0.1.1
+DiffEqProblemLibrary 0.1.0
+Sundials 0.3.0
