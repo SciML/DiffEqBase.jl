@@ -32,4 +32,4 @@ print(sim)
 show(sim)
 sim[end]
 
-sol[1] == prob.u0
+@test sol[1] == prob.u0

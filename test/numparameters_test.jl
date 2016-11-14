@@ -9,4 +9,4 @@ function test_num_parameters()
   numpar2 = numparameters(g)
   numpar == 2 && numpar2 == 2
 end
-test_num_parameters()
+@test test_num_parameters()

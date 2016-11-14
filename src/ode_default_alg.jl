@@ -28,6 +28,5 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
       alg = Rosenbrock23
     end
   end
-
   alg,extra_kwargs
 end
