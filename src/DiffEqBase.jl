@@ -13,7 +13,8 @@ module DiffEqBase
   abstract DESensitivity
   abstract AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem
   abstract AbstractODETestProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
-  abstract AbstractSDEProblem <: DEProblem
+  abstract AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2}  <: DEProblem
+  abstract AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2}  <: AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2}
   abstract AbstractDAEProblem <: DEProblem
   abstract AbstractDDEProblem <: DEProblem
   abstract AbstractPoissonProblem <: DEProblem
@@ -40,6 +41,7 @@ module DiffEqBase
   abstract SensitivityFunction <: ParameterizedFunction
 
   include("utils.jl")
+  include("noise_process")
   include("solutions/ode_solutions.jl")
   include("algorithms/ode_algorithms.jl")
   include("algorithms/ode_default_alg.jl")
