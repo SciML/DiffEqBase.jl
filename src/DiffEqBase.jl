@@ -40,12 +40,12 @@ module DiffEqBase
   abstract SensitivityFunction <: ParameterizedFunction
 
   include("utils.jl")
-  include("solutions.jl")
-  include("ode_algorithms.jl")
-  include("ode_default_alg.jl")
-  include("plotrecipes.jl")
+  include("solutions/ode_solutions.jl")
+  include("algorithms/ode_algorithms.jl")
+  include("algorithms/ode_default_alg.jl")
+  include("solutions/solution_interface.jl")
   include("tableaus.jl")
-  include("problems.jl")
+  include("problems/ode_problems.jl")
 
   function solve end
 
