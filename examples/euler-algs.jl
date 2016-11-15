@@ -12,7 +12,7 @@ end
 immutable BwdEulerAlg <: EulerAlgs
 end
 
-function solve{uType,tType,isinplace}(p::ODEProblem{uType,tType,isinplace},
+function solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
                                       Alg::Type{FwdEulerAlg};
                                       tsteps=error("provide tsteps"))
     u0 = p.u0
@@ -36,12 +36,10 @@ end
 
 # Try it
 dt = 0.01
-p = ODEProblem((t,u)->u, 1.0, (0.0,1.0))
+p = ODETestProblem((t,u)->u, 1.0, (t,u) -> exp(t), (0.0,1.0))
 sol = solve(p, FwdEulerAlg, tsteps=0:dt:1)
 
-ana = t -> exp(u)
-
-function solve{uType,tType,isinplace}(p::ODEProblem{uType,tType,isinplace},
+function solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
                                       Alg::Type{BwdEulerAlg};
                                       tsteps=error("provide tsteps"),
                                       tol=1e-5,
@@ -81,10 +79,16 @@ end
 # Try it
 ff(t,u) = u
 ff(::Val{:jac}, t, u) = 1
-p = ODEProblem(ff, 1.0, (0.0,1.0))
-sol2 = solve(p, BwdEulerAlg, tsteps=0:dt:1)
+p2 = ODETestProblem(ff, 1.0, (t,u) -> exp(t), (0.0,1.0) )
+sol2 = solve(p2, BwdEulerAlg, tsteps=0:dt:1)
+
+
 
 using Plots
-plot(sol.t, sol.u)
-plot!(sol.t, sol2.u)
-plot!(sol.t, exp(sol.t))
+plot(sol, plot_analytic=true)
+plot!(sol2)
+
+# dts = 1./2.^(8:-1:4)
+# sim = test_convergence(dts,p,BwdEulerAlg)
+# plot(sim)
+# sim.𝒪est[:final]
