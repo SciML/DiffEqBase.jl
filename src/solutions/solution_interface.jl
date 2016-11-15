@@ -59,7 +59,7 @@ end
   else # Plot for not dense output use the timeseries itself
     plot_timeseries = sol.u
     if plot_analytic
-      plot_analytic_timeseries = sol.timeseries_analytic
+      plot_analytic_timeseries = sol.u_analytic
     end
     plott = sol.t
   end
