@@ -12,15 +12,21 @@ end
 immutable BwdEulerAlg <: EulerAlgs
 end
 
-function solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
-                                      Alg::Type{FwdEulerAlg};
-                                      tstops=error("provide tstops"))
+function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
+                                                 Alg::Type{FwdEulerAlg};
+                                                 dt=(p.tspan[2]-p.tspan[1])/100,
+                                                 tstops=tType[],
+                                                 kwargs... # ignored kwargs
+                                                 )
     u0 = p.u0
     f = p.f
     tspan = p.tspan
-    @assert tstops[1]==tspan[1]
-    @assert tstops[end]==tspan[2]
     @assert !isinplace "Only out of place functions supported"
+
+    if isempty(tstops)
+        tstops = tspan[1]:dt:tspan[2]
+    end
+    @assert tstops[1]==tspan[1]
 
     nt = length(tstops)
     out = Vector{uType}(nt)
@@ -39,20 +45,26 @@ dt = 0.01
 p = ODETestProblem((t,u)->u, 1.0, (t,u) -> exp(t), (0.0,1.0))
 sol = solve(p, FwdEulerAlg, tstops=0:dt:1)
 
-function solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
-                                      Alg::Type{BwdEulerAlg};
-                                      tstops=error("provide tstops"),
-                                      tol=1e-5,
-                                      maxiter=100)
+function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
+                                                 Alg::Type{BwdEulerAlg};
+                                                 dt=(p.tspan[2]-p.tspan[1])/100,
+                                                 tstops=tType[],
+                                                 tol=1e-5,
+                                                 maxiter=100,
+                                                 kwargs... # ignored kwargs
+                                                 )
     u0 = p.u0
     f = p.f
     tspan = p.tspan
-    @assert tstops[1]==tspan[1]
-    @assert tstops[end]==tspan[2]
     # TODO: fix numparameters as it picks up the Jacobian
 #    @assert !isinplace "Only out of place functions supported"
     @assert DiffEqBase.has_jac(f) "Provide Jacobian as f(::Val{:jac}, ...)"
     jac = (t,u) -> f(Val{:jac}(), t, u)
+
+    if isempty(tstops)
+        tstops = tspan[1]:dt:tspan[2]
+    end
+    @assert tstops[1]==tspan[1]
 
     nt = length(tstops)
     out = Vector{uType}(nt)
@@ -90,8 +102,8 @@ plot(sol)
 plot!(sol2)
 #plot!(sol2, plot_analytic=true)
 
-# using DiffEqDevTools
-# dts = 1./2.^(8:-1:4)
-# sim = test_convergence(dts,p2,BwdEulerAlg)
-# plot(sim)
-# sim.𝒪est[:final]
+using DiffEqDevTools
+dts = 1./2.^(8:-1:4)
+sim = test_convergence(dts,p2,BwdEulerAlg)
+@show sim.𝒪est[:final]
+plot(sim)
