@@ -65,7 +65,7 @@ module DiffEqBase
          Tableau, DESensitivity, AbstractODESolution, AbstractPoissonProblem,
          AbstractHeatProblem, AbstractFEMSolution, ODERKTableau, ExplicitRKTableau,
          ImplicitRKTableau, AbstractSDESolution, ParameterizedFunction,
-         AbstractSensitivitySolution, SensitivityFunction, DESensitivity
+         AbstractSensitivitySolution, SensitivityFunction, DESensitivity, solve
 
   export tuples
 
