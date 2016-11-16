@@ -1,11 +1,3 @@
-macro def(name, definition)
-    quote
-        macro $name()
-            esc($(Expr(:quote, definition)))
-        end
-    end
-end
-
 """
 `numparameters(f)`
 
