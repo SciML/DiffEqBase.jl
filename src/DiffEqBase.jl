@@ -34,10 +34,16 @@ module DiffEqBase
   "`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator"
   abstract ODERKTableau <: Tableau
 
+  "Supertype of all solver algorithms"
+  abstract AbstractAlgorithm
+  abstract AbstractODEAlgorithm <: AbstractAlgorithm
+
+
   include("utils.jl")
   include("solutions/ode_solutions.jl")
   include("solutions/solution_interface.jl")
   include("tableaus.jl")
+  include("algorithms.jl")
   include("problems/ode_problems.jl")
   include("problems/functions.jl")
 
@@ -52,7 +58,7 @@ module DiffEqBase
   #   end
   #   alg,extra_kwargs = default_algorithm(prob;kwargs...)
   #   solve(prob,alg,args...;default_set=true,kwargs...,extra_kwargs...)
-  # end
+# end
 
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution,
@@ -71,4 +77,5 @@ module DiffEqBase
   export ODEProblem, ODETestProblem, ODESolution, ODETestSolution,
          build_ode_solution
 
+  export AbstractAlgorithm, AbstractODEAlgorithm
 end # module

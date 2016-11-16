@@ -2,17 +2,22 @@
 # could be wrapped
 
 using DiffEqBase
+const D=DiffEqBase
 
 # make a algorithm type
-abstract EulerAlgs <: DiffEqBase.AbstractODEAlgorithm
+abstract EulerAlgs <: AbstractODEAlgorithm
 
 immutable FwdEulerAlg <: EulerAlgs
 end
+# register it
+D.add_alg!(FwdEulerAlg, "Forward Euler", D.notgreat, D.nonstiff, D.low)
 
 immutable BwdEulerAlg <: EulerAlgs
 end
+# register it
+D.add_alg!(BwdEulerAlg, "Backward Euler", D.notgreat, D.stiff, D.low)
 
-function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
+function D.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
                                                  Alg::Type{FwdEulerAlg};
                                                  dt=(p.tspan[2]-p.tspan[1])/100,
                                                  tstops=tType[],
@@ -40,12 +45,13 @@ function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tTy
     build_ode_solution(p, Alg(), tstops, out)
 end
 
+
 # Try it
 dt = 0.01
-p = ODETestProblem((t,u)->u, 1.0, (t,u) -> exp(t), (0.0,1.0))
-sol = solve(p, FwdEulerAlg, tstops=0:dt:1)
+p1 = ODETestProblem((t,u)->u, 1.0, (t,u) -> exp(t), (0.0,1.0))
+sol1 = solve(p1, FwdEulerAlg, tstops=0:dt:1)
 
-function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
+function D.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
                                                  Alg::Type{BwdEulerAlg};
                                                  dt=(p.tspan[2]-p.tspan[1])/100,
                                                  tstops=tType[],
@@ -58,7 +64,7 @@ function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tTy
     tspan = p.tspan
     # TODO: fix numparameters as it picks up the Jacobian
 #    @assert !isinplace "Only out of place functions supported"
-    @assert DiffEqBase.has_jac(f) "Provide Jacobian as f(::Val{:jac}, ...)"
+    @assert D.has_jac(f) "Provide Jacobian as f(::Val{:jac}, ...)"
     jac = (t,u) -> f(Val{:jac}(), t, u)
 
     if isempty(tstops)
@@ -95,15 +101,17 @@ ff(::Val{:jac}, t, u) = 1
 p2 = ODETestProblem(ff, 1.0, (t,u) -> exp(t), (0.0,1.0) )
 sol2 = solve(p2, BwdEulerAlg, tstops=0:dt:1)
 
-
+### try automatic solve selection:
+solve(p1, class=D.nonstiff, precision=D.low)
+solve(p2, class=D.stiff, precision=D.low)
 
 using Plots
-plot(sol)
+plot(sol1)
 plot!(sol2)
 #plot!(sol2, plot_analytic=true)
 
-using DiffEqDevTools
-dts = 1./2.^(8:-1:4)
-sim = test_convergence(dts,p2,BwdEulerAlg)
-@show sim.𝒪est[:final]
-plot(sim)
+# using DiffEqDevTools
+# dts = 1./2.^(8:-1:4)
+# sim = test_convergence(dts,p2,BwdEulerAlg)
+# @show sim.𝒪est[:final]
+# plot(sim)

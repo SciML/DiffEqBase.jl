@@ -79,18 +79,18 @@ immutable G123 end
 @assert !tfn(T123)  # NOTE this is inconsistent as has_jac(T123)==true
 @assert !tfn(G123)
 
-# ParameterizedFunction:
-type  LotkaVolterra <: ParameterizedFunction
-         a::Float64
-         b::Float64
-end
-(p::LotkaVolterra)(t,u,du) = begin
-         du[1] = p.a * u[1] - p.b * u[1]*u[2]
-         du[2] = -3 * u[2] + u[1]*u[2]
-end
-(p::LotkaVolterra)(::Val{:jac}, t, u, J) = 1
+# # ParameterizedFunction:
+# type  LotkaVolterra <: ParameterizedFunction
+#          a::Float64
+#          b::Float64
+# end
+# (p::LotkaVolterra)(t,u,du) = begin
+#          du[1] = p.a * u[1] - p.b * u[1]*u[2]
+#          du[2] = -3 * u[2] + u[1]*u[2]
+# end
+# (p::LotkaVolterra)(::Val{:jac}, t, u, J) = 1
 
-lv = LotkaVolterra(0.0,0.0)
+# lv = LotkaVolterra(0.0,0.0)
 
-@assert has_jac(lv)
-@assert tfn(lv)
+# @assert has_jac(lv)
+# @assert tfn(lv)
