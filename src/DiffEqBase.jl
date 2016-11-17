@@ -7,47 +7,51 @@ module DiffEqBase
   import Base: length, size, getindex, endof, show, print,
                next, start, done, eltype, eachindex
 
+  # Problems
   "`DEProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
   abstract DEElement
   abstract DESensitivity
   abstract AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem
   abstract AbstractODETestProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
-  abstract AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2}  <: DEProblem
-  abstract AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2}  <: AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2}
+  abstract AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}  <: DEProblem
+  abstract AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}  <: AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}
   abstract AbstractDAEProblem <: DEProblem
   abstract AbstractDDEProblem <: DEProblem
   abstract AbstractPoissonProblem <: DEProblem
   abstract AbstractHeatProblem <: DEProblem
-  "`PdeSolution`: Wrapper for the objects obtained from a solver"
+
+  # Algorithms
+  abstract AbstractODEAlgorithm
+
+  # Solutions
   abstract DESolution
   abstract AbstractODESolution <: DESolution
   abstract AbstractSDESolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractDDESolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractFEMSolution <: DESolution
   abstract AbstractSensitivitySolution
+
+  # Misc
   "`Mesh`: An abstract type which holds a (node,elem) pair and other information for a mesh"
   abstract Mesh
   "`Tableau`: Holds the information for a Runge-Kutta Tableau"
   abstract Tableau
-
   "`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator"
   abstract ODERKTableau <: Tableau
-
-  "`DEIntegrator`: A DifferentialEquations Integrator type, used to initiate a solver."
-  abstract DEIntegrator
 
   abstract ParameterizedFunction <: Function
   abstract SensitivityFunction <: ParameterizedFunction
 
   include("utils.jl")
-  include("noise_process")
+  include("noise_process.jl")
   include("solutions/ode_solutions.jl")
   include("algorithms/ode_algorithms.jl")
   include("algorithms/ode_default_alg.jl")
   include("solutions/solution_interface.jl")
   include("tableaus.jl")
   include("problems/ode_problems.jl")
+  include("problems/sde_problems.jl")
 
   function solve end
 
@@ -71,13 +75,15 @@ module DiffEqBase
 
   export tuples
 
-  export @def, numparameters
+  export numparameters
 
   export jac_exists, invjac_exists, hes_exists, invhes_exists,
         paramjac_exists, pfunc_exists, pderiv_exists
 
   export ODEProblem, ODETestProblem, ODESolution, ODETestSolution,
          build_ode_solution
+
+  export SDEProblem, SDETestProblem
 
   # ODE Algorithms
 
@@ -86,7 +92,7 @@ module DiffEqBase
         DP8, Vern6, Vern7, Vern8, TanYam7, TsitPap8, Vern9, ImplicitEuler,
         Trapezoid, Rosenbrock23, Rosenbrock32, Feagin10, Feagin12, Feagin14
 
-  export default_algorithm
+  export default_algorithm, AbstractODEAlgorithm
 
   export ODEInterfaceAlgorithm, dopri5, dop853, odex, seulex, radau, radau5
 
@@ -95,7 +101,5 @@ module DiffEqBase
 
   export ODEJLAlgorithm, ode1, ode23, ode45, ode78, ode23s, ode2_midpoint, ode2_heun,
         ode4, ode45_fe
-
-  export SundialsAlgorithm, CVODE_BDF, CVODE_Adams
 
 end # module
