@@ -40,14 +40,9 @@ module DiffEqBase
   "`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator"
   abstract ODERKTableau <: Tableau
 
-  abstract ParameterizedFunction <: Function
-  abstract SensitivityFunction <: ParameterizedFunction
-
   include("utils.jl")
   include("noise_process.jl")
   include("solutions/ode_solutions.jl")
-  include("algorithms/ode_algorithms.jl")
-  include("algorithms/ode_default_alg.jl")
   include("solutions/solution_interface.jl")
   include("tableaus.jl")
   include("problems/ode_problems.jl")
@@ -55,23 +50,11 @@ module DiffEqBase
 
   function solve end
 
-  function solve(prob::DEProblem,args...;default_set=false,kwargs...)
-    if default_set == true && !isempty(args)
-      error("The chosen algorithm, "*string(args[1])*", does not exist.
-        Please verify that the appropriate solver package has been installed.")
-    elseif default_set == true
-      error("No algorithm is chosen but default_set=true.")
-    end
-    alg,extra_kwargs = default_algorithm(prob;kwargs...)
-    solve(prob,alg,args...;default_set=true,kwargs...,extra_kwargs...)
-  end
-
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
          Tableau, DESensitivity, AbstractODESolution, AbstractPoissonProblem,
          AbstractHeatProblem, AbstractFEMSolution, ODERKTableau, ExplicitRKTableau,
-         ImplicitRKTableau, AbstractSDESolution, ParameterizedFunction,
-         AbstractSensitivitySolution, SensitivityFunction, DESensitivity, solve
+         ImplicitRKTableau, AbstractSDESolution, DESensitivity, solve
 
   export tuples
 
@@ -85,21 +68,8 @@ module DiffEqBase
 
   export SDEProblem, SDETestProblem
 
-  # ODE Algorithms
+  # Algorithms
 
-  export OrdinaryDiffEqAlgorithm, OrdinaryDiffEqAdaptiveAlgorithm,
-        Euler, Midpoint, RK4, ExplicitRK, BS3, BS5, DP5, DP5Threaded, Tsit5,
-        DP8, Vern6, Vern7, Vern8, TanYam7, TsitPap8, Vern9, ImplicitEuler,
-        Trapezoid, Rosenbrock23, Rosenbrock32, Feagin10, Feagin12, Feagin14
-
-  export default_algorithm, AbstractODEAlgorithm
-
-  export ODEInterfaceAlgorithm, dopri5, dop853, odex, seulex, radau, radau5
-
-  export ODEIterAlgorithm, feuler, rk23, feh45, feh78, ModifiedRosenbrockIntegrator,
-        midpoint, heun, rk4, rk45
-
-  export ODEJLAlgorithm, ode1, ode23, ode45, ode78, ode23s, ode2_midpoint, ode2_heun,
-        ode4, ode45_fe
+  export AbstractODEAlgorithm, AbstractSDEAlgorithm
 
 end # module
