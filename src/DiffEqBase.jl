@@ -22,7 +22,9 @@ module DiffEqBase
   abstract AbstractHeatProblem <: DEProblem
 
   # Algorithms
-  abstract AbstractODEAlgorithm
+  abstract DEAlgorithm
+  abstract AbstractODEAlgorithm <: DEAlgorithm
+  abstract AbstractSDEAlgorithm <: DEAlgorithm
 
   # Solutions
   abstract DESolution
@@ -43,6 +45,7 @@ module DiffEqBase
   include("utils.jl")
   include("noise_process.jl")
   include("solutions/ode_solutions.jl")
+  include("solutions/sde_solutions.jl")
   include("solutions/solution_interface.jl")
   include("tableaus.jl")
   include("problems/ode_problems.jl")
@@ -66,7 +69,8 @@ module DiffEqBase
   export ODEProblem, ODETestProblem, ODESolution, ODETestSolution,
          build_ode_solution
 
-  export SDEProblem, SDETestProblem
+  export SDEProblem, SDETestProblem, SDESolution, SDETestSolution,
+         build_sde_solution
 
   # Algorithms
 

@@ -39,9 +39,11 @@ function print(io::IO, sol::DESolution)
   nothing
 end
 
+#=
 function show(io::IO,sol::DESolution)
   print(io,"$(typeof(sol))")
 end
+=#
 
 @recipe function f(sol::AbstractODESolution;plot_analytic=false,denseplot=true,plotdensity=100)
   plotseries = Vector{Any}(0)
