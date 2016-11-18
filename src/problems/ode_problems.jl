@@ -29,7 +29,9 @@ function print{uType,tType,isinplace,F}(io::IO, prob::AbstractODEProblem{uType,t
   nothing
 end
 
+#=
 function show{uType,tType,isinplace,F}(io::IO,prob::AbstractODEProblem{uType,tType,isinplace,F})
   println(io,"AbstractODEProblem{$uType,$tType,$isinplace}")
   nothing
 end
+=#

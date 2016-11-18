@@ -24,13 +24,13 @@ type SDETestSolution{uType,uType2,uEltype,tType,randType,P,A} <: AbstractSDESolu
   tslocation::Int
 end
 
-function build_sde_solution{uType,tType,isinplace,NoiseClass,F,F2,F3}(
+function build_solution{uType,tType,isinplace,NoiseClass,F,F2,F3}(
         prob::AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3},
         alg,t,u;W=[],maxstacksize=0,kwargs...)
   SDESolution(u,t,W,prob,alg,maxstacksize,false,0)
 end
 
-function build_sde_solution{uType,tType,isinplace,NoiseClass,F,F2,F3}(
+function build_solution{uType,tType,isinplace,NoiseClass,F,F2,F3}(
         prob::AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3},
         alg,t,u;W=[],timeseries_errors=true,maxstacksize=0,kwargs...)
 
@@ -52,6 +52,6 @@ function build_sde_solution{uType,tType,isinplace,NoiseClass,F,F2,F3}(
   SDETestSolution(u,u_analytic,errors,t,W,prob,alg,maxstacksize,false,0)
 end
 
-function build_sde_solution(sol::AbstractSDESolution,u_analytic,errors)
+function build_solution(sol::AbstractSDESolution,u_analytic,errors)
   SDETestSolution(sol.u,u_analytic,errors,sol.t,sol.W,sol.prob,sol.alg,sol.maxstacksize,sol.dense,sol.tslocation)
 end

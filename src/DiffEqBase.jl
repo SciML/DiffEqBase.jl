@@ -16,7 +16,8 @@ module DiffEqBase
   abstract AbstractODETestProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
   abstract AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}  <: DEProblem
   abstract AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}  <: AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}
-  abstract AbstractDAEProblem <: DEProblem
+  abstract AbstractDAEProblem{uType,duType,tType,isinplace,F} <: DEProblem
+  abstract AbstractDAETestProblem{uType,duType,tType,isinplace,F} <: AbstractDAEProblem{uType,duType,tType,isinplace,F}
   abstract AbstractDDEProblem <: DEProblem
   abstract AbstractPoissonProblem <: DEProblem
   abstract AbstractHeatProblem <: DEProblem
@@ -25,11 +26,13 @@ module DiffEqBase
   abstract DEAlgorithm
   abstract AbstractODEAlgorithm <: DEAlgorithm
   abstract AbstractSDEAlgorithm <: DEAlgorithm
+  abstract AbstractDAEAlgorithm <: DEAlgorithm
 
   # Solutions
   abstract DESolution
   abstract AbstractODESolution <: DESolution
   abstract AbstractSDESolution <: AbstractODESolution # Needed for plot recipes
+  abstract AbstractDAESolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractDDESolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractFEMSolution <: DESolution
   abstract AbstractSensitivitySolution
@@ -47,10 +50,12 @@ module DiffEqBase
   include("noise_process.jl")
   include("solutions/ode_solutions.jl")
   include("solutions/sde_solutions.jl")
+  include("solutions/dae_solutions.jl")
   include("solutions/solution_interface.jl")
   include("tableaus.jl")
   include("problems/ode_problems.jl")
   include("problems/sde_problems.jl")
+  include("problems/dae_problems.jl")
 
   function solve end
 
@@ -70,14 +75,16 @@ module DiffEqBase
   export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
          has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac
 
-  export ODEProblem, ODETestProblem, ODESolution, ODETestSolution,
-         build_ode_solution
+  export ODEProblem, ODETestProblem, ODESolution, ODETestSolution
 
-  export SDEProblem, SDETestProblem, SDESolution, SDETestSolution,
-         build_sde_solution
+  export SDEProblem, SDETestProblem, SDESolution, SDETestSolution
+
+  export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
+
+  export build_solution
 
   # Algorithms
 
-  export AbstractODEAlgorithm, AbstractSDEAlgorithm
+  export AbstractODEAlgorithm, AbstractSDEAlgorithm, AbstractDAEAlgorithm
 
 end # module
