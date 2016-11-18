@@ -2,11 +2,10 @@ __precompile__()
 
 module DiffEqBase
 
-  using RecipesBase, Parameters, RecursiveArrayTools
+  using RecipesBase, Parameters, RecursiveArrayTools, SimpleTraits
   using Ranges # For plot recipes with units
   import Base: length, size, getindex, endof, show, print,
-               next, start, done, eltype, eachindex,
-               Callable
+               next, start, done, eltype, eachindex
 
   # Problems
   "`DEProblem`: Defines differential equation problems via its internal functions"
@@ -44,6 +43,7 @@ module DiffEqBase
   abstract ODERKTableau <: Tableau
 
   include("utils.jl")
+  include("extended_functions.jl")
   include("noise_process.jl")
   include("solutions/ode_solutions.jl")
   include("solutions/sde_solutions.jl")
@@ -51,7 +51,6 @@ module DiffEqBase
   include("tableaus.jl")
   include("problems/ode_problems.jl")
   include("problems/sde_problems.jl")
-  include("problems/functions.jl")
 
   function solve end
 
@@ -65,8 +64,11 @@ module DiffEqBase
 
   export numparameters
 
-  export jac_exists, invjac_exists, hes_exists, invhes_exists,
-        paramjac_exists, pfunc_exists, pderiv_exists
+  export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac, HasInvJac,
+         HasInvW, HasInvW_t, HasHes, HasInvHes
+
+  export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
+         has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac
 
   export ODEProblem, ODETestProblem, ODESolution, ODETestSolution,
          build_ode_solution
