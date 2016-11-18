@@ -5,7 +5,8 @@ module DiffEqBase
   using RecipesBase, Parameters, RecursiveArrayTools
   using Ranges # For plot recipes with units
   import Base: length, size, getindex, endof, show, print,
-               next, start, done, eltype, eachindex
+               next, start, done, eltype, eachindex,
+               Callable
 
   # Problems
   "`DEProblem`: Defines differential equation problems via its internal functions"
@@ -50,6 +51,7 @@ module DiffEqBase
   include("tableaus.jl")
   include("problems/ode_problems.jl")
   include("problems/sde_problems.jl")
+  include("problems/functions.jl")
 
   function solve end
 
