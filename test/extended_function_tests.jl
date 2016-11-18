@@ -2,14 +2,12 @@ using Base.Test, DiffEqBase, SimpleTraits
 
 f123(x,y) = 1
 f123(::Val{:jac}, x) = 2
-@traitimpl HasJac{typeof(f123)}
 @test istrait(HasJac{typeof(f123)})
 
 # @code_llvm istrait(HasJac{typeof(f123)})
 
 g123(x,y) = 1
 g123{T}(::Val{:jac}, x::T) = 2
-@traitimpl HasJac{typeof(g123)}
 
 h123(x,y) = 1
 h123{T}(x::T) = 2
@@ -17,7 +15,6 @@ h123{T}(x::T) = 2
 immutable T123 end
 (::T123)(a) = 1
 (::T123)(::Val{:jac}, a) = 1
-@traitimpl HasJac{T123}
 t123 = T123()
 
 immutable G123 end

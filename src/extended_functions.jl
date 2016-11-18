@@ -18,8 +18,9 @@
 check_first_arg(f,T::Type) = check_first_arg(typeof(f),T)
 function check_first_arg{F}(::Type{F}, T::Type)
     typ = Tuple{Any, T, Vararg}
+    typ2 = Tuple{Any, Type{T}, Vararg} # This one is required for overloaded types
     for m in Base.MethodList(F.name.mt) # F.name.mt gets the method-table
-        m.sig<:typ && return true
+        (m.sig<:typ || m.sig<:typ2) && return true
     end
     return false
 end
@@ -44,9 +45,9 @@ __has_invW_t(f) = check_first_arg(f, Val{:invW_t})
 @generated SimpleTraits.trait{F}(::Type{HasInvJac{F}}) = __has_invjac(F) ? :(HasInvJac{F}) : :(Not{HasInvJac{F}})
 @generated SimpleTraits.trait{F}(::Type{HasInvW{F}}) = __has_invW(F) ? :(HasInvW{F}) : :(Not{HasInvW{F}})
 @generated SimpleTraits.trait{F}(::Type{HasInvW_t{F}}) = __has_invW_t(F) ? :(HasInvW_t{F}) : :(Not{HasInvW_t{F}})
-has_invjac(f) = istrait(HasInvJac{T})
-has_invW(f)   = istrait(HasInvW{T})
-has_invW_t(f) = istrait(HasInvW_t{T})
+has_invjac{T}(f::T) = istrait(HasInvJac{T})
+has_invW{T}(f::T)   = istrait(HasInvW{T})
+has_invW_t{T}(f::T) = istrait(HasInvW_t{T})
 
 # Hessians
 @traitdef HasHes{F}
@@ -55,8 +56,8 @@ __has_hes(f) = check_first_arg(f, Val{:hes})
 __has_invhes(f) = check_first_arg(f, Val{:invhes})
 @generated SimpleTraits.trait{F}(::Type{HasHes{F}}) = __has_hes(F) ? :(HasHes{F}) : :(Not{HasHes{F}})
 @generated SimpleTraits.trait{F}(::Type{HasInvHes{F}}) = __has_invhes(F) ? :(HasInvHes{F}) : :(Not{HasInvHes{F}})
-has_hes(f)      = istrait(HasHes{T})
-has_invhes(f)   = istrait(HasInvHes{T})
+has_hes{T}(f::T)      = istrait(HasHes{T})
+has_invhes{T}(f::T)   = istrait(HasInvHes{T})
 
 # Parameter-Based
 @traitdef HasParamDeriv{F}
@@ -65,8 +66,8 @@ __has_paramderiv(f) = check_first_arg(f, Val{:deriv})
 __has_paramjac(f) = check_first_arg(f, Val{:paramjac})
 @generated SimpleTraits.trait{F}(::Type{HasParamDeriv{F}}) = __has_paramderiv(F) ? :(HasParamDeriv{F}) : :(Not{HasParamDeriv{F}})
 @generated SimpleTraits.trait{F}(::Type{HasParamJac{F}}) = __has_paramjac(F) ? :(HasParamJac{F}) : :(Not{HasParamJac{F}})
-has_paramderiv(f) = istrait(HasParamDeriv{T})
-has_paramjac(f)   = istrait(HasParamJac{T})
+has_paramderiv{T}(f::T) = istrait(HasParamDeriv{T})
+has_paramjac{T}(f::T)   = istrait(HasParamJac{T})
 
 # now a trait methods can dispatch on this:
 # @traitfn fn(g::::HasJac, ...) = ...
