@@ -1,42 +1,44 @@
 ### Concrete Types
 
-type ODESolution{uType,tType,rateType,P,A} <: AbstractODESolution
+type DAESolution{uType,duType,tType,ID,P,A} <: AbstractODESolution
   u::uType
+  du::duType
   t::tType
-  k::rateType
+  interp_data::ID
   prob::P
   alg::A
   interp::Function
   dense::Bool
   tslocation::Int
 end
-(sol::ODESolution)(t) = sol.interp(t)
+(sol::DAESolution)(t) = sol.interp(t)
 
-type ODETestSolution{uType,uType2,uEltype,tType,rateType,P,A} <: AbstractODESolution
+type DAETestSolution{uType,duType,uType2,uEltype,tType,ID,P,A} <: AbstractODESolution
   u::uType
+  du::duType
   u_analytic::uType2
   errors::Dict{Symbol,uEltype}
+  interp_data::ID
   t::tType
-  k::rateType
   prob::P
   alg::A
   interp::Function
   dense::Bool
   tslocation::Int
 end
-(sol::ODETestSolution)(t) = sol.interp(t)
+(sol::DAETestSolution)(t) = sol.interp(t)
 
-function build_solution{uType,tType,isinplace}(
-        prob::AbstractODEProblem{uType,tType,isinplace},
-        alg,t,u;dense=false,
-        k=[],interp = (tvals) -> nothing,kwargs...)
-  ODESolution(u,t,k,prob,alg,interp,dense,0)
+function build_solution{uType,duType,tType,isinplace,F}(
+        prob::AbstractDAEProblem{uType,duType,tType,isinplace,F},
+        alg,t,u;dense=false,du=[],
+        interp_data=[],interp = (tvals) -> nothing,kwargs...)
+  DAESolution(u,du,t,interp_data,prob,alg,interp,dense,0)
 end
 
-function build_solution{uType,tType,isinplace}(
-        prob::AbstractODETestProblem{uType,tType,isinplace},
-        alg,t,u;dense=false,
-        k=[],interp = (tvals) -> nothing,
+function build_solution{uType,duType,tType,isinplace,F}(
+        prob::AbstractDAETestProblem{uType,duType,tType,isinplace,F},
+        alg,t,u;dense=false,du=[],
+        interp_data=[],interp = (tvals) -> nothing,
         timeseries_errors=true,dense_errors=true,kwargs...)
 
   u_analytic = Vector{uType}(0)
@@ -62,9 +64,10 @@ function build_solution{uType,tType,isinplace}(
       end
     end
   end
-  ODETestSolution(u,u_analytic,errors,t,k,prob,alg,interp,dense,0)
+  DAETestSolution(u,du,u_analytic,errors,t,interp_data,prob,alg,interp,dense,0)
 end
 
-function build_solution(sol::AbstractODESolution,u_analytic,errors)
-  ODETestSolution(sol.u,u_analytic,errors,sol.t,sol.k,sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation)
+function build_solution(sol::AbstractDAESolution,u_analytic,errors)
+  DAETestSolution(sol.u,sol.du,u_analytic,errors,sol.t,sol.interp_data,
+                    sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation)
 end
