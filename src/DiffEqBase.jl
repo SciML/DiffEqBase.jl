@@ -5,8 +5,7 @@ module DiffEqBase
   using RecipesBase, Parameters, RecursiveArrayTools, SimpleTraits
   using Ranges # For plot recipes with units
   import Base: length, size, getindex, endof, show, print,
-               next, start, done, eltype, eachindex,
-               Callable
+               next, start, done, eltype, eachindex
 
   # Problems
   "`DEProblem`: Defines differential equation problems via its internal functions"
@@ -44,7 +43,7 @@ module DiffEqBase
   abstract ODERKTableau <: Tableau
 
   include("utils.jl")
-  include("traits.jl")
+  include("extended_functions.jl")
   include("noise_process.jl")
   include("solutions/ode_solutions.jl")
   include("solutions/sde_solutions.jl")
@@ -52,7 +51,6 @@ module DiffEqBase
   include("tableaus.jl")
   include("problems/ode_problems.jl")
   include("problems/sde_problems.jl")
-  include("problems/functions.jl")
 
   function solve end
 

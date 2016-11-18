@@ -5,12 +5,11 @@ f123(::Val{:jac}, x) = 2
 @traitimpl HasJac{typeof(f123)}
 @test istrait(HasJac{typeof(f123)})
 
-@code_llvm istrait(HasJac{typeof(f123)})
+# @code_llvm istrait(HasJac{typeof(f123)})
 
 g123(x,y) = 1
 g123{T}(::Val{:jac}, x::T) = 2
 @traitimpl HasJac{typeof(g123)}
-@code_llvm has_jac(g123)
 
 h123(x,y) = 1
 h123{T}(x::T) = 2
@@ -20,7 +19,6 @@ immutable T123 end
 (::T123)(::Val{:jac}, a) = 1
 @traitimpl HasJac{T123}
 t123 = T123()
-@code_llvm has_jac(t123)
 
 immutable G123 end
 (::G123)(a) = 1
@@ -35,10 +33,12 @@ immutable G123 end
 @traitfn tfn(f::::HasJac) = true
 @traitfn tfn(f::::(!HasJac)) = false
 
+@traitfn testing(f::::HasJac)   =2
+@traitfn testing(f::::!(HasJac))=3.0
 
-@code_llvm has_jac(f123)
-@code_warntype testing(f123)
 @inferred testing(f123)
+@inferred testing(g123)
+@inferred testing(h123)
 
 @test tfn(f123)
 @test tfn(g123)
