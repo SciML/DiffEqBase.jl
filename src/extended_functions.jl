@@ -36,15 +36,19 @@ has_jac{T}(f::T)   = istrait(HasJac{T})
 has_tgrad{T}(f::T) = istrait(HastGrad{T})
 
 # Performance
+@traitdef HasExpJac{F}
 @traitdef HasInvJac{F}
 @traitdef HasInvW{F}
 @traitdef HasInvW_t{F}
+__has_expjac(f) = check_first_arg(f, Val{:expjac})
 __has_invjac(f) = check_first_arg(f, Val{:invjac})
 __has_invW(f) = check_first_arg(f, Val{:invW})
 __has_invW_t(f) = check_first_arg(f, Val{:invW_t})
+@generated SimpleTraits.trait{F}(::Type{HasExpJac{F}}) = __has_expjac(F) ? :(HasExpJac{F}) : :(Not{HasExpJac{F}})
 @generated SimpleTraits.trait{F}(::Type{HasInvJac{F}}) = __has_invjac(F) ? :(HasInvJac{F}) : :(Not{HasInvJac{F}})
 @generated SimpleTraits.trait{F}(::Type{HasInvW{F}}) = __has_invW(F) ? :(HasInvW{F}) : :(Not{HasInvW{F}})
 @generated SimpleTraits.trait{F}(::Type{HasInvW_t{F}}) = __has_invW_t(F) ? :(HasInvW_t{F}) : :(Not{HasInvW_t{F}})
+has_expjac{T}(f::T) = istrait(HasExpJac{T})
 has_invjac{T}(f::T) = istrait(HasInvJac{T})
 has_invW{T}(f::T)   = istrait(HasInvW{T})
 has_invW_t{T}(f::T) = istrait(HasInvW_t{T})
