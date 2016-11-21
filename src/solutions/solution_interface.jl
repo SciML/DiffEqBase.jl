@@ -90,7 +90,7 @@ end
   end
 
   seriestype --> :path
-  lw --> 3
+  linewidth --> 3
   #xtickfont --> font(11)
   #ytickfont --> font(11)
   #legendfont --> font(11)
