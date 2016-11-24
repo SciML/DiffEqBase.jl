@@ -32,12 +32,14 @@ function eltype(sol::DESolution)
   end
 end
 
+#=
 function print(io::IO, sol::DESolution)
   println(io,"$(typeof(sol))")
   println(io,"u: $(sol.u)")
   println(io,"t: $(sol.t)")
   nothing
 end
+=#
 
 #=
 function show(io::IO,sol::DESolution)
