@@ -1,3 +1,19 @@
+"""
+Defines a ordinary differential equation (ODE) in explicit form
+du/dt = f(t,u).
+
+Input:
+- `f(t,u,out)` or `f(t,u)`
+- `u0` initial conditions (IC) on `u`
+- `tspan` tuple of start and end-time `(t0,tend)`
+
+Extra function, such as the Jacobian can be provided by function overloading:
+- `f(::Val{:jac}, t, u, out)` where `jac = df/du + alpha* df/d(du)`
+
+Notes:
+- the types of inputs determines the types used in the numerical
+  solver.  For instance, using `Int`s in `tspan` will not work.
+"""
 type ODEProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
   f::F
   u0::uType

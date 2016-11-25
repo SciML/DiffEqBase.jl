@@ -5,30 +5,44 @@ module DiffEqBase
   using RecipesBase, Parameters, RecursiveArrayTools, SimpleTraits
   using Ranges # For plot recipes with units
   import Base: length, size, getindex, endof, show, print,
-               next, start, done, eltype, eachindex
+               next, start, done, eltype, eachindex, convert, promote
 
-  # Problems
+  ## Problems
   "`DEProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
   abstract DEElement
   abstract DESensitivity
-  abstract AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem
+
+  # Initial Value Problems (IVP)
+  abstract AbstractIVPProblem{uType,tType,isinplace,F} <: DEProblem
+  "Checks whether uses an in-place function or not"
+  isinplace{uType,tType,I,F}(::Type{AbstractIVPProblem{uType,tType,I,F}}) = I
+  isinplace{A<:AbstractIVPProblem}(::Type{A}) = isinplace(supertype(A))
+  isinplace{A<:AbstractIVPProblem}(::A) = isinplace(A)
+  @traitdef IsInplace{P}
+  @traitimpl IsInplace{P} <- isinplace(P)
+
+  # IVP subtypes
+  abstract AbstractODEProblem{uType,tType,isinplace,F} <: AbstractIVPProblem{uType,tType,isinplace,F}
   abstract AbstractODETestProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
-  abstract AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}  <: DEProblem
+  abstract AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}  <: AbstractIVPProblem{uType,tType,isinplace,F}
   abstract AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}  <: AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}
-  abstract AbstractDAEProblem{uType,duType,tType,isinplace,F} <: DEProblem
+  abstract AbstractDAEProblem{uType,duType,tType,isinplace,F} <: AbstractIVPProblem{uType,tType,isinplace,F}
   abstract AbstractDAETestProblem{uType,duType,tType,isinplace,F} <: AbstractDAEProblem{uType,duType,tType,isinplace,F}
+
+  # Misc other problems
   abstract AbstractDDEProblem <: DEProblem
   abstract AbstractPoissonProblem <: DEProblem
   abstract AbstractHeatProblem <: DEProblem
 
-  # Algorithms
+  ## Algorithms
   abstract DEAlgorithm
-  abstract AbstractODEAlgorithm <: DEAlgorithm
-  abstract AbstractSDEAlgorithm <: DEAlgorithm
-  abstract AbstractDAEAlgorithm <: DEAlgorithm
+  abstract IVPAlgorithm <: DEAlgorithm
+  abstract AbstractODEAlgorithm <: IVPAlgorithm
+  abstract AbstractSDEAlgorithm <: IVPAlgorithm
+  abstract AbstractDAEAlgorithm <: IVPAlgorithm
 
-  # Solutions
+  ## Solutions
   abstract DESolution
   abstract AbstractODESolution <: DESolution
   abstract AbstractSDESolution <: AbstractODESolution # Needed for plot recipes
@@ -37,7 +51,7 @@ module DiffEqBase
   abstract AbstractFEMSolution <: DESolution
   abstract AbstractSensitivitySolution
 
-  # Misc
+  ## Misc
   "`Mesh`: An abstract type which holds a (node,elem) pair and other information for a mesh"
   abstract Mesh
   "`Tableau`: Holds the information for a Runge-Kutta Tableau"
@@ -57,7 +71,12 @@ module DiffEqBase
   include("problems/sde_problems.jl")
   include("problems/dae_problems.jl")
 
-  function solve end
+  solve(p::DEProblem, a::DEAlgorithm; kwargs...) = solve(promote(p, a), a; kwargs...)
+  promote(p::DEProblem, a::DEAlgorithm) =
+      error("Algorithm (solver) of type `$(typeof(a))` is not applicable to problem of type `$(typeof(p))`")
+  convert{P1<:DEProblem}(::Type{P1}, p::DEProblem) =
+      error("Cannot convert problem type $(typeof(p)) into problem type $P1")
+  convert{P1<:DEProblem}(::Type{P1}, p::P1) = p
 
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
