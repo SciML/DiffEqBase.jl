@@ -159,12 +159,21 @@ end
       if y == 0
         ly = "t"
       else
-        ly = "au$y"
+        if has_syms(sol.prob.f)
+          ly = string("True ",sol.prob.f.syms[y])
+        else
+          ly = "True u$y"
+        end
       end
       if x == 0
         labels[i] = "$ly(t)"
       else
-        labels[i] = "(au$x, $ly)"
+        if has_syms(sol.prob.f)
+          tmp = string("True ",sol.prob.f.syms[x])
+          labels[i] = "($tmp, $ly)"
+        else
+          labels[i] = "(True u$x, $ly)"
+        end
       end
     end
   end
