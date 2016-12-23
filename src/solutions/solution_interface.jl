@@ -134,12 +134,21 @@ end
     if y == 0
       ly = "t"
     else
-      ly = "u$y"
+      if has_syms(sol.prob.f)
+        ly = sol.prob.f.syms[y]
+      else
+        ly = "u$y"
+      end
     end
     if x == 0
       labels[i] = "$ly(t)"
     else
-      labels[i] = "(u$x, $ly)"
+      if has_syms(sol.prob.f)
+        tmp = sol.prob.f.syms[x]
+        labels[i] = "($tmp, $ly)"
+      else
+        labels[i] = "(u$x, $ly)"
+      end
     end
   end
 

@@ -73,6 +73,12 @@ __has_paramjac(f) = check_first_arg(f, Val{:paramjac})
 has_paramderiv{T}(f::T) = istrait(HasParamDeriv{T})
 has_paramjac{T}(f::T)   = istrait(HasParamJac{T})
 
+## Parameter Names Check
+@traitdef HasSyms{F}
+__has_syms(f) = :syms ∈ fieldnames(f)
+@generated SimpleTraits.trait{F}(::Type{HasSyms{F}}) = __has_syms(F) ? :(HasSyms{F}) : :(Not{HasSyms{F}})
+has_syms{T}(f::T) = istrait(HasSyms{T})
+
 # now a trait methods can dispatch on this:
 # @traitfn fn(g::::HasJac, ...) = ...
 # @traitfn fn(g::::(!HasJac), ...) = ...

@@ -71,11 +71,11 @@ module DiffEqBase
 
   export numparameters
 
-  export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac, HasInvJac,
-         HasInvW, HasInvW_t, HasHes, HasInvHes
+  export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac, HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
 
   export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
-         has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac
+         has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac,
+         has_syms
 
   export ODEProblem, ODETestProblem, ODESolution, ODETestSolution
 
