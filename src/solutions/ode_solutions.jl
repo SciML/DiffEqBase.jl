@@ -38,7 +38,6 @@ function build_solution{uType,tType,isinplace}(
         alg,t,u;dense=false,
         k=[],interp = (tvals) -> nothing,
         timeseries_errors=true,dense_errors=true,kwargs...)
-
   u_analytic = Vector{uType}(0)
   for i in 1:size(u,1)
     push!(u_analytic,prob.analytic(t[i],prob.u0))
