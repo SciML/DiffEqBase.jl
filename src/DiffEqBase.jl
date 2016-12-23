@@ -45,6 +45,8 @@ module DiffEqBase
   "`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator"
   abstract ODERKTableau <: Tableau
 
+  abstract ParameterizedFunction <: Function
+
   include("utils.jl")
   include("extended_functions.jl")
   include("noise_process.jl")
@@ -69,11 +71,11 @@ module DiffEqBase
 
   export numparameters
 
-  export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac, HasInvJac,
-         HasInvW, HasInvW_t, HasHes, HasInvHes
+  export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac, HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
 
   export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
-         has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac
+         has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac,
+         has_syms
 
   export ODEProblem, ODETestProblem, ODESolution, ODETestSolution
 
@@ -82,6 +84,8 @@ module DiffEqBase
   export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
 
   export build_solution
+
+  export ParameterizedFunction
 
   # Algorithms
 
