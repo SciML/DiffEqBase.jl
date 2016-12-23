@@ -6,6 +6,7 @@
 # - the details of what `...` needs to be depends on the
 #   AbstractODEProblem subtype
 
+
 # Method_exists does not work:
 #
 # julia> f(::Val{:jac}, a, b, c) = 5
@@ -15,6 +16,7 @@
 # false
 #
 # Thus hand-code it:
+"Check whether the first argument of any method matches one passed in"
 check_first_arg(f,T::Type) = check_first_arg(typeof(f),T)
 function check_first_arg{F}(::Type{F}, T::Type)
     typ = Tuple{Any, T, Vararg}
@@ -23,6 +25,18 @@ function check_first_arg{F}(::Type{F}, T::Type)
         (m.sig<:typ || m.sig<:typ2) && return true
     end
     return false
+end
+"Return the first argument of a method"
+get_first_arg(m::Method) = m.sig.parameters[2]
+# Note above function cannot be type stable as m.sig is not typed
+
+"Return all methods which have a `Val` as first argument type."
+function methods_overloaded{F}(f::F)
+    out = []
+    for m in Base.MethodList(F.name.mt) # F.name.mt gets the method-table
+        get_first_arg(m)<:Val && push!(out, m)
+    end
+    return out
 end
 
 # Standard
@@ -76,3 +90,12 @@ has_paramjac{T}(f::T)   = istrait(HasParamJac{T})
 # now a trait methods can dispatch on this:
 # @traitfn fn(g::::HasJac, ...) = ...
 # @traitfn fn(g::::(!HasJac), ...) = ...
+
+
+#=
+Function "traits"
+- inplace
+- implicitly defined
+
+
+=#

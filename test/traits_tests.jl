@@ -1,5 +1,15 @@
 using Base.Test, DiffEqBase, SimpleTraits
 
+## helpers
+f012(x,y) = 1
+f012(::Val{:jac}, x) = 2
+f012(::Val{:yep}, x, y) = 2
+@test check_first_arg(f012, Val{:jac})
+@test !check_first_arg(f012, Val{:nono})
+@test check_first_arg(f012, Any)
+@test methods_overloaded(f012)=collect(Base.MethodList(typeof(f012).name.mt))[1:2]
+
+## Traits
 f123(x,y) = 1
 f123(::Val{:jac}, x) = 2
 
