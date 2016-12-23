@@ -45,6 +45,8 @@ module DiffEqBase
   "`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator"
   abstract ODERKTableau <: Tableau
 
+  abstract ParameterizedFunction <: Function
+
   include("utils.jl")
   include("extended_functions.jl")
   include("noise_process.jl")
@@ -82,6 +84,8 @@ module DiffEqBase
   export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
 
   export build_solution
+
+  export ParameterizedFunction
 
   # Algorithms
 
