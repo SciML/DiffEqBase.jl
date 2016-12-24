@@ -69,7 +69,7 @@ module DiffEqBase
 
   export tuples
 
-  export numparameters
+  export numparameters, @def
 
   export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac, HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
 
