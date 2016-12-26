@@ -1,8 +1,10 @@
 ### Abstract Interface
 
 Base.length(sol::DESolution) = length(sol.u) # Must be on u for the test solutions!
+Base.size(sol::DESolution,n::Int) = n==1 ? length(sol.u) : error("Only dimension 1 has a well-defined size.")
 Base.endof(sol::DESolution) = length(sol)
 Base.getindex(sol::DESolution,i::Int) = sol.u[i]
+Base.getindex(sol::DESolution,c::AbstractArray) = [sol.u[j] for j in c]
 Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.u[i][I...]
 Base.getindex(sol::DESolution,::Colon) = sol.u
 Base.getindex(sol::DESolution,::Colon,i::Int...) = [sol.u[j][i...] for j in eachindex(sol)]
