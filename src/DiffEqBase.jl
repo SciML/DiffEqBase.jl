@@ -19,8 +19,6 @@ module DiffEqBase
   abstract AbstractDAEProblem{uType,duType,tType,isinplace,F} <: DEProblem
   abstract AbstractDAETestProblem{uType,duType,tType,isinplace,F} <: AbstractDAEProblem{uType,duType,tType,isinplace,F}
   abstract AbstractDDEProblem <: DEProblem
-  abstract AbstractPoissonProblem <: DEProblem
-  abstract AbstractHeatProblem <: DEProblem
 
   # Algorithms
   abstract DEAlgorithm
@@ -34,7 +32,6 @@ module DiffEqBase
   abstract AbstractSDESolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractDAESolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractDDESolution <: AbstractODESolution # Needed for plot recipes
-  abstract AbstractFEMSolution <: DESolution
   abstract AbstractSensitivitySolution
 
   # Misc
@@ -68,8 +65,7 @@ module DiffEqBase
 
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
-         Tableau, DESensitivity, AbstractODESolution, AbstractPoissonProblem,
-         AbstractHeatProblem, AbstractFEMSolution, ODERKTableau, ExplicitRKTableau,
+         Tableau, DESensitivity, AbstractODESolution, ODERKTableau, ExplicitRKTableau,
          ImplicitRKTableau, AbstractSDESolution, DESensitivity, solve
 
   export tuples
