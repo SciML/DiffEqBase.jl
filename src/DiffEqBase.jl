@@ -59,6 +59,11 @@ module DiffEqBase
   include("problems/sde_problems.jl")
   include("problems/dae_problems.jl")
 
+  type ConvergenceSetup{P,C}
+    probs::P
+    convergence_axis::C
+  end
+
   function solve end
 
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
@@ -86,6 +91,8 @@ module DiffEqBase
   export build_solution
 
   export ParameterizedFunction
+
+  export ConvergenceSetup
 
   # Algorithms
 
