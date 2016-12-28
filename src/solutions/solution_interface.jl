@@ -150,54 +150,72 @@ end
     end
   end
 
-  plotx = Vector{Any}(0)
-  ploty = Vector{Any}(0)
-  labels = Array{String, 2}(1, length(vars)*(1+plot_analytic))
-  for (i, (x, y)) in enumerate(vars)
-    push!(plotx, u_n(plot_timeseries, x))
-    push!(ploty, u_n(plot_timeseries, y))
-    if y == 0
-      ly = "t"
-    else
-      if has_syms(sol.prob.f)
-        ly = sol.prob.f.syms[y]
+  dims = length(vars[1])
+  for var in vars
+    @assert length(var) == dims
+  end
+  # Should check that all have the same dims!
+
+  plot_vecs = []
+  for i in 1:dims
+    push!(plot_vecs,[])
+  end
+  labels = String[]# Array{String, 2}(1, length(vars)*(1+plot_analytic))
+  for x in vars
+    for j in 1:dims
+      push!(plot_vecs[j], u_n(plot_timeseries, x[j]))
+    end
+    lys = []
+    for j in 2:dims
+      if x[j] == 0
+        push!(lys,"t,")
       else
-        ly = "u$y"
+        if has_syms(sol.prob.f)
+          push!(lys,"$(sol.prob.f.syms[x[j]]),")
+        else
+          push!(lys,"u$(x[j]),")
+        end
       end
     end
-    if x == 0
-      labels[i] = "$ly(t)"
+    lys[end] = lys[end][1:end-1] # Take off the last comma
+    if x[1] == 0
+      push!(labels,"$(lys...)(t)")
     else
       if has_syms(sol.prob.f)
-        tmp = sol.prob.f.syms[x]
-        labels[i] = "($tmp, $ly)"
+        tmp = sol.prob.f.syms[x[1]]
+        push!(labels,"($tmp, $(lys...))")
       else
-        labels[i] = "(u$x, $ly)"
+        push!(labels,"(u$x, $(lys...))")
       end
     end
   end
 
   if plot_analytic
-    for (i, (x, y)) in enumerate(vars)
-      push!(plotx, u_n(plot_analytic_timeseries, x))
-      push!(ploty, u_n(plot_analytic_timeseries, y))
-      if y == 0
-        ly = "t"
-      else
-        if has_syms(sol.prob.f)
-          ly = string("True ",sol.prob.f.syms[y])
+    for x in vars
+      for j in 1:dims
+        push!(plot_vecs[j], u_n(plot_timeseries, x[j]))
+      end
+      lys = []
+      for j in 2:dims
+        if x[j] == 0
+          push!(lys,"t,")
         else
-          ly = "True u$y"
+          if has_syms(sol.prob.f)
+            push!(lys,string("True ",sol.prob.f.syms[x[j]],","))
+          else
+            push!(lys,"True u$(x[2]),")
+          end
         end
       end
-      if x == 0
-        labels[i] = "$ly(t)"
+      lys[end] = lys[end][1:end-1] # Take off the last comma
+      if x[1] == 0
+        push!(labels,"$(lys...)(t)")
       else
         if has_syms(sol.prob.f)
-          tmp = string("True ",sol.prob.f.syms[x])
-          labels[i] = "($tmp, $ly)"
+          tmp = string("True ",sol.prob.f.syms[x[1]])
+          push!(labels,"($tmp, $(lys...))")
         else
-          labels[i] = "(True u$x, $ly)"
+          push!(labels,"(True u$x, $(lys...))")
         end
       end
     end
@@ -209,6 +227,6 @@ end
   #ytickfont --> font(11)
   #legendfont --> font(11)
   #guidefont  --> font(11)
-  label --> labels
-  plotx, ploty
+  label --> reshape(labels,1,length(labels))
+  (plot_vecs...)
 end
