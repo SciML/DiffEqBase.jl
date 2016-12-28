@@ -35,8 +35,6 @@ module DiffEqBase
   abstract AbstractSensitivitySolution
 
   # Misc
-  "`Mesh`: An abstract type which holds a (node,elem) pair and other information for a mesh"
-  abstract Mesh
   "`Tableau`: Holds the information for a Runge-Kutta Tableau"
   abstract Tableau
   "`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator"
@@ -66,7 +64,7 @@ module DiffEqBase
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
          Tableau, DESensitivity, AbstractODESolution, ODERKTableau, ExplicitRKTableau,
-         ImplicitRKTableau, AbstractSDESolution, DESensitivity, solve
+         ImplicitRKTableau, AbstractSDESolution, DESensitivity, solve, DEAlgorithm
 
   export tuples
 
