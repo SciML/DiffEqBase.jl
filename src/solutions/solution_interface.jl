@@ -59,6 +59,26 @@ end
     denseplot = false
   end
 
+  if vars != nothing && has_syms(sol.prob.f)
+    # Do syms conversion
+    tmp_vars = []
+    for var in vars
+      if typeof(var) <: Symbol
+        var_int = findfirst(sol.prob.f.syms,var)
+      elseif eltype(var) <: Symbol # Some kind of iterable
+        var_int = map((x)->findfirst(sol.prob.f.syms,x),var)
+      else
+        var_int = var
+      end
+      push!(tmp_vars,var_int)
+    end
+    if typeof(vars) <: Tuple
+      vars = tuple(tmp_vars...)
+    else
+      vars = tmp_vars
+    end
+  end
+
   if vars == nothing
     # Default: plot all timeseries
     if typeof(sol[1]) <: AbstractArray
