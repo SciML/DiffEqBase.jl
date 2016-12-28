@@ -64,13 +64,15 @@ module DiffEqBase
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
          Tableau, DESensitivity, AbstractODESolution, ODERKTableau, ExplicitRKTableau,
-         ImplicitRKTableau, AbstractSDESolution, DESensitivity, solve, DEAlgorithm
+         ImplicitRKTableau, AbstractSDESolution, DESensitivity, solve, DEAlgorithm,
+         AbstractODETestProblem
 
   export tuples
 
   export numparameters, @def
 
-  export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac, HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
+  export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac,
+         HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
 
   export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
          has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac,
@@ -82,7 +84,7 @@ module DiffEqBase
 
   export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
 
-  export build_solution
+  export build_solution, calculate_solution_errors!
 
   export ParameterizedFunction
 
