@@ -60,12 +60,16 @@ module DiffEqBase
   end
 
   function solve end
+  function solve! end
+  function init end
 
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
          Tableau, DESensitivity, AbstractODESolution, ODERKTableau, ExplicitRKTableau,
-         ImplicitRKTableau, AbstractSDESolution, DESensitivity, solve, DEAlgorithm,
+         ImplicitRKTableau, AbstractSDESolution, DESensitivity, DEAlgorithm,
          AbstractODETestProblem
+
+  export solve, solve!, init
 
   export tuples
 
