@@ -26,6 +26,10 @@ module DiffEqBase
   abstract AbstractSDEAlgorithm <: DEAlgorithm
   abstract AbstractDAEAlgorithm <: DEAlgorithm
 
+  # Callbacks
+  abstract DECallback
+  abstract DECache
+
   # Solutions
   abstract DESolution
   abstract AbstractODESolution <: DESolution
@@ -53,6 +57,7 @@ module DiffEqBase
   include("problems/ode_problems.jl")
   include("problems/sde_problems.jl")
   include("problems/dae_problems.jl")
+  include("callbacks.jl")
 
   type ConvergenceSetup{P,C}
     probs::P
@@ -67,7 +72,7 @@ module DiffEqBase
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
          Tableau, DESensitivity, AbstractODESolution, ODERKTableau, ExplicitRKTableau,
          ImplicitRKTableau, AbstractSDESolution, DESensitivity, DEAlgorithm,
-         AbstractODETestProblem
+         AbstractODETestProblem, DECallback, DECache
 
   export solve, solve!, init
 
