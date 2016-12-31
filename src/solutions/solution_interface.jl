@@ -221,6 +221,8 @@ end
     end
   end
 
+  tdir = sign(sol.t[end]-sol.t[1])
+  xflip --> tdir < 0
   seriestype --> :path
   linewidth --> 3
   #xtickfont --> font(11)
