@@ -3,7 +3,7 @@
 
 Holds a tableau which defines an explicit Runge-Kutta method.
 """
-type ExplicitRKTableau{MType<:AbstractMatrix,VType<:AbstractVector} <: ODERKTableau
+type ExplicitRKTableau{MType<:AbstractMatrix,VType<:AbstractVector,fsal} <: ODERKTableau
   A::MType
   c::VType
   α::VType
@@ -11,9 +11,11 @@ type ExplicitRKTableau{MType<:AbstractMatrix,VType<:AbstractVector} <: ODERKTabl
   stages::Int
   order::Int
   adaptiveorder::Int #The lower order of the pair. Only used for adaptivity.
-  fsal::Bool # First same as last
 end
-ExplicitRKTableau(A,c,α,order;adaptiveorder=0,αEEst=Float64[],fsal=false) = ExplicitRKTableau(A,c,α,αEEst,length(α),order,adaptiveorder,fsal)
+ExplicitRKTableau{MType,VType}(A::MType,c::VType,α::VType,order;
+                              adaptiveorder=0,αEEst=VType(),fsal=false) =
+                              ExplicitRKTableau{MType,VType,fsal}(
+                              A,c,α,αEEst,length(α),order,adaptiveorder)
 
 """
 `ImplicitRKTableau`
@@ -28,6 +30,8 @@ type ImplicitRKTableau{MType<:AbstractMatrix,VType<:AbstractVector} <: ODERKTabl
   stages::Int
   order::Int
   adaptiveorder::Int #The lower order of the pair. Only used for adaptivity.
-  ImplicitRKTableau(A,c,α,order;adaptiveorder=0,αEEst=Float64[]) = new(A,c,α,αEEst,length(α),order,adaptiveorder)
 end
-ImplicitRKTableau(A,c,α,order;adaptiveorder=0,αEEst=Float64[],fsal=false) = ImplicitRKTableau(A,c,α,αEEst,length(α),order,adaptiveorder,fsal)
+ImplicitRKTableau{MType,VType}(A::MType,c::VType,α::VType,order;
+                              adaptiveorder=0,αEEst=VType()) =
+                              ImplicitRKTableau{MType,VType}(
+                              A,c,α,αEEst,length(α),order,adaptiveorder)
