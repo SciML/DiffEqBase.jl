@@ -116,6 +116,8 @@ module DiffEqBase
 
   export ConvergenceSetup
 
+  export Callback
+
   # Algorithms
 
   export AbstractODEAlgorithm, AbstractSDEAlgorithm, AbstractDAEAlgorithm
