@@ -7,6 +7,8 @@ module DiffEqBase
   import Base: length, size, getindex, endof, show, print,
                next, start, done, eltype, eachindex
 
+  import Base: resize!
+
   # Problems
   "`DEProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
@@ -26,9 +28,15 @@ module DiffEqBase
   abstract AbstractSDEAlgorithm <: DEAlgorithm
   abstract AbstractDAEAlgorithm <: DEAlgorithm
 
+  # Caches
+  abstract DECache
+
   # Callbacks
   abstract DECallback
-  abstract DECache
+
+  # Integrators
+  abstract DEIntegrator
+  abstract AbstractODEIntegrator <: DEIntegrator
 
   # Solutions
   abstract DESolution
@@ -58,6 +66,7 @@ module DiffEqBase
   include("problems/sde_problems.jl")
   include("problems/dae_problems.jl")
   include("callbacks.jl")
+  include("iterator_interface.jl")
 
   type ConvergenceSetup{P,C}
     probs::P
@@ -72,11 +81,14 @@ module DiffEqBase
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
          Tableau, DESensitivity, AbstractODESolution, ODERKTableau, ExplicitRKTableau,
          ImplicitRKTableau, AbstractSDESolution, DESensitivity, DEAlgorithm,
-         AbstractODETestProblem, DECallback, DECache
+         AbstractODETestProblem, DECallback, DECache, DEIntegrator,AbstractODEIntegrator
 
   export solve, solve!, init
 
   export tuples
+
+  export resize!,cache_iter,terminate!,add_tstop!,add_saveat!,set_abstol!,
+         set_reltol!,get_du,get_dt,get_proposed_dt,modify_proposed_dt!,u_unmodified!
 
   export numparameters, @def
 
