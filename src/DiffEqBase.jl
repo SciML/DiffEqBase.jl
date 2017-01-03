@@ -7,7 +7,7 @@ module DiffEqBase
   import Base: length, size, getindex, endof, show, print,
                next, start, done, eltype, eachindex
 
-  import Base: resize!
+  import Base: resize!, step
 
   # Problems
   "`DEProblem`: Defines differential equation problems via its internal functions"
@@ -27,6 +27,9 @@ module DiffEqBase
   abstract AbstractODEAlgorithm <: DEAlgorithm
   abstract AbstractSDEAlgorithm <: DEAlgorithm
   abstract AbstractDAEAlgorithm <: DEAlgorithm
+
+  # Options
+  abstract DEOptions
 
   # Caches
   abstract DECache
@@ -66,7 +69,7 @@ module DiffEqBase
   include("problems/sde_problems.jl")
   include("problems/dae_problems.jl")
   include("callbacks.jl")
-  include("iterator_interface.jl")
+  include("integrator_interface.jl")
 
   type ConvergenceSetup{P,C}
     probs::P
@@ -76,14 +79,16 @@ module DiffEqBase
   function solve end
   function solve! end
   function init end
+  function step(d::DEIntegrator) error("Integrator stepping is not implemented") end
 
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
          Tableau, DESensitivity, AbstractODESolution, ODERKTableau, ExplicitRKTableau,
          ImplicitRKTableau, AbstractSDESolution, DESensitivity, DEAlgorithm,
-         AbstractODETestProblem, DECallback, DECache, DEIntegrator,AbstractODEIntegrator
+         AbstractODETestProblem, DECallback, DECache, DEIntegrator,AbstractODEIntegrator,
+         DEOptions
 
-  export solve, solve!, init
+  export solve, solve!, init, step
 
   export tuples
 

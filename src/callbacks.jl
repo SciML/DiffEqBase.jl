@@ -1,0 +1,3 @@
+type Callback <: DECallback
+
+end
