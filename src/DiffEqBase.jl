@@ -95,6 +95,8 @@ module DiffEqBase
   export resize!,cache_iter,terminate!,add_tstop!,add_saveat!,set_abstol!,
          set_reltol!,get_du,get_dt,get_proposed_dt,modify_proposed_dt!,u_unmodified!
 
+  export interval_tuples
+
   export numparameters, @def
 
   export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac,
