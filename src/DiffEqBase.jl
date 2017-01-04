@@ -7,6 +7,8 @@ module DiffEqBase
   import Base: length, size, getindex, endof, show, print,
                next, start, done, eltype, eachindex
 
+  import Base: resize!
+
   # Problems
   "`DEProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
@@ -25,6 +27,19 @@ module DiffEqBase
   abstract AbstractODEAlgorithm <: DEAlgorithm
   abstract AbstractSDEAlgorithm <: DEAlgorithm
   abstract AbstractDAEAlgorithm <: DEAlgorithm
+
+  # Options
+  abstract DEOptions
+
+  # Caches
+  abstract DECache
+
+  # Callbacks
+  abstract DECallback
+
+  # Integrators
+  abstract DEIntegrator
+  abstract AbstractODEIntegrator <: DEIntegrator
 
   # Solutions
   abstract DESolution
@@ -53,6 +68,8 @@ module DiffEqBase
   include("problems/ode_problems.jl")
   include("problems/sde_problems.jl")
   include("problems/dae_problems.jl")
+  include("callbacks.jl")
+  include("integrator_interface.jl")
 
   type ConvergenceSetup{P,C}
     probs::P
@@ -60,17 +77,31 @@ module DiffEqBase
   end
 
   function solve end
+  function solve! end
+  function init end
+  function step!(d::DEIntegrator) error("Integrator stepping is not implemented") end
 
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
          Tableau, DESensitivity, AbstractODESolution, ODERKTableau, ExplicitRKTableau,
-         ImplicitRKTableau, AbstractSDESolution, DESensitivity, solve, DEAlgorithm
+         ImplicitRKTableau, AbstractSDESolution, DESensitivity, DEAlgorithm,
+         AbstractODETestProblem, DECallback, DECache, DEIntegrator,AbstractODEIntegrator,
+         DEOptions
+
+  export solve, solve!, init, step!
 
   export tuples
 
+  export resize!,cache_iter,terminate!,add_tstop!,add_saveat!,set_abstol!,
+         set_reltol!,get_du,get_dt,get_proposed_dt,modify_proposed_dt!,u_unmodified!,
+         savevalues!
+
+  export interval_tuples
+
   export numparameters, @def
 
-  export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac, HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
+  export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac,
+         HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
 
   export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
          has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac,
@@ -82,11 +113,13 @@ module DiffEqBase
 
   export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
 
-  export build_solution
+  export build_solution, calculate_solution_errors!
 
   export ParameterizedFunction
 
   export ConvergenceSetup
+
+  export Callback
 
   # Algorithms
 

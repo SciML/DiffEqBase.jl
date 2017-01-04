@@ -59,6 +59,64 @@ end
     denseplot = false
   end
 
+  vars = interpret_vars(vars,sol)
+
+  if denseplot && sol.dense
+    # Generate the points from the plot from dense function
+    plott = collect(Ranges.linspace(sol.t[1],sol.t[end],plotdensity))
+    plot_timeseries = sol(plott)
+    if plot_analytic
+      plot_analytic_timeseries = [sol.prob.analytic(t,sol.prob.u0) for t in plott]
+    end
+  else
+    # Plot for sparse output: use the timeseries itself
+    plott = sol.t
+    plot_timeseries = sol.u
+    if plot_analytic
+      plot_analytic_timeseries = sol.u_analytic
+    end
+  end
+
+  dims = length(vars[1])
+  for var in vars
+    @assert length(var) == dims
+  end
+  # Should check that all have the same dims!
+
+  plot_vecs = []
+  for i in 1:dims
+    push!(plot_vecs,[])
+  end
+  labels = String[]# Array{String, 2}(1, length(vars)*(1+plot_analytic))
+  for x in vars
+    for j in 1:dims
+      push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
+    end
+    add_labels!(labels,x,dims,sol)
+  end
+
+  if plot_analytic
+    for x in vars
+      for j in 1:dims
+        push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
+      end
+      add_analytic_labels!(labels,x,dims,sol)
+    end
+  end
+
+  tdir = sign(sol.t[end]-sol.t[1])
+  xflip --> tdir < 0
+  seriestype --> :path
+  linewidth --> 3
+  #xtickfont --> font(11)
+  #ytickfont --> font(11)
+  #legendfont --> font(11)
+  #guidefont  --> font(11)
+  label --> reshape(labels,1,length(labels))
+  (plot_vecs...)
+end
+
+function interpret_vars(vars,sol)
   if vars != nothing && has_syms(sol.prob.f)
     # Do syms conversion
     tmp_vars = []
@@ -118,115 +176,73 @@ end
   # Here `vars` should be a list of tuples (x, y).
   assert(typeof(vars) <: AbstractArray)
   assert(eltype(vars) <: Tuple)
+  vars
+end
 
-  if denseplot && sol.dense
-    # Generate the points from the plot from dense function
-    plott = collect(Ranges.linspace(sol.t[1],sol.t[end],plotdensity))
-    plot_timeseries = sol(plott)
-    if plot_analytic
-      plot_analytic_timeseries = [sol.prob.analytic(t,sol.prob.u0) for t in plott]
-    end
-  else
-    # Plot for sparse output: use the timeseries itself
-    plott = sol.t
-    plot_timeseries = sol.u
-    if plot_analytic
-      plot_analytic_timeseries = sol.u_analytic
-    end
-  end
-
-  function u_n(timeseries::AbstractArray, n::Int)
-    # Returns the nth variable from the timeseries, t if n == 0
-    if n == 0
-      plott
-    elseif n == 1 && !(typeof(sol[1]) <: AbstractArray)
-      timeseries
-    else
-      tmp = Vector{eltype(sol[1])}(length(plot_timeseries))
-      for j in 1:length(plot_timeseries)
-        tmp[j] = plot_timeseries[j][n]
-      end
-      tmp
-    end
-  end
-
-  dims = length(vars[1])
-  for var in vars
-    @assert length(var) == dims
-  end
-  # Should check that all have the same dims!
-
-  plot_vecs = []
-  for i in 1:dims
-    push!(plot_vecs,[])
-  end
-  labels = String[]# Array{String, 2}(1, length(vars)*(1+plot_analytic))
-  for x in vars
-    for j in 1:dims
-      push!(plot_vecs[j], u_n(plot_timeseries, x[j]))
-    end
-    lys = []
-    for j in 2:dims
-      if x[j] == 0
-        push!(lys,"t,")
-      else
-        if has_syms(sol.prob.f)
-          push!(lys,"$(sol.prob.f.syms[x[j]]),")
-        else
-          push!(lys,"u$(x[j]),")
-        end
-      end
-    end
-    lys[end] = lys[end][1:end-1] # Take off the last comma
-    if x[1] == 0
-      push!(labels,"$(lys...)(t)")
+function add_labels!(labels,x,dims,sol)
+  lys = []
+  for j in 2:dims
+    if x[j] == 0
+      push!(lys,"t,")
     else
       if has_syms(sol.prob.f)
-        tmp = sol.prob.f.syms[x[1]]
-        push!(labels,"($tmp, $(lys...))")
+        push!(lys,"$(sol.prob.f.syms[x[j]]),")
       else
-        push!(labels,"(u$x, $(lys...))")
+        push!(lys,"u$(x[j]),")
       end
     end
   end
+  lys[end] = lys[end][1:end-1] # Take off the last comma
+  if x[1] == 0
+    push!(labels,"$(lys...)(t)")
+  else
+    if has_syms(sol.prob.f)
+      tmp = sol.prob.f.syms[x[1]]
+      push!(labels,"($tmp, $(lys...))")
+    else
+      push!(labels,"(u$x, $(lys...))")
+    end
+  end
+  labels
+end
 
-  if plot_analytic
-    for x in vars
-      for j in 1:dims
-        push!(plot_vecs[j], u_n(plot_timeseries, x[j]))
-      end
-      lys = []
-      for j in 2:dims
-        if x[j] == 0
-          push!(lys,"t,")
-        else
-          if has_syms(sol.prob.f)
-            push!(lys,string("True ",sol.prob.f.syms[x[j]],","))
-          else
-            push!(lys,"True u$(x[2]),")
-          end
-        end
-      end
-      lys[end] = lys[end][1:end-1] # Take off the last comma
-      if x[1] == 0
-        push!(labels,"$(lys...)(t)")
+function add_analytic_labels!(labels,x,dims,sol)
+  lys = []
+  for j in 2:dims
+    if x[j] == 0
+      push!(lys,"t,")
+    else
+      if has_syms(sol.prob.f)
+        push!(lys,string("True ",sol.prob.f.syms[x[j]],","))
       else
-        if has_syms(sol.prob.f)
-          tmp = string("True ",sol.prob.f.syms[x[1]])
-          push!(labels,"($tmp, $(lys...))")
-        else
-          push!(labels,"(True u$x, $(lys...))")
-        end
+        push!(lys,"True u$(x[2]),")
       end
     end
   end
+  lys[end] = lys[end][1:end-1] # Take off the last comma
+  if x[1] == 0
+    push!(labels,"$(lys...)(t)")
+  else
+    if has_syms(sol.prob.f)
+      tmp = string("True ",sol.prob.f.syms[x[1]])
+      push!(labels,"($tmp, $(lys...))")
+    else
+      push!(labels,"(True u$x, $(lys...))")
+    end
+  end
+end
 
-  seriestype --> :path
-  linewidth --> 3
-  #xtickfont --> font(11)
-  #ytickfont --> font(11)
-  #legendfont --> font(11)
-  #guidefont  --> font(11)
-  label --> reshape(labels,1,length(labels))
-  (plot_vecs...)
+function u_n(timeseries::AbstractArray, n::Int,sol,plott,plot_timeseries)
+  # Returns the nth variable from the timeseries, t if n == 0
+  if n == 0
+    plott
+  elseif n == 1 && !(typeof(sol[1]) <: AbstractArray)
+    timeseries
+  else
+    tmp = Vector{eltype(sol[1])}(length(plot_timeseries))
+    for j in 1:length(plot_timeseries)
+      tmp[j] = plot_timeseries[j][n]
+    end
+    tmp
+  end
 end
