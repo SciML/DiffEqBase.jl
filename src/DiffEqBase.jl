@@ -79,7 +79,7 @@ module DiffEqBase
   function solve end
   function solve! end
   function init end
-  function step(d::DEIntegrator) error("Integrator stepping is not implemented") end
+  function step!(d::DEIntegrator) error("Integrator stepping is not implemented") end
 
   export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
          AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
@@ -93,7 +93,8 @@ module DiffEqBase
   export tuples
 
   export resize!,cache_iter,terminate!,add_tstop!,add_saveat!,set_abstol!,
-         set_reltol!,get_du,get_dt,get_proposed_dt,modify_proposed_dt!,u_unmodified!
+         set_reltol!,get_du,get_dt,get_proposed_dt,modify_proposed_dt!,u_unmodified!,
+         savevalues!
 
   export interval_tuples
 
