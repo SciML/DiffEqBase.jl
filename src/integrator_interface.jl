@@ -22,7 +22,7 @@ u_unmodified!(i::DEIntegrator,bool) = error("This method has not been implemente
   for i in 1:dims
     push!(plot_vecs,[])
   end
-  @show vars
+
   labels = String[]# Array{String, 2}(1, length(vars)*(1+plot_analytic))
   for x in vars
     for j in 1:dims
@@ -60,6 +60,5 @@ u_unmodified!(i::DEIntegrator,bool) = error("This method has not been implemente
   #legendfont --> font(11)
   #guidefont  --> font(11)
   label --> reshape(labels,1,length(labels))
-  @show plot_vecs
   (plot_vecs...)
 end
