@@ -10,8 +10,39 @@ savevalues!(i::DEIntegrator,bool) = error("This method has not been implemented 
 
 ### Abstract Interface
 
-tuples(integrator::DEIntegrator) = tuple.(integrator.t,integrator.u)
-interval_tuples(integrator::DEIntegrator) = tuple.(integrator.tprev,integrator.uprev,integrator.t,integrator.u)
+immutable IntegratorTuples{I}
+ integrator::I
+end
+
+start(tup::IntegratorTuples) = start(tup.integrator)
+
+function next(tup::IntegratorTuples,state)
+  state += 1
+  step!(tup.integrator) # Iter updated in the step! header
+  # Next is callbacks -> iterator  -> top
+  (tup.integrator.t,tup.integrator.u),state
+end
+
+done(tup::IntegratorTuples,state) = done(tup.integrator,state)
+
+tuples(integrator::DEIntegrator) = IntegratorTuples(integrator)
+
+immutable IntegratorIntervals{I}
+ integrator::I
+end
+
+start(tup::IntegratorIntervals) = start(tup.integrator)
+
+function next(tup::IntegratorIntervals,state)
+  state += 1
+  step!(tup.integrator) # Iter updated in the step! header
+  # Next is callbacks -> iterator  -> top
+  (tup.integrator.tprev,tup.integrator.uprev,tup.integrator.t,tup.integrator.u),state
+end
+
+done(tup::IntegratorIntervals,state) = done(tup.integrator,state)
+
+intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 
 @recipe function f(integrator::DEIntegrator;
                     denseplot=integrator.opts.calck && integrator.iter>0,
