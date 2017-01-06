@@ -1,4 +1,4 @@
-type Callback{F1,F2} <: DECallback
+immutable Callback{F1,F2} <: DECallback
   condition::F1
   affect!::F2
   rootfind::Bool
