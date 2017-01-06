@@ -53,7 +53,7 @@ end
 =#
 
 @recipe function f(sol::AbstractODESolution;
-                   plot_analytic=false,denseplot=true,plotdensity=100,vars=nothing)
+                   plot_analytic=false,denseplot=true,plotdensity=10*length(sol),vars=nothing)
 
   if typeof(sol) <: AbstractSDESolution
     denseplot = false

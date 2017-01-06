@@ -12,7 +12,7 @@ type ODESolution{uType,tType,rateType,P,A} <: AbstractODESolution
 end
 (sol::ODESolution)(t) = sol.interp(t)
 
-type ODETestSolution{uType,uType2,uEltype,tType,rateType,P,A} <: AbstractODESolution
+type ODETestSolution{uType,uType2,uEltype,tType,rateType,P,A} <: AbstractODETestSolution
   u::uType
   u_analytic::uType2
   errors::Dict{Symbol,uEltype}
@@ -48,7 +48,7 @@ function build_solution{uType,tType,isinplace}(
   sol
 end
 
-function calculate_solution_errors!(sol::ODETestSolution;timeseries_errors=true,dense_errors=true)
+function calculate_solution_errors!(sol::AbstractODETestSolution;timeseries_errors=true,dense_errors=true)
   for i in 1:size(sol.u,1)
     push!(sol.u_analytic,sol.prob.analytic(sol.t[i],sol.prob.u0))
   end

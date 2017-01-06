@@ -44,6 +44,7 @@ module DiffEqBase
   # Solutions
   abstract DESolution
   abstract AbstractODESolution <: DESolution
+  abstract AbstractODETestSolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractSDESolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractDAESolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractDDESolution <: AbstractODESolution # Needed for plot recipes
@@ -86,7 +87,7 @@ module DiffEqBase
          Tableau, DESensitivity, AbstractODESolution, ODERKTableau, ExplicitRKTableau,
          ImplicitRKTableau, AbstractSDESolution, DESensitivity, DEAlgorithm,
          AbstractODETestProblem, DECallback, DECache, DEIntegrator,AbstractODEIntegrator,
-         DEOptions
+         DEOptions, AbstractODETestSolution
 
   export solve, solve!, init, step!
 
