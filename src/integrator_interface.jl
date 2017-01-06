@@ -5,7 +5,7 @@ get_du(i::DEIntegrator) = error("This method has not been implemented for the in
 get_dt(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 get_proposed_dt(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 modify_proposed_dt!(i::DEIntegrator) = error("This method has not been implemented for the integrator")
-u_unmodified!(i::DEIntegrator,bool) = error("This method has not been implemented for the integrator")
+u_modified!(i::DEIntegrator,bool) = error("This method has not been implemented for the integrator")
 savevalues!(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 
 ### Abstract Interface
