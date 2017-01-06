@@ -11,6 +11,6 @@ end
 Callback(condition,affect!,
          rootfind,interp_points,
          save_positions;
-         abstol=0,reltol=1e-10) = Callback(condition,affect!,
+         abstol=1e-14,reltol=0) = Callback(condition,affect!,
                     rootfind,interp_points,
                     save_positions,abstol,reltol)
