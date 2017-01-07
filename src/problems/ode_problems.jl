@@ -12,13 +12,13 @@ type ODETestProblem{uType,tType,isinplace,F} <: AbstractODETestProblem{uType,tTy
 end
 
 function ODEProblem(f,u0,tspan)
-  isinplace = numparameters(f)>=3
-  ODEProblem{typeof(u0),eltype(tspan),isinplace,typeof(f)}(f,u0,tspan)
+  iip = isinplace(f,3)
+  ODEProblem{typeof(u0),eltype(tspan),iip,typeof(f)}(f,u0,tspan)
 end
 
 function ODETestProblem(f,u0,analytic,tspan=(0.0,1.0))
-  isinplace = numparameters(f)>=3
-  ODETestProblem{typeof(u0),eltype(tspan),isinplace,typeof(f)}(f,u0,analytic,tspan)
+  iip = isinplace(f,3)
+  ODETestProblem{typeof(u0),eltype(tspan),iip,typeof(f)}(f,u0,analytic,tspan)
 end
 
 function print{uType,tType,isinplace,F}(io::IO, prob::AbstractODEProblem{uType,tType,isinplace,F})

@@ -48,7 +48,7 @@ immutable G123 end
 
 using ParameterizedFunctions
 
-type  LotkaVolterra <: ParameterizedFunction
+type  LotkaVolterra <: AbstractParameterizedFunction
           a::Float64
           b::Float64
 end

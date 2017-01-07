@@ -8,6 +8,14 @@ function numparameters(f)
   return (numparam-1) #-1 in v0.5 since it adds f as the first parameter
 end
 
+function isinplace(f,inplace_param_number)
+  numparameters(f)>=inplace_param_number
+end
+
+function isinplace{iip}(f::AbstractParameterizedFunction{iip},inplace_param_number)
+  iip
+end
+
 macro def(name, definition)
     return quote
         macro $(esc(name))()

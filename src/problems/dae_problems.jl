@@ -14,13 +14,13 @@ type DAETestProblem{uType,duType,tType,isinplace,F} <: AbstractDAETestProblem{uT
 end
 
 function DAEProblem(f,u0,du0,tspan)
-  isinplace = numparameters(f)>=4
-  DAEProblem{typeof(u0),typeof(du0),eltype(tspan),isinplace,typeof(f)}(f,u0,du0,tspan)
+  iip = isinplace(f,4)
+  DAEProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f)}(f,u0,du0,tspan)
 end
 
 function DAETestProblem(f,u0,du0,analytic,tspan=(0.0,1.0))
-  isinplace = numparameters(f)>=4
-  DAETestProblem{typeof(u0),typeof(du0),eltype(tspan),isinplace,typeof(f)}(f,u0,du0,analytic,tspan)
+  iip = isinplace(f,4)
+  DAETestProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f)}(f,u0,du0,analytic,tspan)
 end
 
 function print{uType,duType,tType,isinplace,F}(io::IO, prob::AbstractDAEProblem{uType,duType,tType,isinplace,F})

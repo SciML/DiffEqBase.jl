@@ -56,7 +56,7 @@ module DiffEqBase
   "`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator"
   abstract ODERKTableau <: Tableau
 
-  abstract AbstractParameterizedFunction <: Function
+  abstract AbstractParameterizedFunction{isinplace} <: Function
 
   include("utils.jl")
   include("extended_functions.jl")
