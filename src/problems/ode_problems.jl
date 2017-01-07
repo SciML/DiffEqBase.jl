@@ -11,13 +11,11 @@ type ODETestProblem{uType,tType,isinplace,F} <: AbstractODETestProblem{uType,tTy
   tspan::Tuple{tType,tType}
 end
 
-function ODEProblem(f,u0,tspan)
-  iip = isinplace(f,3)
+function ODEProblem(f,u0,tspan; iip = isinplace(f,3))
   ODEProblem{typeof(u0),eltype(tspan),iip,typeof(f)}(f,u0,tspan)
 end
 
-function ODETestProblem(f,u0,analytic,tspan=(0.0,1.0))
-  iip = isinplace(f,3)
+function ODETestProblem(f,u0,analytic,tspan=(0.0,1.0); iip = isinplace(f,3))
   ODETestProblem{typeof(u0),eltype(tspan),iip,typeof(f)}(f,u0,analytic,tspan)
 end
 

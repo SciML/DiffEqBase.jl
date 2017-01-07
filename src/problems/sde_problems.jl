@@ -15,13 +15,11 @@ type SDETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <: AbstractSDETest
   noise::NoiseProcess{NoiseClass,F3}
 end
 
-function SDEProblem{NoiseClass,F3}(f,g,u0,tspan,noise::NoiseProcess{NoiseClass,F3}=WHITE_NOISE)
-  iip = isinplace(f,3)
+function SDEProblem{NoiseClass,F3}(f,g,u0,tspan,noise::NoiseProcess{NoiseClass,F3}=WHITE_NOISE;iip = isinplace(f,3))
   SDEProblem{typeof(u0),eltype(tspan),iip,NoiseClass,typeof(f),typeof(g),F3}(f,g,u0,tspan,noise)
 end
 
-function SDETestProblem{NoiseClass,F3}(f,g,u0,analytic,tspan=(0.0,1.0),noise::NoiseProcess{NoiseClass,F3}=WHITE_NOISE)
-  iip = isinplace(f,3)
+function SDETestProblem{NoiseClass,F3}(f,g,u0,analytic,tspan=(0.0,1.0),noise::NoiseProcess{NoiseClass,F3}=WHITE_NOISE;iip = isinplace(f,3))
   SDETestProblem{typeof(u0),eltype(tspan),iip,NoiseClass,typeof(f),typeof(g),F3}(f,g,u0,analytic,tspan,noise)
 end
 
