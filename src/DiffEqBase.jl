@@ -20,13 +20,17 @@ module DiffEqBase
   abstract AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}  <: AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}
   abstract AbstractDAEProblem{uType,duType,tType,isinplace,F} <: DEProblem
   abstract AbstractDAETestProblem{uType,duType,tType,isinplace,F} <: AbstractDAEProblem{uType,duType,tType,isinplace,F}
-  abstract AbstractDDEProblem <: DEProblem
+  abstract AbstractDDEProblem{uType,tType,lType,isinplace,F,H} <: DEProblem
+  abstract AbstractDDETestProblem{uType,tType,lType,isinplace,F,H} <: AbstractDDEProblem{uType,tType,lType,isinplace,F,H}
+  abstract AbstractConstantLagDDEProblem{uType,tType,lType,isinplace,F,H} <: AbstractDDEProblem{uType,tType,lType,isinplace,F,H}
+  abstract AbstractConstantLagDDETestProblem{uType,tType,lType,isinplace,F,H} <: AbstractDDETestProblem{uType,tType,lType,isinplace,F,H}
 
   # Algorithms
   abstract DEAlgorithm
   abstract AbstractODEAlgorithm <: DEAlgorithm
   abstract AbstractSDEAlgorithm <: DEAlgorithm
   abstract AbstractDAEAlgorithm <: DEAlgorithm
+  abstract AbstractDDEAlgorithm <: DEAlgorithm
 
   # Options
   abstract DEOptions
@@ -47,7 +51,6 @@ module DiffEqBase
   abstract AbstractODETestSolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractSDESolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractDAESolution <: AbstractODESolution # Needed for plot recipes
-  abstract AbstractDDESolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractSensitivitySolution
 
   # Misc
@@ -69,6 +72,7 @@ module DiffEqBase
   include("problems/ode_problems.jl")
   include("problems/sde_problems.jl")
   include("problems/dae_problems.jl")
+  include("problems/dde_problems.jl")
   include("callbacks.jl")
   include("integrator_interface.jl")
 
@@ -87,7 +91,9 @@ module DiffEqBase
          Tableau, DESensitivity, AbstractODESolution, ODERKTableau, ExplicitRKTableau,
          ImplicitRKTableau, AbstractSDESolution, DESensitivity, DEAlgorithm,
          AbstractODETestProblem, DECallback, DECache, DEIntegrator,AbstractODEIntegrator,
-         DEOptions, AbstractODETestSolution
+         DEOptions, AbstractODETestSolution, AbstractDDEProblem, AbstractDDETestProblem,
+         AbstractSDETestProblem, AbstractDAETestProblem
+
 
   export solve, solve!, init, step!
 
@@ -114,6 +120,8 @@ module DiffEqBase
 
   export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
 
+  export ConstantLagDDEProblem, ConstantLagDDETestProblem, DDEProblem, DDETestProblem
+
   export build_solution, calculate_solution_errors!
 
   export AbstractParameterizedFunction
@@ -124,6 +132,6 @@ module DiffEqBase
 
   # Algorithms
 
-  export AbstractODEAlgorithm, AbstractSDEAlgorithm, AbstractDAEAlgorithm
+  export AbstractODEAlgorithm, AbstractSDEAlgorithm, AbstractDAEAlgorithm, AbstractDDEAlgorithm
 
 end # module

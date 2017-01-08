@@ -48,9 +48,11 @@ function build_solution{uType,tType,isinplace}(
   sol
 end
 
-function calculate_solution_errors!(sol::AbstractODETestSolution;timeseries_errors=true,dense_errors=true)
-  for i in 1:size(sol.u,1)
-    push!(sol.u_analytic,sol.prob.analytic(sol.t[i],sol.prob.u0))
+function calculate_solution_errors!(sol::AbstractODETestSolution;fill_uanalytic=true,timeseries_errors=true,dense_errors=true)
+  if fill_uanalytic
+    for i in 1:size(sol.u,1)
+      push!(sol.u_analytic,sol.prob.analytic(sol.t[i],sol.prob.u0))
+    end
   end
 
   save_timeseries = length(sol.u) > 2
