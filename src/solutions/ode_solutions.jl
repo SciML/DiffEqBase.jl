@@ -1,18 +1,18 @@
 ### Concrete Types
 
-type ODESolution{uType,tType,rateType,P,A} <: AbstractODESolution
+type ODESolution{uType,tType,rateType,P,A,IType} <: AbstractODESolution
   u::uType
   t::tType
   k::rateType
   prob::P
   alg::A
-  interp::Function
+  interp::IType
   dense::Bool
   tslocation::Int
 end
 (sol::ODESolution)(t) = sol.interp(t)
 
-type ODETestSolution{uType,uType2,uEltype,tType,rateType,P,A} <: AbstractODETestSolution
+type ODETestSolution{uType,uType2,uEltype,tType,rateType,P,A,IType} <: AbstractODETestSolution
   u::uType
   u_analytic::uType2
   errors::Dict{Symbol,uEltype}
@@ -20,7 +20,7 @@ type ODETestSolution{uType,uType2,uEltype,tType,rateType,P,A} <: AbstractODETest
   k::rateType
   prob::P
   alg::A
-  interp::Function
+  interp::IType
   dense::Bool
   tslocation::Int
 end
