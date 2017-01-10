@@ -50,7 +50,11 @@ module DiffEqBase
   abstract AbstractODESolution <: DESolution
   abstract AbstractODETestSolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractSDESolution <: AbstractODESolution # Needed for plot recipes
+  abstract AbstractSDETestSolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractDAESolution <: AbstractODESolution # Needed for plot recipes
+  abstract AbstractDAETestSolution <: AbstractODESolution # Needed for plot recipes
+  abstract AbstractDDESolution <: DESolution
+  abstract AbstractDDETestSolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractSensitivitySolution
 
   # Misc
@@ -67,6 +71,7 @@ module DiffEqBase
   include("solutions/ode_solutions.jl")
   include("solutions/sde_solutions.jl")
   include("solutions/dae_solutions.jl")
+  include("solutions/dde_solutions.jl")
   include("solutions/solution_interface.jl")
   include("tableaus.jl")
   include("problems/ode_problems.jl")
@@ -92,7 +97,8 @@ module DiffEqBase
          ImplicitRKTableau, AbstractSDESolution, DESensitivity, DEAlgorithm,
          AbstractODETestProblem, DECallback, DECache, DEIntegrator,AbstractODEIntegrator,
          DEOptions, AbstractODETestSolution, AbstractDDEProblem, AbstractDDETestProblem,
-         AbstractSDETestProblem, AbstractDAETestProblem
+         AbstractSDETestProblem, AbstractDAETestProblem,   AbstractSDETestSolution,
+         AbstractDAETestSolution, AbstractDDESolution, AbstractDDETestSolution
 
 
   export solve, solve!, init, step!
