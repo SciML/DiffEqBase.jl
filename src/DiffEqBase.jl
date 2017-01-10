@@ -134,7 +134,7 @@ module DiffEqBase
 
   export ConvergenceSetup
 
-  export Callback
+  export ContinuousCallback, DiscreteCallback, CallbackSet
 
   # Algorithms
 
