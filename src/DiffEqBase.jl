@@ -32,6 +32,9 @@ module DiffEqBase
   abstract AbstractDAEAlgorithm <: DEAlgorithm
   abstract AbstractDDEAlgorithm <: DEAlgorithm
 
+  # Monte Carlo Simulations
+  abstract AbstractMonteCarloSimulation
+
   # Options
   abstract DEOptions
 
@@ -47,6 +50,7 @@ module DiffEqBase
 
   # Solutions
   abstract DESolution
+  abstract DETestSolution <: DESolution
   abstract AbstractODESolution <: DESolution
   abstract AbstractODETestSolution <: AbstractODESolution # Needed for plot recipes
   abstract AbstractSDESolution <: AbstractODESolution # Needed for plot recipes
@@ -91,14 +95,17 @@ module DiffEqBase
   function init end
   function step!(d::DEIntegrator) error("Integrator stepping is not implemented") end
 
-  export DEProblem, DESolution, DEParameters, AbstractDAEProblem, AbstractDDEProblem,
-         AbstractODEProblem, AbstractSDEProblem, DAESolution, DEIntegrator, Mesh,
-         Tableau, DESensitivity, AbstractODESolution, ODERKTableau, ExplicitRKTableau,
+  export DEProblem, DESolution, DETestSolution, DEParameters, AbstractDAEProblem,
+         AbstractDDEProblem, AbstractODEProblem, AbstractSDEProblem, DAESolution,
+         DEIntegrator, Mesh, Tableau, DESensitivity, AbstractODESolution, ODERKTableau,
+         ExplicitRKTableau,
          ImplicitRKTableau, AbstractSDESolution, DESensitivity, DEAlgorithm,
          AbstractODETestProblem, DECallback, DECache, DEIntegrator,AbstractODEIntegrator,
          DEOptions, AbstractODETestSolution, AbstractDDEProblem, AbstractDDETestProblem,
          AbstractSDETestProblem, AbstractDAETestProblem,   AbstractSDETestSolution,
-         AbstractDAETestSolution, AbstractDDESolution, AbstractDDETestSolution
+         AbstractDAETestSolution, AbstractDDESolution, AbstractDDETestSolution,
+         AbstractMonteCarloSimulation, AbstractConstantLagDDETestProblem,
+         AbstractConstantLagDDEProblem
 
 
   export solve, solve!, init, step!

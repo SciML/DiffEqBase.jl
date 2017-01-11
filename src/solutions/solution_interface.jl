@@ -52,7 +52,7 @@ function show(io::IO,sol::DESolution)
 end
 =#
 
-@recipe function f(sol::AbstractODESolution;
+@recipe function f(sol::DESolution;
                    plot_analytic=false,denseplot=true,plotdensity=10*length(sol),vars=nothing)
 
   if typeof(sol) <: AbstractSDESolution
