@@ -82,27 +82,7 @@ end
     @assert length(var) == dims
   end
   # Should check that all have the same dims!
-
-  plot_vecs = []
-  for i in 1:dims
-    push!(plot_vecs,[])
-  end
-  labels = String[]# Array{String, 2}(1, length(vars)*(1+plot_analytic))
-  for x in vars
-    for j in 1:dims
-      push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
-    end
-    add_labels!(labels,x,dims,sol)
-  end
-
-  if plot_analytic
-    for x in vars
-      for j in 1:dims
-        push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
-      end
-      add_analytic_labels!(labels,x,dims,sol)
-    end
-  end
+  plot_vecs,labels = solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analytic)
 
   tdir = sign(sol.t[end]-sol.t[1])
   xflip --> tdir < 0
@@ -245,4 +225,28 @@ function u_n(timeseries::AbstractArray, n::Int,sol,plott,plot_timeseries)
     end
     tmp
   end
+end
+
+function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analytic)
+  plot_vecs = []
+  for i in 1:dims
+    push!(plot_vecs,[])
+  end
+  labels = String[]# Array{String, 2}(1, length(vars)*(1+plot_analytic))
+  for x in vars
+    for j in 1:dims
+      push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
+    end
+    add_labels!(labels,x,dims,sol)
+  end
+
+  if plot_analytic
+    for x in vars
+      for j in 1:dims
+        push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
+      end
+      add_analytic_labels!(labels,x,dims,sol)
+    end
+  end
+  plot_vecs,labels
 end
