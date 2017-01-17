@@ -178,9 +178,9 @@ function add_labels!(labels,x,dims,sol)
   else
     if has_syms(sol.prob.f)
       tmp = sol.prob.f.syms[x[1]]
-      push!(labels,"($tmp, $(lys...))")
+      push!(labels,"($tmp,$(lys...))")
     else
-      push!(labels,"(u$x, $(lys...))")
+      push!(labels,"(u$x,$(lys...))")
     end
   end
   labels
@@ -205,9 +205,9 @@ function add_analytic_labels!(labels,x,dims,sol)
   else
     if has_syms(sol.prob.f)
       tmp = string("True ",sol.prob.f.syms[x[1]])
-      push!(labels,"($tmp, $(lys...))")
+      push!(labels,"($tmp,$(lys...))")
     else
-      push!(labels,"(True u$x, $(lys...))")
+      push!(labels,"(True u$x,$(lys...))")
     end
   end
 end
