@@ -59,7 +59,7 @@ end
     denseplot = false
   end
 
-  vars = interpret_vars(vars,sol)
+  int_vars = interpret_vars(vars,sol)
 
   if denseplot && sol.dense
     # Generate the points from the plot from dense function
@@ -77,17 +77,29 @@ end
     end
   end
 
-  dims = length(vars[1])
-  for var in vars
+  dims = length(int_vars[1])
+  for var in int_vars
     @assert length(var) == dims
   end
   # Should check that all have the same dims!
-  plot_vecs,labels = solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analytic)
+  plot_vecs,labels = solplot_vecs_and_labels(dims,int_vars,plot_timeseries,plott,sol,plot_analytic)
 
   tdir = sign(sol.t[end]-sol.t[1])
   xflip --> tdir < 0
   seriestype --> :path
   linewidth --> 3
+
+  # Special case labels when vars = (:x,:y,:z) or (:x) or [:x,:y] ...
+  if typeof(vars) <: Tuple && eltype(vars) == Symbol
+    xlabel --> vars[1]
+    ylabel --> vars[2]
+    if length(vars) > 2
+      zlabel --> vars[3]
+    end
+  end
+  if first.(int_vars) == zeros(length(int_vars))
+    xlabel --> "t"
+  end
   #xtickfont --> font(11)
   #ytickfont --> font(11)
   #legendfont --> font(11)
