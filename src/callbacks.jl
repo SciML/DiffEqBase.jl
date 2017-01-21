@@ -9,14 +9,32 @@ immutable ContinuousCallback{F1,F2,F3,T,T2} <: DECallback
   reltol::T2
 end
 
-ContinuousCallback(condition,affect!,
-         rootfind,
-         save_positions;
-         affect_neg! = affect!,
-         interp_points=10,
-         abstol=1e-14,reltol=0) = ContinuousCallback(condition,affect!,affect_neg!,
-                    rootfind,interp_points,
-                    save_positions,abstol,reltol)
+ContinuousCallback(condition,affect!,affect_neg!,
+                   rootfind,
+                   save_positions;
+                   interp_points=10,
+                   abstol=1e-14,reltol=0) = ContinuousCallback(
+                              condition,affect!,affect_neg!,
+                              rootfind,interp_points,
+                              save_positions,abstol,reltol)
+
+function ContinuousCallback(condition,affect!,
+                   rootfind,
+                   save_positions;
+                   affect_neg! = affect!,
+                   interp_points=10,
+                   abstol=1e-14,reltol=0)
+
+  if affect_neg! != affect!
+    Base.depwarn("the `affect_neg!` keyword has been deprecated for a different constructor. Please consult the documentation.",:ContinuousCallback)
+  end
+
+ ContinuousCallback(
+            condition,affect!,affect_neg!,
+            rootfind,interp_points,
+            save_positions,abstol,reltol)
+
+end
 
 immutable DiscreteCallback{F1,F2} <: DECallback
   condition::F1
