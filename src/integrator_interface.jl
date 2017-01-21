@@ -1,4 +1,5 @@
 resize!(i::DEIntegrator,ii::Int) = error("This method has not been implemented for the integrator")
+deleteat!(i::DEIntegrator,ii::Int) = error("This method has not been implemented for the integrator")
 u_cache(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 du_cache(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 full_cache(i::DEIntegrator) = error("This method has not been implemented for the integrator")
@@ -9,6 +10,10 @@ get_proposed_dt(i::DEIntegrator) = error("This method has not been implemented f
 modify_proposed_dt!(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 u_modified!(i::DEIntegrator,bool) = error("This method has not been implemented for the integrator")
 savevalues!(i::DEIntegrator) = error("This method has not been implemented for the integrator")
+add_tstop!(i::DEIntegrator,t) = error("This method has not been implemented for the integrator")
+add_saveat!(i::DEIntegrator,t) = error("This method has not been implemented for the integrator")
+set_abstol!(i::DEIntegrator,t) = error("This method has not been implemented for the integrator")
+set_reltol!(i::DEIntegrator,t) = error("This method has not been implemented for the integrator")
 
 ### Abstract Interface
 
