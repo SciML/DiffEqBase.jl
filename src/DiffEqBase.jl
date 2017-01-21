@@ -7,7 +7,7 @@ module DiffEqBase
   import Base: length, size, getindex, endof, show, print,
                next, start, done, eltype, eachindex
 
-  import Base: resize!
+  import Base: resize!, deleteat!
 
   # Problems
   "`DEProblem`: Defines differential equation problems via its internal functions"
