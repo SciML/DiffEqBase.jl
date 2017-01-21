@@ -112,7 +112,7 @@ module DiffEqBase
 
   export tuples, intervals
 
-  export resize!,cache_iter,terminate!,add_tstop!,add_saveat!,set_abstol!,
+  export resize!,full_cache,u_cache,du_cache,terminate!,add_tstop!,add_saveat!,set_abstol!,
          set_reltol!,get_du,get_dt,get_proposed_dt,modify_proposed_dt!,u_modified!,
          savevalues!
 
