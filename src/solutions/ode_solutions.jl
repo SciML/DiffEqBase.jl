@@ -63,8 +63,8 @@ function calculate_solution_errors!(sol::AbstractODETestSolution;fill_uanalytic=
       sol.errors[:l∞] = maximum(vecvecapply((x)->abs.(x),sol.u-sol.u_analytic))
       sol.errors[:l2] = sqrt(mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic)))
       if sol.dense && dense_errors
-        densetimes = collect(linspace(t[1],t[end],100))
-        interp_u = interp(densetimes)
+        densetimes = collect(linspace(sol.t[1],sol.t[end],100))
+        interp_u = sol(densetimes)
         interp_analytic = [sol.prob.analytic(t,sol.u[1]) for t in densetimes]
         sol.errors[:L∞] = maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic))
         sol.errors[:L2] = sqrt(mean(vecvecapply((x)->float.(x).^2,interp_u-interp_analytic)))
