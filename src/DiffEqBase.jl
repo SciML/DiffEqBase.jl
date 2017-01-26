@@ -47,6 +47,9 @@ module DiffEqBase
   # Integrators
   abstract DEIntegrator
   abstract AbstractODEIntegrator <: DEIntegrator
+  abstract AbstractSDEIntegrator <: DEIntegrator
+  abstract AbstractDDEIntegrator <: DEIntegrator
+  abstract AbstractDAEIntegrator <: DEIntegrator
 
   # Solutions
   abstract DESolution
@@ -100,13 +103,14 @@ module DiffEqBase
          DEIntegrator, Mesh, Tableau, DESensitivity, AbstractODESolution, ODERKTableau,
          ExplicitRKTableau,
          ImplicitRKTableau, AbstractSDESolution, DESensitivity, DEAlgorithm,
-         AbstractODETestProblem, DECallback, DECache, DEIntegrator,AbstractODEIntegrator,
+         AbstractODETestProblem, DECallback, DECache, DEIntegrator,
          DEOptions, AbstractODETestSolution, AbstractDDEProblem, AbstractDDETestProblem,
          AbstractSDETestProblem, AbstractDAETestProblem,   AbstractSDETestSolution,
          AbstractDAETestSolution, AbstractDDESolution, AbstractDDETestSolution,
          AbstractMonteCarloSimulation, AbstractConstantLagDDETestProblem,
          AbstractConstantLagDDEProblem
 
+  export isinplace
 
   export solve, solve!, init, step!
 
@@ -115,8 +119,6 @@ module DiffEqBase
   export resize!,deleteat!,full_cache,u_cache,du_cache,terminate!,add_tstop!,add_saveat!,set_abstol!,
          set_reltol!,get_du,get_dt,get_proposed_dt,modify_proposed_dt!,u_modified!,
          savevalues!
-
-  export interval_tuples
 
   export numparameters, @def
 
@@ -146,5 +148,8 @@ module DiffEqBase
   # Algorithms
 
   export AbstractODEAlgorithm, AbstractSDEAlgorithm, AbstractDAEAlgorithm, AbstractDDEAlgorithm
+
+  export AbstractODEIntegrator, AbstractSDEIntegrator, AbstractDDEIntegrator, AbstractDAEIntegrator
+
 
 end # module
