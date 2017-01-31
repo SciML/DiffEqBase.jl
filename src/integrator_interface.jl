@@ -52,7 +52,7 @@ done(tup::IntegratorIntervals,state) = done(tup.integrator,state)
 intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 
 @recipe function f(integrator::DEIntegrator;
-                    denseplot=integrator.opts.calck && integrator.iter>0,
+                    denseplot=(integrator.opts.calck || typeof(integrator) <: AbstractSDEIntegrator)  && integrator.iter>0,
                     plotdensity =10,
                     plot_analytic=false,vars=nothing)
 
