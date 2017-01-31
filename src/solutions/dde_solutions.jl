@@ -11,6 +11,7 @@ type DDESolution{uType,tType,rateType,P,A,IType} <: AbstractDDESolution
   tslocation::Int
 end
 (sol::DDESolution)(t) = sol.interp(t)
+(sol::DDESolution)(v,t) = sol.interp(v,t)
 
 type DDETestSolution{uType,uType2,uEltype,tType,rateType,P,A,IType} <: AbstractDDETestSolution
   u::uType
@@ -25,6 +26,7 @@ type DDETestSolution{uType,uType2,uEltype,tType,rateType,P,A,IType} <: AbstractD
   tslocation::Int
 end
 (sol::DDETestSolution)(t) = sol.interp(t)
+(sol::DDETestSolution)(v,t) = sol.interp(v,t)
 
 function build_solution{uType,tType,isinplace}(
         prob::AbstractDDEProblem{uType,tType,isinplace},

@@ -14,6 +14,7 @@ type SDESolution{uType,tType,IType,randType,P,A} <: AbstractSDESolution
 end
 
 (sol::SDESolution)(t) = sol.interp(t)
+(sol::SDESolution)(v,t) = sol.interp(v,t)
 
 type SDETestSolution{uType,uType2,uEltype,tType,IType,randType,P,A} <: AbstractSDETestSolution
   u::uType
@@ -31,6 +32,7 @@ type SDETestSolution{uType,uType2,uEltype,tType,IType,randType,P,A} <: AbstractS
 end
 
 (sol::SDETestSolution)(t) = sol.interp(t)
+(sol::SDETestSolution)(v,t) = sol.interp(v,t)
 
 function build_solution{uType,tType,isinplace,NoiseClass,F,F2,F3}(
         prob::AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3},

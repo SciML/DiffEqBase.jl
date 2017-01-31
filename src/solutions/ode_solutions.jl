@@ -11,6 +11,7 @@ type ODESolution{uType,tType,rateType,P,A,IType} <: AbstractODESolution
   tslocation::Int
 end
 (sol::ODESolution)(t) = sol.interp(t)
+(sol::ODESolution)(v,t) = sol.interp(v,t)
 
 type ODETestSolution{uType,uType2,uEltype,tType,rateType,P,A,IType} <: AbstractODETestSolution
   u::uType
@@ -25,6 +26,7 @@ type ODETestSolution{uType,uType2,uEltype,tType,rateType,P,A,IType} <: AbstractO
   tslocation::Int
 end
 (sol::ODETestSolution)(t) = sol.interp(t)
+(sol::ODETestSolution)(v,t) = sol.interp(v,t)
 
 function build_solution{uType,tType,isinplace}(
         prob::AbstractODEProblem{uType,tType,isinplace},

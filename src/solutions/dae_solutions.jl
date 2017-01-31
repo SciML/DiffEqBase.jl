@@ -12,6 +12,7 @@ type DAESolution{uType,duType,tType,ID,P,A} <: AbstractODESolution
   tslocation::Int
 end
 (sol::DAESolution)(t) = sol.interp(t)
+(sol::DAESolution)(v,t) = sol.interp(v,t)
 
 type DAETestSolution{uType,duType,uType2,uEltype,tType,ID,P,A} <: AbstractODESolution
   u::uType
@@ -27,6 +28,7 @@ type DAETestSolution{uType,duType,uType2,uEltype,tType,ID,P,A} <: AbstractODESol
   tslocation::Int
 end
 (sol::DAETestSolution)(t) = sol.interp(t)
+(sol::DAETestSolution)(v,t) = sol.interp(v,t)
 
 function build_solution{uType,duType,tType,isinplace,F}(
         prob::AbstractDAEProblem{uType,duType,tType,isinplace,F},
