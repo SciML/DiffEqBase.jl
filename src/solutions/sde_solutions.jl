@@ -12,9 +12,8 @@ type SDESolution{uType,tType,IType,randType,P,A} <: AbstractSDESolution
   dense::Bool
   tslocation::Int
 end
-
-(sol::SDESolution)(t) = sol.interp(t)
-(sol::SDESolution)(v,t) = sol.interp(v,t)
+(sol::SDESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
+(sol::SDESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
 
 type SDETestSolution{uType,uType2,uEltype,tType,IType,randType,P,A} <: AbstractSDETestSolution
   u::uType
@@ -30,9 +29,8 @@ type SDETestSolution{uType,uType2,uEltype,tType,IType,randType,P,A} <: AbstractS
   dense::Bool
   tslocation::Int
 end
-
-(sol::SDETestSolution)(t) = sol.interp(t)
-(sol::SDETestSolution)(v,t) = sol.interp(v,t)
+(sol::SDETestSolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
+(sol::SDETestSolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
 
 function build_solution{uType,tType,isinplace,NoiseClass,F,F2,F3}(
         prob::AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3},
