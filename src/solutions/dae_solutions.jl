@@ -11,8 +11,8 @@ type DAESolution{uType,duType,tType,ID,P,A} <: AbstractODESolution
   dense::Bool
   tslocation::Int
 end
-(sol::DAESolution)(t) = sol.interp(t)
-(sol::DAESolution)(v,t) = sol.interp(v,t)
+(sol::DAESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
+(sol::DAESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
 
 type DAETestSolution{uType,duType,uType2,uEltype,tType,ID,P,A} <: AbstractODESolution
   u::uType
@@ -27,8 +27,8 @@ type DAETestSolution{uType,duType,uType2,uEltype,tType,ID,P,A} <: AbstractODESol
   dense::Bool
   tslocation::Int
 end
-(sol::DAETestSolution)(t) = sol.interp(t)
-(sol::DAETestSolution)(v,t) = sol.interp(v,t)
+(sol::DAETestSolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
+(sol::DAETestSolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
 
 function build_solution{uType,duType,tType,isinplace,F}(
         prob::AbstractDAEProblem{uType,duType,tType,isinplace,F},
