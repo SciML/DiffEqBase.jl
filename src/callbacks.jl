@@ -1,7 +1,8 @@
-immutable ContinuousCallback{F1,F2,F3,T,T2} <: DECallback
+immutable ContinuousCallback{F1,F2,F3,T,T2,I} <: DECallback
   condition::F1
   affect!::F2
   affect_neg!::F3
+  idxs::I
   rootfind::Bool
   interp_points::Int
   save_positions::Tuple{Bool,Bool}
@@ -10,15 +11,17 @@ immutable ContinuousCallback{F1,F2,F3,T,T2} <: DECallback
 end
 
 ContinuousCallback(condition,affect!,affect_neg!;
+                   idxs = nothing,
                    rootfind=true,
                    save_positions=(true,true),
                    interp_points=10,
                    abstol=1e-12,reltol=0) = ContinuousCallback(
-                              condition,affect!,affect_neg!,
+                              condition,affect!,affect_neg!,idxs,
                               rootfind,interp_points,
                               save_positions,abstol,reltol)
 
 function ContinuousCallback(condition,affect!;
+                   idxs = nothing,
                    rootfind=true,
                    save_positions=(true,true),
                    affect_neg! = affect!,
@@ -30,7 +33,7 @@ function ContinuousCallback(condition,affect!;
   end
 
  ContinuousCallback(
-            condition,affect!,affect_neg!,
+            condition,affect!,affect_neg!,idxs,
             rootfind,interp_points,
             save_positions,abstol,reltol)
 
