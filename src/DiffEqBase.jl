@@ -16,6 +16,8 @@ module DiffEqBase
   abstract DESensitivity
   abstract AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem
   abstract AbstractODETestProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
+  abstract AbstractDiscreteProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
+  abstract AbstractDiscreteTestProblem{uType,tType,isinplace,F} <: AbstractODETestProblem{uType,tType,isinplace,F}
   abstract AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}  <: DEProblem
   abstract AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}  <: AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}
   abstract AbstractDAEProblem{uType,duType,tType,isinplace,F} <: DEProblem
@@ -81,6 +83,7 @@ module DiffEqBase
   include("solutions/dde_solutions.jl")
   include("solutions/solution_interface.jl")
   include("tableaus.jl")
+  include("problems/discrete_problems.jl")
   include("problems/ode_problems.jl")
   include("problems/sde_problems.jl")
   include("problems/dae_problems.jl")
@@ -101,7 +104,7 @@ module DiffEqBase
   export DEProblem, DESolution, DETestSolution, DEParameters, AbstractDAEProblem,
          AbstractDDEProblem, AbstractODEProblem, AbstractSDEProblem, DAESolution,
          DEIntegrator, Mesh, Tableau, DESensitivity, AbstractODESolution, ODERKTableau,
-         ExplicitRKTableau,
+         ExplicitRKTableau, AbstractDiscreteProblem, AbstractDiscreteTestProblem,
          ImplicitRKTableau, AbstractSDESolution, DESensitivity, DEAlgorithm,
          AbstractODETestProblem, DECallback, DECache, DEIntegrator,
          DEOptions, AbstractODETestSolution, AbstractDDEProblem, AbstractDDETestProblem,
@@ -131,6 +134,8 @@ module DiffEqBase
          has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac,
          has_syms
 
+  export DiscreteProblem, DiscreteTestProblem
+  
   export ODEProblem, ODETestProblem, ODESolution, ODETestSolution
 
   export SDEProblem, SDETestProblem, SDESolution, SDETestSolution

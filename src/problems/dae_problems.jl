@@ -21,6 +21,7 @@ function DAETestProblem(f,u0,du0,analytic,tspan=(0.0,1.0); iip = isinplace(f,4))
   DAETestProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f)}(f,u0,du0,analytic,tspan)
 end
 
+#=
 function print{uType,duType,tType,isinplace,F}(io::IO, prob::AbstractDAEProblem{uType,duType,tType,isinplace,F})
   println(io,"AbstractDAEProblem")
   println(io,"Independent Variable Types: $uType")
@@ -28,6 +29,7 @@ function print{uType,duType,tType,isinplace,F}(io::IO, prob::AbstractDAEProblem{
   println(io,"Function is in-place? $isinplace")
   nothing
 end
+=#
 
 #=
 function show{uType,tType,isinplace,F}(io::IO,prob::AbstractODEProblem{uType,tType,isinplace,F})

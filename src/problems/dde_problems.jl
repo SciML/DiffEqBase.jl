@@ -48,6 +48,7 @@ function DDETestProblem(f,h,u0,analytic,lags,tspan=(0.0,1.0); iip = isinplace(f,
   DDETestProblem{typeof(u0),eltype(tspan),typeof(lags),iip,typeof(f),typeof(h)}(f,h,u0,analytic,lags,tspan)
 end
 
+#=
 function print{uType,tType,isinplace,F,H}(io::IO, prob::AbstractDDEProblem{uType,tType,isinplace,F,H})
   println(io,"AbstractDDEProblem")
   println(io,"Independent Variable Type: $uType")
@@ -55,6 +56,7 @@ function print{uType,tType,isinplace,F,H}(io::IO, prob::AbstractDDEProblem{uType
   println(io,"Function is in-place? $isinplace")
   nothing
 end
+=#
 
 #=
 function show{uType,tType,isinplace,F}(io::IO,prob::AbstractODEProblem{uType,tType,isinplace,F})
