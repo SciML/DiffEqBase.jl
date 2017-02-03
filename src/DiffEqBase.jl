@@ -122,6 +122,8 @@ module DiffEqBase
 
   export numparameters, @def, @muladd
 
+  export NoiseProcess, construct_correlated_noisefunc
+
   export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac,
          HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
 
