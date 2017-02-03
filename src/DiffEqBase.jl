@@ -120,7 +120,7 @@ module DiffEqBase
          set_reltol!,get_du,get_dt,get_proposed_dt,modify_proposed_dt!,u_modified!,
          savevalues!
 
-  export numparameters, @def
+  export numparameters, @def, @muladd
 
   export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac,
          HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
