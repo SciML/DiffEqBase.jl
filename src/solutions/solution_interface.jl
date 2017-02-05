@@ -53,15 +53,13 @@ end
 =#
 
 @recipe function f(sol::DESolution;
-                   plot_analytic=false,denseplot=true,plotdensity=10*length(sol),vars=nothing)
-
-  if typeof(sol) <: AbstractSDESolution
-    denseplot = false
-  end
+                   plot_analytic=false,
+                   denseplot = (sol.dense || typeof(sol.prob) <: AbstractDiscreteProblem) && !(typeof(sol) <: AbstractSDESolution),
+                   plotdensity=typeof(sol.prob) <: AbstractDiscreteProblem ? 100*length(sol) : 10*length(sol),vars=nothing)
 
   int_vars = interpret_vars(vars,sol)
 
-  if denseplot && sol.dense
+  if denseplot
     # Generate the points from the plot from dense function
     plott = collect(Ranges.linspace(sol.t[1],sol.t[end],plotdensity))
     plot_timeseries = sol(plott)
