@@ -18,3 +18,23 @@ end
 function DiscreteTestProblem(f,u0,analytic,tspan=(0.0,1.0); iip = isinplace(f,3))
   DiscreteTestProblem{typeof(u0),typeof(analytic),eltype(tspan),iip,typeof(f)}(f,u0,analytic,tspan)
 end
+
+function DiscreteProblem(u0,tspan)
+  iip = typeof(u0) <: AbstractArray
+  if iip
+    f = (t,u,du) -> fill!(du,zero(eltype(u)))
+  else
+    f = (t,u) -> u
+  end
+  DiscreteProblem{typeof(u0),eltype(tspan),iip,typeof(f)}(f,u0,tspan)
+end
+
+function DiscreteTestProblem(f,u0,analytic,tspan=(0.0,1.0))
+  iip = typeof(u0) <: AbstractArray
+  if iip
+    f = (t,u,du) -> fill!(du,zero(eltype(u)))
+  else
+    f = (t,u) -> u
+  end
+  DiscreteTestProblem{typeof(u0),typeof(analytic),eltype(tspan),iip,typeof(f)}(f,u0,analytic,tspan)
+end

@@ -65,4 +65,6 @@ CallbackSet(callbacks::DECallback...) = CallbackSet(split_callbacks((), (), call
 @inline split_callbacks(cs, ds) = cs, ds
 @inline split_callbacks(cs, ds, c::ContinuousCallback, args...) = split_callbacks((cs..., c), ds, args...)
 @inline split_callbacks(cs, ds, d::DiscreteCallback, args...) = split_callbacks(cs, (ds..., d), args...)
-@inline split_callbacks(cs, ds, d::CallbackSet, args...) = split_callbacks((cs...,d.continuous_callbacks...), (ds..., d.discrete_callbacks...), args...)
+@inline function split_callbacks(cs, ds, d::CallbackSet, args...)
+  split_callbacks((cs...,d.continuous_callbacks...), (ds..., d.discrete_callbacks...), args...)
+end
