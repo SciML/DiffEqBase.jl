@@ -10,7 +10,7 @@ end
 
 rootfind = true
 save_positions = (true,true)
-callback = ContinuousCallback(condtion,affect!,rootfind,save_positions)
+callback = ContinuousCallback(condtion,affect!,save_positions)
 
 
 condtion = function (integrator)
