@@ -1,5 +1,6 @@
 resize!(i::DEIntegrator,ii::Int) = error("This method has not been implemented for the integrator")
 deleteat!(i::DEIntegrator,ii::Int) = error("This method has not been implemented for the integrator")
+user_cache(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 u_cache(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 du_cache(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 full_cache(i::DEIntegrator) = error("This method has not been implemented for the integrator")

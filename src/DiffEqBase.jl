@@ -4,11 +4,12 @@ module DiffEqBase
 
   using RecipesBase, SimpleTraits, RecursiveArrayTools
   using Ranges # For plot recipes with units
-  import Base: length, size, getindex, endof, show, print,
-               next, start, done, eltype, eachindex
+  import Base: length, ndims, size, getindex, setindex!, endof, show, print,
+               next, start, done, eltype, eachindex, similar
 
   import Base: resize!, deleteat!
 
+  import RecursiveArrayTools: recursivecopy!
   # Problems
   "`DEProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
@@ -45,6 +46,9 @@ module DiffEqBase
 
   # Callbacks
   abstract DECallback
+
+  # Array
+  abstract DEDataArray{T} <: AbstractArray{T,1}
 
   # Integrators
   abstract DEIntegrator
@@ -90,6 +94,7 @@ module DiffEqBase
   include("problems/dde_problems.jl")
   include("callbacks.jl")
   include("integrator_interface.jl")
+  include("data_array.jl")
 
   type ConvergenceSetup{P,C}
     probs::P
@@ -111,7 +116,7 @@ module DiffEqBase
          AbstractSDETestProblem, AbstractDAETestProblem,   AbstractSDETestSolution,
          AbstractDAETestSolution, AbstractDDESolution, AbstractDDETestSolution,
          AbstractMonteCarloSimulation, AbstractConstantLagDDETestProblem,
-         AbstractConstantLagDDEProblem
+         AbstractConstantLagDDEProblem, DEDataArray
 
   export isinplace
 
@@ -119,7 +124,8 @@ module DiffEqBase
 
   export tuples, intervals
 
-  export resize!,deleteat!,full_cache,u_cache,du_cache,terminate!,add_tstop!,add_saveat!,set_abstol!,
+  export resize!,deleteat!,full_cache,user_cache,u_cache,du_cache,terminate!,
+         add_tstop!,add_saveat!,set_abstol!,
          set_reltol!,get_du,get_dt,get_proposed_dt,modify_proposed_dt!,u_modified!,
          savevalues!
 
@@ -135,7 +141,7 @@ module DiffEqBase
          has_syms
 
   export DiscreteProblem, DiscreteTestProblem
-  
+
   export ODEProblem, ODETestProblem, ODESolution, ODETestSolution
 
   export SDEProblem, SDETestProblem, SDESolution, SDETestSolution
