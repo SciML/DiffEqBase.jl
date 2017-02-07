@@ -29,7 +29,7 @@ function DiscreteProblem(u0,tspan)
   DiscreteProblem{typeof(u0),eltype(tspan),iip,typeof(f)}(f,u0,tspan)
 end
 
-function DiscreteTestProblem(f,u0,analytic,tspan=(0.0,1.0))
+function DiscreteTestProblem(u0,analytic,tspan=(0.0,1.0))
   iip = typeof(u0) <: AbstractArray
   if iip
     f = (t,u,du) -> fill!(du,zero(eltype(u)))
