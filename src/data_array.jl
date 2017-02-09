@@ -9,6 +9,7 @@ length(A::DEDataArray) = length(A.x)
 ndims(A::DEDataArray)  = ndims(A.x)
 size(A::DEDataArray)   = size(A.x)
 
+# Maybe should use fieldtype(typeof(dest), $i) ?
 @generated function recursivecopy!{T}(dest::T, src::T)
    assignments = [:(typeof(getfield(dest,$i)) <: AbstractArray ? recursivecopy!(getfield(dest, $i),getfield(src, $i)) : setfield!(dest, $i, getfield(src, $i))) for i=1:nfields(T)]
    :($(assignments...); dest)
