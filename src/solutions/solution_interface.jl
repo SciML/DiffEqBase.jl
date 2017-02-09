@@ -130,7 +130,7 @@ function interpret_vars(vars,sol)
   if vars == nothing
     # Default: plot all timeseries
     if typeof(sol[1]) <: AbstractArray
-      vars = collect((0, i) for i in eachindex(sol[1]))
+      vars = collect((0, i) for i in plot_indices(sol[1]))
     else
       vars = [(0, 1)]
     end
@@ -260,3 +260,5 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
   end
   plot_vecs,labels
 end
+
+plot_indices(A::AbstractArray) = eachindex(A)
