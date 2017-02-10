@@ -1,9 +1,13 @@
 resize!(i::DEIntegrator,ii::Int) = error("This method has not been implemented for the integrator")
-deleteat!(i::DEIntegrator,ii::Int) = error("This method has not been implemented for the integrator")
+deleteat!(i::DEIntegrator,ii) = error("This method has not been implemented for the integrator")
+addat!(i::DEIntegrator,ii,val=zeros(length(idxs))) = error("This method has not been implemented for the integrator")
 user_cache(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 u_cache(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 du_cache(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 full_cache(i::DEIntegrator) = error("This method has not been implemented for the integrator")
+resize_non_user_cache!(i::DEIntegrator,ii::Int) = error("This method has not been implemented for the integrator")
+deleteat_non_user_cache!(i::DEIntegrator,idxs) = error("This method has not been implemented for the integrator")
+addat_non_user_cache!(i::DEIntegrator,idxs) = error("This method has not been implemented for the integrator")
 terminate!(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 get_du(i::DEIntegrator) = error("This method has not been implemented for the integrator")
 get_dt(i::DEIntegrator) = error("This method has not been implemented for the integrator")
@@ -15,6 +19,13 @@ add_tstop!(i::DEIntegrator,t) = error("This method has not been implemented for 
 add_saveat!(i::DEIntegrator,t) = error("This method has not been implemented for the integrator")
 set_abstol!(i::DEIntegrator,t) = error("This method has not been implemented for the integrator")
 set_reltol!(i::DEIntegrator,t) = error("This method has not been implemented for the integrator")
+
+### Addat isn't a real thing. Let's make it a real thing Gretchen
+
+function addat!(a::AbstractArray,idxs,val=zeros(length(idxs)))
+  flip_range = UnitRange(idxs.start,idxs.start-length(idxs))
+  splice!(a,flip_range,val)
+end
 
 ### Abstract Interface
 
