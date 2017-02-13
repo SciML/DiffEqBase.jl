@@ -2,169 +2,165 @@ __precompile__()
 
 module DiffEqBase
 
-  using RecipesBase, SimpleTraits, RecursiveArrayTools
-  using Ranges # For plot recipes with units
-  import Base: length, ndims, size, getindex, setindex!, endof, show, print,
-               next, start, done, eltype, eachindex, similar
+using RecipesBase, SimpleTraits, RecursiveArrayTools
+using Ranges # For plot recipes with units
+import Base: length, ndims, size, getindex, setindex!, endof, show, print,
+             next, start, done, eltype, eachindex, similar
 
-  import Base: resize!, deleteat!
+import Base: resize!, deleteat!
 
-  import RecursiveArrayTools: recursivecopy!
-  # Problems
-  "`DEProblem`: Defines differential equation problems via its internal functions"
-  abstract DEProblem
-  abstract DEElement
-  abstract DESensitivity
-  abstract AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem
-  abstract AbstractODETestProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
-  abstract AbstractDiscreteProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
-  abstract AbstractDiscreteTestProblem{uType,tType,isinplace,F} <: AbstractODETestProblem{uType,tType,isinplace,F}
-  abstract AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}  <: DEProblem
-  abstract AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}  <: AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}
-  abstract AbstractDAEProblem{uType,duType,tType,isinplace,F} <: DEProblem
-  abstract AbstractDAETestProblem{uType,duType,tType,isinplace,F} <: AbstractDAEProblem{uType,duType,tType,isinplace,F}
-  abstract AbstractDDEProblem{uType,tType,lType,isinplace,F,H} <: DEProblem
-  abstract AbstractDDETestProblem{uType,tType,lType,isinplace,F,H} <: AbstractDDEProblem{uType,tType,lType,isinplace,F,H}
-  abstract AbstractConstantLagDDEProblem{uType,tType,lType,isinplace,F,H} <: AbstractDDEProblem{uType,tType,lType,isinplace,F,H}
-  abstract AbstractConstantLagDDETestProblem{uType,tType,lType,isinplace,F,H} <: AbstractDDETestProblem{uType,tType,lType,isinplace,F,H}
+import RecursiveArrayTools: recursivecopy!
 
-  # Algorithms
-  abstract DEAlgorithm
-  abstract AbstractODEAlgorithm <: DEAlgorithm
-  abstract AbstractSDEAlgorithm <: DEAlgorithm
-  abstract AbstractDAEAlgorithm <: DEAlgorithm
-  abstract AbstractDDEAlgorithm <: DEAlgorithm
+include("typemacros.jl")
+using .TypeMacros
 
-  # Monte Carlo Simulations
-  abstract AbstractMonteCarloSimulation
+# Problems
+@public_abstract_type DEProblem
+"""`DEProblem`: Defines differential equation problems via its internal functions""" DEProblem
+@public_abstract_type DEElement
+@public_abstract_type DESensitivity
 
-  # Options
-  abstract DEOptions
 
-  # Caches
-  abstract DECache
+@public_abstract_type AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem
+@public_abstract_type AbstractODETestProblem{uType,tType,isinplace,F} <:
+                      AbstractODEProblem{uType,tType,isinplace,F}
+@public_abstract_type AbstractDiscreteProblem{uType,tType,isinplace,F} <:
+                      AbstractODEProblem{uType,tType,isinplace,F}
+@public_abstract_type AbstractDiscreteTestProblem{uType,tType,isinplace,F} <:
+                      AbstractODETestProblem{uType,tType,isinplace,F}
 
-  # Callbacks
-  abstract DECallback
+@public_abstract_type AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <: DEProblem
+@public_abstract_type AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <:
+                      AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}
 
-  # Array
-  abstract DEDataArray{T} <: AbstractArray{T,1}
+@public_abstract_type AbstractDAEProblem{uType,duType,tType,isinplace,F} <: DEProblem
+@public_abstract_type AbstractDAETestProblem{uType,duType,tType,isinplace,F} <:
+                      AbstractDAEProblem{uType,duType,tType,isinplace,F}
 
-  # Integrators
-  abstract DEIntegrator
-  abstract AbstractODEIntegrator <: DEIntegrator
-  abstract AbstractSDEIntegrator <: DEIntegrator
-  abstract AbstractDDEIntegrator <: DEIntegrator
-  abstract AbstractDAEIntegrator <: DEIntegrator
+@public_abstract_type AbstractDDEProblem{uType,tType,lType,isinplace,F,H} <: DEProblem
+@public_abstract_type AbstractDDETestProblem{uType,tType,lType,isinplace,F,H} <:
+                      AbstractDDEProblem{uType,tType,lType,isinplace,F,H}
+@public_abstract_type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace,F,H} <:
+                      AbstractDDEProblem{uType,tType,lType,isinplace,F,H}
+@public_abstract_type AbstractConstantLagDDETestProblem{uType,tType,lType,isinplace,F,H} <:
+                      AbstractDDETestProblem{uType,tType,lType,isinplace,F,H}
 
-  # Solutions
-  abstract DESolution
-  abstract DETestSolution <: DESolution
-  abstract AbstractODESolution <: DESolution
-  abstract AbstractODETestSolution <: AbstractODESolution # Needed for plot recipes
-  abstract AbstractSDESolution <: AbstractODESolution # Needed for plot recipes
-  abstract AbstractSDETestSolution <: AbstractODESolution # Needed for plot recipes
-  abstract AbstractDAESolution <: AbstractODESolution # Needed for plot recipes
-  abstract AbstractDAETestSolution <: AbstractODESolution # Needed for plot recipes
-  abstract AbstractDDESolution <: DESolution
-  abstract AbstractDDETestSolution <: AbstractODESolution # Needed for plot recipes
-  abstract AbstractSensitivitySolution
+# Algorithms
+@public_abstract_type DEAlgorithm
+@public_abstract_subs (AbstractODEAlgorithm,
+                       AbstractSDEAlgorithm,
+                       AbstractDAEAlgorithm,
+                       AbstractDDEAlgorithm) <: DEAlgorithm
 
-  # Misc
-  "`Tableau`: Holds the information for a Runge-Kutta Tableau"
-  abstract Tableau
-  "`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator"
-  abstract ODERKTableau <: Tableau
+# Monte Carlo Simulations
+@public_abstract_type AbstractMonteCarloSimulation
 
-  abstract AbstractParameterizedFunction{isinplace} <: Function
+# Options
+@public_abstract_type DEOptions
 
-  include("utils.jl")
-  include("extended_functions.jl")
-  include("noise_process.jl")
-  include("solutions/ode_solutions.jl")
-  include("solutions/sde_solutions.jl")
-  include("solutions/dae_solutions.jl")
-  include("solutions/dde_solutions.jl")
-  include("solutions/solution_interface.jl")
-  include("tableaus.jl")
-  include("problems/discrete_problems.jl")
-  include("problems/ode_problems.jl")
-  include("problems/sde_problems.jl")
-  include("problems/dae_problems.jl")
-  include("problems/dde_problems.jl")
-  include("callbacks.jl")
-  include("integrator_interface.jl")
-  include("data_array.jl")
+# Caches
+@public_abstract_type DECache
 
-  type ConvergenceSetup{P,C}
+# Callbacks
+@public_abstract_type DECallback
+
+# Array
+@public_abstract_type DEDataArray{T} <: AbstractVector{T}
+
+# Integrators
+@public_abstract_type DEIntegrator
+@public_abstract_subs (AbstractODEIntegrator,
+                       AbstractSDEIntegrator,
+                       AbstractDDEIntegrator,
+                       AbstractDAEIntegrator) <: DEIntegrator
+
+# Solutions
+@public_abstract_type DESolution
+@public_abstract_subs (DETestSolution, AbstractODESolution, AbstractDDESolution) <: DESolution
+
+# Needed for plot recipes
+@public_abstract_subs (AbstractODETestSolution,
+                       AbstractSDESolution,
+                       AbstractSDETestSolution,
+                       AbstractDAESolution,
+                       AbstractDAETestSolution,
+                       AbstractDDETestSolution) <: AbstractODESolution
+@abstract_type AbstractSensitivitySolution
+
+# Misc
+@public_abstract_type Tableau
+"""`Tableau`: Holds the information for a Runge-Kutta Tableau""" Tableau
+
+@public_abstract_type ODERKTableau <: Tableau
+"""`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator""" ODERKTableau
+
+@public_abstract_type AbstractParameterizedFunction{isinplace} <: Function
+
+include("utils.jl")
+include("extended_functions.jl")
+include("noise_process.jl")
+include("solutions/ode_solutions.jl")
+include("solutions/sde_solutions.jl")
+include("solutions/dae_solutions.jl")
+include("solutions/dde_solutions.jl")
+include("solutions/solution_interface.jl")
+include("tableaus.jl")
+include("problems/discrete_problems.jl")
+include("problems/ode_problems.jl")
+include("problems/sde_problems.jl")
+include("problems/dae_problems.jl")
+include("problems/dde_problems.jl")
+include("callbacks.jl")
+include("integrator_interface.jl")
+include("data_array.jl")
+
+type ConvergenceSetup{P,C}
     probs::P
     convergence_axis::C
-  end
+end
 
-  function solve end
-  function solve! end
-  function init end
-  function step!(d::DEIntegrator) error("Integrator stepping is not implemented") end
+function solve end
+function solve! end
+function init end
+function step!(d::DEIntegrator) error("Integrator stepping is not implemented") end
 
-  export DEProblem, DESolution, DETestSolution, DEParameters, AbstractDAEProblem,
-         AbstractDDEProblem, AbstractODEProblem, AbstractSDEProblem, DAESolution,
-         DEIntegrator, Mesh, Tableau, DESensitivity, AbstractODESolution, ODERKTableau,
-         ExplicitRKTableau, AbstractDiscreteProblem, AbstractDiscreteTestProblem,
-         ImplicitRKTableau, AbstractSDESolution, DESensitivity, DEAlgorithm,
-         AbstractODETestProblem, DECallback, DECache, DEIntegrator,
-         DEOptions, AbstractODETestSolution, AbstractDDEProblem, AbstractDDETestProblem,
-         AbstractSDETestProblem, AbstractDAETestProblem,   AbstractSDETestSolution,
-         AbstractDAETestSolution, AbstractDDESolution, AbstractDDETestSolution,
-         AbstractMonteCarloSimulation, AbstractConstantLagDDETestProblem,
-         AbstractConstantLagDDEProblem, DEDataArray
+export DEParameters, Mesh, ExplicitRKTableau, ImplicitRKTableau
 
-  export isinplace
+export isinplace
 
-  export solve, solve!, init, step!
+export solve, solve!, init, step!
 
-  export tuples, intervals
+export tuples, intervals
 
-  export resize!,deleteat!,addat!,full_cache,user_cache,u_cache,du_cache,
-         resize_non_user_cache!,deleteat_non_user_cache!,addat_non_user_cache!,
-         terminate!,
-         add_tstop!,add_saveat!,set_abstol!,
-         set_reltol!,get_du,get_dt,get_proposed_dt,modify_proposed_dt!,u_modified!,
-         savevalues!
+export resize!,deleteat!,addat!,full_cache,user_cache,u_cache,du_cache,
+       resize_non_user_cache!,deleteat_non_user_cache!,addat_non_user_cache!,
+       terminate!,
+       add_tstop!,add_saveat!,set_abstol!,
+       set_reltol!,get_du,get_dt,get_proposed_dt,modify_proposed_dt!,u_modified!,
+       savevalues!
 
-  export numparameters, @def, @muladd
+export numparameters, @def, @muladd
 
-  export NoiseProcess, construct_correlated_noisefunc
+export NoiseProcess, construct_correlated_noisefunc
 
-  export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac,
-         HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
+export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac,
+       HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
 
-  export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
-         has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac,
-         has_syms
+export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
+       has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac,
+       has_syms
 
-  export DiscreteProblem, DiscreteTestProblem
+export DiscreteProblem, DiscreteTestProblem
 
-  export ODEProblem, ODETestProblem, ODESolution, ODETestSolution
+export ODEProblem, ODETestProblem, ODESolution, ODETestSolution
+export SDEProblem, SDETestProblem, SDESolution, SDETestSolution
+export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
+export ConstantLagDDEProblem, ConstantLagDDETestProblem, DDEProblem, DDETestProblem
 
-  export SDEProblem, SDETestProblem, SDESolution, SDETestSolution
+export build_solution, calculate_solution_errors!
 
-  export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
+export ConvergenceSetup
 
-  export ConstantLagDDEProblem, ConstantLagDDETestProblem, DDEProblem, DDETestProblem
-
-  export build_solution, calculate_solution_errors!
-
-  export AbstractParameterizedFunction
-
-  export ConvergenceSetup
-
-  export ContinuousCallback, DiscreteCallback, CallbackSet
-
-  # Algorithms
-
-  export AbstractODEAlgorithm, AbstractSDEAlgorithm, AbstractDAEAlgorithm, AbstractDDEAlgorithm
-
-  export AbstractODEIntegrator, AbstractSDEIntegrator, AbstractDDEIntegrator, AbstractDAEIntegrator
-
+export ContinuousCallback, DiscreteCallback, CallbackSet
 
 end # module
