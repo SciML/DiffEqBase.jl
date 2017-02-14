@@ -55,23 +55,38 @@ end
 @recipe function f(sol::DESolution;
                    plot_analytic=false,
                    denseplot = (sol.dense || typeof(sol.prob) <: AbstractDiscreteProblem) && !(typeof(sol) <: AbstractSDESolution),
-                   plotdensity=typeof(sol.prob) <: AbstractDiscreteProblem ? 100*length(sol) : 10*length(sol),vars=nothing)
+                   plotdensity = sol.tslocation==0 ? (typeof(sol.prob) <: AbstractDiscreteProblem ? 100*length(sol) : 10*length(sol)) : 100*sol.tslocation,
+                   vars=nothing)
 
   int_vars = interpret_vars(vars,sol)
 
+  if sol.tslocation == 0
+    end_idx = length(sol)
+  else
+    end_idx = sol.tslocation
+  end
+
   if denseplot
     # Generate the points from the plot from dense function
-    plott = collect(Ranges.linspace(sol.t[1],sol.t[end],plotdensity))
+    plott = collect(Ranges.linspace(sol.t[1],sol.t[end_idx],plotdensity))
     plot_timeseries = sol(plott)
     if plot_analytic
       plot_analytic_timeseries = [sol.prob.analytic(t,sol.prob.u0) for t in plott]
     end
   else
     # Plot for sparse output: use the timeseries itself
-    plott = sol.t
-    plot_timeseries = sol.u
-    if plot_analytic
-      plot_analytic_timeseries = sol.u_analytic
+    if end_idx == 0
+      plott = sol.t
+      plot_timeseries = sol.u
+      if plot_analytic
+        plot_analytic_timeseries = sol.u_analytic
+      end
+    else
+      plott = sol.t[1:end_idx]
+      plot_timeseries = sol.u[1:end_idx]
+      if plot_analytic
+        plot_analytic_timeseries = sol.u_analytic[1:end_idx]
+      end
     end
   end
 
@@ -80,7 +95,7 @@ end
     @assert length(var) == dims
   end
   # Should check that all have the same dims!
-  plot_vecs,labels = solplot_vecs_and_labels(dims,int_vars,plot_timeseries,plott,sol,plot_analytic)
+  plot_vecs,labels = solplot_vecs_and_labels(dims,int_vars,plot_timeseries,plott,sol,plot_analytic,end_idx)
 
   tdir = sign(sol.t[end]-sol.t[1])
   xflip --> tdir < 0
@@ -222,22 +237,30 @@ function add_analytic_labels!(labels,x,dims,sol)
   end
 end
 
-function u_n(timeseries::AbstractArray, n::Int,sol,plott,plot_timeseries)
+function u_n(timeseries::AbstractArray, n::Int,sol,plott,plot_timeseries,end_idx)
   # Returns the nth variable from the timeseries, t if n == 0
   if n == 0
-    plott
+    if end_idx == 0
+      return plott
+    else
+      return plott[1:end_idx]
+    end
   elseif n == 1 && !(typeof(sol[1]) <: AbstractArray)
-    timeseries
+    if end_idx == 0
+       return timeseries
+     else
+       return timeseries[1:end_idx]
+     end
   else
     tmp = Vector{eltype(sol[1])}(length(plot_timeseries))
     for j in 1:length(plot_timeseries)
       tmp[j] = plot_timeseries[j][n]
     end
-    tmp
+    return tmp
   end
 end
 
-function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analytic)
+function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analytic,end_idx)
   plot_vecs = []
   for i in 1:dims
     push!(plot_vecs,[])
@@ -245,7 +268,7 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
   labels = String[]# Array{String, 2}(1, length(vars)*(1+plot_analytic))
   for x in vars
     for j in 1:dims
-      push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
+      push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries,end_idx))
     end
     add_labels!(labels,x,dims,sol)
   end
@@ -253,7 +276,7 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
   if plot_analytic
     for x in vars
       for j in 1:dims
-        push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
+        push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries,end_idx))
       end
       add_analytic_labels!(labels,x,dims,sol)
     end

@@ -95,7 +95,7 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
   for x in vars
     for j in 1:dims
       if denseplot
-        push!(plot_vecs[j], u_n(plot_timeseries, x[j],integrator.sol,plott,plot_timeseries))
+        push!(plot_vecs[j], u_n(plot_timeseries, x[j],integrator.sol,plott,plot_timeseries,0))
       else # just get values
         if x[j] == 0
           push!(plot_vecs[j], integrator.t)
@@ -113,7 +113,7 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
     for x in vars
       for j in 1:dims
         if denseplot
-          push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
+          push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries,0))
         else # Just get values
           if x[j] == 0
             push!(plot_vecs[j], integrator.t)
