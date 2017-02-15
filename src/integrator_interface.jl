@@ -68,7 +68,7 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
                     plotdensity =10,
                     plot_analytic=false,vars=nothing)
 
-  vars = interpret_vars(vars,integrator.sol)
+  int_vars = interpret_vars(vars,integrator.sol)
 
   if denseplot
     # Generate the points from the plot from dense function
@@ -79,8 +79,8 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
     end
   end # if not denseplot, we'll just get the values right from the integrator.
 
-  dims = length(vars[1])
-  for var in vars
+  dims = length(int_vars[1])
+  for var in int_vars
     @assert length(var) == dims
   end
   # Should check that all have the same dims!
@@ -91,8 +91,8 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
     push!(plot_vecs,[])
   end
 
-  labels = String[]# Array{String, 2}(1, length(vars)*(1+plot_analytic))
-  for x in vars
+  labels = String[]# Array{String, 2}(1, length(int_vars)*(1+plot_analytic))
+  for x in int_vars
     for j in 1:dims
       if denseplot
         push!(plot_vecs[j], u_n(plot_timeseries, x[j],integrator.sol,plott,plot_timeseries))
@@ -110,7 +110,7 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
   end
 
   if plot_analytic
-    for x in vars
+    for x in int_vars
       for j in 1:dims
         if denseplot
           push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
@@ -134,6 +134,17 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
     seriestype --> :path
   else
     seriestype --> :scatter
+  end
+
+  if typeof(vars) <: Tuple && eltype(vars) == Symbol
+    xlabel --> vars[1]
+    ylabel --> vars[2]
+    if length(vars) > 2
+      zlabel --> vars[3]
+    end
+  end
+  if first.(int_vars) == zeros(length(int_vars))
+    xlabel --> "t"
   end
 
   linewidth --> 3
