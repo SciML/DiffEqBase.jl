@@ -131,7 +131,7 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
   xflip --> integrator.tdir < 0
 
   if denseplot
-    seriestype --> :line
+    seriestype --> :path
   else
     seriestype --> :scatter
   end
