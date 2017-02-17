@@ -103,6 +103,7 @@ end
   linewidth --> 3
 
   # Special case labels when vars = (:x,:y,:z) or (:x) or [:x,:y] ...
+  @show labels
   if typeof(vars) <: Tuple && eltype(vars) == Symbol
     xlabel --> vars[1]
     ylabel --> vars[2]
@@ -205,7 +206,7 @@ function add_labels!(labels,x,dims,sol)
       tmp = sol.prob.f.syms[x[1]]
       push!(labels,"($tmp,$(lys...))")
     else
-      push!(labels,"(u$x,$(lys...))")
+      push!(labels,"(u$(x[1]),$(lys...))")
     end
   end
   labels
@@ -220,7 +221,7 @@ function add_analytic_labels!(labels,x,dims,sol)
       if has_syms(sol.prob.f)
         push!(lys,string("True ",sol.prob.f.syms[x[j]],","))
       else
-        push!(lys,"True u$(x[2]),")
+        push!(lys,"True u$(x[j]),")
       end
     end
   end
@@ -232,7 +233,7 @@ function add_analytic_labels!(labels,x,dims,sol)
       tmp = string("True ",sol.prob.f.syms[x[1]])
       push!(labels,"($tmp,$(lys...))")
     else
-      push!(labels,"(True u$x,$(lys...))")
+      push!(labels,"(True u$(x[1]),$(lys...))")
     end
   end
 end
