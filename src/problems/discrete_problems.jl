@@ -1,3 +1,6 @@
+const DISCRETE_INPLACE_DEFAULT = (t,u,du) -> fill!(du,zero(eltype(u)))
+const DISCRETE_OUTOFPLACE_DEFAULT = (t,u) -> u
+
 type DiscreteProblem{uType,tType,isinplace,F} <: AbstractDiscreteProblem{uType,tType,isinplace,F}
   f::F
   u0::uType
@@ -22,9 +25,9 @@ end
 function DiscreteProblem(u0,tspan)
   iip = typeof(u0) <: AbstractArray
   if iip
-    f = (t,u,du) -> fill!(du,zero(eltype(u)))
+    f = DISCRETE_INPLACE_DEFAULT
   else
-    f = (t,u) -> u
+    f = DISCRETE_OUTOFPLACE_DEFAULT
   end
   DiscreteProblem{typeof(u0),eltype(tspan),iip,typeof(f)}(f,u0,tspan)
 end
@@ -32,9 +35,9 @@ end
 function DiscreteTestProblem(u0,analytic,tspan=(0.0,1.0))
   iip = typeof(u0) <: AbstractArray
   if iip
-    f = (t,u,du) -> fill!(du,zero(eltype(u)))
+    f = DISCRETE_INPLACE_DEFAULT
   else
-    f = (t,u) -> u
+    f = DISCRETE_OUTOFPLACE_DEFAULT
   end
   DiscreteTestProblem{typeof(u0),typeof(analytic),eltype(tspan),iip,typeof(f)}(f,u0,analytic,tspan)
 end
