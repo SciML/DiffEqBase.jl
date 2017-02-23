@@ -103,7 +103,6 @@ end
   linewidth --> 3
 
   # Special case labels when vars = (:x,:y,:z) or (:x) or [:x,:y] ...
-  @show labels
   if typeof(vars) <: Tuple && eltype(vars) == Symbol
     xlabel --> vars[1]
     ylabel --> vars[2]
