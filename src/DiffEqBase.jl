@@ -16,7 +16,6 @@ using .TypeMacros
 
 # Problems
 @public_abstract_type DEProblem
-"""`DEProblem`: Defines differential equation problems via its internal functions""" DEProblem
 @public_abstract_type DEElement
 @public_abstract_type DESensitivity
 
@@ -89,10 +88,8 @@ using .TypeMacros
 
 # Misc
 @public_abstract_type Tableau
-"""`Tableau`: Holds the information for a Runge-Kutta Tableau""" Tableau
 
 @public_abstract_type ODERKTableau <: Tableau
-"""`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator""" ODERKTableau
 
 @public_abstract_type AbstractParameterizedFunction{isinplace} <: Function
 

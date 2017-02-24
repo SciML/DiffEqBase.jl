@@ -15,7 +15,6 @@
 # false
 #
 # Thus hand-code it:
-#=
 check_first_arg(f,T::Type) = check_first_arg(typeof(f),T)
 function check_first_arg{F}(::Type{F}, T::Type)
     typ = Tuple{Any, T, Vararg}
@@ -30,7 +29,6 @@ function check_first_arg{F}(::Type{F}, T::Type)
     end
     return false
 end
-=#
 # Standard
 @traitdef HasJac{F}
 @traitdef HastGrad{F}
