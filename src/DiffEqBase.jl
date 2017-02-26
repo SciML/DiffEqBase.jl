@@ -2,7 +2,7 @@ __precompile__()
 
 module DiffEqBase
 
-using RecipesBase, SimpleTraits, RecursiveArrayTools
+using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat
 using Ranges # For plot recipes with units
 import Base: length, ndims, size, getindex, setindex!, endof, show, print,
              next, start, done, eltype, eachindex, similar

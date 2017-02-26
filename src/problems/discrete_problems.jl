@@ -18,11 +18,11 @@ function DiscreteProblem(f,u0,tspan; iip = isinplace(f,3))
   DiscreteProblem{typeof(u0),eltype(tspan),iip,typeof(f)}(f,u0,tspan)
 end
 
-function DiscreteTestProblem(f,u0,analytic,tspan=(0.0,1.0); iip = isinplace(f,3))
+function DiscreteTestProblem(f,u0,analytic,tspan::Tuple=(0.0,1.0); iip = isinplace(f,3))
   DiscreteTestProblem{typeof(u0),typeof(analytic),eltype(tspan),iip,typeof(f)}(f,u0,analytic,tspan)
 end
 
-function DiscreteProblem(u0,tspan)
+function DiscreteProblem(u0,tspan::Tuple)
   iip = typeof(u0) <: AbstractArray
   if iip
     f = DISCRETE_INPLACE_DEFAULT
@@ -32,7 +32,7 @@ function DiscreteProblem(u0,tspan)
   DiscreteProblem{typeof(u0),eltype(tspan),iip,typeof(f)}(f,u0,tspan)
 end
 
-function DiscreteTestProblem(u0,analytic,tspan=(0.0,1.0))
+function DiscreteTestProblem(u0,analytic,tspan::Tuple=(0.0,1.0))
   iip = typeof(u0) <: AbstractArray
   if iip
     f = DISCRETE_INPLACE_DEFAULT
