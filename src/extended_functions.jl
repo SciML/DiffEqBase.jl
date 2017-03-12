@@ -19,11 +19,7 @@ check_first_arg(f,T::Type) = check_first_arg(typeof(f),T)
 function check_first_arg{F}(::Type{F}, T::Type)
     typ = Tuple{Any, T, Vararg}
     typ2 = Tuple{Any, Type{T}, Vararg} # This one is required for overloaded types
-    if VERSION <= v"0.5"
-      method_table = Base.MethodList(F.name.mt) # F.name.mt gets the method-table
-    else
-      method_table = Base.MethodList(F.body.body.name.mt) # .body.body.name.mt gets the method-table
-    end
+    method_table = Base.MethodList(F.name.mt) # F.name.mt gets the method-table
     for m in method_table
         (m.sig<:typ || m.sig<:typ2) && return true
     end
