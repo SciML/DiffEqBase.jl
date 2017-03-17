@@ -15,6 +15,11 @@ size(A::DEDataArray)   = size(A.x)
    :($(assignments...); dest)
 end
 
+@generated function copy_non_array_fields{T<:DEDataArray}(previous::T, arr::AbstractArray)
+  assignments = [:(getfield(previous,$i)) for i=2:nfields(T)]
+  :(T(arr,$(assignments...)))
+end
+
 getindex( A::DEDataArray,    i::Int) = (A.x[i])
 setindex!(A::DEDataArray, x, i::Int) = (A.x[i] = x)
 getindex( A::DEDataArray,    i::Int...) = (A.x[i...])
