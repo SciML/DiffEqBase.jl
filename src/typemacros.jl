@@ -7,7 +7,7 @@ macro struct_type(exp)   ; _st(exp) ; end
 macro public_abstract_type(exp); _pat(exp); end
 macro public_abstract_subs(exp); _pas(exp); end
 
-@static if VERSION < v"0.6-"
+@static if VERSION < v"0.6.0-dev.2746"
     include("typemacros5.jl")
 else
     include("typemacros6.jl")
