@@ -1,8 +1,8 @@
 similar(A::DEDataArray) = deepcopy(A)
 
-done(A::DEDataArray, i::Int64) = done(A.x,i)
+done(A::DEDataArray, i::Int) = done(A.x,i)
 eachindex(A::DEDataArray)      = eachindex(A.x)
-next(A::DEDataArray, i::Int64) = next(A.x,i)
+next(A::DEDataArray, i::Int) = next(A.x,i)
 start(A::DEDataArray)          = start(A.x)
 
 length(A::DEDataArray) = length(A.x)
