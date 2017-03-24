@@ -133,7 +133,7 @@ export resize!,deleteat!,addat!,full_cache,user_cache,u_cache,du_cache,
        resize_non_user_cache!,deleteat_non_user_cache!,addat_non_user_cache!,
        terminate!,
        add_tstop!,add_saveat!,set_abstol!,
-       set_reltol!,get_du,get_dt,get_proposed_dt,modify_proposed_dt!,u_modified!,
+       set_reltol!,get_du,get_dt,get_proposed_dt,set_proposed_dt!,u_modified!,
        savevalues!
 
 export numparameters, @def, @muladd
