@@ -43,8 +43,10 @@ using .TypeMacros
                       AbstractDDEProblem{uType,tType,lType,isinplace,F,H}
 @public_abstract_type AbstractConstantLagDDETestProblem{uType,tType,lType,isinplace,F,H} <:
                       AbstractDDETestProblem{uType,tType,lType,isinplace,F,H}
-@compat abstract type AbstractIMEXProblem{uType,tType,isinplace,F,G} <:               
+
+@compat abstract type AbstractSplitODEProblem{uType,tType,isinplace,F} <:          
                       AbstractODEProblem{uType,tType,isinplace,F}
+                      end
 
 # Algorithms
 @public_abstract_type DEAlgorithm
@@ -155,7 +157,7 @@ export ODEProblem, ODETestProblem, ODESolution, ODETestSolution
 export SDEProblem, SDETestProblem, SDESolution, SDETestSolution
 export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
 export ConstantLagDDEProblem, ConstantLagDDETestProblem, DDEProblem, DDETestProblem
-export AbstractIMEXProblem, IMEXProblem, IMEXTestProblem
+export AbstractSplitODEProblem, SplitODEProblem, SplitODETestProblem
 
 export build_solution, calculate_solution_errors!
 
