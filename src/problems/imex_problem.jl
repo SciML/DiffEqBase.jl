@@ -1,11 +1,11 @@
-type IMEXProblem{uType,tType,isinplace,F,G} <: AbstractODEProblem{uType,tType,isinplace,F,G}
+type IMEXProblem{uType,tType,isinplace,F,G} <: AbstractIMEXProblem{uType,tType,isinplace,F,G}
   f::F
   g::G
   u0::uType
   tspan::Tuple{tType,tType}
 end
 
-type IMEXTestProblem{uType,AType,tType,isinplace,F,G} <: AbstractODETestProblem{uType,tType,isinplace,F,G}
+type IMEXTestProblem{uType,AType,tType,isinplace,F,G} <: AbstractIMEXTestProblem{uType,tType,isinplace,F,G}
   f::F
   g::G
   u0::uType
@@ -22,7 +22,7 @@ function IMEXTestProblem(f,g,u0,analytic,tspan=(0.0,1.0); iip = isinplace(f,3))
 end
 
 #=
-function print{uType,tType,isinplace,F,G}(io::IO, prob::AbstractODEProblem{uType,tType,isinplace,F,G})
+function print{uType,tType,isinplace,F,G}(io::IO, prob::AbstractIMEXProblem{uType,tType,isinplace,F,G})
   println(io,"AbstractIMEXProblem")
   println(io,"Independent Variable Type: $uType")
   println(io,"Depdendent Variable Type: $tType")
@@ -32,7 +32,7 @@ end
 =#
 
 #=
-function show{uType,tType,isinplace,F,G}(io::IO,prob::AbstractODEProblem{uType,tType,isinplace,F,G})
+function show{uType,tType,isinplace,F,G}(io::IO,prob::AbstractIMEXProblem{uType,tType,isinplace,F,G})
   println(io,"AbstractIMEXProblem{$uType,$tType,$isinplace}")
   nothing
 end
