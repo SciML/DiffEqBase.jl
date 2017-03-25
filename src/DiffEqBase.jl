@@ -44,9 +44,8 @@ using .TypeMacros
 @public_abstract_type AbstractConstantLagDDETestProblem{uType,tType,lType,isinplace,F,H} <:
                       AbstractDDETestProblem{uType,tType,lType,isinplace,F,H}
 
-@compat abstract type AbstractSplitODEProblem{uType,tType,isinplace,F} <:          
-                      AbstractODEProblem{uType,tType,isinplace,F}
-                      end
+@compat abstract type AbstractSplitODEProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F} end
+@compat abstract type AbstractSplitODETestProblem{uType,tType,isinplace,F} <: AbstractODETestProblem{uType,tType,isinplace,F} end
 
 # Algorithms
 @public_abstract_type DEAlgorithm
