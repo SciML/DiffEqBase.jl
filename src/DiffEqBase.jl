@@ -165,6 +165,8 @@ export ConvergenceSetup
 
 export ContinuousCallback, DiscreteCallback, CallbackSet
 
+export initialize!
+
 export copy_non_array_fields
 
 end # module

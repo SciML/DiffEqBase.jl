@@ -10,7 +10,7 @@ end
 
 rootfind = true
 save_positions = (true,true)
-callback = ContinuousCallback(condtion,affect!,save_positions)
+callback = ContinuousCallback(condtion,affect!;save_positions=save_positions)
 
 
 condtion = function (integrator)
@@ -18,7 +18,7 @@ condtion = function (integrator)
 end
 affect! = function (integrator) end
 save_positions = (true,false)
-saving_callback = DiscreteCallback(condtion,affect!,save_positions)
+saving_callback = DiscreteCallback(condtion,affect!;save_positions=save_positions)
 
 cbs1 = CallbackSet(callback,saving_callback)
 

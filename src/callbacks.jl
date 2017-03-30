@@ -1,7 +1,10 @@
-immutable ContinuousCallback{F1,F2,F3,T,T2,I} <: DECallback
+INITIALIZE_DEFAULT(cb,t,u,integrator) = nothing
+
+immutable ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: DECallback
   condition::F1
   affect!::F2
   affect_neg!::F3
+  initialize::F4
   idxs::I
   rootfind::Bool
   interp_points::Int
@@ -11,16 +14,19 @@ immutable ContinuousCallback{F1,F2,F3,T,T2,I} <: DECallback
 end
 
 ContinuousCallback(condition,affect!,affect_neg!;
+                   initialize = INITIALIZE_DEFAULT,
                    idxs = nothing,
                    rootfind=true,
                    save_positions=(true,true),
                    interp_points=10,
                    abstol=1e-12,reltol=0) = ContinuousCallback(
-                              condition,affect!,affect_neg!,idxs,
+                              condition,affect!,affect_neg!,initialize,
+                              idxs,
                               rootfind,interp_points,
                               save_positions,abstol,reltol)
 
 function ContinuousCallback(condition,affect!;
+                   initialize = INITIALIZE_DEFAULT,
                    idxs = nothing,
                    rootfind=true,
                    save_positions=(true,true),
@@ -28,23 +34,21 @@ function ContinuousCallback(condition,affect!;
                    interp_points=10,
                    abstol=1e-12,reltol=0)
 
-  if affect_neg! != affect!
-    Base.depwarn("the `affect_neg!` keyword has been deprecated for a different constructor. Please consult the documentation.",:ContinuousCallback)
-  end
-
  ContinuousCallback(
-            condition,affect!,affect_neg!,idxs,
+            condition,affect!,affect_neg!,initialize,idxs,
             rootfind,interp_points,
             save_positions,abstol,reltol)
 
 end
 
-immutable DiscreteCallback{F1,F2} <: DECallback
+immutable DiscreteCallback{F1,F2,F3} <: DECallback
   condition::F1
   affect!::F2
+  initialize::F3
   save_positions::Tuple{Bool,Bool}
 end
-DiscreteCallback(condition,affect!;save_positions=(true,true)) = DiscreteCallback(condition,affect!,save_positions)
+DiscreteCallback(condition,affect!;
+        initialize = INITIALIZE_DEFAULT,save_positions=(true,true)) = DiscreteCallback(condition,affect!,initialize,save_positions)
 
 # DiscreteCallback(condition,affect!,save_positions) = DiscreteCallback(condition,affect!,save_positions)
 
@@ -68,3 +72,10 @@ CallbackSet(callbacks::DECallback...) = CallbackSet(split_callbacks((), (), call
 @inline function split_callbacks(cs, ds, d::CallbackSet, args...)
   split_callbacks((cs...,d.continuous_callbacks...), (ds..., d.discrete_callbacks...), args...)
 end
+
+initialize!(cb::CallbackSet,t,u,integrator::DEIntegrator) = initialize!(t,u,integrator,cb.continuous_callbacks...,cb.discrete_callbacks...)
+initialize!{T}(cb::CallbackSet{Tuple{},T},t,u,integrator::DEIntegrator) = initialize!(t,u,integrator,cb.discrete_callbacks...)
+initialize!{T}(cb::CallbackSet{T,Tuple{}},t,u,integrator::DEIntegrator) = initialize!(t,u,integrator,cb.continuous_callbacks...)
+initialize!(cb::CallbackSet{Tuple{},Tuple{}},t,u,integrator::DEIntegrator) = nothing
+initialize!(t,u,integrator::DEIntegrator,c::DECallback,cs::DECallback...) = (c.initialize(c,t,u,integrator); initialize!(t,u,integrator,cs...))
+initialize!(t,u,integrator::DEIntegrator,c::DECallback) = c.initialize(c,t,u,integrator)
