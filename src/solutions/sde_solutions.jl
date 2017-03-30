@@ -11,6 +11,7 @@ type SDESolution{uType,tType,IType,randType,P,A} <: AbstractSDESolution
   interp::IType
   dense::Bool
   tslocation::Int
+  retcode::Symbol
 end
 (sol::SDESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
 (sol::SDESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
@@ -28,6 +29,7 @@ type SDETestSolution{uType,uType2,uEltype,tType,IType,randType,P,A} <: AbstractS
   interp::IType
   dense::Bool
   tslocation::Int
+  retcode::Symbol
 end
 (sol::SDETestSolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
 (sol::SDETestSolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
@@ -36,8 +38,8 @@ function build_solution{uType,tType,isinplace,NoiseClass,F,F2,F3}(
         prob::AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3},
         alg,t,u;W=[],maxstacksize=0,maxstacksize2=0,
         interp = (tvals) -> nothing,
-        dense = false,kwargs...)
-  SDESolution(u,t,W,prob,alg,maxstacksize,maxstacksize2,interp,dense,0)
+        dense = false,retcode = :Default, kwargs...)
+  SDESolution(u,t,W,prob,alg,maxstacksize,maxstacksize2,interp,dense,0,retcode)
 end
 
 function build_solution{uType,tType,isinplace,NoiseClass,F,F2,F3}(
@@ -45,12 +47,12 @@ function build_solution{uType,tType,isinplace,NoiseClass,F,F2,F3}(
         alg,t,u;W=[],timeseries_errors=true,dense_errors=false,calculate_error=true,
         maxstacksize=0,maxstacksize2=0,
         interp = (tvals) -> nothing,
-        dense = false,kwargs...)
+        dense = false, retcode = :Default, kwargs...)
 
   u_analytic = Vector{uType}(0)
   save_timeseries = length(u) > 2
   errors = Dict{Symbol,eltype(u[1])}()
-  sol = SDETestSolution(u,u_analytic,errors,t,W,prob,alg,maxstacksize,maxstacksize2,interp,dense,0)
+  sol = SDETestSolution(u,u_analytic,errors,t,W,prob,alg,maxstacksize,maxstacksize2,interp,dense,0,retcode)
   if calculate_error
     calculate_solution_errors!(sol;timeseries_errors=timeseries_errors,dense_errors=dense_errors)
   end
@@ -76,5 +78,5 @@ function calculate_solution_errors!(sol::AbstractSDETestSolution;fill_uanalytic=
 end
 
 function build_solution(sol::AbstractSDESolution,u_analytic,errors)
-  SDETestSolution(sol.u,u_analytic,errors,sol.t,sol.W,sol.prob,sol.alg,sol.maxstacksize,sol.dense,sol.tslocation)
+  SDETestSolution(sol.u,u_analytic,errors,sol.t,sol.W,sol.prob,sol.alg,sol.maxstacksize,sol.dense,sol.tslocation,sol.retcode)
 end

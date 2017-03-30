@@ -9,6 +9,7 @@ type DDESolution{uType,tType,rateType,P,A,IType} <: AbstractDDESolution
   interp::IType
   dense::Bool
   tslocation::Int
+  retcode::Symbol
 end
 (sol::DDESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
 (sol::DDESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
@@ -24,6 +25,7 @@ type DDETestSolution{uType,uType2,uEltype,tType,rateType,P,A,IType} <: AbstractD
   interp::IType
   dense::Bool
   tslocation::Int
+  retcode::Symbol
 end
 (sol::DDETestSolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
 (sol::DDETestSolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
@@ -31,8 +33,8 @@ end
 function build_solution{uType,tType,isinplace}(
         prob::AbstractDDEProblem{uType,tType,isinplace},
         alg,t,u;dense=false,
-        k=[],interp = (tvals) -> nothing,kwargs...)
-  ODESolution(u,t,k,prob,alg,interp,dense,0)
+        k=[],interp = (tvals) -> nothing, retcode = :Default, kwargs...)
+  ODESolution(u,t,k,prob,alg,interp,dense,0,retcode)
 end
 
 function build_solution{uType,tType,isinplace}(
@@ -40,10 +42,10 @@ function build_solution{uType,tType,isinplace}(
         alg,t,u;dense=false,
         k=[],interp = (tvals) -> nothing,
         timeseries_errors=true,dense_errors=true,
-        calculate_error = true,kwargs...)
+        calculate_error = true,retcode = :Default, kwargs...)
   u_analytic = Vector{uType}(0)
   errors = Dict{Symbol,eltype(u[1])}()
-  sol = ODETestSolution(u,u_analytic,errors,t,k,prob,alg,interp,dense,0)
+  sol = ODETestSolution(u,u_analytic,errors,t,k,prob,alg,interp,dense,0,retcode)
   if calculate_error
     calculate_solution_errors!(sol;timeseries_errors=timeseries_errors,dense_errors=dense_errors)
   end
@@ -76,5 +78,5 @@ function calculate_solution_errors!(sol::AbstractDDETestSolution;fill_uanalytic=
 end
 
 function build_solution(sol::AbstractDDESolution,u_analytic,errors)
-  DDETestSolution(sol.u,u_analytic,errors,sol.t,sol.k,sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation)
+  DDETestSolution(sol.u,u_analytic,errors,sol.t,sol.k,sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation,sol.retcode)
 end
