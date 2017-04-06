@@ -11,91 +11,115 @@ import Base: resize!, deleteat!
 
 import RecursiveArrayTools: recursivecopy!
 
-include("typemacros.jl")
-using .TypeMacros
-
 # Problems
-@public_abstract_type DEProblem
-@public_abstract_type DEElement
-@public_abstract_type DESensitivity
+@compat abstract type DEProblem end
+@compat abstract type DEElement end
+@compat abstract type DESensitivity end
+
+export DEProblem, DEElement, DESensitivity
 
 
-@public_abstract_type AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem
-@public_abstract_type AbstractODETestProblem{uType,tType,isinplace,F} <:
-                      AbstractODEProblem{uType,tType,isinplace,F}
-@public_abstract_type AbstractDiscreteProblem{uType,tType,isinplace,F} <:
-                      AbstractODEProblem{uType,tType,isinplace,F}
-@public_abstract_type AbstractDiscreteTestProblem{uType,tType,isinplace,F} <:
-                      AbstractODETestProblem{uType,tType,isinplace,F}
+@compat abstract type AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem end
+@compat abstract type AbstractODETestProblem{uType,tType,isinplace,F} <:
+                      AbstractODEProblem{uType,tType,isinplace,F} end
+@compat abstract type AbstractDiscreteProblem{uType,tType,isinplace,F} <:
+                      AbstractODEProblem{uType,tType,isinplace,F} end
+@compat abstract type AbstractDiscreteTestProblem{uType,tType,isinplace,F} <:
+                      AbstractODETestProblem{uType,tType,isinplace,F} end
 
-@public_abstract_type AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <: DEProblem
-@public_abstract_type AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <:
-                      AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}
+export AbstractODEProblem, AbstractODETestProblem, AbstractDiscreteProblem, AbstractDiscreteTestProblem
 
-@public_abstract_type AbstractDAEProblem{uType,duType,tType,isinplace,F} <: DEProblem
-@public_abstract_type AbstractDAETestProblem{uType,duType,tType,isinplace,F} <:
-                      AbstractDAEProblem{uType,duType,tType,isinplace,F}
+@compat abstract type AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <: DEProblem end
+@compat abstract type AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <:
+                      AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} end
 
-@public_abstract_type AbstractDDEProblem{uType,tType,lType,isinplace,F,H} <: DEProblem
-@public_abstract_type AbstractDDETestProblem{uType,tType,lType,isinplace,F,H} <:
-                      AbstractDDEProblem{uType,tType,lType,isinplace,F,H}
-@public_abstract_type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace,F,H} <:
-                      AbstractDDEProblem{uType,tType,lType,isinplace,F,H}
-@public_abstract_type AbstractConstantLagDDETestProblem{uType,tType,lType,isinplace,F,H} <:
-                      AbstractDDETestProblem{uType,tType,lType,isinplace,F,H}
+export AbstractSDEProblem, AbstractSDETestProblem
+
+@compat abstract type AbstractDAEProblem{uType,duType,tType,isinplace,F} <: DEProblem end
+@compat abstract type AbstractDAETestProblem{uType,duType,tType,isinplace,F} <:
+                      AbstractDAEProblem{uType,duType,tType,isinplace,F} end
+
+export AbstractDAEProblem, AbstractDAETestProblem
+
+@compat abstract type AbstractDDEProblem{uType,tType,lType,isinplace,F,H} <: DEProblem end
+@compat abstract type AbstractDDETestProblem{uType,tType,lType,isinplace,F,H} <:
+                      AbstractDDEProblem{uType,tType,lType,isinplace,F,H} end
+@compat abstract type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace,F,H} <:
+                      AbstractDDEProblem{uType,tType,lType,isinplace,F,H} end
+@compat abstract type AbstractConstantLagDDETestProblem{uType,tType,lType,isinplace,F,H} <:
+                      AbstractDDETestProblem{uType,tType,lType,isinplace,F,H} end
+
+export AbstractDDEProblem, AbstractDDETestProblem, AbstractConstantLagDDEProblem, AbstractConstantLagDDETestProblem
 
 @compat abstract type AbstractSplitODEProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F} end
 @compat abstract type AbstractSplitODETestProblem{uType,tType,isinplace,F} <: AbstractODETestProblem{uType,tType,isinplace,F} end
 
+export AbstractSplitODEProblem, SplitODEProblem, SplitODETestProblem
+
 # Algorithms
-@public_abstract_type DEAlgorithm
-@public_abstract_subs (AbstractODEAlgorithm,
-                       AbstractSDEAlgorithm,
-                       AbstractDAEAlgorithm,
-                       AbstractDDEAlgorithm) <: DEAlgorithm
+@compat abstract type DEAlgorithm end
+@compat abstract type AbstractODEAlgorithm <: DEAlgorithm end
+@compat abstract type AbstractSDEAlgorithm <: DEAlgorithm end
+@compat abstract type AbstractDAEAlgorithm <: DEAlgorithm end
+@compat abstract type AbstractDDEAlgorithm <: DEAlgorithm end
+
+export DEAlgorithm, AbstractODEAlgorithm, AbstractSDEAlgorithm,
+       AbstractDAEAlgorithm, AbstractDDEAlgorithm
 
 # Monte Carlo Simulations
-abstract AbstractMonteCarloProblem <: DEProblem
-@public_abstract_type AbstractMonteCarloSolution
+@compat abstract type AbstractMonteCarloProblem <: DEProblem end
 
-# Options
-@public_abstract_type DEOptions
+export AbstractMonteCarloProblem, MonteCarloProblem
+export MonteCarloSolution, MonteCarloTestSolution
 
-# Caches
-@public_abstract_type DECache
+@compat abstract type DEOptions end
+@compat abstract type DECache end
+@compat abstract type DECallback end
+@compat abstract type DEDataArray{T} <: AbstractVector{T} end
 
-# Callbacks
-@public_abstract_type DECallback
-
-# Array
-@public_abstract_type DEDataArray{T} <: AbstractVector{T}
+export DEOptions, DECache, DECallback, DEDataArray
 
 # Integrators
-@public_abstract_type DEIntegrator
-@public_abstract_subs (AbstractODEIntegrator,
-                       AbstractSDEIntegrator,
-                       AbstractDDEIntegrator,
-                       AbstractDAEIntegrator) <: DEIntegrator
+@compat abstract type DEIntegrator end
+@compat abstract type AbstractODEIntegrator <: DEIntegrator end
+@compat abstract type AbstractSDEIntegrator <: DEIntegrator end
+@compat abstract type AbstractDDEIntegrator <: DEIntegrator end
+@compat abstract type AbstractDAEIntegrator <: DEIntegrator end
+
+export DEIntegrator, AbstractODEIntegrator, AbstractSDEIntegrator, AbstractDDEIntegrator,
+       AbstractDAEIntegrator
 
 # Solutions
-@public_abstract_type DESolution
-@public_abstract_subs (DETestSolution, AbstractODESolution, AbstractDDESolution) <: DESolution
+@compat abstract type DESolution end
+@compat abstract type DETestSolution <: DESolution end
+@compat abstract type AbstractODESolution <: DESolution end
+
+export DESolution, DETestSolution, AbstractODESolution, AbstractDDESolution
 
 # Needed for plot recipes
-@public_abstract_subs (AbstractODETestSolution,
-                       AbstractSDESolution,
-                       AbstractSDETestSolution,
-                       AbstractDAESolution,
-                       AbstractDAETestSolution,
-                       AbstractDDETestSolution) <: AbstractODESolution
-@abstract_type AbstractSensitivitySolution
+@compat abstract type AbstractDDESolution <: AbstractODESolution end
+@compat abstract type  AbstractODETestSolution <: AbstractODESolution end
+@compat abstract type  AbstractSDESolution <: AbstractODESolution end
+@compat abstract type  AbstractSDETestSolution <: AbstractODESolution end
+@compat abstract type  AbstractDAESolution <: AbstractODESolution end
+@compat abstract type  AbstractDAETestSolution <: AbstractODESolution end
+@compat abstract type  AbstractDDETestSolution <: AbstractODESolution end
+@compat abstract type AbstractSensitivitySolution end
+@compat abstract type AbstractMonteCarloSolution <: DESolution end
+
+export AbstractODETestSolution, AbstractSDESolution, AbstractSDETestSolution,
+       AbstractDAESolution, AbstractDAETestSolution, AbstractDDETestSolution,
+       AbstractSensitivitySolution, AbstractMonteCarloSolution
 
 # Misc
-@public_abstract_type Tableau
+@compat abstract type Tableau end
+@compat abstract type ODERKTableau <: Tableau end
 
-@public_abstract_type ODERKTableau <: Tableau
+export Tableau, ODERKTableau
 
-@public_abstract_type AbstractParameterizedFunction{isinplace} <: Function
+@compat abstract type AbstractParameterizedFunction{isinplace} <: Function end
+
+export AbstractParameterizedFunction
 
 include("utils.jl")
 include("extended_functions.jl")
@@ -161,10 +185,6 @@ export ODEProblem, ODETestProblem, ODESolution, ODETestSolution
 export SDEProblem, SDETestProblem, SDESolution, SDETestSolution
 export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
 export ConstantLagDDEProblem, ConstantLagDDETestProblem, DDEProblem, DDETestProblem
-export AbstractSplitODEProblem, SplitODEProblem, SplitODETestProblem
-
-export AbstractMonteCarloProblem, MonteCarloProblem
-export MonteCarloSolution, MonteCarloTestSolution
 
 export calculate_monte_errors
 
