@@ -55,7 +55,8 @@ using .TypeMacros
                        AbstractDDEAlgorithm) <: DEAlgorithm
 
 # Monte Carlo Simulations
-@public_abstract_type AbstractMonteCarloSimulation
+abstract AbstractMonteCarloProblem <: DEProblem
+@public_abstract_type AbstractMonteCarloSolution
 
 # Options
 @public_abstract_type DEOptions
@@ -103,6 +104,7 @@ include("solutions/ode_solutions.jl")
 include("solutions/sde_solutions.jl")
 include("solutions/dae_solutions.jl")
 include("solutions/dde_solutions.jl")
+include("solutions/monte_solutions.jl")
 include("solutions/solution_interface.jl")
 include("tableaus.jl")
 include("problems/discrete_problems.jl")
@@ -111,6 +113,7 @@ include("problems/splitode_problem.jl")
 include("problems/sde_problems.jl")
 include("problems/dae_problems.jl")
 include("problems/dde_problems.jl")
+include("problems/monte_problems.jl")
 include("callbacks.jl")
 include("integrator_interface.jl")
 include("data_array.jl")
@@ -158,6 +161,11 @@ export SDEProblem, SDETestProblem, SDESolution, SDETestSolution
 export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
 export ConstantLagDDEProblem, ConstantLagDDETestProblem, DDEProblem, DDETestProblem
 export AbstractSplitODEProblem, SplitODEProblem, SplitODETestProblem
+
+export AbstractMonteCarloProblem, MonteCarloProblem
+export MonteCarloSolution, MonteCarloTestSolution
+
+export calculate_monte_errors
 
 export build_solution, calculate_solution_errors!
 
