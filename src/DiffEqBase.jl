@@ -114,12 +114,13 @@ export AbstractODETestSolution, AbstractSDESolution, AbstractSDETestSolution,
 # Misc
 @compat abstract type Tableau end
 @compat abstract type ODERKTableau <: Tableau end
+@compat abstract type DECostFunction end
 
-export Tableau, ODERKTableau
+export Tableau, ODERKTableau, DECostFunction
 
 @compat abstract type AbstractParameterizedFunction{isinplace} <: Function end
-
-export AbstractParameterizedFunction
+@compat abstract type ConstructedParameterizedFunction{isinplace} <: AbstractParameterizedFunction{isinplace} end
+export AbstractParameterizedFunction, ConstructedParameterizedFunction
 
 include("utils.jl")
 include("extended_functions.jl")
@@ -141,6 +142,7 @@ include("problems/monte_problems.jl")
 include("callbacks.jl")
 include("integrator_interface.jl")
 include("parameters_interface.jl")
+include("constructed_parameterized_functions.jl")
 include("data_array.jl")
 
 type ConvergenceSetup{P,C}
@@ -185,6 +187,9 @@ export ODEProblem, ODETestProblem, ODESolution, ODETestSolution
 export SDEProblem, SDETestProblem, SDESolution, SDETestSolution
 export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
 export ConstantLagDDEProblem, ConstantLagDDETestProblem, DDEProblem, DDETestProblem
+
+export ParameterizedFunction, DAEParameterizedFunction, DDEParameterizedFunction,
+       ProbParameterizedFunction, OutputParameterizedFunction
 
 export calculate_monte_errors
 
