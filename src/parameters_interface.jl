@@ -64,8 +64,8 @@ function problem_new_parameters(prob::MonteCarloProblem,p)
   probpars = num_params(prob.prob)
   pfpars = num_params(prob.prob_func)
   opars = num_params(prob.output_func)
-  if fpars > 0
-    tmp_prob = problem_new_parameters(probpars,@view(p[1:probpars]))
+  if probpars > 0
+    tmp_prob = problem_new_parameters(prob.prob,@view(p[1:probpars]))
     if pfpars > 0
       prob_func = (prob,i) -> prob.prob_func(prob,i,@view(p[(probpars+1):(probpars+pfpars)]))
       opars>0 ? output_func = prob.output_func(sol,@view(p[(probpars+pfpars+1):end])) : output_func = prob.output_func
