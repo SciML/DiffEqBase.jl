@@ -52,6 +52,8 @@ function show(io::IO,sol::DESolution)
 end
 =#
 
+const DEFAULT_PLOT_FUNC = (x,y) -> (x,y)
+
 @recipe function f(sol::DESolution;
                    plot_analytic=false,
                    denseplot = (sol.dense || typeof(sol.prob) <: AbstractDiscreteProblem) && !(typeof(sol) <: AbstractSDESolution),
@@ -128,8 +130,20 @@ function interpret_vars(vars,sol)
     for var in vars
       if typeof(var) <: Symbol
         var_int = findfirst(sol.prob.f.syms,var)
-      elseif eltype(var) <: Symbol # Some kind of iterable
-        var_int = map((x)->findfirst(sol.prob.f.syms,x),var)
+      elseif typeof(var) <: Union{Tuple,AbstractArray} #eltype(var) <: Symbol # Some kind of iterable
+        tmp = []
+        for x in var
+          if typeof(x) <: Symbol
+            push!(tmp,findfirst(sol.prob.f.syms,x))
+          else
+            push!(tmp,x)
+          end
+        end
+        if typeof(var) <: Tuple
+          var_int = tuple(tmp...)
+        else
+          var_int = tmp
+        end
       else
         var_int = var
       end

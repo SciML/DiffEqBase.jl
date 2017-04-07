@@ -7,3 +7,4 @@ using Base.Test
 @time @testset "Callbacks" begin include("callbacks.jl") end
 @time @testset "Monte Carlo Simulations" begin include("monte.jl") end
 @time @testset "Constructed Parameterized Functions" begin include("constructed_pf_test.jl") end
+@time @testset "Plot Variables" begin include("plot_vars.jl") end
