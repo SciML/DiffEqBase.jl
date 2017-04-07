@@ -2,7 +2,7 @@ using OrdinaryDiffEq, ParameterizedFunctions, DiffEqBase, Base.Test
 
 # Here's the problem to solve
 
-lorenz = @ode_def Lorenz begin
+lorenz = @ode_def_bare Lorenz begin
   dx = σ*(y-x)
   dy = ρ*x-y-x*z
   dz = x*y-β*z
@@ -30,3 +30,5 @@ f = (x,y) -> (x+y,y)
 @test DiffEqBase.interpret_vars([1, (f,1,3), (4,5)],sol) == [(DiffEqBase.DEFAULT_PLOT_FUNC,0,1), (f,1,3), (DiffEqBase.DEFAULT_PLOT_FUNC,4,5)]
 @test DiffEqBase.interpret_vars([(f,:t,:x),(:t,:y)],sol) == [(f,0,1), (DiffEqBase.DEFAULT_PLOT_FUNC,0,2)]
 @test DiffEqBase.interpret_vars([:x, (f,0,:x), (:x,:y)],sol) == [(DiffEqBase.DEFAULT_PLOT_FUNC,0,1), (f,0,1), (DiffEqBase.DEFAULT_PLOT_FUNC,1,2)]
+@test DiffEqBase.interpret_vars([(:x,:y)],sol) == [(DiffEqBase.DEFAULT_PLOT_FUNC,1,2)]
+@test DiffEqBase.interpret_vars((f,:x,:y),sol) == [(f,1,2)]
