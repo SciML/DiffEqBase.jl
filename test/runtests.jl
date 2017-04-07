@@ -5,6 +5,5 @@ using Base.Test
 @time @testset "Solution Interface" begin include("solution_get_tests.jl") end
 @time @testset "Extended Functions" begin include("extended_function_tests.jl") end
 @time @testset "Callbacks" begin include("callbacks.jl") end
-@time @testset "Monte Carlo Simulations" begin include("monte.jl") end
 @time @testset "Constructed Parameterized Functions" begin include("constructed_pf_test.jl") end
 @time @testset "Plot Variables" begin include("plot_vars.jl") end

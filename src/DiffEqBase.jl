@@ -68,9 +68,11 @@ export DEAlgorithm, AbstractODEAlgorithm, AbstractSDEAlgorithm,
 
 # Monte Carlo Simulations
 @compat abstract type AbstractMonteCarloProblem <: DEProblem end
+@compat abstract type AbstractMonteCarloEstimator <: DEProblem end
 
 export AbstractMonteCarloProblem, MonteCarloProblem
 export MonteCarloSolution, MonteCarloTestSolution
+export AbstractMonteCarloEstimator
 
 @compat abstract type DEOptions end
 @compat abstract type DECache end
