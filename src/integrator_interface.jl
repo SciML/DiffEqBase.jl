@@ -136,14 +136,15 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
     seriestype --> :scatter
   end
 
-  if typeof(vars) <: Tuple && eltype(vars) == Symbol
+  # Special case labels when vars = (:x,:y,:z) or (:x) or [:x,:y] ...
+  if typeof(vars) <: Tuple && (typeof(vars[1]) == Symbol && typeof(vars[2]) == Symbol)
     xlabel --> vars[1]
     ylabel --> vars[2]
     if length(vars) > 2
       zlabel --> vars[3]
     end
   end
-  if first.(int_vars) == zeros(length(int_vars))
+  if getindex.(int_vars,1) == zeros(length(int_vars)) || getindex.(int_vars,2) == zeros(length(int_vars))
     xlabel --> "t"
   end
 

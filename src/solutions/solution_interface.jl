@@ -37,21 +37,6 @@ function eltype(sol::DESolution)
   end
 end
 
-#=
-function print(io::IO, sol::DESolution)
-  println(io,"$(typeof(sol))")
-  println(io,"u: $(sol.u)")
-  println(io,"t: $(sol.t)")
-  nothing
-end
-=#
-
-#=
-function show(io::IO,sol::DESolution)
-  print(io,"$(typeof(sol))")
-end
-=#
-
 const DEFAULT_PLOT_FUNC = (x...) -> (x...)
 
 @recipe function f(sol::DESolution;
@@ -304,7 +289,9 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
     for j in 2:dims
       push!(plot_vecs[j-1], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
     end
-    plot_vecs = x[1].(plot_vecs...)
+    f = x[1]
+    plot_vecs = f.(first.(plot_vecs)...)
+    plot_vecs = tuple((getindex.(plot_vecs,i) for i in eachindex(plot_vecs[1]))...)
     add_labels!(labels,x,dims,sol)
   end
 
@@ -313,7 +300,9 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
       for j in 2:dims
         push!(plot_vecs[j-1], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
       end
-      plot_vecs = x[1].(plot_vecs...)
+      f = x[1]
+      plot_vecs = f.(first.(plot_vecs)...)
+      plot_vecs = tuple((getindex.(plot_vecs,i) for i in eachindex(plot_vecs[1]))...)
       add_analytic_labels!(labels,x,dims,sol)
     end
   end
