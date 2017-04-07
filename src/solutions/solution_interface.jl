@@ -53,6 +53,8 @@ end
 =#
 
 const DEFAULT_PLOT_FUNC = (x,y) -> (x,y)
+(f::DEFAULT_PLOT_FUNC)(x,y,z) -> (x,y,z)
+(f::DEFAULT_PLOT_FUNC)(x...) -> (x...)
 
 @recipe function f(sol::DESolution;
                    plot_analytic=false,
@@ -159,32 +161,47 @@ function interpret_vars(vars,sol)
   if vars == nothing
     # Default: plot all timeseries
     if typeof(sol[1]) <: AbstractArray
-      vars = collect((0, i) for i in plot_indices(sol[1]))
+      vars = collect((DEFAULT_PLOT_FUNC,0, i) for i in plot_indices(sol[1]))
     else
-      vars = [(0, 1)]
+      vars = [(DEFAULT_PLOT_FUNC,0, 1)]
     end
   end
+
   if typeof(vars) <: Integer
-    vars = [(0, vars)]
+    vars = [(DEFAULT_PLOT_FUNC,0, vars)]
   end
+
   if typeof(vars) <: AbstractArray
     # If list given, its elements should be tuples, or we assume x = time
-    vars = [if typeof(x) <: Tuple; x else (0, x) end for x in vars]
+    tmp = Tuple[]
+    for x in vars
+      if typeof(x) <: Tuple
+        if typeof(x[1]) <: Int
+          push!(tmp,tuple(DEFAULT_PLOT_FUNC,x...))
+        else
+          push!(tmp,x)
+        end
+      else
+        push!(tmp,(DEFAULT_PLOT_FUNC,0, x))
+      end
+    end
+    vars = tmp
   end
+
   if typeof(vars) <: Tuple
     # If tuple given...
     if typeof(vars[1]) <: AbstractArray
       if typeof(vars[2]) <: AbstractArray
         # If both axes are lists we zip (will fail if different lengths)
-        vars = collect(zip(vars[1], vars[2]))
+        vars = collect(zip([DEFAULT_PLOT_FUNC for i in eachindex(vars[1])],vars[1], vars[2]))
       else
         # Just the x axis is a list
-        vars = [(x, vars[2]) for x in vars[1]]
+        vars = [(DEFAULT_PLOT_FUNC,x, vars[2]) for x in vars[1]]
       end
     else
       if typeof(vars[2]) <: AbstractArray
         # Just the y axis is a list
-        vars = [(vars[1], y) for y in vars[2]]
+        vars = [(DEFAULT_PLOT_FUNC,vars[1], y) for y in vars[2]]
       else
         # Both axes are numbers
         vars = [vars]
@@ -271,7 +288,7 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
   for i in 1:dims
     push!(plot_vecs,[])
   end
-  labels = String[]# Array{String, 2}(1, length(vars)*(1+plot_analytic))
+  labels = String[]
   for x in vars
     for j in 1:dims
       push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
