@@ -52,7 +52,7 @@ function show(io::IO,sol::DESolution)
 end
 =#
 
-const DEFAULT_PLOT_FUNC = (x,y) -> (x,y)
+const DEFAULT_PLOT_FUNC = (x...) -> (x...)
 
 @recipe function f(sol::DESolution;
                    plot_analytic=false,
@@ -61,7 +61,6 @@ const DEFAULT_PLOT_FUNC = (x,y) -> (x,y)
                    vars=nothing)
 
   int_vars = interpret_vars(vars,sol)
-
   if sol.tslocation == 0
     end_idx = length(sol)
   else
@@ -105,14 +104,14 @@ const DEFAULT_PLOT_FUNC = (x,y) -> (x,y)
   linewidth --> 3
 
   # Special case labels when vars = (:x,:y,:z) or (:x) or [:x,:y] ...
-  if typeof(vars) <: Tuple && eltype(vars) == Symbol
+  if typeof(vars) <: Tuple && (typeof(vars[1]) == Symbol && typeof(vars[2]) == Symbol)
     xlabel --> vars[1]
     ylabel --> vars[2]
     if length(vars) > 2
       zlabel --> vars[3]
     end
   end
-  if first.(int_vars) == zeros(length(int_vars))
+  if getindex.(int_vars,1) == zeros(length(int_vars)) || getindex.(int_vars,2) == zeros(length(int_vars))
     xlabel --> "t"
   end
   #xtickfont --> font(11)
@@ -159,35 +158,54 @@ function interpret_vars(vars,sol)
   if vars == nothing
     # Default: plot all timeseries
     if typeof(sol[1]) <: AbstractArray
-      vars = collect((0, i) for i in plot_indices(sol[1]))
+      vars = collect((DEFAULT_PLOT_FUNC,0, i) for i in plot_indices(sol[1]))
     else
-      vars = [(0, 1)]
+      vars = [(DEFAULT_PLOT_FUNC,0, 1)]
     end
   end
+
   if typeof(vars) <: Integer
-    vars = [(0, vars)]
+    vars = [(DEFAULT_PLOT_FUNC,0, vars)]
   end
+
   if typeof(vars) <: AbstractArray
     # If list given, its elements should be tuples, or we assume x = time
-    vars = [if typeof(x) <: Tuple; x else (0, x) end for x in vars]
+    tmp = Tuple[]
+    for x in vars
+      if typeof(x) <: Tuple
+        if typeof(x[1]) <: Int
+          push!(tmp,tuple(DEFAULT_PLOT_FUNC,x...))
+        else
+          push!(tmp,x)
+        end
+      else
+        push!(tmp,(DEFAULT_PLOT_FUNC,0, x))
+      end
+    end
+    vars = tmp
   end
+
   if typeof(vars) <: Tuple
     # If tuple given...
-    if typeof(vars[1]) <: AbstractArray
-      if typeof(vars[2]) <: AbstractArray
+    if typeof(vars[end-1]) <: AbstractArray
+      if typeof(vars[end]) <: AbstractArray
         # If both axes are lists we zip (will fail if different lengths)
-        vars = collect(zip(vars[1], vars[2]))
+        vars = collect(zip([DEFAULT_PLOT_FUNC for i in eachindex(vars[end-1])],vars[end-1], vars[end]))
       else
         # Just the x axis is a list
-        vars = [(x, vars[2]) for x in vars[1]]
+        vars = [(DEFAULT_PLOT_FUNC,x, vars[end]) for x in vars[end-1]]
       end
     else
       if typeof(vars[2]) <: AbstractArray
         # Just the y axis is a list
-        vars = [(vars[1], y) for y in vars[2]]
+        vars = [(DEFAULT_PLOT_FUNC,vars[end-1], y) for y in vars[end]]
       else
         # Both axes are numbers
-        vars = [vars]
+        if typeof(vars[1]) <: Int
+          vars = [tuple(DEFAULT_PLOT_FUNC,vars...)]
+        else
+          vars = [vars]
+        end
       end
     end
   end
@@ -200,7 +218,7 @@ end
 
 function add_labels!(labels,x,dims,sol)
   lys = []
-  for j in 2:dims
+  for j in 3:dims
     if x[j] == 0
       push!(lys,"t,")
     else
@@ -212,22 +230,27 @@ function add_labels!(labels,x,dims,sol)
     end
   end
   lys[end] = lys[end][1:end-1] # Take off the last comma
-  if x[1] == 0
+  if x[2] == 0
     push!(labels,"$(lys...)(t)")
   else
     if has_syms(sol.prob.f)
-      tmp = sol.prob.f.syms[x[1]]
-      push!(labels,"($tmp,$(lys...))")
+      tmp = sol.prob.f.syms[x[2]]
+      tmp_lab = "($tmp,$(lys...))"
     else
-      push!(labels,"(u$(x[1]),$(lys...))")
+      tmp_lab = "(u$(x[2]),$(lys...))"
     end
+  end
+  if x[1] != DEFAULT_PLOT_FUNC
+    push!(labels,"$(x[1])$(tmp_lab)")
+  else
+    push!(labels,tmp_lab)
   end
   labels
 end
 
 function add_analytic_labels!(labels,x,dims,sol)
   lys = []
-  for j in 2:dims
+  for j in 3:dims
     if x[j] == 0
       push!(lys,"t,")
     else
@@ -239,15 +262,20 @@ function add_analytic_labels!(labels,x,dims,sol)
     end
   end
   lys[end] = lys[end][1:end-1] # Take off the last comma
-  if x[1] == 0
+  if x[2] == 0
     push!(labels,"$(lys...)(t)")
   else
     if has_syms(sol.prob.f)
-      tmp = string("True ",sol.prob.f.syms[x[1]])
-      push!(labels,"($tmp,$(lys...))")
+      tmp = string("True ",sol.prob.f.syms[x[2]])
+      tmp_lab = "($tmp,$(lys...))"
     else
-      push!(labels,"(True u$(x[1]),$(lys...))")
+      tmp_lab = "(True u$(x[2]),$(lys...))"
     end
+  end
+  if x[1] != DEFAULT_PLOT_FUNC
+    push!(labels,"$(x[1])$(tmp_lab)")
+  else
+    push!(labels,tmp_lab)
   end
 end
 
@@ -268,22 +296,24 @@ end
 
 function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analytic)
   plot_vecs = []
-  for i in 1:dims
+  for i in 2:dims
     push!(plot_vecs,[])
   end
-  labels = String[]# Array{String, 2}(1, length(vars)*(1+plot_analytic))
+  labels = String[]
   for x in vars
-    for j in 1:dims
-      push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
+    for j in 2:dims
+      push!(plot_vecs[j-1], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
     end
+    plot_vecs = x[1].(plot_vecs...)
     add_labels!(labels,x,dims,sol)
   end
 
   if plot_analytic
     for x in vars
-      for j in 1:dims
-        push!(plot_vecs[j], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
+      for j in 2:dims
+        push!(plot_vecs[j-1], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
       end
+      plot_vecs = x[1].(plot_vecs...)
       add_analytic_labels!(labels,x,dims,sol)
     end
   end
