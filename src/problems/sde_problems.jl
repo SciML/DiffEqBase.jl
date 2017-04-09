@@ -25,18 +25,3 @@ function SDETestProblem{NoiseClass,inplace,F3}(f,g,u0,analytic,tspan=(0.0,1.0);
                        noise::NoiseProcess{NoiseClass,inplace,F3}= iip ? INPLACE_WHITE_NOISE : WHITE_NOISE)
   SDETestProblem{typeof(u0),eltype(tspan),iip,inplace,NoiseClass,typeof(f),typeof(g),F3}(f,g,u0,analytic,tspan,noise)
 end
-
-#=
-function print{uType,tType,isinplace,NoiseClass,F,F2,F3}(io::IO, prob::AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3})
-  println(io,"AbstractSDEProblem")
-  println(io,"Independent Variable Type: $uType")
-  println(io,"Depdendent Variable Type: $tType")
-  println(io,"Function is in-place? $isinplace")
-  nothing
-end
-
-function show{uType,tType,isinplace,NoiseClass,F,F2,F3}(io::IO,prob::AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3})
-  println(io,"AbstractSDEProblem{$uType,$tType,$isinplace}")
-  nothing
-end
-=#
