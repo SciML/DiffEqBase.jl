@@ -3,8 +3,8 @@ type DAESolution{uType,duType,uType2,DType,tType,ID,P,A} <: AbstractODESolution
   du::duType
   u_analytic::uType2
   errors::DType
-  interp_data::ID
   t::tType
+  interp_data::ID
   prob::P
   alg::A
   interp::Function
@@ -53,5 +53,5 @@ end
 
 function build_solution(sol::AbstractDAESolution,u_analytic,errors)
   DAESolution(sol.u,sol.du,u_analytic,errors,sol.t,sol.interp_data,
-                    sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation,sol.retcode)
+              sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation,sol.retcode)
 end
