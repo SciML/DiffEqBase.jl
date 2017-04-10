@@ -3,13 +3,15 @@
 
 Returns the number of parameters of `f` for the method which has the most parameters.
 """
-function numparameters(f)
-  numparam = maximum([length(m.sig.parameters) for m in methods(f)]) #in v0.5, all are generic
+function numargs(f)
+  typ = Tuple{Any, Val{:analytic}, Vararg}
+  typ2 = Tuple{Any, Type{Val{:analytic}}, Vararg} # This one is required for overloaded types
+  numparam = maximum([(m.sig<:typ || m.sig<:typ2) ? 0 : length(m.sig.parameters) for m in methods(f)]) #in v0.5, all are generic
   return (numparam-1) #-1 in v0.5 since it adds f as the first parameter
 end
 
 function isinplace(f,inplace_param_number)
-  numparameters(f)>=inplace_param_number
+  numargs(f)>=inplace_param_number
 end
 
 function isinplace{iip}(f::AbstractParameterizedFunction{iip},inplace_param_number)

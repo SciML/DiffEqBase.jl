@@ -1,20 +1,10 @@
-type ODEProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F}
+type ODEProblem{uType,tType,isinplace,F,C} <: AbstractODEProblem{uType,tType,isinplace,F}
   f::F
   u0::uType
   tspan::Tuple{tType,tType}
+  callback::C
 end
 
-type ODETestProblem{uType,AType,tType,isinplace,F} <: AbstractODETestProblem{uType,tType,isinplace,F}
-  f::F
-  u0::uType
-  analytic::AType
-  tspan::Tuple{tType,tType}
-end
-
-function ODEProblem(f,u0,tspan; iip = isinplace(f,3))
-  ODEProblem{typeof(u0),eltype(tspan),iip,typeof(f)}(f,u0,tspan)
-end
-
-function ODETestProblem(f,u0,analytic,tspan=(0.0,1.0); iip = isinplace(f,3))
-  ODETestProblem{typeof(u0),typeof(analytic),eltype(tspan),iip,typeof(f)}(f,u0,analytic,tspan)
+function ODEProblem(f,u0,tspan; iip = isinplace(f,3),callback=CallbackSet())
+  ODEProblem{typeof(u0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,tspan,callback)
 end

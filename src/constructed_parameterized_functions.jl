@@ -4,7 +4,7 @@ type ParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{is
 end
 
 Base.@pure function ParameterizedFunction(f,p)
-  isinplace = numparameters(f)>=4
+  isinplace = numargs(f)>=4
   ParameterizedFunction{isinplace,typeof(f),typeof(p)}(f,p)
 end
 
@@ -19,7 +19,7 @@ type DAEParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction
 end
 
 Base.@pure function DAEParameterizedFunction(f,p)
-  isinplace = numparameters(f)>=5
+  isinplace = numargs(f)>=5
   DAEParameterizedFunction{isinplace,typeof(f),typeof(p)}(f,p)
 end
 
@@ -34,7 +34,7 @@ type DDEParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction
 end
 
 Base.@pure function DDEParameterizedFunction(f,p)
-  isinplace = numparameters(f)>=5
+  isinplace = numargs(f)>=5
   DDEParameterizedFunction{isinplace,typeof(f),typeof(p)}(f,p)
 end
 

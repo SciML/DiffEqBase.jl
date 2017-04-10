@@ -20,49 +20,34 @@ export DEProblem, DEElement, DESensitivity
 
 
 @compat abstract type AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem end
-@compat abstract type AbstractODETestProblem{uType,tType,isinplace,F} <:
-                      AbstractODEProblem{uType,tType,isinplace,F} end
 @compat abstract type AbstractDiscreteProblem{uType,tType,isinplace,F} <:
                       AbstractODEProblem{uType,tType,isinplace,F} end
-@compat abstract type AbstractDiscreteTestProblem{uType,tType,isinplace,F} <:
-                      AbstractODETestProblem{uType,tType,isinplace,F} end
 
-export AbstractODEProblem, AbstractODETestProblem, AbstractDiscreteProblem, AbstractDiscreteTestProblem
+export AbstractODEProblem, AbstractDiscreteProblem
 
 @compat abstract type AbstractRODEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <: DEProblem end
-@compat abstract type AbstractRODETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <:
-                      AbstractRODEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} end
 
-export AbstractRODEProblem, AbstractRODETestProblem
+export AbstractRODEProblem
 
 @compat abstract type AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <:
                       AbstractRODEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} end
-@compat abstract type AbstractSDETestProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <:
-                      AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} end
 
-export AbstractSDEProblem, AbstractSDETestProblem
+export AbstractSDEProblem
 
 @compat abstract type AbstractDAEProblem{uType,duType,tType,isinplace,F} <: DEProblem end
-@compat abstract type AbstractDAETestProblem{uType,duType,tType,isinplace,F} <:
-                      AbstractDAEProblem{uType,duType,tType,isinplace,F} end
 
-export AbstractDAEProblem, AbstractDAETestProblem
+export AbstractDAEProblem
 
 @compat abstract type AbstractDDEProblem{uType,tType,lType,isinplace,F,H} <: DEProblem end
-@compat abstract type AbstractDDETestProblem{uType,tType,lType,isinplace,F,H} <:
-                      AbstractDDEProblem{uType,tType,lType,isinplace,F,H} end
 @compat abstract type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace,F,H} <:
                       AbstractDDEProblem{uType,tType,lType,isinplace,F,H} end
-@compat abstract type AbstractConstantLagDDETestProblem{uType,tType,lType,isinplace,F,H} <:
-                      AbstractDDETestProblem{uType,tType,lType,isinplace,F,H} end
 
-export AbstractDDEProblem, AbstractDDETestProblem,
-       AbstractConstantLagDDEProblem, AbstractConstantLagDDETestProblem
+export AbstractDDEProblem,
+       AbstractConstantLagDDEProblem
 
 @compat abstract type AbstractSplitODEProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F} end
-@compat abstract type AbstractSplitODETestProblem{uType,tType,isinplace,F} <: AbstractODETestProblem{uType,tType,isinplace,F} end
 
-export AbstractSplitODEProblem, AbstractSplitODETestProblem
+export AbstractSplitODEProblem
 
 # Algorithms
 @compat abstract type DEAlgorithm end
@@ -103,25 +88,20 @@ export DEIntegrator, AbstractODEIntegrator, AbstractRODEIntegrator,
 
 # Solutions
 @compat abstract type DESolution end
-@compat abstract type DETestSolution <: DESolution end
 @compat abstract type AbstractODESolution <: DESolution end
 
-export DESolution, DETestSolution, AbstractODESolution, AbstractDDESolution
+export DESolution, AbstractODESolution, AbstractDDESolution
 
 # Needed for plot recipes
 @compat abstract type AbstractDDESolution <: AbstractODESolution end
-@compat abstract type  AbstractODETestSolution <: AbstractODESolution end
 @compat abstract type  AbstractRODESolution <: AbstractODESolution end
-@compat abstract type  AbstractRODETestSolution <: AbstractODESolution end
 @compat abstract type  AbstractDAESolution <: AbstractODESolution end
-@compat abstract type  AbstractDAETestSolution <: AbstractODESolution end
-@compat abstract type  AbstractDDETestSolution <: AbstractODESolution end
 @compat abstract type AbstractSensitivitySolution end
 @compat abstract type AbstractMonteCarloSolution <: DESolution end
 
-export AbstractODETestSolution, AbstractRODESolution, AbstractRODETestSolution,
-       AbstractDAESolution, AbstractDAETestSolution,
-       AbstractDDESolution, AbstractDDETestSolution,
+export AbstractRODESolution,
+       AbstractDAESolution,
+       AbstractDDESolution,
        AbstractSensitivitySolution, AbstractMonteCarloSolution
 
 # Misc
@@ -141,7 +121,6 @@ include("noise_process.jl")
 include("solutions/ode_solutions.jl")
 include("solutions/rode_solutions.jl")
 include("solutions/dae_solutions.jl")
-include("solutions/dde_solutions.jl")
 include("solutions/monte_solutions.jl")
 include("solutions/solution_interface.jl")
 include("tableaus.jl")
@@ -184,7 +163,7 @@ export resize!,deleteat!,addat!,full_cache,user_cache,u_cache,du_cache,
        set_reltol!,get_du,get_dt,get_proposed_dt,set_proposed_dt!,u_modified!,
        savevalues!
 
-export numparameters, @def, @muladd
+export numargs, @def, @muladd
 
 export NoiseProcess, construct_correlated_noisefunc
 
@@ -193,16 +172,16 @@ export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac,
 
 export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
        has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac,
-       has_syms
+       has_syms, has_analytic
 
-export DiscreteProblem, DiscreteTestProblem
+export DiscreteProblem
 
-export ODEProblem, ODETestProblem, ODESolution, ODETestSolution
-export SplitODEProblem, SplitODETestProblem
-export RODEProblem, RODETestProblem, RODESolution, RODETestSolution
-export SDEProblem, SDETestProblem
-export DAEProblem, DAETestProblem, DAESolution, DAETestSolution
-export ConstantLagDDEProblem, ConstantLagDDETestProblem, DDEProblem, DDETestProblem
+export ODEProblem, ODESolution
+export SplitODEProblem
+export RODEProblem, RODESolution
+export SDEProblem
+export DAEProblem, DAESolution
+export ConstantLagDDEProblem, DDEProblem
 
 export ParameterizedFunction, DAEParameterizedFunction, DDEParameterizedFunction,
        ProbParameterizedFunction, OutputParameterizedFunction

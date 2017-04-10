@@ -79,6 +79,12 @@ __has_syms(f) = :syms ∈ fieldnames(f)
 @generated SimpleTraits.trait{F}(::Type{HasSyms{F}}) = __has_syms(F) ? :(HasSyms{F}) : :(Not{HasSyms{F}})
 has_syms{T}(f::T) = istrait(HasSyms{T})
 
+## Analytical Solution Check
+@traitdef HasAnalytic{F}
+__has_analytic(f) = check_first_arg(f, Val{:analytic})
+@generated SimpleTraits.trait{F}(::Type{HasAnalytic{F}}) = __has_analytic(F) ? :(HasAnalytic{F}) : :(Not{HasAnalytic{F}})
+has_analytic{T}(f::T) = istrait(HasAnalytic{T})
+
 # now a trait methods can dispatch on this:
 # @traitfn fn(g::::HasJac, ...) = ...
 # @traitfn fn(g::::(!HasJac), ...) = ...
