@@ -1,4 +1,4 @@
-type ConstantLagDDEProblem{uType,tType,lType,isinplace,F,H,C} <: AbstractConstantLagDDEProblem{uType,tType,lType,isinplace,F,H}
+type ConstantLagDDEProblem{uType,tType,lType,isinplace,F,H,C} <: AbstractConstantLagDDEProblem{uType,tType,lType,isinplace}
   f::F
   h::H
   u0::uType
@@ -11,7 +11,7 @@ function ConstantLagDDEProblem(f,h,u0,lags,tspan; iip = isinplace(f,4), callback
   ConstantLagDDEProblem{typeof(u0),eltype(tspan),typeof(lags),iip,typeof(f),typeof(h),typeof(callback)}(f,h,u0,lags,tspan,callback)
 end
 
-type DDEProblem{uType,tType,lType,isinplace,F,H,C} <: AbstractDDEProblem{uType,tType,lType,isinplace,F,H}
+type DDEProblem{uType,tType,lType,isinplace,F,H,C} <: AbstractDDEProblem{uType,tType,lType,isinplace}
   f::F
   h::H
   u0::uType

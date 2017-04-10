@@ -41,7 +41,7 @@ const DEFAULT_PLOT_FUNC = (x...) -> (x...)
 
 @recipe function f(sol::DESolution;
                    plot_analytic=false,
-                   denseplot = (sol.dense || typeof(sol.prob) <: AbstractDiscreteProblem) && !(typeof(sol) <: AbstractSDESolution),
+                   denseplot = (sol.dense || typeof(sol.prob) <: AbstractDiscreteProblem) && !(typeof(sol) <: AbstractRODESolution),
                    plotdensity = sol.tslocation==0 ? (typeof(sol.prob) <: AbstractDiscreteProblem ? 100*length(sol) : 10*length(sol)) : 100*sol.tslocation,
                    vars=nothing)
 
@@ -57,7 +57,9 @@ const DEFAULT_PLOT_FUNC = (x...) -> (x...)
     plott = collect(Ranges.linspace(sol.t[1],sol.t[end_idx],plotdensity))
     plot_timeseries = sol(plott)
     if plot_analytic
-      plot_analytic_timeseries = [sol.prob.analytic(t,sol.prob.u0) for t in plott]
+      plot_analytic_timeseries = [sol.prob.f(Val{:analytic},t,sol.prob.u0) for t in plott]
+    else
+      plot_analytic_timeseries = nothing
     end
   else
     # Plot for sparse output: use the timeseries itself
@@ -66,12 +68,16 @@ const DEFAULT_PLOT_FUNC = (x...) -> (x...)
       plot_timeseries = sol.u
       if plot_analytic
         plot_analytic_timeseries = sol.u_analytic
+      else
+        plot_analytic_timeseries = nothing
       end
     else
       plott = sol.t[1:end_idx]
       plot_timeseries = sol.u[1:end_idx]
       if plot_analytic
         plot_analytic_timeseries = sol.u_analytic[1:end_idx]
+      else
+        plot_analytic_timeseries = nothing
       end
     end
   end
@@ -81,7 +87,7 @@ const DEFAULT_PLOT_FUNC = (x...) -> (x...)
     @assert length(var) == dims
   end
   # Should check that all have the same dims!
-  plot_vecs,labels = solplot_vecs_and_labels(dims,int_vars,plot_timeseries,plott,sol,plot_analytic)
+  plot_vecs,labels = solplot_vecs_and_labels(dims,int_vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries)
 
   tdir = sign(sol.t[end]-sol.t[1])
   xflip --> tdir < 0
@@ -216,7 +222,7 @@ function add_labels!(labels,x,dims,sol)
   end
   lys[end] = lys[end][1:end-1] # Take off the last comma
   if x[2] == 0
-    push!(labels,"$(lys...)(t)")
+    tmp_lab = "$(lys...)(t)"
   else
     if has_syms(sol.prob.f)
       tmp = sol.prob.f.syms[x[2]]
@@ -248,7 +254,7 @@ function add_analytic_labels!(labels,x,dims,sol)
   end
   lys[end] = lys[end][1:end-1] # Take off the last comma
   if x[2] == 0
-    push!(labels,"$(lys...)(t)")
+    tmp_lab = "$(lys...)(t)"
   else
     if has_syms(sol.prob.f)
       tmp = string("True ",sol.prob.f.syms[x[2]])
@@ -279,33 +285,49 @@ function u_n(timeseries::AbstractArray, n::Int,sol,plott,plot_timeseries)
   end
 end
 
-function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analytic)
+function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries)
   plot_vecs = []
   for i in 2:dims
     push!(plot_vecs,[])
   end
   labels = String[]
   for x in vars
+    tmp = []
     for j in 2:dims
-      push!(plot_vecs[j-1], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
+      push!(tmp, u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
     end
     f = x[1]
-    plot_vecs = f.(first.(plot_vecs)...)
-    plot_vecs = tuple((getindex.(plot_vecs,i) for i in eachindex(plot_vecs[1]))...)
+    tmp = f.(tmp...)
+
+    tmp = tuple((getindex.(tmp,i) for i in eachindex(tmp[1]))...)
+    for i in eachindex(tmp)
+      push!(plot_vecs[i],tmp[i])
+    end
     add_labels!(labels,x,dims,sol)
   end
 
+
+
   if plot_analytic
+    analytic_plot_vecs = []
+    for i in 2:dims
+      push!(analytic_plot_vecs,[])
+    end
     for x in vars
+      tmp = []
       for j in 2:dims
-        push!(plot_vecs[j-1], u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
+        push!(tmp, u_n(plot_analytic_timeseries, x[j],sol,plott,plot_analytic_timeseries))
       end
       f = x[1]
-      plot_vecs = f.(first.(plot_vecs)...)
-      plot_vecs = tuple((getindex.(plot_vecs,i) for i in eachindex(plot_vecs[1]))...)
+      tmp = f.(tmp...)
+      tmp = tuple((getindex.(tmp,i) for i in eachindex(tmp[1]))...)
+      for i in eachindex(tmp)
+        push!(plot_vecs[i],tmp[i])
+      end
       add_analytic_labels!(labels,x,dims,sol)
     end
   end
+  plot_vecs = [hcat(x...) for x in plot_vecs]
   plot_vecs,labels
 end
 

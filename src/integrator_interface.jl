@@ -75,7 +75,7 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
     plott = collect(Ranges.linspace(integrator.tprev,integrator.t,plotdensity))
     plot_timeseries = integrator(plott)
     if plot_analytic
-      plot_analytic_timeseries = [integrator.sol.prob.analytic(t,integrator.sol.prob.u0) for t in plott]
+      plot_analytic_timeseries = [integrator.sol.prob.f(Val{:analytic},t,integrator.sol.prob.u0) for t in plott]
     end
   end # if not denseplot, we'll just get the values right from the integrator.
 
@@ -87,22 +87,22 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 
 
   plot_vecs = []
-  for i in 1:dims
+  for i in 2:dims
     push!(plot_vecs,[])
   end
 
   labels = String[]# Array{String, 2}(1, length(int_vars)*(1+plot_analytic))
   for x in int_vars
-    for j in 1:dims
+    for j in 2:dims
       if denseplot
-        push!(plot_vecs[j], u_n(plot_timeseries, x[j],integrator.sol,plott,plot_timeseries))
+        push!(plot_vecs[j-1], u_n(plot_timeseries, x[j],integrator.sol,plott,plot_timeseries))
       else # just get values
         if x[j] == 0
-          push!(plot_vecs[j], integrator.t)
+          push!(plot_vecs[j-1], integrator.t)
         elseif x[j]==1 && !(typeof(integrator.u) <: AbstractArray)
-          push!(plot_vecs[j], integrator.u)
+          push!(plot_vecs[j-1], integrator.u)
         else
-          push!(plot_vecs[j], integrator.u[x[j]])
+          push!(plot_vecs[j-1], integrator.u[x[j]])
         end
       end
     end
@@ -118,9 +118,9 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
           if x[j] == 0
             push!(plot_vecs[j], integrator.t)
           elseif x[j]==1 && !(typeof(integrator.u) <: AbstractArray)
-            push!(plot_vecs[j], integrator.sol.prob.analytic(integrator.t,integrator.sol[1]))
+            push!(plot_vecs[j], integrator.sol.prob.f(Val{:analytic},integrator.t,integrator.sol[1]))
           else
-            push!(plot_vecs[j], integrator.sol.prob.analytic(integrator.t,integrator.sol[1])[x[j]])
+            push!(plot_vecs[j], integrator.sol.prob.f(Val{:analytic},integrator.t,integrator.sol[1])[x[j]])
           end
         end
       end

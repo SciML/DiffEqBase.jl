@@ -15,8 +15,8 @@ end
 (sol::DAESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
 (sol::DAESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
 
-function build_solution{uType,duType,tType,isinplace,F}(
-        prob::AbstractDAEProblem{uType,duType,tType,isinplace,F},
+function build_solution{uType,duType,tType,isinplace}(
+        prob::AbstractDAEProblem{uType,duType,tType,isinplace},
         alg,t,u;dense=false,du=[],
         interp_data=[],interp = (tvals) -> nothing,
         timeseries_errors=true,dense_errors=true, retcode = :Default, kwargs...)

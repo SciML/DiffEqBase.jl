@@ -19,33 +19,33 @@ import RecursiveArrayTools: recursivecopy!
 export DEProblem, DEElement, DESensitivity
 
 
-@compat abstract type AbstractODEProblem{uType,tType,isinplace,F} <: DEProblem end
-@compat abstract type AbstractDiscreteProblem{uType,tType,isinplace,F} <:
-                      AbstractODEProblem{uType,tType,isinplace,F} end
+@compat abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem end
+@compat abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
+                      AbstractODEProblem{uType,tType,isinplace} end
 
 export AbstractODEProblem, AbstractDiscreteProblem
 
-@compat abstract type AbstractRODEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <: DEProblem end
+@compat abstract type AbstractRODEProblem{uType,tType,isinplace,NoiseClass} <: DEProblem end
 
 export AbstractRODEProblem
 
-@compat abstract type AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} <:
-                      AbstractRODEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3} end
+@compat abstract type AbstractSDEProblem{uType,tType,isinplace,NoiseClass} <:
+                      AbstractRODEProblem{uType,tType,isinplace,NoiseClass} end
 
 export AbstractSDEProblem
 
-@compat abstract type AbstractDAEProblem{uType,duType,tType,isinplace,F} <: DEProblem end
+@compat abstract type AbstractDAEProblem{uType,duType,tType,isinplace} <: DEProblem end
 
 export AbstractDAEProblem
 
-@compat abstract type AbstractDDEProblem{uType,tType,lType,isinplace,F,H} <: DEProblem end
-@compat abstract type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace,F,H} <:
-                      AbstractDDEProblem{uType,tType,lType,isinplace,F,H} end
+@compat abstract type AbstractDDEProblem{uType,tType,lType,isinplace} <: DEProblem end
+@compat abstract type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace} <:
+                      AbstractDDEProblem{uType,tType,lType,isinplace} end
 
 export AbstractDDEProblem,
        AbstractConstantLagDDEProblem
 
-@compat abstract type AbstractSplitODEProblem{uType,tType,isinplace,F} <: AbstractODEProblem{uType,tType,isinplace,F} end
+@compat abstract type AbstractSplitODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
 
 export AbstractSplitODEProblem
 

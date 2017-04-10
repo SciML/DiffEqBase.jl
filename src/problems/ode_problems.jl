@@ -1,4 +1,4 @@
-type ODEProblem{uType,tType,isinplace,F,C} <: AbstractODEProblem{uType,tType,isinplace,F}
+type ODEProblem{uType,tType,isinplace,F,C} <: AbstractODEProblem{uType,tType,isinplace}
   f::F
   u0::uType
   tspan::Tuple{tType,tType}

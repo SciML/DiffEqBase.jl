@@ -1,4 +1,4 @@
-type DAEProblem{uType,duType,tType,isinplace,F,C} <: AbstractDAEProblem{uType,duType,tType,isinplace,F}
+type DAEProblem{uType,duType,tType,isinplace,F,C} <: AbstractDAEProblem{uType,duType,tType,isinplace}
   f::F
   u0::uType
   du0::duType

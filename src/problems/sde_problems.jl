@@ -1,4 +1,4 @@
-type SDEProblem{uType,tType,isinplace,isinplaceNoise,NoiseClass,F,F2,F3,C} <: AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3}
+type SDEProblem{uType,tType,isinplace,isinplaceNoise,NoiseClass,F,F2,F3,C} <: AbstractSDEProblem{uType,tType,isinplace,NoiseClass}
   f::F
   g::F2
   u0::uType

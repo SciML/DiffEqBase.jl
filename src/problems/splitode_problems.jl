@@ -1,4 +1,4 @@
-type SplitODEProblem{uType,tType,isinplace,F,C} <: AbstractSplitODEProblem{uType,tType,isinplace,F}
+type SplitODEProblem{uType,tType,isinplace,F,C} <: AbstractSplitODEProblem{uType,tType,isinplace}
   f::F
   u0::uType
   tspan::Tuple{tType,tType}
