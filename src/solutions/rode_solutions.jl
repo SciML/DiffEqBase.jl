@@ -27,7 +27,7 @@ function build_solution{uType,tType,isinplace,NoiseClass}(
 
   if has_analytic(prob.f)
     u_analytic = Vector{uType}(0)
-    errors = Dict{Symbol,eltype(u[1])}()
+    errors = Dict{Symbol,eltype(prob.u0)}()
     sol = RODESolution(u,u_analytic,errors,t,W,prob,alg,maxstacksize,maxstacksize2,interp,dense,0,retcode)
     if calculate_error
       calculate_solution_errors!(sol;timeseries_errors=timeseries_errors,dense_errors=dense_errors)
