@@ -40,11 +40,11 @@ function calculate_solution_errors!(sol::AbstractODESolution;fill_uanalytic=true
     end
   end
 
-  save_timeseries = length(sol.u) > 2
+  save_everystep = length(sol.u) > 2
   if !isempty(sol.u_analytic)
     sol.errors[:final] = mean(abs.(sol.u[end]-sol.u_analytic[end]))
 
-    if save_timeseries && timeseries_errors
+    if save_everystep && timeseries_errors
       sol.errors[:l∞] = maximum(vecvecapply((x)->abs.(x),sol.u-sol.u_analytic))
       sol.errors[:l2] = sqrt(mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic)))
       if sol.dense && dense_errors

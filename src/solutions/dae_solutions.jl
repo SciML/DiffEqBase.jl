@@ -27,13 +27,13 @@ function build_solution{uType,duType,tType,isinplace}(
       push!(u_analytic,prob.analytic(t[i],prob.u0))
     end
 
-    save_timeseries = length(u) > 2
+    save_everystep = length(u) > 2
 
     errors = Dict{Symbol,eltype(u[1])}()
     if !isempty(u_analytic)
       errors[:final] = mean(abs.(u[end]-u_analytic[end]))
 
-      if save_timeseries && timeseries_errors
+      if save_everystep && timeseries_errors
         errors[:l∞] = maximum(vecvecapply((x)->abs.(x),u-u_analytic))
         errors[:l2] = sqrt(mean(vecvecapply((x)->float.(x).^2,u-u_analytic)))
         if dense && dense_errors

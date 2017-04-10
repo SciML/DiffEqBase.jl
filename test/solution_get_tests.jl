@@ -25,7 +25,7 @@ sim[1][1]
 sim[end]
 
 #=
-sim = monteCarloSim(prob2,EM,dt=1/2^(3),save_timeseries=true,numMonte=5)
+sim = monteCarloSim(prob2,EM,dt=1/2^(3),save_everystep=true,numMonte=5)
 length(sim)
 sim[1]
 sim[1][1]
