@@ -25,12 +25,12 @@ export DEProblem, DEElement, DESensitivity
 
 export AbstractODEProblem, AbstractDiscreteProblem
 
-@compat abstract type AbstractRODEProblem{uType,tType,isinplace,NoiseClass} <: DEProblem end
+@compat abstract type AbstractRODEProblem{uType,tType,isinplace,NoiseClass,ND} <: DEProblem end
 
 export AbstractRODEProblem
 
-@compat abstract type AbstractSDEProblem{uType,tType,isinplace,NoiseClass} <:
-                      AbstractRODEProblem{uType,tType,isinplace,NoiseClass} end
+@compat abstract type AbstractSDEProblem{uType,tType,isinplace,NoiseClass,ND} <:
+                      AbstractRODEProblem{uType,tType,isinplace,NoiseClass,ND} end
 
 export AbstractSDEProblem
 
