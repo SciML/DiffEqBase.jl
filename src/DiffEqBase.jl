@@ -132,6 +132,7 @@ include("problems/sde_problems.jl")
 include("problems/dae_problems.jl")
 include("problems/dde_problems.jl")
 include("problems/monte_problems.jl")
+include("problems/problem_traits.jl")
 include("callbacks.jl")
 include("integrator_interface.jl")
 include("parameters_interface.jl")
@@ -199,5 +200,7 @@ export initialize!
 export copy_non_array_fields
 
 export param_values, num_params, problem_new_parameters
+
+export is_diagonal_noise, is_sparse_noise
 
 end # module
