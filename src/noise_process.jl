@@ -25,8 +25,20 @@ end
 (n::NoiseProcess)(a...) = n.noise_func(a...)
 (n::NoiseProcess)(a,b) = n.noise_func(a,b)
 
-const WHITE_NOISE = NoiseProcess{:White,false,typeof(wiener_randn)}(wiener_randn)
-const INPLACE_WHITE_NOISE = NoiseProcess{:White,true,typeof(wiener_randn!)}(wiener_randn!)
+@inline function white_noise_func_wrapper(integrator)
+  wiener_randn()
+end
+
+@inline function white_noise_func_wrapper(x::Tuple,integrator)
+  wiener_randn(x)
+end
+
+@inline function white_noise_func_wrapper!(rand_vec,integrator)
+  wiener_randn!(rand_vec)
+end
+
+const WHITE_NOISE = NoiseProcess{:White,false,typeof(white_noise_func_wrapper)}(white_noise_func_wrapper)
+const INPLACE_WHITE_NOISE = NoiseProcess{:White,true,typeof(white_noise_func_wrapper!)}(white_noise_func_wrapper!)
 
 """
 construct_correlated_noisefunc(Γ::AbstractArray)

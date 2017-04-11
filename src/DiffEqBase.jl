@@ -201,6 +201,8 @@ export copy_non_array_fields
 
 export param_values, num_params, problem_new_parameters
 
+export white_noise_func_wrapper, white_noise_func_wrapper!
+
 export is_diagonal_noise, is_sparse_noise
 
 end # module
