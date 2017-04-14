@@ -5,11 +5,11 @@ type ConstantLagDDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractCons
   lags::lType
   tspan::Tuple{tType,tType}
   callback::C
-  mm::MM
+  mass_matrix::MM
 end
 
-function ConstantLagDDEProblem(f,h,u0,lags,tspan; iip = isinplace(f,4), callback = nothing,mm=I)
-  ConstantLagDDEProblem{typeof(u0),eltype(tspan),typeof(lags),iip,typeof(f),typeof(h),typeof(callback),typeof(mm)}(f,h,u0,lags,tspan,callback,mm)
+function ConstantLagDDEProblem(f,h,u0,lags,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=I)
+  ConstantLagDDEProblem{typeof(u0),eltype(tspan),typeof(lags),iip,typeof(f),typeof(h),typeof(callback),typeof(mass_matrix)}(f,h,u0,lags,tspan,callback,mass_matrix)
 end
 
 type DDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractDDEProblem{uType,tType,lType,isinplace}
@@ -19,9 +19,9 @@ type DDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractDDEProblem{uTyp
   lags::lType
   tspan::Tuple{tType,tType}
   callback::C
-  mm::MM
+  mass_matrix::MM
 end
 
-function DDEProblem(f,h,u0,lags,tspan; iip = isinplace(f,4), callback = nothing,mm=I)
-  DDEProblem{typeof(u0),eltype(tspan),typeof(lags),iip,typeof(f),typeof(h),typeof(callback),typeof(mm)}(f,h,u0,lags,tspan,callback,mm)
+function DDEProblem(f,h,u0,lags,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=I)
+  DDEProblem{typeof(u0),eltype(tspan),typeof(lags),iip,typeof(f),typeof(h),typeof(callback),typeof(mass_matrix)}(f,h,u0,lags,tspan,callback,mass_matrix)
 end

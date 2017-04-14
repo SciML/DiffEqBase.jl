@@ -7,7 +7,7 @@ type DAEProblem{uType,duType,tType,isinplace,F,C} <: AbstractDAEProblem{uType,du
   callback::C
 end
 
-function DAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing,mm=I,diff_vars=nothing)
+function DAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=I,diff_vars=nothing)
   DAEProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,du0,tspan,callback)
 end
 
@@ -20,7 +20,7 @@ type SplitDAEProblem{uType,duType,tType,isinplace,F,C} <: AbstractDAEProblem{uTy
   callback::C
 end
 
-function SplitDAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing,mm=I)
+function SplitDAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=I)
   @assert typeof(f) <: Tuple
   SplitDAEProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,du0,tspan,callback)
 end
@@ -35,7 +35,7 @@ type PartitionedDAEProblem{uType,duType,tType,isinplace,F,C} <: AbstractDAEProbl
   callback::C
 end
 
-function PartitionedDAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing,mm=I)
+function PartitionedDAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=I)
   @assert typeof(f) <: Tuple
   SplitDAEProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,du0,tspan,callback)
 end
