@@ -12,6 +12,15 @@ rootfind = true
 save_positions = (true,true)
 callback = ContinuousCallback(condtion,affect!;save_positions=save_positions)
 
+cbs= CallbackSet(nothing)
+@test typeof(cbs.discrete_callbacks) <: Tuple
+@test typeof(cbs.continuous_callbacks) <: Tuple
+cbs = CallbackSet(callback,nothing)
+@test typeof(cbs.discrete_callbacks) <: Tuple
+@test typeof(cbs.continuous_callbacks) <: Tuple
+cbs = CallbackSet(callback,CallbackSet())
+@test typeof(cbs.discrete_callbacks) <: Tuple
+@test typeof(cbs.continuous_callbacks) <: Tuple
 
 condtion = function (integrator)
   true
