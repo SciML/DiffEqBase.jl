@@ -52,7 +52,7 @@ DiscreteCallback(condition,affect!;
 
 # DiscreteCallback(condition,affect!,save_positions) = DiscreteCallback(condition,affect!,save_positions)
 
-immutable CallbackSet{T1,T2} <: DECallback
+immutable CallbackSet{T1<:Tuple,T2<:Tuple} <: DECallback
   continuous_callbacks::T1
   discrete_callbacks::T2
 end
