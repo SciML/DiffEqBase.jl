@@ -8,11 +8,11 @@ type DiscreteProblem{uType,tType,isinplace,F,C} <: AbstractDiscreteProblem{uType
   callback::C
 end
 
-function DiscreteProblem(f,u0,tspan; iip = isinplace(f,3),callback = CallbackSet())
+function DiscreteProblem(f,u0,tspan; iip = isinplace(f,3),callback = nothing)
   DiscreteProblem{typeof(u0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,tspan,callback)
 end
 
-function DiscreteProblem(u0,tspan::Tuple; callback = CallbackSet())
+function DiscreteProblem(u0,tspan::Tuple; callback = nothing)
   iip = typeof(u0) <: AbstractArray
   if iip
     f = DISCRETE_INPLACE_DEFAULT

@@ -6,6 +6,6 @@ type DAEProblem{uType,duType,tType,isinplace,F,C} <: AbstractDAEProblem{uType,du
   callback::C
 end
 
-function DAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = CallbackSet())
+function DAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing)
   DAEProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,du0,tspan,callback)
 end
