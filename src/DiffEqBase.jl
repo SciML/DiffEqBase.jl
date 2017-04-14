@@ -45,11 +45,9 @@ export AbstractDAEProblem
 export AbstractDDEProblem,
        AbstractConstantLagDDEProblem
 
-@compat abstract type AbstractSplitODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
-@compat abstract type AbstractPartitionedODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
 @compat abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
 
-export AbstractSplitODEProblem, AbstractPartitionedODEProblem, AbstractSecondOrderODEProblem
+export AbstractSecondOrderODEProblem
 
 # Algorithms
 @compat abstract type DEAlgorithm end
@@ -57,6 +55,10 @@ export AbstractSplitODEProblem, AbstractPartitionedODEProblem, AbstractSecondOrd
 @compat abstract type AbstractSplitODEAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractPartitionedODEAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractSecondOrderODEAlgorithm <: DEAlgorithm end
+@compat abstract type AbstractSplitDAEAlgorithm <: DEAlgorithm end
+@compat abstract type AbstractPartitionedDAEAlgorithm <: DEAlgorithm end
+@compat abstract type AbstractSplitConstrainedODEAlgorithm <: DEAlgorithm end
+@compat abstract type AbstractPartitionedConstrainedODEAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractRODEAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractSDEAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractDAEAlgorithm <: DEAlgorithm end
@@ -138,8 +140,7 @@ include("solutions/solution_interface.jl")
 include("tableaus.jl")
 include("problems/discrete_problems.jl")
 include("problems/ode_problems.jl")
-include("problems/splitode_problems.jl")
-include("problems/partitioned_ode_problems.jl")
+include("problems/constrained_ode_problems.jl")
 include("problems/rode_problems.jl")
 include("problems/sde_problems.jl")
 include("problems/dae_problems.jl")
@@ -194,6 +195,8 @@ export ODEProblem, ODESolution
 export SplitODEProblem, PartitionedODEProblem, SecondOrderODEProblem
 export RODEProblem, RODESolution, SDEProblem
 export DAEProblem, DAESolution
+export SplitDAEProblem, PartitionedDAEProblem, ConstrainedODEProblem,
+       SplitConstrainedODEProblem, PartitionedConstrainedODEProblem
 export ConstantLagDDEProblem, DDEProblem
 
 export ParameterizedFunction, DAEParameterizedFunction, DDEParameterizedFunction,
