@@ -73,7 +73,7 @@ CallbackSet(callbacks::Union{DECallback,Void}...) = CallbackSet(split_callbacks(
   split_callbacks((cs...,d.continuous_callbacks...), (ds..., d.discrete_callbacks...), args...)
 end
 
-function initialize!(cb::CallbackSet,t,u,integrator::DEIntegrator) = initialize!(t,u,integrator,cb.continuous_callbacks...,cb.discrete_callbacks...)
+initialize!(cb::CallbackSet,t,u,integrator::DEIntegrator) = initialize!(t,u,integrator,cb.continuous_callbacks...,cb.discrete_callbacks...)
 initialize!(cb::CallbackSet{Tuple{},Tuple{}},t,u,integrator::DEIntegrator) = nothing
 initialize!(t,u,integrator::DEIntegrator,c::DECallback,cs::DECallback...) = (c.initialize(c,t,u,integrator); initialize!(t,u,integrator,cs...))
 initialize!(t,u,integrator::DEIntegrator,c::DECallback) = c.initialize(c,t,u,integrator)
