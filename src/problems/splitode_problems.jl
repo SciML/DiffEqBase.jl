@@ -5,6 +5,6 @@ type SplitODEProblem{uType,tType,isinplace,F,C} <: AbstractSplitODEProblem{uType
   callback::C
 end
 
-function SplitODEProblem(f,u0,tspan; iip = isinplace(f[2],3),callback=CallbackSet())
+function SplitODEProblem(f,u0,tspan; iip = isinplace(f[2],3),callback=nothing)
   SplitODEProblem{typeof(u0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,tspan,callback)
 end

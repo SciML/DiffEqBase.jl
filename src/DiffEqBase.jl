@@ -46,19 +46,26 @@ export AbstractDDEProblem,
        AbstractConstantLagDDEProblem
 
 @compat abstract type AbstractSplitODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
+@compat abstract type AbstractPartitionedODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
+@compat abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
 
-export AbstractSplitODEProblem
+export AbstractSplitODEProblem, AbstractPartitionedODEProblem, AbstractSecondOrderODEProblem
 
 # Algorithms
 @compat abstract type DEAlgorithm end
 @compat abstract type AbstractODEAlgorithm <: DEAlgorithm end
+@compat abstract type AbstractSplitODEAlgorithm <: DEAlgorithm end
+@compat abstract type AbstractPartitionedODEAlgorithm <: DEAlgorithm end
+@compat abstract type AbstractSecondOrderODEAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractRODEAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractSDEAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractDAEAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractDDEAlgorithm <: DEAlgorithm end
 
-export DEAlgorithm, AbstractODEAlgorithm, AbstractRODEAlgorithm,
-       AbstractSDEAlgorithm, AbstractDAEAlgorithm, AbstractDDEAlgorithm
+export DEAlgorithm, AbstractODEAlgorithm, AbstractSplitODEAlgorithm,
+       AbstractPartitionedODEAlgorithm, AbstractSecondOrderODEAlgorithm,
+       AbstractRODEAlgorithm, AbstractSDEAlgorithm,
+       AbstractDAEAlgorithm, AbstractDDEAlgorithm
 
 # Monte Carlo Simulations
 @compat abstract type AbstractMonteCarloProblem <: DEProblem end
@@ -78,13 +85,18 @@ export DEOptions, DECache, DECallback, DEDataArray
 # Integrators
 @compat abstract type DEIntegrator end
 @compat abstract type AbstractODEIntegrator <: DEIntegrator end
+@compat abstract type AbstractSplitODEIntegrator <: DEIntegrator end
+@compat abstract type AbstractPartitionedODEIntegrator <: DEIntegrator end
+@compat abstract type AbstractSecondOrderODEIntegrator <: DEIntegrator end
 @compat abstract type AbstractRODEIntegrator <: DEIntegrator end
 @compat abstract type AbstractSDEIntegrator <: DEIntegrator end
 @compat abstract type AbstractDDEIntegrator <: DEIntegrator end
 @compat abstract type AbstractDAEIntegrator <: DEIntegrator end
 
-export DEIntegrator, AbstractODEIntegrator, AbstractRODEIntegrator,
-       AbstractSDEIntegrator, AbstractDDEIntegrator, AbstractDAEIntegrator
+export DEIntegrator, AbstractODEIntegrator, AbstractSplitODEIntegrator,
+       AbstractPartitionedODEIntegrator, AbstractSecondOrderODEIntegrator,
+       AbstractRODEIntegrator, AbstractSDEIntegrator,
+       AbstractDDEIntegrator, AbstractDAEIntegrator
 
 # Solutions
 @compat abstract type DESolution end
@@ -127,6 +139,7 @@ include("tableaus.jl")
 include("problems/discrete_problems.jl")
 include("problems/ode_problems.jl")
 include("problems/splitode_problems.jl")
+include("problems/partitioned_ode_problems.jl")
 include("problems/rode_problems.jl")
 include("problems/sde_problems.jl")
 include("problems/dae_problems.jl")
@@ -178,9 +191,8 @@ export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
 export DiscreteProblem
 
 export ODEProblem, ODESolution
-export SplitODEProblem
-export RODEProblem, RODESolution
-export SDEProblem
+export SplitODEProblem, PartitionedODEProblem, SecondOrderODEProblem
+export RODEProblem, RODESolution, SDEProblem
 export DAEProblem, DAESolution
 export ConstantLagDDEProblem, DDEProblem
 

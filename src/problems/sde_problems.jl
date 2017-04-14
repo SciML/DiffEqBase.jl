@@ -10,6 +10,6 @@ end
 
 function SDEProblem{NoiseClass,inplace,F3}(f,g,u0,tspan;iip = isinplace(f,3),
                     noise::NoiseProcess{NoiseClass,inplace,F3}= iip ? INPLACE_WHITE_NOISE : WHITE_NOISE,
-                    callback = CallbackSet(),noise_rate_prototype = nothing)
+                    callback = nothing,noise_rate_prototype = nothing)
   SDEProblem{typeof(u0),eltype(tspan),iip,inplace,NoiseClass,typeof(f),typeof(g),F3,typeof(callback),typeof(noise_rate_prototype)}(f,g,u0,tspan,noise,callback,noise_rate_prototype)
 end

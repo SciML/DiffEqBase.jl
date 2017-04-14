@@ -5,6 +5,6 @@ type ODEProblem{uType,tType,isinplace,F,C} <: AbstractODEProblem{uType,tType,isi
   callback::C
 end
 
-function ODEProblem(f,u0,tspan; iip = isinplace(f,3),callback=CallbackSet())
+function ODEProblem(f,u0,tspan; iip = isinplace(f,3),callback=nothing)
   ODEProblem{typeof(u0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,tspan,callback)
 end

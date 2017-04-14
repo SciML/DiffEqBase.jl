@@ -9,6 +9,6 @@ end
 
 function RODEProblem{NoiseClass,inplace,F3}(f,u0,tspan; iip = isinplace(f,4),
                      noise::NoiseProcess{NoiseClass,inplace,F3}= iip ? INPLACE_WHITE_NOISE : WHITE_NOISE,
-                     callback=CallbackSet(),rand_prototype = nothing)
+                     callback=nothing,rand_prototype = nothing)
   RODEProblem{typeof(u0),eltype(tspan),iip,NoiseClass,inplace,typeof(f),typeof(callback),F3,typeof(rand_prototype)}(f,u0,tspan,noise,callback,rand_prototype)
 end
