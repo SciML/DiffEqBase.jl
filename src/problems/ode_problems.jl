@@ -45,15 +45,18 @@ function PartitionedODEProblem(f,u0,tspan; iip = isinplace(f[1],3),callback=noth
 end
 
 # u'' = f(t,u,du,ddu)
-type SecondOrderODEProblem{uType,duType,tType,isinplace,F,C,MM} <: AbstractSecondOrderODEProblem{uType,tType,isinplace}
-  f::F
-  u0::uType
-  du0::duType
-  tspan::Tuple{tType,tType}
-  callback::C
-  mass_matrix::MM
-end
-
 function SecondOrderODEProblem(f,u0,du0,tspan; iip = isinplace(f,4),callback=nothing,mass_matrix=I)
-  SecondOrderODEProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f),typeof(callback),typeof(mass_matrix)}(f,u0,du0,tspan,callback,mass_matrix)
+  if iip
+    f1 = function (t,u,v,du)
+      du .= v
+    end
+  else
+    f1 = function (t,u,v)
+      v
+    end
+  end
+  _f = (f1,f)
+  _u0 = (u0,du0)
+  _mass_matrix = (mass_matrix,I)
+  PartitionedODEProblem{typeof(_u0),eltype(tspan),iip,typeof(_f),typeof(callback),typeof(_mass_matrix)}(_f,_u0,tspan,callback,_mass_matrix)
 end
