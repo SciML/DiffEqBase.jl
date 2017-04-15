@@ -37,7 +37,6 @@ end
 function PartitionedODEProblem(f,u0,tspan; iip = isinplace(f[1],3),callback=nothing,mass_matrix=nothing)
   @assert typeof(f) <: Tuple
   @assert typeof(u0) <: Tuple
-  @assert length(f) == length(u0)
   if mass_matrix == nothing
     _mm = ((I for i in 1:length(f))...)
   end

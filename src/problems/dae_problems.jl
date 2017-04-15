@@ -37,5 +37,6 @@ end
 
 function PartitionedDAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=I)
   @assert typeof(f) <: Tuple
+  @assert typeof(u0) <: Tuple
   SplitDAEProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,du0,tspan,callback)
 end
