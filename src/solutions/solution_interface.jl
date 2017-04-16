@@ -105,10 +105,6 @@ const DEFAULT_PLOT_FUNC = (x...) -> (x...)
   if getindex.(int_vars,1) == zeros(length(int_vars)) || getindex.(int_vars,2) == zeros(length(int_vars))
     xlabel --> "t"
   end
-  #xtickfont --> font(11)
-  #ytickfont --> font(11)
-  #legendfont --> font(11)
-  #guidefont  --> font(11)
   label --> reshape(labels,1,length(labels))
   (plot_vecs...)
 end

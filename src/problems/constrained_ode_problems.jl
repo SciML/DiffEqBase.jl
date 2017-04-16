@@ -35,17 +35,17 @@ type PartitionedConstrainedODEProblem{uType,duType,tType,isinplace,F,G,C,MM} <: 
   f::F
   g::G
   u0::uType
-  du0::duType
+  v0::duType
   tspan::Tuple{tType,tType}
   callback::C
   mass_matrix::MM
 end
 
-function PartitionedConstrainedODEProblem(f,g,u0,du0,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=nothing)
+function PartitionedConstrainedODEProblem(f,g,u0,v0,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=nothing)
   @assert typeof(f) <: Tuple
   @assert typeof(g) <: Tuple
   if mass_matrix == nothing
     _mm = ((I for i in 1:length(f))...)
   end
-  PartitionedConstrainedODEProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f),typeof(g),typeof(callback),typeof(_mm)}(f,g,u0,du0,tspan,callback,_mm)
+  PartitionedConstrainedODEProblem{typeof(u0),typeof(v0),eltype(tspan),iip,typeof(f),typeof(g),typeof(callback),typeof(_mm)}(f,g,u0,v0,tspan,callback,_mm)
 end
