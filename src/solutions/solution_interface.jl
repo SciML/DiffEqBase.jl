@@ -116,7 +116,7 @@ function interpret_vars(vars,sol)
     for var in vars
       if typeof(var) <: Symbol
         var_int = findfirst(sol.prob.f.syms,var)
-      elseif typeof(var) <: Union{Tuple,AbstractArray} #eltype(var) <: Symbol # Some kind of iterable
+      elseif typeof(var) <: Tuple #eltype(var) <: Symbol # Some kind of iterable
         tmp = []
         for x in var
           if typeof(x) <: Symbol
@@ -144,7 +144,7 @@ function interpret_vars(vars,sol)
 
   if vars == nothing
     # Default: plot all timeseries
-    if typeof(sol[1]) <: AbstractArray
+    if typeof(sol[1]) <: Union{Tuple,AbstractArray}
       vars = collect((DEFAULT_PLOT_FUNC,0, i) for i in plot_indices(sol[1]))
     else
       vars = [(DEFAULT_PLOT_FUNC,0, 1)]
@@ -270,7 +270,7 @@ function u_n(timeseries::AbstractArray, n::Int,sol,plott,plot_timeseries)
   # Returns the nth variable from the timeseries, t if n == 0
   if n == 0
     return plott
-  elseif n == 1 && !(typeof(sol[1]) <: AbstractArray)
+  elseif n == 1 && !(typeof(sol[1]) <: Union{AbstractArray,ArrayPartition})
     return timeseries
   else
     tmp = Vector{eltype(sol[1])}(length(plot_timeseries))
@@ -328,3 +328,4 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
 end
 
 plot_indices(A::AbstractArray) = eachindex(A)
+plot_indices(A::ArrayPartition) = eachindex(A)
