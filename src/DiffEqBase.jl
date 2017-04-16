@@ -151,6 +151,7 @@ include("callbacks.jl")
 include("integrator_interface.jl")
 include("parameters_interface.jl")
 include("constructed_parameterized_functions.jl")
+include("linear_nonlinear.jl")
 include("data_array.jl")
 
 type ConvergenceSetup{P,C}
@@ -219,5 +220,7 @@ export param_values, num_params, problem_new_parameters
 export white_noise_func_wrapper, white_noise_func_wrapper!
 
 export is_diagonal_noise, is_sparse_noise
+
+export LinSolveFactorize, DEFAULT_LINSOLVE
 
 end # module
