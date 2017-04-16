@@ -223,4 +223,6 @@ export is_diagonal_noise, is_sparse_noise
 
 export LinSolveFactorize, DEFAULT_LINSOLVE
 
+export isautodifferentiable
+
 end # module
