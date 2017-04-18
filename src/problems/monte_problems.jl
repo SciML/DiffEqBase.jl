@@ -5,6 +5,6 @@ type MonteCarloProblem{T,T2,T3} <: AbstractMonteCarloProblem
 end
 
 MonteCarloProblem(prob::DEProblem;
-                  output_func = identity,
+                  output_func = (sol,i)-> sol,
                   prob_func= (prob,i)->prob) =
                   MonteCarloProblem(prob,prob_func,output_func)
