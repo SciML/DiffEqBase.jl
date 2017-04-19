@@ -204,6 +204,7 @@ export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
 
 export DiscreteProblem
 
+export SteadyStateProblem, SteadyStateSolution
 export ODEProblem, ODESolution
 export SplitODEProblem, PartitionedODEProblem, SecondOrderODEProblem
 export RODEProblem, RODESolution, SDEProblem

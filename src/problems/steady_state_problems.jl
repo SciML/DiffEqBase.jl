@@ -8,3 +8,6 @@ end
 function SteadyStateProblem(f,u0; iip = isinplace(f,3),mass_matrix=I)
   SteadyStateProblem{typeof(u0),iip,typeof(f),typeof(mass_matrix)}(f,u0,mass_matrix)
 end
+
+SteadyStateProblem(prob::AbstractODEProblem) =
+      SteadyStateProblem(prob.f,prob.u0,iip=isinplace(prob),mass_matrix=prob.mass_matrix)
