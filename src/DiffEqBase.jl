@@ -18,6 +18,9 @@ import RecursiveArrayTools: recursivecopy!
 
 export DEProblem, DEElement, DESensitivity
 
+@compat abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem end
+
+export AbstractSteadyStateProblem
 
 @compat abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem end
 @compat abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
@@ -51,6 +54,7 @@ export AbstractSecondOrderODEProblem
 
 # Algorithms
 @compat abstract type DEAlgorithm end
+@compat abstract type AbstractSteadyStateAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractODEAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractSplitODEAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractPartitionedODEAlgorithm <: DEAlgorithm end
@@ -64,7 +68,8 @@ export AbstractSecondOrderODEProblem
 @compat abstract type AbstractDAEAlgorithm <: DEAlgorithm end
 @compat abstract type AbstractDDEAlgorithm <: DEAlgorithm end
 
-export DEAlgorithm, AbstractODEAlgorithm, AbstractSplitODEAlgorithm,
+export DEAlgorithm, AbstractSteadyStateAlgorithm, AbstractODEAlgorithm,
+       AbstractSplitODEAlgorithm,
        AbstractPartitionedODEAlgorithm, AbstractSecondOrderODEAlgorithm,
        AbstractRODEAlgorithm, AbstractSDEAlgorithm,
        AbstractDAEAlgorithm, AbstractDDEAlgorithm
@@ -86,6 +91,7 @@ export DEOptions, DECache, DECallback, DEDataArray
 
 # Integrators
 @compat abstract type DEIntegrator end
+@compat abstract type AbstractSteadyStateIntegrator <: DEIntegrator end
 @compat abstract type AbstractODEIntegrator <: DEIntegrator end
 @compat abstract type AbstractSplitODEIntegrator <: DEIntegrator end
 @compat abstract type AbstractPartitionedODEIntegrator <: DEIntegrator end
@@ -102,9 +108,13 @@ export DEIntegrator, AbstractODEIntegrator, AbstractSplitODEIntegrator,
 
 # Solutions
 @compat abstract type DESolution end
+@compat abstract type AbstractSteadyStateSolution <: DESolution end
+
+export DESolution, AbstractSteadyStateSolution
+
 @compat abstract type AbstractODESolution <: DESolution end
 
-export DESolution, AbstractODESolution, AbstractDDESolution
+export AbstractODESolution
 
 # Needed for plot recipes
 @compat abstract type AbstractDDESolution <: AbstractODESolution end
@@ -132,6 +142,7 @@ export AbstractParameterizedFunction, ConstructedParameterizedFunction
 include("utils.jl")
 include("extended_functions.jl")
 include("noise_process.jl")
+include("solutions/steady_state_solutions.jl")
 include("solutions/ode_solutions.jl")
 include("solutions/rode_solutions.jl")
 include("solutions/dae_solutions.jl")
@@ -139,6 +150,7 @@ include("solutions/monte_solutions.jl")
 include("solutions/solution_interface.jl")
 include("tableaus.jl")
 include("problems/discrete_problems.jl")
+include("problems/steady_state_problems.jl")
 include("problems/ode_problems.jl")
 include("problems/constrained_ode_problems.jl")
 include("problems/rode_problems.jl")

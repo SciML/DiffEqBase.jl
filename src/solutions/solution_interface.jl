@@ -116,7 +116,7 @@ function interpret_vars(vars,sol)
     for var in vars
       if typeof(var) <: Symbol
         var_int = findfirst(sol.prob.f.syms,var)
-      elseif typeof(var) <: Tuple #eltype(var) <: Symbol # Some kind of iterable
+      elseif typeof(var) <: Union{Tuple,AbstractArray} #eltype(var) <: Symbol # Some kind of iterable
         tmp = []
         for x in var
           if typeof(x) <: Symbol
