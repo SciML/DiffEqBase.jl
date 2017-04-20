@@ -1,4 +1,4 @@
-type RODEProblem{uType,tType,NP,F,C,MM,ND} <: AbstractRODEProblem{uType,tType,isinplace,ND}
+type RODEProblem{uType,tType,isinplace,NP,F,C,MM,ND} <: AbstractRODEProblem{uType,tType,isinplace,ND}
   f::F
   u0::uType
   tspan::Tuple{tType,tType}
