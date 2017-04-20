@@ -18,8 +18,8 @@ end
 (sol::RODESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
 (sol::RODESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
 
-function build_solution{uType,tType,isinplace,NoiseClass}(
-        prob::AbstractRODEProblem{uType,tType,isinplace,NoiseClass},
+function build_solution{uType,tType,isinplace,ND}(
+        prob::AbstractRODEProblem{uType,tType,isinplace,ND},
         alg,t,u;W=[],timeseries_errors=true,dense_errors=false,calculate_error=true,
         maxstacksize=0,maxstacksize2=0,
         interp = (tvals) -> nothing,
