@@ -28,12 +28,12 @@ export AbstractSteadyStateProblem
 
 export AbstractODEProblem, AbstractDiscreteProblem
 
-@compat abstract type AbstractRODEProblem{uType,tType,isinplace,NoiseClass,ND} <: DEProblem end
+@compat abstract type AbstractRODEProblem{uType,tType,isinplace,ND} <: DEProblem end
 
 export AbstractRODEProblem
 
-@compat abstract type AbstractSDEProblem{uType,tType,isinplace,NoiseClass,ND} <:
-                      AbstractRODEProblem{uType,tType,isinplace,NoiseClass,ND} end
+@compat abstract type AbstractSDEProblem{uType,tType,isinplace,ND} <:
+                      AbstractRODEProblem{uType,tType,isinplace,ND} end
 
 export AbstractSDEProblem
 
@@ -139,6 +139,9 @@ export Tableau, ODERKTableau, DECostFunction
 @compat abstract type ConstructedParameterizedFunction{isinplace} <: AbstractParameterizedFunction{isinplace} end
 export AbstractParameterizedFunction, ConstructedParameterizedFunction
 
+@compat abstract type AbstractNoiseProcess{isinplace} end
+export AbstractNoiseProcess
+
 include("utils.jl")
 include("extended_functions.jl")
 include("noise_process.jl")
@@ -193,7 +196,7 @@ export resize!,deleteat!,addat!,full_cache,user_cache,u_cache,du_cache,
 
 export numargs, @def, @muladd
 
-export NoiseProcess, construct_correlated_noisefunc
+export construct_correlated_noisefunc
 
 export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac,
        HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
