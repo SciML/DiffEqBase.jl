@@ -49,8 +49,9 @@ export AbstractDDEProblem,
        AbstractConstantLagDDEProblem
 
 @compat abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
+@compat abstract type AbstractSecondOrderSDEProblem{uType,tType,isinplace} <: AbstractSDEProblem{uType,tType,isinplace} end
 
-export AbstractSecondOrderODEProblem
+export AbstractSecondOrderODEProblem, AbstractSecondOrderSDEProblem
 
 # Algorithms
 @compat abstract type DEAlgorithm end
@@ -211,6 +212,7 @@ export SteadyStateProblem, SteadyStateSolution
 export ODEProblem, ODESolution
 export SplitODEProblem, PartitionedODEProblem, SecondOrderODEProblem
 export RODEProblem, RODESolution, SDEProblem
+export SplitSDEProblem, PartitionedSDEProblem, SecondOrderSDEProblem
 export DAEProblem, DAESolution
 export SplitDAEProblem, PartitionedDAEProblem, ConstrainedODEProblem,
        SplitConstrainedODEProblem, PartitionedConstrainedODEProblem
