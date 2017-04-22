@@ -210,7 +210,7 @@ export DiscreteProblem
 
 export SteadyStateProblem, SteadyStateSolution
 export ODEProblem, ODESolution
-export SplitODEProblem, PartitionedODEProblem, SecondOrderODEProblem
+export SplitODEProblem, PartitionedODEProblem
 export RODEProblem, RODESolution, SDEProblem
 export SplitSDEProblem, PartitionedSDEProblem, SecondOrderSDEProblem
 export DAEProblem, DAESolution
