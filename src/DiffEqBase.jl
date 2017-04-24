@@ -145,7 +145,6 @@ export AbstractNoiseProcess
 
 include("utils.jl")
 include("extended_functions.jl")
-include("noise_process.jl")
 include("solutions/steady_state_solutions.jl")
 include("solutions/ode_solutions.jl")
 include("solutions/rode_solutions.jl")
