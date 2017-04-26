@@ -14,7 +14,7 @@ function SDEProblem(f,g,u0,tspan;iip = isinplace(f,3),
         noise= nothing,
         callback = nothing,mass_matrix=I)
 
-  SDEProblem{typeof(u0),eltype(tspan),iip,typeof(noise),typeof(f),typeof(g),typeof(callback),typeof(mass_matrix),typeof(noise_rate_prototype)}(
+  SDEProblem{typeof(u0),promote_type(map(typeof,tspan)...),iip,typeof(noise),typeof(f),typeof(g),typeof(callback),typeof(mass_matrix),typeof(noise_rate_prototype)}(
   f,g,u0,tspan,noise,callback,mass_matrix,noise_rate_prototype)
 end
 
@@ -35,7 +35,7 @@ function SplitSDEProblem(f,g,u0,tspan; iip = isinplace(f[2],3),
                          noise_rate_prototype = nothing,
                          callback=nothing,mass_matrix=I)
   @assert typeof(f) <: Tuple
-  SplitSDEProblem{typeof(u0),eltype(tspan),iip,typeof(noise),typeof(f),
+  SplitSDEProblem{typeof(u0),promote_type(map(typeof,tspan)...),iip,typeof(noise),typeof(f),
                   typeof(g),typeof(callback),typeof(mass_matrix),
                   typeof(noise_rate_prototype)}(f,g,u0,tspan,noise,callback,mass_matrix,noise_rate_prototype)
 end
@@ -62,7 +62,7 @@ function PartitionedSDEProblem(f,g,u0,tspan; iip = isinplace(f[1],3),
   if mass_matrix == nothing
     _mm = ((I for i in 1:length(f))...)
   end
-  PartitionedSDEProblem{typeof(u0),eltype(tspan),iip,typeof(noise),typeof(f),typeof(g),
+  PartitionedSDEProblem{typeof(u0),promote_type(map(typeof,tspan)...),iip,typeof(noise),typeof(f),typeof(g),
                         typeof(callback),typeof(_mm),typeof(noise_rate_prototype)}(
                         f,g,u0,tspan,noise,callback,_mm,noise_rate_prototype)
 end

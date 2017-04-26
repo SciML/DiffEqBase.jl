@@ -8,7 +8,7 @@ type DAEProblem{uType,duType,tType,isinplace,F,C} <: AbstractDAEProblem{uType,du
 end
 
 function DAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=I,diff_vars=nothing)
-  DAEProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,du0,tspan,callback)
+  DAEProblem{typeof(u0),typeof(du0),promote_type(map(typeof,tspan)...),iip,typeof(f),typeof(callback)}(f,u0,du0,tspan,callback)
 end
 
 # 0 = f[1](t,u,du,res) + f[2](t,u,du,res) + ...
@@ -22,7 +22,7 @@ end
 
 function SplitDAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=I)
   @assert typeof(f) <: Tuple
-  SplitDAEProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,du0,tspan,callback)
+  SplitDAEProblem{typeof(u0),typeof(du0),promote_type(map(typeof,tspan)...),iip,typeof(f),typeof(callback)}(f,u0,du0,tspan,callback)
 end
 
 # Implicit problem for each variable in the partition
@@ -38,5 +38,5 @@ end
 function PartitionedDAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=I)
   @assert typeof(f) <: Tuple
   @assert typeof(u0) <: Tuple
-  SplitDAEProblem{typeof(u0),typeof(du0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,du0,tspan,callback)
+  SplitDAEProblem{typeof(u0),typeof(du0),promote_type(map(typeof,tspan)...),iip,typeof(f),typeof(callback)}(f,u0,du0,tspan,callback)
 end

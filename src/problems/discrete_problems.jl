@@ -9,7 +9,7 @@ type DiscreteProblem{uType,tType,isinplace,F,C} <: AbstractDiscreteProblem{uType
 end
 
 function DiscreteProblem(f,u0,tspan; iip = isinplace(f,3),callback = nothing)
-  DiscreteProblem{typeof(u0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,tspan,callback)
+  DiscreteProblem{typeof(u0),promote_type(map(typeof,tspan)...),iip,typeof(f),typeof(callback)}(f,u0,tspan,callback)
 end
 
 function DiscreteProblem(u0,tspan::Tuple; callback = nothing)
@@ -19,5 +19,5 @@ function DiscreteProblem(u0,tspan::Tuple; callback = nothing)
   else
     f = DISCRETE_OUTOFPLACE_DEFAULT
   end
-  DiscreteProblem{typeof(u0),eltype(tspan),iip,typeof(f),typeof(callback)}(f,u0,tspan,callback)
+  DiscreteProblem{typeof(u0),promote_type(map(typeof,tspan)...),iip,typeof(f),typeof(callback)}(f,u0,tspan,callback)
 end
