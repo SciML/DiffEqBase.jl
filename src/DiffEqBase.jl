@@ -116,7 +116,7 @@ const DESolution = Union{AbstractTimeseriesSolution,AbstractNoTimeSolution,Abstr
 
 export DESolution, AbstractTimeseriesSolution, AbstractSteadyStateSolution,AbstractNoTimeSolution
 
-@compat abstract type AbstractSteadyStateSolution <: AbstractNoTimeSolution{T,N} end
+@compat abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} end
 @compat abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
 
 export AbstractODESolution
