@@ -110,12 +110,13 @@ export DEIntegrator, AbstractODEIntegrator, AbstractSplitODEIntegrator,
 # Solutions
 @compat abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N} end
 @compat abstract type AbstractTimeseriesSolution{T,N} <: AbstractVectorOfArray{T,N} end
-@compat abstract type AbstractSteadyStateSolution <: AbstractNoTimeSolution{T,N} end
+@compat abstract type AbstractMonteCarloSolution end
 
 const DESolution = Union{AbstractTimeseriesSolution,AbstractNoTimeSolution,AbstractMonteCarloSolution}
 
-export DESolution, AbstractTimeseriesSolution, AbstractSteadyStateSolution
+export DESolution, AbstractTimeseriesSolution, AbstractSteadyStateSolution,AbstractNoTimeSolution
 
+@compat abstract type AbstractSteadyStateSolution <: AbstractNoTimeSolution{T,N} end
 @compat abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
 
 export AbstractODESolution
@@ -125,7 +126,6 @@ export AbstractODESolution
 @compat abstract type AbstractRODESolution{T,N} <: AbstractODESolution{T,N} end
 @compat abstract type AbstractDAESolution{T,N} <: AbstractODESolution{T,N} end
 @compat abstract type AbstractSensitivitySolution{T,N} end
-@compat abstract type AbstractMonteCarloSolution end
 
 export AbstractRODESolution,
        AbstractDAESolution,
