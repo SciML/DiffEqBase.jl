@@ -23,7 +23,11 @@ function build_solution(
         dense = false, retcode = :Default, kwargs...)
 
   T = eltype(eltype(u))
-  N = length((size(u[1])..., length(u)))
+  if typeof(prob.u0) <: Tuple
+    N = length((size(ArrayPartition(prob.u0))..., length(u)))
+  else
+    N = length((size(prob.u0)..., length(u)))
+  end
 
   if has_analytic(prob.f)
     u_analytic = Vector{typeof(prob.u0)}(0)
