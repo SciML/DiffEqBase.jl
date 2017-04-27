@@ -10,7 +10,7 @@ type ConstrainedODEProblem{uType,duType,tType,isinplace,F,G,C,MM} <: AbstractDAE
 end
 
 function ConstrainedODEProblem(f,g,u0,v0,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=I)
-  ConstrainedODEProblem{typeof(u0),typeof(v0),eltype(tspan),iip,typeof(f),typeof(g),typeof(callback),typeof(mass_matrix)}(f,g,u0,v0,tspan,callback,mass_matrix)
+  ConstrainedODEProblem{typeof(u0),typeof(v0),promote_type(map(typeof,tspan)...),iip,typeof(f),typeof(g),typeof(callback),typeof(mass_matrix)}(f,g,u0,v0,tspan,callback,mass_matrix)
 end
 
 # u' = f[1](t,u,v,du) + f[2](t,u,v,du) + ... and a single 0 = g(t,u,v)

@@ -12,5 +12,5 @@ function RODEProblem(f,u0,tspan; iip = isinplace(f,4),
                       rand_prototype = nothing,
                       noise= nothing,
                      callback=nothing,mass_matrix=I)
-  RODEProblem{typeof(u0),eltype(tspan),iip,typeof(noise),typeof(f),typeof(callback),typeof(mass_matrix),typeof(rand_prototype)}(f,u0,tspan,noise,callback,mass_matrix,rand_prototype)
+  RODEProblem{typeof(u0),promote_type(map(typeof,tspan)...),iip,typeof(noise),typeof(f),typeof(callback),typeof(mass_matrix),typeof(rand_prototype)}(f,u0,tspan,noise,callback,mass_matrix,rand_prototype)
 end
