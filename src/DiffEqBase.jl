@@ -108,21 +108,24 @@ export DEIntegrator, AbstractODEIntegrator, AbstractSplitODEIntegrator,
        AbstractDDEIntegrator, AbstractDAEIntegrator
 
 # Solutions
-@compat abstract type DESolution end
-@compat abstract type AbstractSteadyStateSolution <: DESolution end
+@compat abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N} end
+@compat abstract type AbstractTimeseriesSolution{T,N} <: AbstractVectorOfArray{T,N} end
+@compat abstract type AbstractSteadyStateSolution <: AbstractNoTimeSolution{T,N} end
 
-export DESolution, AbstractSteadyStateSolution
+const DESolution = Union{AbstractTimeseriesSolution,AbstractNoTimeSolution,AbstractMonteCarloSolution}
 
-@compat abstract type AbstractODESolution <: DESolution end
+export DESolution, AbstractTimeseriesSolution, AbstractSteadyStateSolution
+
+@compat abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
 
 export AbstractODESolution
 
 # Needed for plot recipes
-@compat abstract type AbstractDDESolution <: AbstractODESolution end
-@compat abstract type  AbstractRODESolution <: AbstractODESolution end
-@compat abstract type  AbstractDAESolution <: AbstractODESolution end
-@compat abstract type AbstractSensitivitySolution end
-@compat abstract type AbstractMonteCarloSolution <: DESolution end
+@compat abstract type AbstractDDESolution{T,N} <: AbstractODESolution{T,N} end
+@compat abstract type AbstractRODESolution{T,N} <: AbstractODESolution{T,N} end
+@compat abstract type AbstractDAESolution{T,N} <: AbstractODESolution{T,N} end
+@compat abstract type AbstractSensitivitySolution{T,N} end
+@compat abstract type AbstractMonteCarloSolution end
 
 export AbstractRODESolution,
        AbstractDAESolution,
@@ -209,7 +212,7 @@ export DiscreteProblem
 
 export SteadyStateProblem, SteadyStateSolution
 export ODEProblem, ODESolution
-export SplitODEProblem, PartitionedODEProblem
+export SplitODEProblem, PartitionedODEProblem, SecondOrderODEProblem
 export RODEProblem, RODESolution, SDEProblem
 export SplitSDEProblem, PartitionedSDEProblem, SecondOrderSDEProblem
 export DAEProblem, DAESolution
