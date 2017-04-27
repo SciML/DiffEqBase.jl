@@ -1,6 +1,6 @@
 ### Concrete Types
 
-type RODESolution{uType,uType2,DType,tType,IType,randType,P,A} <: AbstractRODESolution
+type RODESolution{T,N,uType,uType2,DType,tType,randType,P,A,IType} <: AbstractRODESolution{T,N}
   u::uType
   u_analytic::uType2
   errors::DType
@@ -8,8 +8,6 @@ type RODESolution{uType,uType2,DType,tType,IType,randType,P,A} <: AbstractRODESo
   W::randType
   prob::P
   alg::A
-  maxstacksize::Int
-  maxstacksize2::Int
   interp::IType
   dense::Bool
   tslocation::Int
@@ -18,23 +16,35 @@ end
 (sol::RODESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
 (sol::RODESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
 
-function build_solution{uType,tType,isinplace,ND}(
-        prob::AbstractRODEProblem{uType,tType,isinplace,ND},
+function build_solution(
+        prob::AbstractRODEProblem,
         alg,t,u;W=[],timeseries_errors=true,dense_errors=false,calculate_error=true,
-        maxstacksize=0,maxstacksize2=0,
         interp = (tvals) -> nothing,
         dense = false, retcode = :Default, kwargs...)
 
+  T = eltype(eltype(u))
+  if typeof(prob.u0) <: Tuple
+    N = length((size(ArrayPartition(prob.u0))..., length(u)))
+  else
+    N = length((size(prob.u0)..., length(u)))
+  end
+
   if has_analytic(prob.f)
-    u_analytic = Vector{uType}(0)
+    u_analytic = Vector{typeof(prob.u0)}(0)
     errors = Dict{Symbol,eltype(prob.u0)}()
-    sol = RODESolution(u,u_analytic,errors,t,W,prob,alg,maxstacksize,maxstacksize2,interp,dense,0,retcode)
+    sol = RODESolution{T,N,typeof(u),typeof(u_analytic),typeof(errors),typeof(t),typeof(W),
+                       typeof(prob),typeof(alg),typeof(interp)}(
+                       u,u_analytic,errors,t,W,prob,alg,interp,dense,0,retcode)
+
     if calculate_error
       calculate_solution_errors!(sol;timeseries_errors=timeseries_errors,dense_errors=dense_errors)
     end
+
     return sol
   else
-    return RODESolution(u,nothing,nothing,t,W,prob,alg,maxstacksize,maxstacksize2,interp,dense,0,retcode)
+    return RODESolution{T,N,typeof(u),Void,Void,typeof(t),
+                        typeof(W),typeof(prob),typeof(alg),typeof(interp)}(
+                        u,nothing,nothing,t,W,prob,alg,interp,dense,0,retcode)
   end
 end
 
@@ -48,14 +58,19 @@ function calculate_solution_errors!(sol::AbstractRODESolution;fill_uanalytic=tru
   save_everystep = length(sol.u) > 2
 
   if !isempty(sol.u_analytic)
-    sol.errors[:final] = mean(abs.(sol.u[end]-sol.u_analytic[end]))
+    sol.errors[:final] = recursive_mean(abs.(sol.u[end]-sol.u_analytic[end]))
     if save_everystep && timeseries_errors
       sol.errors[:l∞] = maximum(vecvecapply((x)->abs.(x),sol.u-sol.u_analytic))
-      sol.errors[:l2] = sqrt(mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic)))
+      sol.errors[:l2] = sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic)))
     end
   end
 end
 
 function build_solution(sol::AbstractRODESolution,u_analytic,errors)
-  RODESolution(sol.u,u_analytic,errors,sol.t,sol.W,sol.prob,sol.alg,sol.maxstacksize,sol.dense,sol.tslocation,sol.retcode)
+  T = eltype(eltype(sol.u))
+  N = length(size(sol.u[1])..., length(sol.u))
+  RODESolution{T,N,typeof(sol.u),typeof(u_analytic),typeof(errors),typeof(sol.t),
+               typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+               sol.u,u_analytic,errors,sol.t,sol.W,sol.prob,sol.alg,
+               sol.dense,sol.tslocation,sol.retcode)
 end

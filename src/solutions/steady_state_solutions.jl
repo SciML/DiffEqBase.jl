@@ -1,4 +1,4 @@
-type SteadyStateSolution{uType,R,P,A} <: AbstractSteadyStateSolution
+type SteadyStateSolution{T,N,uType,R,P,A} <: AbstractSteadyStateSolution{T,N}
   u::uType
   resid::R
   prob::P
@@ -9,5 +9,11 @@ end
 function build_solution(prob::AbstractSteadyStateProblem,
                         alg,u,resid;calculate_error = true,
                         retcode = :Default, kwargs...)
-  SteadyStateSolution(u,resid,prob,alg,retcode)
+
+  T = eltype(eltype(u))
+  if typeof(prob.u0) <: Tuple
+    N = size(prob.u0)
+  end
+
+  SteadyStateSolution{T,N,typeof(u),typeof(resid),typeof(prob),typeof(alg)}(u,resid,prob,alg,retcode)
 end

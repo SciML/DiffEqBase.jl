@@ -1,4 +1,4 @@
-type ODESolution{uType,uType2,DType,tType,rateType,P,A,IType} <: AbstractODESolution
+type ODESolution{T,N,uType,uType2,DType,tType,rateType,P,A,IType} <: AbstractODESolution{T,N}
   u::uType
   u_analytic::uType2
   errors::DType
@@ -14,22 +14,33 @@ end
 (sol::ODESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
 (sol::ODESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
 
-function build_solution{uType,tType,isinplace}(
-        prob::Union{AbstractODEProblem{uType,tType,isinplace},AbstractDDEProblem{uType,tType,isinplace}},
+function build_solution(
+        prob::Union{AbstractODEProblem,AbstractDDEProblem},
         alg,t,u;dense=false,timeseries_errors=true,dense_errors=true,
         calculate_error = true,
         k=[],interp = (tvals) -> nothing, retcode = :Default, kwargs...)
 
+  T = eltype(eltype(u))
+  if typeof(prob.u0) <: Tuple
+    N = length((size(ArrayPartition(prob.u0))..., length(u)))
+  else
+    N = length((size(prob.u0)..., length(u)))
+  end
+
   if has_analytic(prob.f)
-    u_analytic = Vector{uType}(0)
+    u_analytic = Vector{typeof(prob.u0)}(0)
     errors = Dict{Symbol,eltype(prob.u0)}()
-    sol = ODESolution(u,u_analytic,errors,t,k,prob,alg,interp,dense,0,retcode)
+    sol = ODESolution{T,N,typeof(u),typeof(u_analytic),typeof(errors),typeof(t),typeof(k),
+                       typeof(prob),typeof(alg),typeof(interp)}(u,u_analytic,
+                       errors,t,k,prob,alg,interp,dense,0,retcode)
     if calculate_error
       calculate_solution_errors!(sol;timeseries_errors=timeseries_errors,dense_errors=dense_errors)
     end
     return sol
   else
-    return ODESolution(u,nothing,nothing,t,k,prob,alg,interp,dense,0,retcode)
+    return ODESolution{T,N,typeof(u),Void,Void,typeof(t),typeof(k),
+                       typeof(prob),typeof(alg),typeof(interp)}(u,nothing,nothing,
+                       t,k,prob,alg,interp,dense,0,retcode)
   end
 end
 
@@ -42,22 +53,28 @@ function calculate_solution_errors!(sol::AbstractODESolution;fill_uanalytic=true
 
   save_everystep = length(sol.u) > 2
   if !isempty(sol.u_analytic)
-    sol.errors[:final] = mean(abs.(sol.u[end]-sol.u_analytic[end]))
+    sol.errors[:final] = recursive_mean(abs.(sol.u[end]-sol.u_analytic[end]))
 
     if save_everystep && timeseries_errors
       sol.errors[:l∞] = maximum(vecvecapply((x)->abs.(x),sol.u-sol.u_analytic))
-      sol.errors[:l2] = sqrt(mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic)))
+      sol.errors[:l2] = sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic)))
       if sol.dense && dense_errors
         densetimes = collect(linspace(sol.t[1],sol.t[end],100))
         interp_u = sol(densetimes)
         interp_analytic = [sol.prob.f(Val{:analytic},t,sol.u[1]) for t in densetimes]
         sol.errors[:L∞] = maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic))
-        sol.errors[:L2] = sqrt(mean(vecvecapply((x)->float.(x).^2,interp_u-interp_analytic)))
+        sol.errors[:L2] = sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,interp_u-interp_analytic)))
       end
     end
   end
 end
 
 function build_solution(sol::AbstractODESolution,u_analytic,errors)
-  ODESolution(sol.u,u_analytic,errors,sol.t,sol.k,sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation,sol.retcode)
+  T = eltype(eltype(sol.u))
+  N = length(size(sol.u[1])..., length(sol.u))
+
+  ODESolution{T,N,typeof(sol.u),typeof(u_analytic),typeof(errors),typeof(sol.t),typeof(sol.k),
+                     typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+                     sol.u,u_analytic,errors,sol.t,sol.k,sol.prob,
+                     sol.alg,sol.interp,sol.dense,sol.tslocation,sol.retcode)
 end

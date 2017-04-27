@@ -1,45 +1,24 @@
 ### Abstract Interface
+tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.t,sol.u)
 
-Base.length(sol::DESolution) = length(sol.u) # Must be on u for the test solutions!
-Base.size(sol::DESolution,n::Int) = n==1 ? length(sol.u) : error("Only dimension 1 has a well-defined size.")
-Base.endof(sol::DESolution) = length(sol)
-Base.getindex(sol::DESolution,i::Int) = sol.u[i]
-Base.getindex(sol::DESolution,c::AbstractArray) = [sol.u[j] for j in c]
-Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.u[i][I...]
-Base.getindex(sol::DESolution,i::Int,::Colon,I::Int) = sol.u[i][:,I]
-Base.getindex(sol::DESolution,i::Int,::Colon,I::Int...) = sol.u[i][:,I...]
-Base.getindex(sol::DESolution,::Colon) = sol.u
-Base.getindex(sol::DESolution,::Colon,i::Int...) = [sol.u[j][i...] for j in eachindex(sol)]
-Base.getindex(sol::DESolution,c::AbstractArray,i::Int...) =  [sol.u[j][i...] for j in c]
-eachindex(sol::DESolution) = eachindex(sol.t)
-tuples(sol::DESolution) = tuple.(sol.t,sol.u)
-
-function start(sol::DESolution)
+function start(sol::AbstractTimeseriesSolution)
   sol.tslocation = 1
   1
 end
 
-function next(sol::DESolution,state)
+function next(sol::AbstractTimeseriesSolution,state)
   state += 1
   sol.tslocation = state
   (sol,state)
 end
 
-function done(sol::DESolution,state)
+function done(sol::AbstractTimeseriesSolution,state)
   state >= length(sol)
-end
-
-function eltype(sol::DESolution)
-  if typeof(sol[1]) <: AbstractArray
-    return typeof(sol[1][1])
-  else
-    return typeof(sol[1])
-  end
 end
 
 const DEFAULT_PLOT_FUNC = (x...) -> (x...)
 
-@recipe function f(sol::DESolution;
+@recipe function f(sol::AbstractTimeseriesSolution;
                    plot_analytic=false,
                    denseplot = (sol.dense || typeof(sol.prob) <: AbstractDiscreteProblem) && !(typeof(sol) <: AbstractRODESolution),
                    plotdensity = sol.tslocation==0 ? (typeof(sol.prob) <: AbstractDiscreteProblem ? 100*length(sol) : 10*length(sol)) : 100*sol.tslocation,
