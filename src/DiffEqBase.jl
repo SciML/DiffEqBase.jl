@@ -49,9 +49,8 @@ export AbstractDDEProblem,
        AbstractConstantLagDDEProblem
 
 @compat abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
-@compat abstract type AbstractSecondOrderSDEProblem{uType,tType,isinplace} <: AbstractSDEProblem{uType,tType,isinplace} end
 
-export AbstractSecondOrderODEProblem, AbstractSecondOrderSDEProblem
+export AbstractSecondOrderODEProblem
 
 # Algorithms
 @compat abstract type DEAlgorithm end
