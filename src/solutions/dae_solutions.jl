@@ -1,4 +1,4 @@
-type DAESolution{T,N,uType,duType,uType2,DType,tType,ID,P,A} <: AbstractODESolution{T,N}
+type DAESolution{T,N,uType,duType,uType2,DType,tType,P,A,ID} <: AbstractODESolution{T,N}
   u::uType
   du::duType
   u_analytic::uType2
