@@ -2,7 +2,7 @@ __precompile__()
 
 module DiffEqBase
 
-using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat
+using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat, Iterators
 using Ranges # For plot recipes with units
 import Base: length, ndims, size, getindex, setindex!, endof, show, print,
              next, start, done, eltype, eachindex, similar
@@ -169,6 +169,7 @@ include("integrator_interface.jl")
 include("parameters_interface.jl")
 include("constructed_parameterized_functions.jl")
 include("linear_nonlinear.jl")
+include("common_defaults.jl")
 include("data_array.jl")
 
 type ConvergenceSetup{P,C}
