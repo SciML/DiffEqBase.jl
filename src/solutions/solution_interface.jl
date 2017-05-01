@@ -1,4 +1,9 @@
 ### Abstract Interface
+
+Base.show(io::IO, A::AbstractTimeseriesSolution) =
+           invoke(show, Tuple{typeof(io), Any}, io, A)
+Base.show(io::IO, ::MIME"text/plain", A::AbstractTimeseriesSolution) = show(io, A)
+
 tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.t,sol.u)
 
 function start(sol::AbstractTimeseriesSolution)
