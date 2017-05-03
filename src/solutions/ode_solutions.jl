@@ -84,7 +84,7 @@ end
 
 function build_solution(sol::AbstractODESolution,u_analytic,errors)
   T = eltype(eltype(sol.u))
-  N = length(size(sol.u[1])..., length(sol.u))
+  N = length((size(sol.u[1])..., length(sol.u)))
 
   ODESolution{T,N,typeof(sol.u),typeof(u_analytic),typeof(errors),typeof(sol.t),typeof(sol.k),
                      typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
