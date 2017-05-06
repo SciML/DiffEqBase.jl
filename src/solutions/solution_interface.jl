@@ -1,5 +1,24 @@
 ### Abstract Interface
 
+# Juno Rendering
+
+Juno.@render Juno.Inline x::DESolution begin
+  structure(x)
+end
+
+# No Time Solution : Forward to `A.u`
+Base.getindex(A::AbstractNoTimeSolution,i::Int) = A.u[i]
+Base.getindex{N}(A::AbstractNoTimeSolution,I::Vararg{Int, N}) = A.u[I]
+Base.setindex!(A::AbstractNoTimeSolution, v, i::Int) = (A.u[i] = v)
+Base.setindex!{N}(A::AbstractNoTimeSolution, v, I::Vararg{Int, N}) = (A.u[I] = v)
+size(A::AbstractNoTimeSolution) = size(A.u)
+
+Base.show(io::IO, A::AbstractNoTimeSolution) =
+           invoke(show, Tuple{typeof(io), Any}, io, A)
+Base.show(io::IO, ::MIME"text/plain", A::AbstractNoTimeSolution) = show(io, A)
+
+## AbstractTimeseriesSolution Interface
+
 Base.show(io::IO, A::AbstractTimeseriesSolution) =
            invoke(show, Tuple{typeof(io), Any}, io, A)
 Base.show(io::IO, ::MIME"text/plain", A::AbstractTimeseriesSolution) = show(io, A)
