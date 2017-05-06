@@ -61,3 +61,6 @@ is_add_operation(ex) = is_operation(ex, :+)
 is_mul_operation(ex) = is_operation(ex, :*)
 
 make_addition(args) = length(args) == 1 ? args[1] : Expr(:call, :+, args...)
+
+realtype{T}(::Type{T}) = T
+realtype{T}(::Type{Complex{T}}) = T

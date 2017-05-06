@@ -3,7 +3,8 @@
 # Juno Rendering
 
 Juno.@render Juno.Inline x::DESolution begin
-  structure(x)
+  fields = fieldnames(typeof(x))
+  LazyTree(typeof(x), () -> [SubTree(Text("$f → "), getfield′(x, f)) for f in fields])
 end
 
 # No Time Solution : Forward to `A.u`
