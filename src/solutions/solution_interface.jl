@@ -4,7 +4,7 @@
 
 Juno.@render Juno.Inline x::DESolution begin
   fields = fieldnames(typeof(x))
-  LazyTree(typeof(x), () -> [SubTree(Text("$f → "), getfield′(x, f)) for f in fields])
+  Juno.LazyTree(typeof(x), () -> [Juno.SubTree(Juno.Text("$f → "), Juno.getfield′(x, f)) for f in fields])
 end
 
 # No Time Solution : Forward to `A.u`

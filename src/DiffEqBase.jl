@@ -22,6 +22,10 @@ export DEProblem, DEElement, DESensitivity
 
 export AbstractSteadyStateProblem
 
+@compat abstract type AbstractNoiseProblem <: DEProblem end
+
+export AbstractNoiseProblem
+
 @compat abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem end
 @compat abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
                       AbstractODEProblem{uType,tType,isinplace} end
@@ -109,11 +113,11 @@ export DEIntegrator, AbstractODEIntegrator, AbstractSplitODEIntegrator,
 # Solutions
 @compat abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N} end
 @compat abstract type AbstractTimeseriesSolution{T,N} <: AbstractVectorOfArray{T,N} end
-@compat abstract type AbstractMonteCarloSolution end
+@compat abstract type AbstractMonteCarloSolution{T,N} <: AbstractVectorOfArray{T,N} end
+@compat abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractVectorOfArray{T,N} end
 
-const DESolution = Union{AbstractTimeseriesSolution,AbstractNoTimeSolution,AbstractMonteCarloSolution}
-
-export DESolution, AbstractTimeseriesSolution, AbstractSteadyStateSolution,AbstractNoTimeSolution
+const DESolution = Union{AbstractTimeseriesSolution,AbstractNoTimeSolution,AbstractMonteCarloSolution,AbstractNoiseProcess}
+export DESolution, AbstractTimeseriesSolution, AbstractSteadyStateSolution,AbstractNoTimeSolution,AbstractNoiseProcess
 
 @compat abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} end
 @compat abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
@@ -142,9 +146,6 @@ export Tableau, ODERKTableau, DECostFunction
 @compat abstract type ConstructedParameterizedFunction{isinplace} <: AbstractParameterizedFunction{isinplace} end
 export AbstractParameterizedFunction, ConstructedParameterizedFunction
 
-@compat abstract type AbstractNoiseProcess{isinplace} end
-export AbstractNoiseProcess
-
 include("utils.jl")
 include("extended_functions.jl")
 include("solutions/steady_state_solutions.jl")
@@ -160,6 +161,7 @@ include("problems/ode_problems.jl")
 include("problems/constrained_ode_problems.jl")
 include("problems/rode_problems.jl")
 include("problems/sde_problems.jl")
+include("problems/noise_problems.jl")
 include("problems/dae_problems.jl")
 include("problems/dde_problems.jl")
 include("problems/monte_problems.jl")
@@ -211,6 +213,7 @@ export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
 export DiscreteProblem
 
 export SteadyStateProblem, SteadyStateSolution
+export NoiseProblem
 export ODEProblem, ODESolution
 export SplitODEProblem, PartitionedODEProblem, SecondOrderODEProblem
 export RODEProblem, RODESolution, SDEProblem
