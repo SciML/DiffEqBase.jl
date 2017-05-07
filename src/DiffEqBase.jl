@@ -9,7 +9,7 @@ import Base: length, ndims, size, getindex, setindex!, endof, show, print,
 
 import Base: resize!, deleteat!
 
-import RecursiveArrayTools: recursivecopy!
+import RecursiveArrayTools: recursivecopy!, tuples
 
 # Problems
 @compat abstract type DEProblem end
@@ -83,7 +83,7 @@ export DEAlgorithm, AbstractSteadyStateAlgorithm, AbstractODEAlgorithm,
 @compat abstract type AbstractMonteCarloEstimator <: DEProblem end
 
 export AbstractMonteCarloProblem, MonteCarloProblem
-export MonteCarloSolution, MonteCarloTestSolution
+export MonteCarloSolution, MonteCarloTestSolution, MonteCarloSummary
 export AbstractMonteCarloEstimator
 
 @compat abstract type DEOptions end
