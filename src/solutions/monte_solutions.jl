@@ -47,14 +47,23 @@ end
   end
 end
 
-@recipe function f(sim::MonteCarloSummary;idxs=eachindex(sim.u[1]))
+@recipe function f(sim::MonteCarloSummary;idxs=eachindex(sim.u[1]),error_style=:ribbon)
   ci = vecarr_to_vectors(VectorOfArray([sim.v[i].*1.96 for i in 1:length(sim.v)]))
   u = vecarr_to_vectors(sim.u)
   for i in idxs
     @series begin
       legend := false
-      alpha --> 0.4
-      ribbon --> ci[i]
+      lw --> 3
+      fillalpha --> 0.2
+      if error_style == :ribbon
+        ribbon --> ci[i]
+      elseif error_style == :bars
+        yerr --> ci[i]
+      elseif error_style == :none
+        nothing
+      else
+        error("error_style not recognized")
+      end
       sim.t,u[i]
     end
   end
