@@ -47,9 +47,19 @@ end
   end
 end
 
-@recipe function f(sim::MonteCarloSummary;idxs=eachindex(sim.u[1]),error_style=:ribbon)
-  ci = vecarr_to_vectors(VectorOfArray([sim.v[i].*1.96 for i in 1:length(sim.v)]))
-  u = vecarr_to_vectors(sim.u)
+@recipe function f(sim::MonteCarloSummary;
+                   idxs= typeof(sim.u[1])<:AbstractArray ? eachindex(sim.u[1]) : 1,
+                   error_style=:ribbon)
+  if typeof(sim.u[1])<:AbstractArray
+    ci = vecarr_to_vectors(VectorOfArray([sqrt(sim.v[i]).*1.96 for i in 1:length(sim.v)]))
+  else
+    ci = [[sqrt(sim.v[i]).*1.96 for i in 1:length(sim.v)]]
+  end
+  if typeof(sim.u[1])<:AbstractArray
+    u = vecarr_to_vectors(sim.u)
+  else
+    u = [sim.u.u]
+  end
   for i in idxs
     @series begin
       legend := false
