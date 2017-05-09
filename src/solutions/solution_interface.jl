@@ -310,7 +310,10 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
 
     tmp = tuple((getindex.(tmp,i) for i in eachindex(tmp[1]))...)
     for i in eachindex(tmp)
-      push!(plot_vecs,[tmp[i]])
+      if length(plot_vecs) < i
+        push!(plot_vecs,[])
+      end
+      push!(plot_vecs[i],tmp[i])
     end
     add_labels!(labels,x,dims,sol)
   end
@@ -328,7 +331,7 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
       tmp = f.(tmp...)
       tmp = tuple((getindex.(tmp,i) for i in eachindex(tmp[1]))...)
       for i in eachindex(tmp)
-        push!(plot_vecs,[tmp[i]])
+        push!(plot_vecs[i],tmp[i])
       end
       add_analytic_labels!(labels,x,dims,sol)
     end
