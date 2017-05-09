@@ -72,7 +72,7 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 
   if denseplot
     # Generate the points from the plot from dense function
-    plott = collect(Ranges.linspace(integrator.tprev,integrator.t,plotdensity))
+    plott = collect(ranges_linspace(integrator.tprev,integrator.t,plotdensity))
     plot_timeseries = integrator(plott)
     if plot_analytic
       plot_analytic_timeseries = [integrator.sol.prob.f(Val{:analytic},t,integrator.sol.prob.u0) for t in plott]
