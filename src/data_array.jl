@@ -11,13 +11,13 @@ size(A::DEDataArray)   = size(A.x)
 
 # Maybe should use fieldtype(typeof(dest), $i) ?
 @generated function recursivecopy!{T}(dest::DEDataArray{T}, src::DEDataArray{T})
-   assignments = [:(typeof(getfield(dest,$i)) <: AbstractArray ? recursivecopy!(getfield(dest, $i),getfield(src, $i)) : setfield!(dest, $i, getfield(src, $i))) for i=1:nfields(T)]
+   assignments = [:(typeof(getfield(dest,$i)) <: AbstractArray ? recursivecopy!(getfield(dest, $i),getfield(src, $i)) : setfield!(dest, $i, getfield(src, $i))) for i=1:nfields(dest)]
    :($(assignments...); dest)
 end
 
 @generated function copy_non_array_fields{T}(previous::DEDataArray{T}, arr::AbstractArray)
-  assignments = [:(getfield(previous,$i)) for i=2:nfields(T)]
-  :(T(arr,$(assignments...)))
+  assignments = [:(getfield(previous,$i)) for i=2:nfields(previous)]
+  :(typeof(previous)(arr,$(assignments...)))
 end
 
 getindex( A::DEDataArray,    i::Int) = (A.x[i])
