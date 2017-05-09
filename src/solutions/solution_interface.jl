@@ -221,14 +221,18 @@ function add_labels!(labels,x,dims,sol)
     end
   end
   lys[end] = lys[end][1:end-1] # Take off the last comma
-  if x[2] == 0
+  if x[2] == 0 && dims == 3
     tmp_lab = "$(lys...)(t)"
   else
     if has_syms(sol.prob.f)
       tmp = sol.prob.f.syms[x[2]]
       tmp_lab = "($tmp,$(lys...))"
     else
-      tmp_lab = "(u$(x[2]),$(lys...))"
+      if x[2] == 0
+        tmp_lab = "(t,$(lys...))"
+      else
+        tmp_lab = "(u$(x[2]),$(lys...))"
+      end
     end
   end
   if x[1] != DEFAULT_PLOT_FUNC
@@ -242,7 +246,7 @@ end
 function add_analytic_labels!(labels,x,dims,sol)
   lys = []
   for j in 3:dims
-    if x[j] == 0
+    if x[j] == 0 && dims == 3
       push!(lys,"t,")
     else
       if has_syms(sol.prob.f)
@@ -287,21 +291,20 @@ end
 
 function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries)
   plot_vecs = []
-  for i in 2:dims
-    push!(plot_vecs,[])
-  end
   labels = String[]
   for x in vars
     tmp = []
     for j in 2:dims
       push!(tmp, u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
     end
+
     f = x[1]
     tmp = f.(tmp...)
 
+
     tmp = tuple((getindex.(tmp,i) for i in eachindex(tmp[1]))...)
     for i in eachindex(tmp)
-      push!(plot_vecs[i],tmp[i])
+      push!(plot_vecs,[tmp[i]])
     end
     add_labels!(labels,x,dims,sol)
   end
@@ -310,9 +313,6 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
 
   if plot_analytic
     analytic_plot_vecs = []
-    for i in 2:dims
-      push!(analytic_plot_vecs,[])
-    end
     for x in vars
       tmp = []
       for j in 2:dims
@@ -322,7 +322,7 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
       tmp = f.(tmp...)
       tmp = tuple((getindex.(tmp,i) for i in eachindex(tmp[1]))...)
       for i in eachindex(tmp)
-        push!(plot_vecs[i],tmp[i])
+        push!(plot_vecs,[tmp[i]])
       end
       add_analytic_labels!(labels,x,dims,sol)
     end
