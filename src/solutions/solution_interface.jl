@@ -109,6 +109,12 @@ const DEFAULT_PLOT_FUNC = (x...) -> (x...)
   if getindex.(int_vars,1) == zeros(length(int_vars)) || getindex.(int_vars,2) == zeros(length(int_vars))
     xlabel --> "t"
   end
+  if length(int_vars[1]) >= 3 && getindex.(int_vars,3) == zeros(length(int_vars))
+    ylabel --> "t"
+  end
+  if length(int_vars[1]) >= 4 && getindex.(int_vars,4) == zeros(length(int_vars))
+    zlabel --> "t"
+  end
   label --> reshape(labels,1,length(labels))
   (plot_vecs...)
 end
