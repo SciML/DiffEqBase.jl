@@ -58,7 +58,7 @@ const DEFAULT_PLOT_FUNC = (x...) -> (x...)
 
   if denseplot
     # Generate the points from the plot from dense function
-    plott = collect(Ranges.linspace(sol.t[1],sol.t[end_idx],plotdensity))
+    plott = collect(ranges_linspace(sol.t[1],sol.t[end_idx],plotdensity))
     plot_timeseries = sol(plott)
     if plot_analytic
       plot_analytic_timeseries = [sol.prob.f(Val{:analytic},t,sol.prob.u0) for t in plott]
