@@ -17,7 +17,7 @@ end
 function build_solution{uType,duType,tType,isinplace}(
         prob::AbstractDAEProblem{uType,duType,tType,isinplace},
         alg,t,u;dense=false,du=[],
-        interp_data=[],interp = (tvals) -> nothing,
+        interp = (t,idxs,deriv) -> error("Post-solution interpolation is not compatible with this algorithm. For other choices, see the solver compatibility chart: http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html"),
         timeseries_errors=true,dense_errors=true, retcode = :Default, kwargs...)
 
   T = eltype(eltype(u))

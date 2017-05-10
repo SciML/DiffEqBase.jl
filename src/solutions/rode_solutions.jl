@@ -19,7 +19,7 @@ end
 function build_solution(
         prob::AbstractRODEProblem,
         alg,t,u;W=[],timeseries_errors=true,dense_errors=false,calculate_error=true,
-        interp = (tvals) -> nothing,
+        interp = (t,idxs,deriv) -> error("Post-solution interpolation is not compatible with this algorithm. For other choices, see the solver compatibility chart: http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html"), 
         dense = false, retcode = :Default, kwargs...)
 
   T = eltype(eltype(u))
