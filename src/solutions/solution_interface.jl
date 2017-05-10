@@ -38,7 +38,7 @@ function next(sol::AbstractTimeseriesSolution,state)
 end
 
 function done(sol::AbstractTimeseriesSolution,state)
-  state >= length(sol)
+  state > length(sol)
 end
 
 const DEFAULT_PLOT_FUNC = (x...) -> (x...)
