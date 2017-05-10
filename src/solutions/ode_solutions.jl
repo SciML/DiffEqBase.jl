@@ -18,7 +18,9 @@ function build_solution(
         prob::Union{AbstractODEProblem,AbstractDDEProblem},
         alg,t,u;dense=false,timeseries_errors=true,dense_errors=true,
         calculate_error = true,
-        k=[],interp = (tvals) -> nothing, retcode = :Default, kwargs...)
+        k=[],
+        interp = (t,idxs,deriv) -> error("Post-solution interpolation is not compatible with this algorithm. For other choices, see the solver compatibility chart: http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html"), 
+        retcode = :Default, kwargs...)
 
   T = eltype(eltype(u))
   if typeof(prob.u0) <: Tuple
