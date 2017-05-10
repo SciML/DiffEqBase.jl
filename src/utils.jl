@@ -64,3 +64,13 @@ make_addition(args) = length(args) == 1 ? args[1] : Expr(:call, :+, args...)
 
 realtype{T}(::Type{T}) = T
 realtype{T}(::Type{Complex{T}}) = T
+
+using Compat.TypeUtils: typename
+
+if :wrapper in fieldnames(TypeName)
+    parameterless_type(T::Type) = typename(T).wrapper
+else
+    parameterless_type(T::Type) = typename(T).primary
+end
+
+parameterless_type(x) = parameterless_type(typeof(x))

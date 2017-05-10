@@ -1,5 +1,15 @@
 similar(A::DEDataArray) = deepcopy(A)
 
+@generated function similar(A::DEDataArray,dims::Tuple)
+  assignments = [s == :x ? :(similar(A.x,dims)) : (s_new = Meta.quot(:($s)); :(deepcopy(getfield(A,$s_new)))) for s in fieldnames(A)]
+  :(typeof(A)($(assignments...)))
+end
+
+@generated function similar{T,N}(A::DEDataArray,::Type{T},dims::Tuple{Vararg{Int64,N}})
+  assignments = [s == :x ? :(zeros(A.x,T,dims)) : (s_new = Meta.quot(:($s)); :(deepcopy(getfield(A,$s_new)))) for s in fieldnames(A)]
+  :(parameterless_type(A)($(assignments...)))
+end
+
 done(A::DEDataArray, i::Int) = done(A.x,i)
 eachindex(A::DEDataArray)      = eachindex(A.x)
 next(A::DEDataArray, i::Int) = next(A.x,i)
