@@ -26,7 +26,7 @@ type SplitDAEProblem{uType,duType,tType,isinplace,F,C,D} <: AbstractDAEProblem{u
   differential_vars::D
 end
 
-function SplitDAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing
+function SplitDAEProblem(f,u0,du0,tspan; iip = isinplace(f,4), callback = nothing,
                          differential_vars = nothing)
   @assert typeof(f) <: Tuple
   SplitDAEProblem{typeof(u0),typeof(du0),promote_type(map(typeof,tspan)...),
