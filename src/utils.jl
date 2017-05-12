@@ -75,8 +75,8 @@ end
 
 parameterless_type(x) = parameterless_type(typeof(x))
 
-# support function
-export check_keywords
+# support functions
+export check_keywords, warn_compat
 function check_keywords(alg, kwargs, warnlist)
     flg = false
     for (kw, val) in kwargs
@@ -87,6 +87,7 @@ function check_keywords(alg, kwargs, warnlist)
             end
         end
     end
-    flg && warn("Please see http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html")
-    nothing
+    flg
 end
+warn_compat() =
+    warn("Please see http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html")
