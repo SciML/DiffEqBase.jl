@@ -239,7 +239,7 @@ Hermite Interpolation
   if typeof(y₀) <: AbstractArray
     if typeof(idxs) <: Tuple
       out = similar(y₀,idxs)
-      iter_idxs = enumerate(idxs)
+      iter_idxs = enumerate(eachindex(y₀))
     else
       out = similar(y₀,indices(idxs))
       iter_idxs = enumerate(idxs)
@@ -273,7 +273,7 @@ Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Proble
 
 Hermite Interpolation
 """
-@inline function interpolant!(all_out::ArrayPartition,Θ,id::HermiteInterpolation,dt,all_y₀,all_y₁,all_dy₀,all_dy₁,cache,all_idxs,T::Type{Val{0}})
+@inline function interpolant!(all_out::ArrayPartition,Θ,id::HermiteInterpolation,dt,all_y₀,all_y₁,all_dy₀,all_dy₁,all_idxs,T::Type{Val{0}})
   for (out,y₀,y₁,idxs,dy₀,dy₁) in zip(all_out.x,all_y₀.x,all_y₁.x,all_idxs,all_dy₀.x,all_dy₁.x)
     @inbounds for (j,i) in enumerate(idxs...)
       out[j] = (1-Θ)*y₀[i]+Θ*y₁[i]+Θ*(Θ-1)*((1-2Θ)*(y₁[i]-y₀[i])+(Θ-1)*dt*dy₀ + Θ*dt*dy₁)
@@ -310,7 +310,7 @@ Linear Interpolation
   if typeof(y₀) <: AbstractArray
     if typeof(idxs) <: Tuple
       out = similar(y₀,idxs)
-      iter_idxs = enumerate(idxs)
+      iter_idxs = enumerate(eachindex(y₀))
     else
       out = similar(y₀,indices(idxs))
       iter_idxs = enumerate(idxs)
@@ -346,7 +346,7 @@ Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Proble
 
 Linear Interpolation
 """
-@inline function interpolant!(all_out::ArrayPartition,Θ,id::LinearInterpolation,dt,all_y₀,all_y₁,cache,all_idxs,T::Type{Val{0}})
+@inline function interpolant!(all_out::ArrayPartition,Θ,id::LinearInterpolation,dt,all_y₀,all_y₁,all_idxs,T::Type{Val{0}})
   Θm1 = (1-Θ)
   for (out,y₀,y₁,idxs) in zip(all_out.x,all_y₀.x,all_y₁.x,all_idxs)
     @inbounds for (j,i) in enumerate(idxs...)
