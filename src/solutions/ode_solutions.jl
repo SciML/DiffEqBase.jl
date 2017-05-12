@@ -19,7 +19,8 @@ function build_solution(
         alg,t,u;dense=false,timeseries_errors=true,dense_errors=true,
         calculate_error = true,
         k=[],
-        interp = (t,idxs,deriv) -> error("Post-solution interpolation is not compatible with this algorithm. For other choices, see the solver compatibility chart: http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html"), 
+        du=[],
+        interp = !isempty(du) ? HermiteInterpolation(t,u,du) : LinearInterpolation(t,u),
         retcode = :Default, kwargs...)
 
   T = eltype(eltype(u))
