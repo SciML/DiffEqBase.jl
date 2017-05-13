@@ -6,7 +6,7 @@ type MonteCarloTestSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
   elapsedTime::Float64
   converged::Bool
 end
-function MonteCarloTestSolution{T,N}(sim::AbstractMonteCarloSolution{T,N},errors,error_means,error_medians)
+function MonteCarloTestSolution{T,N}(sim::AbstractMonteCarloSolution{T,N},errors,error_means,error_medians,converged)
   MonteCarloTestSolution{T,N,typeof(sim.u)}(sim.u,errors,error_means,error_medians,sim.elapsedTime,sim.converged)
 end
 
@@ -19,11 +19,6 @@ MonteCarloSolution{N}(sim, dims::NTuple{N},elapsedTime,converged) =
                   MonteCarloSolution{eltype(eltype(sim)), N, typeof(sim)}(sim,elapsedTime,converged)
 MonteCarloSolution(sim,elapsedTime,converged) =
              MonteCarloSolution(sim, (size(sim[1])..., length(sim)),elapsedTime,converged)
-
-MonteCarloSolution{N}(sim, dims::NTuple{N},elapsedTime) =
-                 MonteCarloSolution{eltype(eltype(sim)), N, typeof(sim)}(sim,elapsedTime,false)
-MonteCarloSolution(sim,elapsedTime,converged) =
-            MonteCarloSolution(sim, (size(sim[1])..., length(sim)),elapsedTime,false)
 
 type MonteCarloSummary{T,N,Tt,S,S2} <: AbstractMonteCarloSolution{T,N}
   t::Tt
