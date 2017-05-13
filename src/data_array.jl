@@ -25,9 +25,14 @@ size(A::DEDataArray)   = size(A.x)
    :($(assignments...); dest)
 end
 
-@generated function copy_non_array_fields{T}(previous::DEDataArray{T}, arr::AbstractArray)
+@generated function copy_non_array_fields{T}(arr::AbstractArray, previous::DEDataArray{T})
   assignments = [:(getfield(previous,$i)) for i=2:nfields(previous)]
   :(typeof(previous)(arr,$(assignments...)))
+end
+
+@generated function copy_non_array_fields!{T}(dest::DEDataArray{T}, src::DEDataArray{T})
+  assignments = [:(typeof(getfield(dest,$i)) <: AbstractArray ? recursivecopy!(getfield(dest, $i),getfield(src, $i)) : setfield!(dest, $i, getfield(src, $i))) for i=2:nfields(dest)]
+  :($(assignments...); dest)
 end
 
 getindex( A::DEDataArray,    i::Int) = (A.x[i])

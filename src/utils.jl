@@ -74,3 +74,20 @@ else
 end
 
 parameterless_type(x) = parameterless_type(typeof(x))
+
+# support functions
+export check_keywords, warn_compat
+function check_keywords(alg, kwargs, warnlist)
+    flg = false
+    for (kw, val) in kwargs
+        if kw in warnlist
+            if val != nothing
+                flg = true
+                warn(string("The ", kw, " argument is ignored by ", alg, "."))
+            end
+        end
+    end
+    flg
+end
+warn_compat() =
+    warn("Please see http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html")
