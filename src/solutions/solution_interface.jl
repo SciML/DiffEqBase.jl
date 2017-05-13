@@ -61,7 +61,11 @@ const DEFAULT_PLOT_FUNC = (x...) -> (x...)
     plott = collect(ranges_linspace(sol.t[1],sol.t[end_idx],plotdensity))
     plot_timeseries = sol(plott)
     if plot_analytic
-      plot_analytic_timeseries = [sol.prob.f(Val{:analytic},t,sol.prob.u0) for t in plott]
+      if typeof(sol.prob.f) <: Tuple
+        plot_analytic_timeseries = [sol.prob.f[1](Val{:analytic},t,sol.prob.u0) for t in plott]
+      else
+        plot_analytic_timeseries = [sol.prob.f(Val{:analytic},t,sol.prob.u0) for t in plott]
+      end
     else
       plot_analytic_timeseries = nothing
     end
