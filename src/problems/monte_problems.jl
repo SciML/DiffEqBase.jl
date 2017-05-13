@@ -8,5 +8,5 @@ end
 
 MonteCarloProblem(prob::DEProblem;
                   output_func = (sol,i)-> sol,
-                  prob_func= (prob,i)->prob,reduction = (u,data,I)->(append!(u,data),false),u_init = Vector{Any}()) =
+                  prob_func= (prob,i)->prob,reduction = (u,data,I)->(append!(u,data),false),u_init = []) =
                   MonteCarloProblem(prob,prob_func,output_func,reduction,u_init)
