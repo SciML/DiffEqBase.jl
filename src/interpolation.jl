@@ -23,7 +23,7 @@ end
   tvals[idx[end]] > t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
   tvals[idx[1]] < t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   if idxs == nothing
-    if (eltype(u) <: AbstractArray) && !(eltype(u) <: Array)
+    if (eltype(u) <: AbstractArray) && !(eltype(u) <: Union{StaticArray,Array})
       vals = Vector{Vector{eltype(first(u))}}(length(tvals))
     else
       vals = Vector{eltype(u)}(length(tvals))

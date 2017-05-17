@@ -2,7 +2,9 @@ __precompile__()
 
 module DiffEqBase
 
-using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat, Iterators, Juno
+using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat,
+      Iterators, Juno, StaticArrays
+      
 @static if VERSION < v"0.6.0-dev.2390"
     using Ranges # For plot recipes with units
     const ranges_linspace = Ranges.linspace
