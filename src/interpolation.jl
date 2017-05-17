@@ -38,13 +38,15 @@ end
   @inbounds for j in idx
     tval = tvals[j]
     i = searchsortedfirst(@view(t[i:end]),tval,rev=tdir<0)+i-1 # It's in the interval t[i-1] to t[i]
-    if t[i] == tval
+    avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
+    avoid_constant_ends && i==1 && (i+=1)
+    if !avoid_constant_ends && t[i] == tval
       if idxs == nothing
         vals[j] = u[i]
       else
         vals[j] = u[i][idxs]
       end
-    elseif t[i-1] == tval # Can happen if it's the first value!
+    elseif !avoid_constant_ends && t[i-1] == tval # Can happen if it's the first value!
       if idxs == nothing
         vals[j] = u[i-1]
       else
@@ -87,13 +89,15 @@ times t (sorted), with values u and derivatives ks
   @inbounds for j in idx
     t = tvals[j]
     i = searchsortedfirst(@view(t[i:end]),tval,rev=tdir<0)+i-1 # It's in the interval t[i-1] to t[i]
-    if t[i] == tval
+    avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
+    avoid_constant_ends && i==1 && (i+=1)
+    if !avoid_constant_ends && t[i] == tval
       if idxs == nothing
         vals[j] = u[i]
       else
         vals[j] = u[i][idxs]
       end
-    elseif t[i-1] == tval # Can happen if it's the first value!
+    elseif !avoid_constant_ends && t[i-1] == tval # Can happen if it's the first value!
       if idxs == nothing
         vals[j] = u[i-1]
       else
@@ -137,13 +141,15 @@ times t (sorted), with values u and derivatives ks
   tval < t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   tdir = sign(t[end]-t[1])
   @inbounds i = searchsortedfirst(t,tval,rev=tdir<0) # It's in the interval t[i-1] to t[i]
-  @inbounds if t[i] == tval
+  avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
+  avoid_constant_ends && i==1 && (i+=1)
+  @inbounds if !avoid_constant_ends && t[i] == tval
     if idxs == nothing
       val = u[i]
     else
       val = u[i][idxs]
     end
-  elseif t[i-1] == tval # Can happen if it's the first value!
+  elseif !avoid_constant_ends && t[i-1] == tval # Can happen if it's the first value!
     if idxs == nothing
       val = u[i-1]
     else
@@ -181,13 +187,15 @@ times t (sorted), with values u and derivatives ks
   tval < t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   tdir = sign(t[end]-t[1])
   @inbounds i = searchsortedfirst(t,tval,rev=tdir<0) # It's in the interval t[i-1] to t[i]
-  @inbounds if t[i] == tval
+  avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
+  avoid_constant_ends && i==1 && (i+=1)
+  @inbounds if !avoid_constant_ends && t[i] == tval
     if idxs == nothing
       copy!(out,u[i])
     else
       copy!(out,u[i][idxs])
     end
-  elseif t[i-1] == tval # Can happen if it's the first value!
+  elseif !avoid_constant_ends && t[i-1] == tval # Can happen if it's the first value!
     if idxs == nothing
       copy!(out,u[i-1])
     else
