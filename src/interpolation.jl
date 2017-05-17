@@ -310,11 +310,9 @@ end
 =#
 
 """
-Hairer Norsett Wanner Solving Ordinary Differential Equations I - Nonstiff Problems Page 190
-
 Linear Interpolation
 """
-@inline function interpolant(Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}}) # Default interpolant is Hermite
+@inline function interpolant(Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}})
   if typeof(y₀) <: AbstractArray
     if typeof(idxs) <: Tuple
       out = similar(y₀,idxs)
@@ -334,8 +332,6 @@ Linear Interpolation
 end
 
 """
-Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 190
-
 Linear Interpolation
 """
 @inline function interpolant!(out,Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}})
@@ -350,8 +346,6 @@ Linear Interpolation
 end
 
 """
-Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 190
-
 Linear Interpolation
 """
 @inline function interpolant!(all_out::ArrayPartition,Θ,id::LinearInterpolation,dt,all_y₀,all_y₁,all_idxs,T::Type{Val{0}})
