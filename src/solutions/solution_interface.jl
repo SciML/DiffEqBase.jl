@@ -105,20 +105,20 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
 
   # Special case labels when vars = (:x,:y,:z) or (:x) or [:x,:y] ...
   if typeof(vars) <: Tuple && (typeof(vars[1]) == Symbol && typeof(vars[2]) == Symbol)
-    xlabel --> vars[1]
-    ylabel --> vars[2]
+    xguide --> vars[1]
+    yguide --> vars[2]
     if length(vars) > 2
-      zlabel --> vars[3]
+      zguide --> vars[3]
     end
   end
   if getindex.(int_vars,1) == zeros(length(int_vars)) || getindex.(int_vars,2) == zeros(length(int_vars))
-    xlabel --> "t"
+    xguide --> "t"
   end
   if length(int_vars[1]) >= 3 && getindex.(int_vars,3) == zeros(length(int_vars))
-    ylabel --> "t"
+    yguide --> "t"
   end
   if length(int_vars[1]) >= 4 && getindex.(int_vars,4) == zeros(length(int_vars))
-    zlabel --> "t"
+    zguide --> "t"
   end
   label --> reshape(labels,1,length(labels))
   (plot_vecs...)
