@@ -89,7 +89,7 @@ end
       if error_style == :ribbon
         ribbon --> (ci_low[i],ci_high[i])
       elseif error_style == :bars
-        yerr --> (ci_low[i],ci_high[i])
+        yerror --> (ci_low[i],ci_high[i])
       elseif error_style == :none
         nothing
       else
