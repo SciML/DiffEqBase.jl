@@ -85,7 +85,7 @@ function problem_new_parameters(prob::MonteCarloProblem,p)
       output_func = prob.output_func(sol,p)
     end
   end
-  MonteCarloProblem(tmp_prob,prob_func,output_func)
+  MonteCarloProblem(tmp_prob,prob_func,output_func,prob.reduction,prob.u_init)
 end
 
 param_values(prob::MonteCarloProblem) = (A = [param_values(prob.prob) ; param_values(prob.prob_func) ; param_values(prob.output_func)]; [A.!=nothing])
