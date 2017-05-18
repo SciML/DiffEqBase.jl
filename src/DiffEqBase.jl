@@ -4,7 +4,7 @@ module DiffEqBase
 
 using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat,
       Iterators, Juno, StaticArrays
-      
+
 @static if VERSION < v"0.6.0-dev.2390"
     using Ranges # For plot recipes with units
     const ranges_linspace = Ranges.linspace
@@ -246,7 +246,7 @@ export initialize!
 
 export copy_non_array_fields, copy_non_array_fields!
 
-export param_values, num_params, problem_new_parameters
+export param_values, num_params, problem_new_parameters, set_param_values!
 
 export white_noise_func_wrapper, white_noise_func_wrapper!
 

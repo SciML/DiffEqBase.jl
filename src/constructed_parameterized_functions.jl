@@ -57,5 +57,6 @@ end
 
 ### Interface
 
-DiffEqBase.param_values(pf::ConstructedParameterizedFunction) = pf.params
-DiffEqBase.num_params(pf::ConstructedParameterizedFunction) = length(pf.params)
+param_values(pf::ConstructedParameterizedFunction) = pf.params
+num_params(pf::ConstructedParameterizedFunction) = length(pf.params)
+set_param_values!(pf::ConstructedParameterizedFunction,params) = (pf.params .= params)

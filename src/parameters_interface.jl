@@ -1,7 +1,9 @@
 function param_values(f::AbstractParameterizedFunction)
   [getfield(f,s) for s in f.params]
 end
-
+function set_param_values!(f::AbstractParameterizedFunction,params)
+  [setfield!(f,s,p) for (s,p) in zip(f.params,params)]
+end
 num_params(f::AbstractParameterizedFunction) = length(f.params)
 
 # Fallbacks
