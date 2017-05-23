@@ -3,22 +3,23 @@ __precompile__()
 module DiffEqBase
 
 using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat,
-      Iterators, Juno, StaticArrays
+      Juno, StaticArrays
 
 @static if VERSION < v"0.6.0-dev.2390"
   using Ranges # For plot recipes with units
-  using Iterators
   const ranges_linspace = Ranges.linspace
 else
-  using Base.Iterators
   const ranges_linspace = linspace
 end
+
 import Base: length, ndims, size, getindex, setindex!, endof, show, print,
              next, start, done, eltype, eachindex, similar
 
 import Base: resize!, deleteat!
 
 import RecursiveArrayTools: recursivecopy!, tuples
+
+import RecursiveArrayTools: chain
 
 # Problems
 @compat abstract type DEProblem end
