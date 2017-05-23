@@ -6,10 +6,12 @@ using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat,
       Iterators, Juno, StaticArrays
 
 @static if VERSION < v"0.6.0-dev.2390"
-    using Ranges # For plot recipes with units
-    const ranges_linspace = Ranges.linspace
+  using Ranges # For plot recipes with units
+  using Iterators
+  const ranges_linspace = Ranges.linspace
 else
-    const ranges_linspace = linspace
+  using Base.Iterators
+  const ranges_linspace = linspace
 end
 import Base: length, ndims, size, getindex, setindex!, endof, show, print,
              next, start, done, eltype, eachindex, similar
