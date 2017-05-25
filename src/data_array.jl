@@ -5,7 +5,7 @@ similar(A::DEDataArray) = deepcopy(A)
   :(typeof(A)($(assignments...)))
 end
 
-@generated function similar{T,N}(A::DEDataArray,::Type{T},dims::Tuple{Vararg{Int64,N}})
+@generated function similar{T,N}(A::DEDataArray,::Type{T},dims::Tuple{Vararg{Int,N}})
   assignments = [s == :x ? :(zeros(A.x,T,dims)) : (s_new = Meta.quot(:($s)); :(deepcopy(getfield(A,$s_new)))) for s in fieldnames(A)]
   :(parameterless_type(A)($(assignments...)))
 end
