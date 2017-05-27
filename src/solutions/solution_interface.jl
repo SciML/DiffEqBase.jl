@@ -59,7 +59,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
 
   if denseplot
     # Generate the points from the plot from dense function
-    plott = collect(ranges_linspace(sol.t[1],sol.t[end_idx],plotdensity))
+    plott = collect(linspace(sol.t[1],sol.t[end_idx],plotdensity))
     plot_timeseries = sol(plott)
     if plot_analytic
       if typeof(sol.prob.f) <: Tuple
