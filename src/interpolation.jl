@@ -55,13 +55,7 @@ end
     else
       dt = t[i] - t[i-1]
       Θ = (tval-t[i-1])/dt
-      if idxs == nothing && eltype(u) <: ArrayPartition
-        idxs_internal = indices(u[i-1])
-      elseif idxs == nothing && eltype(u) <: AbstractArray
-        idxs_internal = size(u[i-1])
-      else
-        idxs_internal = idxs
-      end
+      idxs_internal = idxs
       if typeof(id) <: HermiteInterpolation
         vals[j] = interpolant(Θ,id,dt,u[i-1],u[i],du[i-1],du[i],idxs_internal,deriv)
       else
@@ -106,11 +100,7 @@ times t (sorted), with values u and derivatives ks
     else
       dt = t[i] - t[i-1]
       Θ = (tval-t[i-1])/dt
-      if idxs == nothing && eltype(vals) <: AbstractArray
-        idxs_internal = eachindex(vals[j])
-      else
-        idxs_internal = idxs
-      end
+      idxs_internal = idxs
       if eltype(u) <: Union{AbstractArray,ArrayPartition}
         if typeof(id) <: HermiteInterpolation
           interpolant!(vals[j],Θ,id,dt,u[i-1],u[i],du[i-1],du[i],idxs_internal,deriv)
@@ -158,13 +148,7 @@ times t (sorted), with values u and derivatives ks
   else
     dt = t[i] - t[i-1]
     Θ = (tval-t[i-1])/dt
-    if idxs == nothing && eltype(u) <: ArrayPartition
-      idxs_internal = indices(u[i-1])
-    elseif idxs == nothing && eltype(u) <: AbstractArray
-      idxs_internal = size(u[i-1])
-    else
-      idxs_internal = idxs
-    end
+    idxs_internal = idxs
     if typeof(id) <: HermiteInterpolation
       val = interpolant(Θ,id,dt,u[i-1],u[i],du[i-1],du[i],idxs_internal,deriv)
     else
@@ -204,11 +188,7 @@ times t (sorted), with values u and derivatives ks
   else
     dt = t[i] - t[i-1]
     Θ = (tval-t[i-1])/dt
-    if idxs == nothing
-      idxs_internal = eachindex(out)
-    else
-      idxs_internal = idxs
-    end
+    idxs_internal = idxs
     if typeof(id) <: HermiteInterpolation
       interpolant!(out,Θ,id,dt,u[i-1],u[i],du[i-1],du[i],idxs_internal,deriv)
     else
@@ -220,43 +200,19 @@ end
 
 ##################### Hermite Interpolants
 
-#=
-@inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{0}})
-  if typeof(idxs) <: Tuple
-    out = similar(y₀,idxs)
-    idxs_internal=eachindex(y₀)
-  else
-    !(typeof(idxs) <: Number) && (out = similar(y₀,indices(idxs)))
-    idxs_internal=idxs
-  end
-  if typeof(idxs) <: Number
-    return interpolant!(nothing,Θ,dt,y₀,y₁,dy₀,dy₁,idxs_internal,T)
-  else
-    interpolant!(out,Θ,dt,y₀,y₁,dy₀,dy₁,idxs_internal,T)
-    return out
-  end
-end
-=#
-
 """
 Hairer Norsett Wanner Solving Ordinary Differential Equations I - Nonstiff Problems Page 190
 
 Hermite Interpolation
 """
-@inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{0}}) # Default interpolant is Hermite
-  if typeof(y₀) <: AbstractArray
-    if typeof(idxs) <: Tuple
-      out = similar(y₀,idxs)
-      iter_idxs = enumerate(eachindex(y₀))
-    else
-      out = similar(y₀,indices(idxs))
-      iter_idxs = enumerate(idxs)
-    end
-    @inbounds for (j,i) in iter_idxs
-      out[j] = (1-Θ)*y₀[i]+Θ*y₁[i]+Θ*(Θ-1)*((1-2Θ)*(y₁[i]-y₀[i])+(Θ-1)*dt*dy₀[i] + Θ*dt*dy₁[i])
-    end
+@inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{0}})
+  if typeof(idxs) <: Void
+    out = @. (1-Θ)*y₀+Θ*y₁+Θ*(Θ-1)*((1-2Θ)*(y₁-y₀)+(Θ-1)*dt*dy₀ + Θ*dt*dy₁)
   else
-    out = (1-Θ)*y₀+Θ*y₁+Θ*(Θ-1)*((1-2Θ)*(y₁-y₀)+(Θ-1)*dt*dy₀ + Θ*dt*dy₁)
+    out = similar(y₀,indices(idxs))
+    @views @. out = (1-Θ)*y₀[idxs]+Θ*y₁[idxs]+
+                    Θ*(Θ-1)*((1-2Θ)*(y₁[idxs]-y₀[idxs])+
+                    (Θ-1)*dt*dy₀[idxs] + Θ*dt*dy₁[idxs])
   end
   out
 end
@@ -264,20 +220,15 @@ end
 """
 Hermite Interpolation
 """
-@inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{1}}) # Default interpolant is Hermite
-  if typeof(y₀) <: AbstractArray
-    if typeof(idxs) <: Tuple
-      out = similar(y₀,idxs)
-      iter_idxs = enumerate(eachindex(y₀))
-    else
-      out = similar(y₀,indices(idxs))
-      iter_idxs = enumerate(idxs)
-    end
-    @inbounds for (j,i) in iter_idxs
-      out[j] = dy₀[i] + Θ*(-4*dt*dy₀[i] - 2*dt*dy₁[i] - 6*y₀[i] + Θ*(3*dt*dy₀[i] + 3*dt*dy₁[i] + 6*y₀[i] - 6*y₁[i]) + 6*y₁[i])/dt
-    end
+@inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{1}})
+  if typeof(idxs) <: Void
+    out = @. dy₀ + Θ*(-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(3*dt*dy₀ + 3*dt*dy₁ + 6*y₀ - 6*y₁) + 6*y₁)/dt
   else
-    out = dy₀ + Θ*(-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(3*dt*dy₀ + 3*dt*dy₁ + 6*y₀ - 6*y₁) + 6*y₁)/dt
+    out = similar(y₀,indices(idxs))
+    @views @. out = dy₀[idxs] + Θ*(-4*dt*dy₀[idxs] -
+                    2*dt*dy₁[idxs] - 6*y₀[idxs] +
+                    Θ*(3*dt*dy₀[idxs] + 3*dt*dy₁[idxs] +
+                    6*y₀[idxs] - 6*y₁[idxs]) + 6*y₁[idxs])/dt
   end
   out
 end
@@ -285,20 +236,14 @@ end
 """
 Hermite Interpolation
 """
-@inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{2}}) # Default interpolant is Hermite
-  if typeof(y₀) <: AbstractArray
-    if typeof(idxs) <: Tuple
-      out = similar(y₀,idxs)
-      iter_idxs = enumerate(eachindex(y₀))
-    else
-      out = similar(y₀,indices(idxs))
-      iter_idxs = enumerate(idxs)
-    end
-    @inbounds for (j,i) in iter_idxs
-      out[j] = (-4*dt*dy₀[i] - 2*dt*dy₁[i] - 6*y₀[i] + Θ*(6*dt*dy₀[i] + 6*dt*dy₁[i] + 12*y₀[i] - 12*y₁[i]) + 6*y₁[i])/(dt*dt)
-    end
+@inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{2}})
+  if typeof(idxs) <: Void
+    out = @. (-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁) + 6*y₁)/(dt*dt)
   else
-    out = (-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁) + 6*y₁)/(dt*dt)
+    out = similar(y₀,indices(idxs))
+    @views @. out = (-4*dt*dy₀[idxs] - 2*dt*dy₁[idxs] - 6*y₀[idxs] +
+                    Θ*(6*dt*dy₀[idxs] + 6*dt*dy₁[idxs] + 12*y₀[idxs] -
+                    12*y₁[idxs]) + 6*y₁[idxs])/(dt*dt)
   end
   out
 end
@@ -306,20 +251,13 @@ end
 """
 Hermite Interpolation
 """
-@inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{3}}) # Default interpolant is Hermite
-  if typeof(y₀) <: AbstractArray
-    if typeof(idxs) <: Tuple
-      out = similar(y₀,idxs)
-      iter_idxs = enumerate(eachindex(y₀))
-    else
-      out = similar(y₀,indices(idxs))
-      iter_idxs = enumerate(idxs)
-    end
-    @inbounds for (j,i) in iter_idxs
-      out[j] = (6*dt*dy₀[i] + 6*dt*dy₁[i] + 12*y₀[i] - 12*y₁[i])/(dt*dt*dt)
-    end
+@inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{3}})
+  if typeof(idxs) <: Void
+    out = @. (6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁)/(dt*dt*dt)
   else
-    out = (6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁)/(dt*dt*dt)
+    out = similar(y₀,indices(idxs))
+    @views @. out = (6*dt*dy₀[idxs] + 6*dt*dy₁[idxs] +
+                    12*y₀[idxs] - 12*y₁[idxs])/(dt*dt*dt)
   end
   out
 end
@@ -332,12 +270,13 @@ Hermite Interpolation
 @inline function interpolant!(out,Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{0}})
   if out == nothing
     return (1-Θ)*y₀[idxs]+Θ*y₁[idxs]+Θ*(Θ-1)*((1-2Θ)*(y₁[idxs]-y₀[idxs])+(Θ-1)*dt*dy₀[idxs] + Θ*dt*dy₁[idxs])
+  elseif idxs == nothing
+    @. out = (1-Θ)*y₀+Θ*y₁+Θ*(Θ-1)*((1-2Θ)*(y₁-y₀)+(Θ-1)*dt*dy₀ + Θ*dt*dy₁)
   else
-    @inbounds for (j,i) in enumerate(idxs)
-      out[j] = (1-Θ)*y₀[i]+Θ*y₁[i]+Θ*(Θ-1)*((1-2Θ)*(y₁[i]-y₀[i])+(Θ-1)*dt*dy₀[i] + Θ*dt*dy₁[i])
-    end
+    @views @. out = (1-Θ)*y₀[idxs]+Θ*y₁[idxs]+Θ*(Θ-1)*((1-2Θ)*(y₁[idxs]-y₀[idxs])+(Θ-1)*dt*dy₀[idxs] + Θ*dt*dy₁[idxs])
   end
 end
+
 
 """
 Hermite Interpolation
@@ -345,10 +284,10 @@ Hermite Interpolation
 @inline function interpolant!(out,Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{1}})
   if out == nothing
     return dy₀[idxs] + Θ*(-4*dt*dy₀[idxs] - 2*dt*dy₁[idxs] - 6*y₀[idxs] + Θ*(3*dt*dy₀[idxs] + 3*dt*dy₁[idxs] + 6*y₀[idxs] - 6*y₁[idxs]) + 6*y₁[idxs])/dt
+  elseif idxs == nothing
+    @. out = dy₀ + Θ*(-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(3*dt*dy₀ + 3*dt*dy₁ + 6*y₀ - 6*y₁) + 6*y₁)/dt
   else
-    @inbounds for (j,i) in enumerate(idxs)
-      out[j] = dy₀[i] + Θ*(-4*dt*dy₀[i] - 2*dt*dy₁[i] - 6*y₀[i] + Θ*(3*dt*dy₀[i] + 3*dt*dy₁[i] + 6*y₀[i] - 6*y₁[i]) + 6*y₁[i])/dt
-    end
+    @views @. out = dy₀[idxs] + Θ*(-4*dt*dy₀[idxs] - 2*dt*dy₁[idxs] - 6*y₀[idxs] + Θ*(3*dt*dy₀[idxs] + 3*dt*dy₁[idxs] + 6*y₀[idxs] - 6*y₁[idxs]) + 6*y₁[idxs])/dt
   end
 end
 
@@ -358,10 +297,10 @@ Hermite Interpolation
 @inline function interpolant!(out,Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{2}})
   if out == nothing
     return (-4*dt*dy₀[idxs] - 2*dt*dy₁[idxs] - 6*y₀[idxs] + Θ*(6*dt*dy₀[idxs] + 6*dt*dy₁[idxs] + 12*y₀[idxs] - 12*y₁[idxs]) + 6*y₁[idxs])/(dt*dt)
+  elseif idxs == nothing
+    @. out = (-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁) + 6*y₁)/(dt*dt)
   else
-    @inbounds for (j,i) in enumerate(idxs)
-      out[j] = (-4*dt*dy₀[i] - 2*dt*dy₁[i] - 6*y₀[i] + Θ*(6*dt*dy₀[i] + 6*dt*dy₁[i] + 12*y₀[i] - 12*y₁[i]) + 6*y₁[i])/(dt*dt)
-    end
+    @views @. out = (-4*dt*dy₀[idxs] - 2*dt*dy₁[idxs] - 6*y₀[idxs] + Θ*(6*dt*dy₀[idxs] + 6*dt*dy₁[idxs] + 12*y₀[idxs] - 12*y₁[idxs]) + 6*y₁[idxs])/(dt*dt)
   end
 end
 
@@ -371,97 +310,35 @@ Hermite Interpolation
 @inline function interpolant!(out,Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{3}})
   if out == nothing
     return (6*dt*dy₀[idxs] + 6*dt*dy₁[idxs] + 12*y₀[idxs] - 12*y₁[idxs])/(dt*dt*dt)
+  elseif idxs == nothing
+    @. out = (6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁)/(dt*dt*dt)
   else
-    @inbounds for (j,i) in enumerate(idxs)
-      out[j] = (6*dt*dy₀[i] + 6*dt*dy₁[i] + 12*y₀[i] - 12*y₁[i])/(dt*dt*dt)
-    end
-  end
-end
-
-"""
-Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 190
-
-Hermite Interpolation
-"""
-@inline function interpolant!(all_out::ArrayPartition,Θ,id::HermiteInterpolation,dt,all_y₀,all_y₁,all_dy₀,all_dy₁,all_idxs,T::Type{Val{0}})
-  for (out,y₀,y₁,idxs,dy₀,dy₁) in zip(all_out.x,all_y₀.x,all_y₁.x,all_idxs,all_dy₀.x,all_dy₁.x)
-    @inbounds for (j,i) in enumerate(idxs...)
-      out[j] = (1-Θ)*y₀[i]+Θ*y₁[i]+Θ*(Θ-1)*((1-2Θ)*(y₁[i]-y₀[i])+(Θ-1)*dt*dy₀ + Θ*dt*dy₁)
-    end
-  end
-end
-
-"""
-Hermite Interpolation
-"""
-@inline function interpolant!(all_out::ArrayPartition,Θ,id::HermiteInterpolation,dt,all_y₀,all_y₁,all_dy₀,all_dy₁,all_idxs,T::Type{Val{1}})
-  for (out,y₀,y₁,idxs,dy₀,dy₁) in zip(all_out.x,all_y₀.x,all_y₁.x,all_idxs,all_dy₀.x,all_dy₁.x)
-    @inbounds for (j,i) in enumerate(idxs...)
-      out[j] = dy₀[i] + Θ*(-4*dt*dy₀[i] - 2*dt*dy₁[i] - 6*y₀[i] + Θ*(3*dt*dy₀[i] + 3*dt*dy₁[i] + 6*y₀[i] - 6*y₁[i]) + 6*y₁[i])/dt
-    end
-  end
-end
-
-"""
-Hermite Interpolation
-"""
-@inline function interpolant!(all_out::ArrayPartition,Θ,id::HermiteInterpolation,dt,all_y₀,all_y₁,all_dy₀,all_dy₁,all_idxs,T::Type{Val{2}})
-  for (out,y₀,y₁,idxs,dy₀,dy₁) in zip(all_out.x,all_y₀.x,all_y₁.x,all_idxs,all_dy₀.x,all_dy₁.x)
-    @inbounds for (j,i) in enumerate(idxs...)
-      out[j] = (-4*dt*dy₀[i] - 2*dt*dy₁[i] - 6*y₀[i] + Θ*(6*dt*dy₀[i] + 6*dt*dy₁[i] + 12*y₀[i] - 12*y₁[i]) + 6*y₁[i])/(dt*dt)
-    end
-  end
-end
-
-"""
-Hermite Interpolation
-"""
-@inline function interpolant!(all_out::ArrayPartition,Θ,id::HermiteInterpolation,dt,all_y₀,all_y₁,all_dy₀,all_dy₁,all_idxs,T::Type{Val{3}})
-  for (out,y₀,y₁,idxs,dy₀,dy₁) in zip(all_out.x,all_y₀.x,all_y₁.x,all_idxs,all_dy₀.x,all_dy₁.x)
-    @inbounds for (j,i) in enumerate(idxs...)
-      out[j] = (6*dt*dy₀[i] + 6*dt*dy₁[i] + 12*y₀[i] - 12*y₁[i])/(dt*dt*dt)
-    end
+    @views @. out = (6*dt*dy₀[idxs] + 6*dt*dy₁[idxs] + 12*y₀[idxs] - 12*y₁[idxs])/(dt*dt*dt)
   end
 end
 
 ############################### Linear Interpolants
 
-#=
-@inline function interpolant(Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}})
-  if typeof(idxs) <: Tuple
-    out = similar(y₀,idxs)
-    idxs_internal=eachindex(y₀)
-  else
-    !(typeof(idxs) <: Number) && (out = similar(y₀,indices(idxs)))
-    idxs_internal=idxs
-  end
-  if typeof(idxs) <: Number
-    return interpolant!(nothing,Θ,dt,y₀,y₁,idxs_internal,T)
-  else
-    interpolant!(out,Θ,dt,y₀,y₁,idxs_internal,T)
-    return out
-  end
-end
-=#
-
 """
 Linear Interpolation
 """
 @inline function interpolant(Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}})
-  if typeof(y₀) <: AbstractArray
-    if typeof(idxs) <: Tuple
-      out = similar(y₀,idxs)
-      iter_idxs = enumerate(eachindex(y₀))
-    else
-      out = similar(y₀,indices(idxs))
-      iter_idxs = enumerate(idxs)
-    end
-    Θm1 = (1-Θ)
-    @inbounds for (j,i) in iter_idxs
-      out[j] = Θm1*y₀[i] + Θ*y₁[i]
-    end
+  if typeof(idxs) <: Void
+    out = @. (1-Θ)*y₀ + Θ*y₁
   else
-    out = (1-Θ)*y₀ + Θ*y₁
+    out = similar(y₀,indices(idxs))
+    Θm1 = (1-Θ)
+    @views @. out = Θm1*y₀[idxs] + Θ*y₁[idxs]
+  end
+  out
+end
+
+@inline function interpolant(Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{1}})
+  if typeof(idxs) <: Void
+    out = @. (y₁ - y₀)/dt
+  else
+    out = similar(y₀,indices(idxs))
+    @views @. out = (y₁[idxs] - y₀[idxs])/dt
   end
   out
 end
@@ -473,10 +350,10 @@ Linear Interpolation
   Θm1 = (1-Θ)
   if out == nothing
     return Θm1*y₀[idxs] + Θ*y₁[idxs]
+  elseif idxs == nothing
+    @. out = Θm1*y₀ + Θ*y₁
   else
-    @inbounds for (j,i) in enumerate(idxs)
-      out[j] = Θm1*y₀[i] + Θ*y₁[i]
-    end
+    @views @. out = Θm1*y₀[idxs] + Θ*y₁[idxs]
   end
 end
 
@@ -486,32 +363,9 @@ Linear Interpolation
 @inline function interpolant!(out,Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{1}})
   if out == nothing
     return (y₁[idxs] - y₀[idxs])/dt
+  elseif idxs == nothing
+    @. out = (y₁ - y₀)/dt
   else
-    @inbounds for (j,i) in enumerate(idxs)
-      out[j] = (y₁[i] - y₀[i])/dt
-    end
-  end
-end
-
-"""
-Linear Interpolation
-"""
-@inline function interpolant!(all_out::ArrayPartition,Θ,id::LinearInterpolation,dt,all_y₀,all_y₁,all_idxs,T::Type{Val{0}})
-  Θm1 = (1-Θ)
-  for (out,y₀,y₁,idxs) in zip(all_out.x,all_y₀.x,all_y₁.x,all_idxs)
-    @inbounds for (j,i) in enumerate(idxs...)
-      out[j] = Θm1*y₀[i] + Θ*y₁[i]
-    end
-  end
-end
-
-"""
-Linear Interpolation
-"""
-@inline function interpolant!(all_out::ArrayPartition,Θ,id::LinearInterpolation,dt,all_y₀,all_y₁,all_idxs,T::Type{Val{1}})
-  for (out,y₀,y₁,idxs) in zip(all_out.x,all_y₀.x,all_y₁.x,all_idxs)
-    @inbounds for (j,i) in enumerate(idxs...)
-      out[j] = (y₁[i] - y₀[i])/dt
-    end
+    @views @. out = (y₁[idxs] - y₀[idxs])/dt
   end
 end
