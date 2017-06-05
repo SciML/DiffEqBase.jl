@@ -5,3 +5,64 @@ isinplace{uType,iip}(prob::AbstractSteadyStateProblem{uType,iip}) = iip
 isinplace{uType,tType,iip,ND}(prob::AbstractRODEProblem{uType,tType,iip,ND}) = iip
 isinplace{uType,tType,lType,iip}(prob::AbstractDDEProblem{uType,tType,lType,iip}) = iip
 isinplace{uType,duType,tType,iip}(prob::AbstractDAEProblem{uType,duType,tType,iip}) = iip
+
+### Displays
+
+Juno.@render Juno.Inline x::DEProblem begin
+  fields = fieldnames(typeof(x))
+  Juno.LazyTree(typeof(x), () -> [Juno.SubTree(Juno.Text("$f → "), Juno.getfield′(x, f)) for f in fields])
+end
+
+Base.summary(prob::DEProblem) = string(parameterless_type(prob)," with uType ",typeof(prob.u0)," and tType ",typeof(prob.tspan[1]),". In-place: ",isinplace(prob))
+Base.summary{uType,iip}(prob::AbstractSteadyStateProblem{uType,iip}) = string(parameterless_type(prob)," with uType ",uType)
+function Base.show(io::IO, A::DEProblem)
+  println(io,summary(A))
+  print(io,"timespan: ")
+  show(io,A.tspan)
+  println(io)
+  print(io,"u0: ")
+  show(io, A.u0)
+end
+function Base.show(io::IO, A::AbstractDAEProblem)
+  println(io,summary(A))
+  print(io,"timespan: ")
+  show(io,A.tspan)
+  println(io)
+  print(io,"u0: ")
+  show(io, A.u0)
+  println(io)
+  print(io,"du0: ")
+  show(io, A.du0)
+end
+function Base.show(io::IO, A::AbstractSteadyStateProblem)
+  println(io,summary(A))
+  print(io,"u0: ")
+  show(io, A.u0)
+end
+function Base.display(io::IO, A::DEProblem)
+  println(io,summary(A))
+  print(io,"timespan: ")
+  display(io,A.tspan)
+  println(io)
+  print(io,"u0: ")
+  display(io, A.u0)
+end
+function Base.display(io::IO, A::AbstractDAEProblem)
+  println(io,summary(A))
+  print(io,"timespan: ")
+  display(io,A.tspan)
+  println(io)
+  print(io,"u0: ")
+  display(io, A.u0)
+  println(io)
+  print(io,"du0: ")
+  display(io, A.du0)
+end
+function Base.print(io::IO,A::DEProblem)
+  show(io,A)
+end
+function Base.println(io::IO,A::DEProblem)
+  show(io,A)
+end
+Base.print(A::DEProblem) = print(STDOUT,A)
+Base.println(A::DEProblem) = println(STDOUT,A)
