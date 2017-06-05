@@ -10,8 +10,8 @@ immutable LinearInterpolation{T1,T2} <: AbstractDiffEqInterpolation
 end
 
 interp_summary(::AbstractDiffEqInterpolation) = "Unknown"
-interp_summary(::HermiteInterpolation) = "Third Order Hermite"
-interp_summary(::LinearInterpolation) = "First Order Linear"
+interp_summary(::HermiteInterpolation) = "3rd order Hermite"
+interp_summary(::LinearInterpolation) = "1st order linear"
 
 (id::HermiteInterpolation)(tvals,idxs,deriv) = interpolation(tvals,id,idxs,deriv)
 (id::HermiteInterpolation)(val,tvals,idxs,deriv) = interpolation!(val,tvals,id,idxs,deriv)

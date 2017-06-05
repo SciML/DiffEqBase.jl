@@ -60,6 +60,13 @@ end
 Base.print(A::DEIntegrator) = print(STDOUT,A)
 Base.println(A::DEIntegrator) = println(STDOUT,A)
 
+# Juno Rendering
+
+Juno.@render Juno.Inline x::DEIntegrator begin
+  fields = fieldnames(typeof(x))
+  Juno.LazyTree(typeof(x), () -> [Juno.SubTree(Juno.Text("$f → "), Juno.getfield′(x, f)) for f in fields])
+end
+
 ### Abstract Interface
 
 immutable IntegratorTuples{I}
