@@ -15,65 +15,65 @@ import RecursiveArrayTools: recursivecopy!, tuples
 import RecursiveArrayTools: chain
 
 # Problems
-@compat abstract type DEProblem end
-@compat abstract type DEElement end
-@compat abstract type DESensitivity end
+abstract type DEProblem end
+abstract type DEElement end
+abstract type DESensitivity end
 
 export DEProblem, DEElement, DESensitivity
 
-@compat abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem end
+abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem end
 
 export AbstractSteadyStateProblem
 
-@compat abstract type AbstractNoiseProblem <: DEProblem end
+abstract type AbstractNoiseProblem <: DEProblem end
 
 export AbstractNoiseProblem
 
-@compat abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem end
-@compat abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
+abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem end
+abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
                       AbstractODEProblem{uType,tType,isinplace} end
 
 export AbstractODEProblem, AbstractDiscreteProblem
 
-@compat abstract type AbstractRODEProblem{uType,tType,isinplace,ND} <: DEProblem end
+abstract type AbstractRODEProblem{uType,tType,isinplace,ND} <: DEProblem end
 
 export AbstractRODEProblem
 
-@compat abstract type AbstractSDEProblem{uType,tType,isinplace,ND} <:
+abstract type AbstractSDEProblem{uType,tType,isinplace,ND} <:
                       AbstractRODEProblem{uType,tType,isinplace,ND} end
 
 export AbstractSDEProblem
 
-@compat abstract type AbstractDAEProblem{uType,duType,tType,isinplace} <: DEProblem end
+abstract type AbstractDAEProblem{uType,duType,tType,isinplace} <: DEProblem end
 
 export AbstractDAEProblem
 
-@compat abstract type AbstractDDEProblem{uType,tType,lType,isinplace} <: DEProblem end
-@compat abstract type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace} <:
+abstract type AbstractDDEProblem{uType,tType,lType,isinplace} <: DEProblem end
+abstract type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace} <:
                       AbstractDDEProblem{uType,tType,lType,isinplace} end
 
 export AbstractDDEProblem,
        AbstractConstantLagDDEProblem
 
-@compat abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
+abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
 
 export AbstractSecondOrderODEProblem
 
 # Algorithms
-@compat abstract type DEAlgorithm end
-@compat abstract type AbstractSteadyStateAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractODEAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractSplitODEAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractPartitionedODEAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractSecondOrderODEAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractSplitDAEAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractPartitionedDAEAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractSplitConstrainedODEAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractPartitionedConstrainedODEAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractRODEAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractSDEAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractDAEAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractDDEAlgorithm <: DEAlgorithm end
+abstract type DEAlgorithm end
+abstract type AbstractSteadyStateAlgorithm <: DEAlgorithm end
+abstract type AbstractODEAlgorithm <: DEAlgorithm end
+abstract type AbstractSplitODEAlgorithm <: DEAlgorithm end
+abstract type AbstractPartitionedODEAlgorithm <: DEAlgorithm end
+abstract type AbstractSecondOrderODEAlgorithm <: DEAlgorithm end
+abstract type AbstractSplitDAEAlgorithm <: DEAlgorithm end
+abstract type AbstractPartitionedDAEAlgorithm <: DEAlgorithm end
+abstract type AbstractSplitConstrainedODEAlgorithm <: DEAlgorithm end
+abstract type AbstractPartitionedConstrainedODEAlgorithm <: DEAlgorithm end
+abstract type AbstractRODEAlgorithm <: DEAlgorithm end
+abstract type AbstractSDEAlgorithm <: DEAlgorithm end
+abstract type AbstractDAEAlgorithm <: DEAlgorithm end
+abstract type AbstractDDEAlgorithm <: DEAlgorithm end
 
 export DEAlgorithm, AbstractSteadyStateAlgorithm, AbstractODEAlgorithm,
        AbstractSplitODEAlgorithm,
@@ -82,31 +82,32 @@ export DEAlgorithm, AbstractSteadyStateAlgorithm, AbstractODEAlgorithm,
        AbstractDAEAlgorithm, AbstractDDEAlgorithm
 
 # Monte Carlo Simulations
-@compat abstract type AbstractMonteCarloProblem <: DEProblem end
-@compat abstract type AbstractMonteCarloEstimator <: DEProblem end
+abstract type AbstractMonteCarloProblem <: DEProblem end
+abstract type AbstractMonteCarloEstimator <: DEProblem end
 
 export AbstractMonteCarloProblem, MonteCarloProblem
 export MonteCarloSolution, MonteCarloTestSolution, MonteCarloSummary
 export AbstractMonteCarloEstimator
 
-@compat abstract type DEOptions end
-@compat abstract type DECache end
-@compat abstract type DECallback end
-@compat abstract type DEDataArray{T} <: AbstractVector{T} end
+abstract type AbstractDiffEqInterpolation <: Function end
+abstract type DEOptions end
+abstract type DECache end
+abstract type DECallback end
+abstract type DEDataArray{T} <: AbstractVector{T} end
 
-export DEOptions, DECache, DECallback, DEDataArray
+export AbstractDiffEqInterpolation, DEOptions, DECache, DECallback, DEDataArray
 
 # Integrators
-@compat abstract type DEIntegrator end
-@compat abstract type AbstractSteadyStateIntegrator <: DEIntegrator end
-@compat abstract type AbstractODEIntegrator <: DEIntegrator end
-@compat abstract type AbstractSplitODEIntegrator <: DEIntegrator end
-@compat abstract type AbstractPartitionedODEIntegrator <: DEIntegrator end
-@compat abstract type AbstractSecondOrderODEIntegrator <: DEIntegrator end
-@compat abstract type AbstractRODEIntegrator <: DEIntegrator end
-@compat abstract type AbstractSDEIntegrator <: DEIntegrator end
-@compat abstract type AbstractDDEIntegrator <: DEIntegrator end
-@compat abstract type AbstractDAEIntegrator <: DEIntegrator end
+abstract type DEIntegrator end
+abstract type AbstractSteadyStateIntegrator <: DEIntegrator end
+abstract type AbstractODEIntegrator <: DEIntegrator end
+abstract type AbstractSplitODEIntegrator <: DEIntegrator end
+abstract type AbstractPartitionedODEIntegrator <: DEIntegrator end
+abstract type AbstractSecondOrderODEIntegrator <: DEIntegrator end
+abstract type AbstractRODEIntegrator <: DEIntegrator end
+abstract type AbstractSDEIntegrator <: DEIntegrator end
+abstract type AbstractDDEIntegrator <: DEIntegrator end
+abstract type AbstractDAEIntegrator <: DEIntegrator end
 
 export DEIntegrator, AbstractODEIntegrator, AbstractSplitODEIntegrator,
        AbstractPartitionedODEIntegrator, AbstractSecondOrderODEIntegrator,
@@ -114,24 +115,24 @@ export DEIntegrator, AbstractODEIntegrator, AbstractSplitODEIntegrator,
        AbstractDDEIntegrator, AbstractDAEIntegrator
 
 # Solutions
-@compat abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N} end
-@compat abstract type AbstractTimeseriesSolution{T,N} <: AbstractVectorOfArray{T,N} end
-@compat abstract type AbstractMonteCarloSolution{T,N} <: AbstractVectorOfArray{T,N} end
-@compat abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractVectorOfArray{T,N} end
+abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N} end
+abstract type AbstractTimeseriesSolution{T,N} <: AbstractDiffEqArray{T,N} end
+abstract type AbstractMonteCarloSolution{T,N} <: AbstractVectorOfArray{T,N} end
+abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractVectorOfArray{T,N} end
 
 const DESolution = Union{AbstractTimeseriesSolution,AbstractNoTimeSolution,AbstractMonteCarloSolution,AbstractNoiseProcess}
 export DESolution, AbstractTimeseriesSolution, AbstractSteadyStateSolution,AbstractNoTimeSolution,AbstractNoiseProcess
 
-@compat abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} end
-@compat abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
+abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} end
+abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
 
 export AbstractODESolution
 
 # Needed for plot recipes
-@compat abstract type AbstractDDESolution{T,N} <: AbstractODESolution{T,N} end
-@compat abstract type AbstractRODESolution{T,N} <: AbstractODESolution{T,N} end
-@compat abstract type AbstractDAESolution{T,N} <: AbstractODESolution{T,N} end
-@compat abstract type AbstractSensitivitySolution{T,N} end
+abstract type AbstractDDESolution{T,N} <: AbstractODESolution{T,N} end
+abstract type AbstractRODESolution{T,N} <: AbstractODESolution{T,N} end
+abstract type AbstractDAESolution{T,N} <: AbstractODESolution{T,N} end
+abstract type AbstractSensitivitySolution{T,N} end
 
 export AbstractRODESolution,
        AbstractDAESolution,
@@ -139,14 +140,14 @@ export AbstractRODESolution,
        AbstractSensitivitySolution, AbstractMonteCarloSolution
 
 # Misc
-@compat abstract type Tableau end
-@compat abstract type ODERKTableau <: Tableau end
-@compat abstract type DECostFunction end
+abstract type Tableau end
+abstract type ODERKTableau <: Tableau end
+abstract type DECostFunction end
 
 export Tableau, ODERKTableau, DECostFunction
 
-@compat abstract type AbstractParameterizedFunction{isinplace} <: Function end
-@compat abstract type ConstructedParameterizedFunction{isinplace} <: AbstractParameterizedFunction{isinplace} end
+abstract type AbstractParameterizedFunction{isinplace} <: Function end
+abstract type ConstructedParameterizedFunction{isinplace} <: AbstractParameterizedFunction{isinplace} end
 export AbstractParameterizedFunction, ConstructedParameterizedFunction
 
 include("utils.jl")

@@ -14,15 +14,61 @@ Base.setindex!(A::AbstractNoTimeSolution, v, i::Int) = (A.u[i] = v)
 Base.setindex!{N}(A::AbstractNoTimeSolution, v, I::Vararg{Int, N}) = (A.u[I] = v)
 size(A::AbstractNoTimeSolution) = size(A.u)
 
-Base.show(io::IO, A::AbstractNoTimeSolution) =
-           invoke(show, Tuple{typeof(io), Any}, io, A)
-Base.show(io::IO, ::MIME"text/plain", A::AbstractNoTimeSolution) = show(io, A)
+Base.summary(A::AbstractNoTimeSolution) = string("NoTime Solution with uType ",eltype(A.u))
+Base.show(io::IO, A::AbstractNoTimeSolution) = (print(io,"u: ");show(io, A.u))
+Base.show(io::IO, m::MIME"text/plain", A::AbstractNoTimeSolution) = (print(io,"u: ");show(io,m,A.u))
 
 ## AbstractTimeseriesSolution Interface
 
-Base.show(io::IO, A::AbstractTimeseriesSolution) =
-           invoke(show, Tuple{typeof(io), Any}, io, A)
-Base.show(io::IO, ::MIME"text/plain", A::AbstractTimeseriesSolution) = show(io, A)
+Base.summary(A::AbstractTimeseriesSolution) = string("Timeseries Solution with uType ",eltype(A.u)," and tType ",eltype(A.t))
+function Base.show(io::IO, A::AbstractTimeseriesSolution)
+  println(io,string("retcode: ",A.retcode))
+  println(io,string("Interpolation: "),interp_summary(A.interp))
+  print(io,"t: ")
+  show(io, A.t)
+  println(io)
+  print(io,"u: ")
+  show(io, A.u)
+end
+function Base.show(io::IO, m::MIME"text/plain", A::AbstractTimeseriesSolution)
+  println(io,string("retcode: ",A.retcode))
+  println(io,string("Interpolation: "),interp_summary(A.interp))
+  print(io,"t: ")
+  show(io,m,A.t)
+  println(io)
+  print(io,"u: ")
+  show(io,m,A.u)
+end
+function Base.display(A::AbstractTimeseriesSolution)
+  println(summary(A))
+  println(string("retcode: ",A.retcode))
+  println(string("Interpolation: "),interp_summary(A.interp))
+  println("t:")
+  display(A.t)
+  println("u:")
+  display(A.u)
+  nothing
+end
+function Base.print(io::IO,A::AbstractTimeseriesSolution)
+  println(io,string("Retcode: ",A.retcode))
+  println(io,string("Interpolation: "),interp_summary(A.interp))
+  println(io,string("t: ",summary(A.t)))
+  Base.showarray(IOContext(io, :limit => true),reshape(A.t,1,:),false;header=false)
+  println(io)
+  println(io,string("u: ",summary(A.u)))
+  Base.showarray(IOContext(io, :limit => true),A.u,false;header=false)
+end
+function Base.println(io::IO,A::AbstractTimeseriesSolution)
+  println(io,string("Retcode: ",A.retcode))
+  println(io,string("Interpolation: "),interp_summary(A.interp))
+  println(io,string("t: ",summary(A.t)))
+  Base.showarray(IOContext(io, :limit => true),reshape(A.t,1,:),false;header=false)
+  println(io)
+  println(io,string("u: ",summary(A.u)))
+  Base.showarray(IOContext(io, :limit => true),A.u,false;header=false)
+end
+Base.print(A::AbstractTimeseriesSolution) = print(STDOUT,A)
+Base.println(A::AbstractTimeseriesSolution) = println(STDOUT,A)
 
 tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.t,sol.u)
 

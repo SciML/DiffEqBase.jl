@@ -27,6 +27,39 @@ function addat!(a::AbstractArray,idxs,val=zeros(length(idxs)))
   splice!(a,flip_range,val)
 end
 
+### Display
+
+Base.summary(I::DEIntegrator) = string("Integrator with uType ",typeof(I.u)," and tType ",typeof(I.t))
+function Base.show(io::IO, A::DEIntegrator)
+  println(io,string("t: ",A.t))
+  print(io,"u: ")
+  show(io, A.u)
+end
+function Base.show(io::IO, m::MIME"text/plain", A::DEIntegrator)
+  println(io,string("t: ",A.t))
+  print(io,"u: ")
+  show(io,m,A.u)
+end
+function Base.display(A::DEIntegrator)
+  println(summary(A))
+  println(string("t: ",A.t))
+  println("u:")
+  display(A.u)
+  nothing
+end
+function Base.print(io::IO,A::DEIntegrator)
+  println(io,string("t: ",A.t))
+  println(io,string("u: ",summary(A.u)))
+  Base.showarray(IOContext(io, :limit => true),A.u,false;header=false)
+end
+function Base.println(io::IO,A::DEIntegrator)
+  println(io,string("t: ",A.t))
+  println(io,string("u: ",summary(A.u)))
+  Base.showarray(IOContext(io, :limit => true),A.u,false;header=false)
+end
+Base.print(A::DEIntegrator) = print(STDOUT,A)
+Base.println(A::DEIntegrator) = println(STDOUT,A)
+
 ### Abstract Interface
 
 immutable IntegratorTuples{I}

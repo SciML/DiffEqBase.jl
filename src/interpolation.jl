@@ -1,13 +1,17 @@
-immutable HermiteInterpolation{T1,T2,T3}
+immutable HermiteInterpolation{T1,T2,T3} <: AbstractDiffEqInterpolation
   t::T1
   u::T2
   du::T3
 end
 
-immutable LinearInterpolation{T1,T2}
+immutable LinearInterpolation{T1,T2} <: AbstractDiffEqInterpolation
   t::T1
   u::T2
 end
+
+interp_summary(::AbstractDiffEqInterpolation) = "Unknown"
+interp_summary(::HermiteInterpolation) = "Third Order Hermite"
+interp_summary(::LinearInterpolation) = "First Order Linear"
 
 (id::HermiteInterpolation)(tvals,idxs,deriv) = interpolation(tvals,id,idxs,deriv)
 (id::HermiteInterpolation)(val,tvals,idxs,deriv) = interpolation!(val,tvals,id,idxs,deriv)
