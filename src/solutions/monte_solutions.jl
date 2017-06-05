@@ -44,6 +44,30 @@ function calculate_monte_errors(sim::AbstractMonteCarloSolution)
   return MonteCarloTestSolution(sim,errors,error_means,error_medians,sim.converged)
 end
 
+### Displays
+
+Base.summary(A::AbstractMonteCarloSolution) = string("MonteCarloSolution Solution of length ",length(A.u)," with uType:\n",eltype(A.u))
+function Base.show(io::IO, A::AbstractMonteCarloSolution)
+  print(io,summary(A))
+end
+function Base.show(io::IO, m::MIME"text/plain", A::AbstractMonteCarloSolution)
+  print(io,summary(A))
+end
+function Base.display(A::AbstractMonteCarloSolution)
+  print(summary(A))
+  nothing
+end
+function Base.print(io::IO,A::AbstractMonteCarloSolution)
+  show(io,A)
+end
+function Base.println(io::IO,A::AbstractMonteCarloSolution)
+  show(io,A)
+end
+Base.print(A::AbstractMonteCarloSolution) = print(STDOUT,A)
+Base.println(A::AbstractMonteCarloSolution) = println(STDOUT,A)
+
+### Plot Recipes
+
 @recipe function f(sim::AbstractMonteCarloSolution;
                    idxs = typeof(sim.u)<:AbstractArray ? eachindex(sim.u) : 1)
   for i in idxs
