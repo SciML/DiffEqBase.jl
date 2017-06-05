@@ -2,8 +2,7 @@ __precompile__()
 
 module DiffEqBase
 
-using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat,
-      Juno, StaticArrays
+using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat, Juno
 
 import Base: length, ndims, size, getindex, setindex!, endof, show, print,
              next, start, done, eltype, eachindex, similar
