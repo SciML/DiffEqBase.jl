@@ -27,11 +27,11 @@ interp_summary(::LinearInterpolation) = "1st order linear"
   tvals[idx[end]] > t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
   tvals[idx[1]] < t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   if typeof(idxs) <: Number
-    vals = Vector{eltype(first(timeseries))}(length(tvals))
+    vals = Vector{eltype(first(u))}(length(tvals))
   elseif typeof(idxs) <: AbstractVector
-     vals = Vector{Vector{eltype(first(timeseries))}}(length(tvals))
+     vals = Vector{Vector{eltype(first(u))}}(length(tvals))
   else
-    vals = Vector{eltype(timeseries)}(length(tvals))
+    vals = Vector{eltype(u)}(length(tvals))
   end
   @inbounds for j in idx
     tval = tvals[j]
