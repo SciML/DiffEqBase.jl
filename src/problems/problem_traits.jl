@@ -66,3 +66,11 @@ function Base.println(io::IO,A::DEProblem)
 end
 Base.print(A::DEProblem) = print(STDOUT,A)
 Base.println(A::DEProblem) = println(STDOUT,A)
+
+Base.summary(prob::AbstractMonteCarloProblem) = string(DiffEqBase.parameterless_type(prob)," with problem ",DiffEqBase.parameterless_type(prob.prob))
+function Base.show(io::IO, A::AbstractMonteCarloProblem)
+  println(io,summary(A))
+end
+function Base.display(io::IO, A::AbstractMonteCarloProblem)
+  println(io,summary(A))
+end
