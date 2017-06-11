@@ -2,7 +2,7 @@ __precompile__()
 
 module DiffEqBase
 
-using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat, Juno
+using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat, Juno, LinearMaps
 
 import Base: length, ndims, size, getindex, setindex!, endof, show, print,
              next, start, done, eltype, eachindex, similar
@@ -174,6 +174,7 @@ include("callbacks.jl")
 include("integrator_interface.jl")
 include("parameters_interface.jl")
 include("constructed_parameterized_functions.jl")
+include("diffeq_operator.jl")
 include("linear_nonlinear.jl")
 include("common_defaults.jl")
 include("data_array.jl")
@@ -249,6 +250,8 @@ export white_noise_func_wrapper, white_noise_func_wrapper!
 export is_diagonal_noise, is_sparse_noise
 
 export LinSolveFactorize, DEFAULT_LINSOLVE
+
+export DiffEqArrayOperator
 
 export isautodifferentiable
 
