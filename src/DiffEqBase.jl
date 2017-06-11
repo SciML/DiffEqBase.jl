@@ -149,6 +149,9 @@ abstract type AbstractParameterizedFunction{isinplace} <: Function end
 abstract type ConstructedParameterizedFunction{isinplace} <: AbstractParameterizedFunction{isinplace} end
 export AbstractParameterizedFunction, ConstructedParameterizedFunction
 
+abstract type AbstractDiffEqOperator{T} <: AbstractLinearMap{T} end
+export AbstractDiffEqOperator
+
 include("utils.jl")
 include("extended_functions.jl")
 include("solutions/steady_state_solutions.jl")

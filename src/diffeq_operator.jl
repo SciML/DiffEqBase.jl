@@ -16,8 +16,6 @@
    and only for when the default linear solve is used.
 =#
 
-abstract type AbstractDiffEqOperator{T} <: AbstractLinearMap{T} end
-
 # Inherits the standard assumptions of an AbstractLinearMap
 # Extra standard assumptions
 is_constant(A::AbstractDiffEqOperator) = true
@@ -25,7 +23,6 @@ update_coefficients!(A,t,u) = nothing
 update_coefficients(A,t,u) = A
 
 # Generic fallbacks
-cache_expm!(A,t) = nothing
 Base.expm(A::AbstractDiffEqOperator,t) = expm(t*A)
 expmv(A::AbstractDiffEqOperator,t,u) = expm(t,A)*u
 expmv!(v,A::AbstractDiffEqOperator,t,u) = A_mul_B!(v,expm(t,A),u)
