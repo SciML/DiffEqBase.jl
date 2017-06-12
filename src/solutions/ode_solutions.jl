@@ -16,7 +16,8 @@ end
 
 function build_solution(
         prob::Union{AbstractODEProblem,AbstractDDEProblem},
-        alg,t,u;dense=false,timeseries_errors=true,dense_errors=true,
+        alg,t,u;timeseries_errors=length(u)>2,
+        dense=false,dense_errors=dense,
         calculate_error = true,
         k=[],
         du=[],

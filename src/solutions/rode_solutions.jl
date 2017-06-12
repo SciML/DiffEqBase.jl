@@ -18,9 +18,10 @@ end
 
 function build_solution(
         prob::AbstractRODEProblem,
-        alg,t,u;W=[],timeseries_errors=true,dense_errors=false,calculate_error=true,
+        alg,t,u;W=[],timeseries_errors = length(u) > 2,
+        dense = false,dense_errors=dense,calculate_error=true,
         interp = LinearInterpolation(t,u),
-        dense = false, retcode = :Default, kwargs...)
+        retcode = :Default, kwargs...)
 
   T = eltype(eltype(u))
   if typeof(prob.u0) <: Tuple
@@ -54,7 +55,8 @@ function build_solution(
   end
 end
 
-function calculate_solution_errors!(sol::AbstractRODESolution;fill_uanalytic=true,timeseries_errors=true,dense_errors=true)
+function calculate_solution_errors!(sol::AbstractRODESolution;fill_uanalytic=true,
+                                    timeseries_errors=true,dense_errors=true)
 
   if typeof(sol.prob.f) <: Tuple
     f = sol.prob.f[1]
@@ -68,22 +70,33 @@ function calculate_solution_errors!(sol::AbstractRODESolution;fill_uanalytic=tru
     end
   end
 
-  save_everystep = length(sol.u) > 2
-
   if !isempty(sol.u_analytic)
     sol.errors[:final] = recursive_mean(abs.(sol.u[end]-sol.u_analytic[end]))
-    if save_everystep && timeseries_errors
+    if timeseries_errors
       sol.errors[:l∞] = maximum(vecvecapply((x)->abs.(x),sol.u-sol.u_analytic))
       sol.errors[:l2] = sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic)))
+    end
+    if dense_errors
+      densetimes = collect(linspace(sol.t[1],sol.t[end],100))
+      interp_u = sol(densetimes)
+      interp_analytic = [f(Val{:analytic},t,sol.u[1],sol.W(t)[1]) for t in densetimes]
+      sol.errors[:L∞] = maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic))
+      sol.errors[:L2] = sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,interp_u-interp_analytic)))
     end
   end
 end
 
 function build_solution(sol::AbstractRODESolution,u_analytic,errors)
   T = eltype(eltype(sol.u))
-  N = length(size(sol.u[1])..., length(sol.u))
+
+  if typeof(sol.u) <: Tuple
+    N = length((size(ArrayPartition(sol.u))..., length(sol.u)))
+  else
+    N = length((size(sol.u[1])..., length(sol.u)))
+  end
+
   RODESolution{T,N,typeof(sol.u),typeof(u_analytic),typeof(errors),typeof(sol.t),
                typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
-               sol.u,u_analytic,errors,sol.t,sol.W,sol.prob,sol.alg,
+               sol.u,u_analytic,errors,sol.t,sol.W,sol.prob,sol.alg,sol.interp,
                sol.dense,sol.tslocation,sol.retcode)
 end

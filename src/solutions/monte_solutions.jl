@@ -1,13 +1,17 @@
 type MonteCarloTestSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
   u::S
   errors::Dict{Symbol,Vector{T}}
+  weak_errors::Dict{Symbol,T}
   error_means::Dict{Symbol,T}
   error_medians::Dict{Symbol,T}
   elapsedTime::Float64
   converged::Bool
 end
-function MonteCarloTestSolution{T,N}(sim::AbstractMonteCarloSolution{T,N},errors,error_means,error_medians,converged)
-  MonteCarloTestSolution{T,N,typeof(sim.u)}(sim.u,errors,error_means,error_medians,sim.elapsedTime,sim.converged)
+function MonteCarloTestSolution{T,N}(sim::AbstractMonteCarloSolution{T,N},errors,weak_errors,error_means,error_medians,elapsedTime,converged)
+  MonteCarloTestSolution{T,N,typeof(sim.u)}(sim.u,errors,weak_errors,error_means,error_medians,sim.elapsedTime,sim.converged)
+end
+function MonteCarloTestSolution(u,errors,weak_errors,error_means,error_medians,elapsedTime,converged)
+  MonteCarloTestSolution(MonteCarloSolution(u,elapsedTime,converged),errors,weak_errors,error_means,error_medians,elapsedTime,converged)
 end
 
 type MonteCarloSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
@@ -31,8 +35,12 @@ type MonteCarloSummary{T,N,Tt,S,S2,S3,S4} <: AbstractMonteCarloSolution{T,N}
   converged::Bool
 end
 
-function calculate_monte_errors(sim::AbstractMonteCarloSolution)
-  u = sim.u
+function calculate_monte_errors(sim::AbstractMonteCarloSolution;kwargs...)
+  calculate_monte_errors(sim.u;elapsedTime=sim.elapsedTime,converged=sim.converged,kwargs...)
+end
+
+function calculate_monte_errors(u;elapsedTime=0.0,converged=false,
+                                weak_timeseries_errors=false,weak_dense_errors=false)
   errors = Dict{Symbol,Vector{eltype(u[1].u[1])}}() #Should add type information
   error_means  = Dict{Symbol,eltype(u[1].u[1])}()
   error_medians= Dict{Symbol,eltype(u[1].u[1])}()
@@ -41,7 +49,32 @@ function calculate_monte_errors(sim::AbstractMonteCarloSolution)
     error_means[k] = mean(errors[k])
     error_medians[k]=median(errors[k])
   end
-  return MonteCarloTestSolution(sim,errors,error_means,error_medians,sim.converged)
+  # Now Calculate Weak Errors
+  weak_errors =  Dict{Symbol,eltype(u[1].u[1])}()
+  # Final
+  m_final = mean([s[end] for s in u])
+  m_final_analytic = mean([s.u_analytic[end] for s in u])
+  res = norm(m_final - m_final_analytic)
+  weak_errors[:weak_final] = res
+  if weak_timeseries_errors
+    ts_weak_errors = [mean([u[j][i] - u[j].u_analytic[i] for j in 1:length(u)]) for i in 1:length(u[1])]
+    ts_l2_errors = [sqrt.(sum(abs2,err)/length(err)) for err in ts_weak_errors]
+    l2_tmp = sqrt(sum(abs2,ts_l2_errors)/length(ts_l2_errors))
+    max_tmp = maximum([maximum(abs.(err)) for err in ts_weak_errors])
+    weak_errors[:weak_l2] = l2_tmp
+    weak_errors[:weak_l∞] = max_tmp
+  end
+  if weak_dense_errors
+    densetimes = collect(linspace(u[1].t[1],u[1].t[end],100))
+    u_analytic = [[sol.prob.f(Val{:analytic},densetimes[i],sol.prob.u0,sol.W(densetimes[i])[1]) for i in eachindex(densetimes)] for sol in u]
+    dense_weak_errors = [mean([u[j](densetimes)[i] - u_analytic[j][i] for j in 1:length(u)]) for i in eachindex(densetimes)]
+    dense_L2_errors = [sqrt.(sum(abs2,err)/length(err)) for err in dense_weak_errors]
+    L2_tmp = sqrt(sum(abs2,dense_L2_errors)/length(dense_L2_errors))
+    max_tmp = maximum([maximum(abs.(err)) for err in dense_weak_errors])
+    weak_errors[:weak_L2] = L2_tmp
+    weak_errors[:weak_L∞] = max_tmp
+  end
+  return MonteCarloTestSolution(u,errors,weak_errors,error_means,error_medians,elapsedTime,converged)
 end
 
 ### Displays

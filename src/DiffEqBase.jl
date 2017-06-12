@@ -89,12 +89,12 @@ export MonteCarloSolution, MonteCarloTestSolution, MonteCarloSummary
 export AbstractMonteCarloEstimator
 
 abstract type AbstractDiffEqInterpolation <: Function end
-abstract type DEOptions end
+abstract type AbstractDEOptions end
 abstract type DECache end
 abstract type DECallback end
 abstract type DEDataArray{T} <: AbstractVector{T} end
 
-export AbstractDiffEqInterpolation, DEOptions, DECache, DECallback, DEDataArray
+export AbstractDiffEqInterpolation, AbstractDEOptions, DECache, DECallback, DEDataArray
 
 # Integrators
 abstract type DEIntegrator end
