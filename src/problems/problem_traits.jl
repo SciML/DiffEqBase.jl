@@ -5,6 +5,7 @@ isinplace{uType,iip}(prob::AbstractSteadyStateProblem{uType,iip}) = iip
 isinplace{uType,tType,iip,ND}(prob::AbstractRODEProblem{uType,tType,iip,ND}) = iip
 isinplace{uType,tType,lType,iip}(prob::AbstractDDEProblem{uType,tType,lType,iip}) = iip
 isinplace{uType,duType,tType,iip}(prob::AbstractDAEProblem{uType,duType,tType,iip}) = iip
+isinplace(prob::AbstractNoiseProblem) = isinplace(prob.noise)
 
 ### Displays
 
@@ -15,6 +16,7 @@ end
 
 Base.summary(prob::DEProblem) = string(parameterless_type(prob)," with uType ",typeof(prob.u0)," and tType ",typeof(prob.tspan[1]),". In-place: ",isinplace(prob))
 Base.summary{uType,iip}(prob::AbstractSteadyStateProblem{uType,iip}) = string(parameterless_type(prob)," with uType ",uType)
+Base.summary(prob::AbstractNoiseProblem) = string(parameterless_type(prob)," with WType ",typeof(prob.noise.W[1])," and tType ",typeof(prob.tspan[1]),". In-place: ",isinplace(prob))
 function Base.show(io::IO, A::DEProblem)
   println(io,summary(A))
   print(io,"timespan: ")
@@ -22,6 +24,12 @@ function Base.show(io::IO, A::DEProblem)
   println(io)
   print(io,"u0: ")
   show(io, A.u0)
+end
+function Base.show(io::IO, A::AbstractNoiseProblem)
+  println(io,summary(A))
+  print(io,"timespan: ")
+  show(io,A.tspan)
+  println(io)
 end
 function Base.show(io::IO, A::AbstractDAEProblem)
   println(io,summary(A))
@@ -46,6 +54,12 @@ function Base.display(io::IO, A::DEProblem)
   println(io)
   print(io,"u0: ")
   display(io, A.u0)
+end
+function Base.display(io::IO, A::AbstractNoiseProblem)
+  println(io,summary(A))
+  print(io,"timespan: ")
+  display(io,A.tspan)
+  println(io)
 end
 function Base.display(io::IO, A::AbstractDAEProblem)
   println(io,summary(A))
