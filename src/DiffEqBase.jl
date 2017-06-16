@@ -117,7 +117,7 @@ export DEIntegrator, AbstractODEIntegrator, AbstractSplitODEIntegrator,
 abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N} end
 abstract type AbstractTimeseriesSolution{T,N} <: AbstractDiffEqArray{T,N} end
 abstract type AbstractMonteCarloSolution{T,N} <: AbstractVectorOfArray{T,N} end
-abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractVectorOfArray{T,N} end
+abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractDiffEqArray{T,N} end
 
 const DESolution = Union{AbstractTimeseriesSolution,AbstractNoTimeSolution,AbstractMonteCarloSolution,AbstractNoiseProcess}
 export DESolution, AbstractTimeseriesSolution, AbstractSteadyStateSolution,AbstractNoTimeSolution,AbstractNoiseProcess
