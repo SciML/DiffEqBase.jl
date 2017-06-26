@@ -12,6 +12,7 @@ type RODESolution{T,N,uType,uType2,DType,tType,randType,P,A,IType} <: AbstractRO
   dense::Bool
   tslocation::Int
   retcode::Symbol
+  seed::UInt64
 end
 (sol::RODESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
 (sol::RODESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
@@ -21,7 +22,8 @@ function build_solution(
         alg,t,u;W=[],timeseries_errors = length(u) > 2,
         dense = false,dense_errors=dense,calculate_error=true,
         interp = LinearInterpolation(t,u),
-        retcode = :Default, kwargs...)
+        retcode = :Default,
+        seed = UInt64(0), kwargs...)
 
   T = eltype(eltype(u))
   if typeof(prob.u0) <: Tuple
@@ -41,7 +43,7 @@ function build_solution(
     errors = Dict{Symbol,eltype(prob.u0)}()
     sol = RODESolution{T,N,typeof(u),typeof(u_analytic),typeof(errors),typeof(t),typeof(W),
                        typeof(prob),typeof(alg),typeof(interp)}(
-                       u,u_analytic,errors,t,W,prob,alg,interp,dense,0,retcode)
+                       u,u_analytic,errors,t,W,prob,alg,interp,dense,0,retcode,seed)
 
     if calculate_error
       calculate_solution_errors!(sol;timeseries_errors=timeseries_errors,dense_errors=dense_errors)
@@ -51,7 +53,7 @@ function build_solution(
   else
     return RODESolution{T,N,typeof(u),Void,Void,typeof(t),
                         typeof(W),typeof(prob),typeof(alg),typeof(interp)}(
-                        u,nothing,nothing,t,W,prob,alg,interp,dense,0,retcode)
+                        u,nothing,nothing,t,W,prob,alg,interp,dense,0,retcode,seed)
   end
 end
 
@@ -98,5 +100,5 @@ function build_solution(sol::AbstractRODESolution,u_analytic,errors)
   RODESolution{T,N,typeof(sol.u),typeof(u_analytic),typeof(errors),typeof(sol.t),
                typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
                sol.u,u_analytic,errors,sol.t,sol.W,sol.prob,sol.alg,sol.interp,
-               sol.dense,sol.tslocation,sol.retcode)
+               sol.dense,sol.tslocation,sol.retcode,sol.seed)
 end
