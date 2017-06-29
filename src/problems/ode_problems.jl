@@ -54,6 +54,7 @@ function SecondOrderODEProblem(f,u0,du0,tspan; iip = isinplace(f,4),callback=not
       v
     end
   end
+  (::typeof(f1))(::Type{Val{:analytic}},t,u0) = f(Val{:analytic},t,u0)
   _f = (f1,f)
   _u0 = (u0,du0)
   _mass_matrix = (mass_matrix,I)
