@@ -67,8 +67,6 @@ abstract type AbstractPartitionedODEAlgorithm <: DEAlgorithm end
 abstract type AbstractSecondOrderODEAlgorithm <: DEAlgorithm end
 abstract type AbstractSplitDAEAlgorithm <: DEAlgorithm end
 abstract type AbstractPartitionedDAEAlgorithm <: DEAlgorithm end
-abstract type AbstractSplitConstrainedODEAlgorithm <: DEAlgorithm end
-abstract type AbstractPartitionedConstrainedODEAlgorithm <: DEAlgorithm end
 abstract type AbstractRODEAlgorithm <: DEAlgorithm end
 abstract type AbstractSDEAlgorithm <: DEAlgorithm end
 abstract type AbstractDAEAlgorithm <: DEAlgorithm end
@@ -226,8 +224,7 @@ export SplitODEProblem, PartitionedODEProblem, SecondOrderODEProblem
 export RODEProblem, RODESolution, SDEProblem
 export SplitSDEProblem, PartitionedSDEProblem, SecondOrderSDEProblem
 export DAEProblem, DAESolution
-export SplitDAEProblem, PartitionedDAEProblem, ConstrainedODEProblem,
-       SplitConstrainedODEProblem, PartitionedConstrainedODEProblem
+export SplitDAEProblem, PartitionedDAEProblem
 export ConstantLagDDEProblem, DDEProblem
 
 export ParameterizedFunction, DAEParameterizedFunction, DDEParameterizedFunction,
