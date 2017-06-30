@@ -10,7 +10,8 @@ type SDEProblem{uType,tType,isinplace,NP,F,G,C,MM,ND} <: AbstractSDEProblem{uTyp
   seed::UInt64
 end
 
-function SDEProblem(f,g,u0,tspan;iip = isinplace(f,3),
+function SDEProblem(f,g,u0,tspan;
+        iip = typeof(f)<: Tuple ? isinplace(f[2],3) : isinplace(f,3),
         noise_rate_prototype = nothing,
         noise= nothing, seed = UInt64(0),
         callback = nothing,mass_matrix=I)

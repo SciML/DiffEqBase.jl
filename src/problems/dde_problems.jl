@@ -8,7 +8,9 @@ type ConstantLagDDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractCons
   mass_matrix::MM
 end
 
-function ConstantLagDDEProblem(f,h,u0,lags,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=I)
+function ConstantLagDDEProblem(f,h,u0,lags,tspan;
+  iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4),
+  callback = nothing,mass_matrix=I)
   ConstantLagDDEProblem{typeof(u0),promote_type(map(typeof,tspan)...),typeof(lags),iip,typeof(f),typeof(h),typeof(callback),typeof(mass_matrix)}(f,h,u0,lags,tspan,callback,mass_matrix)
 end
 
@@ -22,6 +24,8 @@ type DDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractDDEProblem{uTyp
   mass_matrix::MM
 end
 
-function DDEProblem(f,h,u0,lags,tspan; iip = isinplace(f,4), callback = nothing,mass_matrix=I)
+function DDEProblem(f,h,u0,lags,tspan;
+  iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4),
+  callback = nothing,mass_matrix=I)
   DDEProblem{typeof(u0),promote_type(map(typeof,tspan)...),typeof(lags),iip,typeof(f),typeof(h),typeof(callback),typeof(mass_matrix)}(f,h,u0,lags,tspan,callback,mass_matrix)
 end

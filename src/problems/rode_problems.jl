@@ -9,9 +9,10 @@ type RODEProblem{uType,tType,isinplace,NP,F,C,MM,ND} <: AbstractRODEProblem{uTyp
   seed::UInt64
 end
 
-function RODEProblem(f,u0,tspan; iip = isinplace(f,4),
-                      rand_prototype = nothing,
-                      noise= nothing, seed = UInt64(0),
+function RODEProblem(f,u0,tspan;
+                     iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4),
+                     rand_prototype = nothing,
+                     noise= nothing, seed = UInt64(0),
                      callback=nothing,mass_matrix=I)
   RODEProblem{typeof(u0),promote_type(map(typeof,tspan)...),
               iip,typeof(noise),typeof(f),typeof(callback),

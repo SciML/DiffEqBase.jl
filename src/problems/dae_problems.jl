@@ -8,7 +8,8 @@ type DAEProblem{uType,duType,tType,isinplace,F,C,D} <: AbstractDAEProblem{uType,
   differential_vars::D
 end
 
-function DAEProblem(f,u0,du0,tspan; iip = isinplace(f,4),
+function DAEProblem(f,u0,du0,tspan;
+                    iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4),
                     callback = nothing,
                     differential_vars = nothing)
   DAEProblem{typeof(u0),typeof(du0),promote_type(map(typeof,tspan)...),
