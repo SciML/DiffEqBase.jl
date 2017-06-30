@@ -38,8 +38,14 @@ function build_solution(
   end
 
   if has_analytic(f)
-    u_analytic = Vector{typeof(prob.u0)}(0)
-    errors = Dict{Symbol,eltype(prob.u0)}()
+    if !(typeof(prob.u0) <: Tuple)
+      u_analytic = Vector{typeof(prob.u0)}(0)
+      errors = Dict{Symbol,eltype(prob.u0)}()
+    else
+      u_analytic = Vector{typeof(ArrayPartition(prob.u0))}(0)
+      errors = Dict{Symbol,eltype(prob.u0[1])}()
+    end
+
     sol = ODESolution{T,N,typeof(u),typeof(u_analytic),typeof(errors),typeof(t),typeof(k),
                        typeof(prob),typeof(alg),typeof(interp)}(u,u_analytic,
                        errors,t,k,prob,alg,interp,dense,0,retcode)
@@ -70,7 +76,7 @@ function calculate_solution_errors!(sol::AbstractODESolution;fill_uanalytic=true
 
   save_everystep = length(sol.u) > 2
   if !isempty(sol.u_analytic)
-    sol.errors[:final] = recursive_mean(abs.(sol.u[end]-sol.u_analytic[end]))
+    sol.errors[:final] = recursive_mean(abs.(sol.u[end].-sol.u_analytic[end]))
 
     if save_everystep && timeseries_errors
       sol.errors[:l∞] = maximum(vecvecapply((x)->abs.(x),sol.u-sol.u_analytic))
