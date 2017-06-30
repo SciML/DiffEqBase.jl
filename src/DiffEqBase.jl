@@ -62,19 +62,14 @@ export AbstractSecondOrderODEProblem
 abstract type DEAlgorithm end
 abstract type AbstractSteadyStateAlgorithm <: DEAlgorithm end
 abstract type AbstractODEAlgorithm <: DEAlgorithm end
-abstract type AbstractSplitODEAlgorithm <: DEAlgorithm end
-abstract type AbstractPartitionedODEAlgorithm <: DEAlgorithm end
 abstract type AbstractSecondOrderODEAlgorithm <: DEAlgorithm end
-abstract type AbstractSplitDAEAlgorithm <: DEAlgorithm end
-abstract type AbstractPartitionedDAEAlgorithm <: DEAlgorithm end
 abstract type AbstractRODEAlgorithm <: DEAlgorithm end
 abstract type AbstractSDEAlgorithm <: DEAlgorithm end
 abstract type AbstractDAEAlgorithm <: DEAlgorithm end
 abstract type AbstractDDEAlgorithm <: DEAlgorithm end
 
 export DEAlgorithm, AbstractSteadyStateAlgorithm, AbstractODEAlgorithm,
-       AbstractSplitODEAlgorithm,
-       AbstractPartitionedODEAlgorithm, AbstractSecondOrderODEAlgorithm,
+       AbstractSecondOrderODEAlgorithm,
        AbstractRODEAlgorithm, AbstractSDEAlgorithm,
        AbstractDAEAlgorithm, AbstractDDEAlgorithm
 
@@ -98,16 +93,14 @@ export AbstractDiffEqInterpolation, AbstractDEOptions, DECache, DECallback, DEDa
 abstract type DEIntegrator end
 abstract type AbstractSteadyStateIntegrator <: DEIntegrator end
 abstract type AbstractODEIntegrator <: DEIntegrator end
-abstract type AbstractSplitODEIntegrator <: DEIntegrator end
-abstract type AbstractPartitionedODEIntegrator <: DEIntegrator end
 abstract type AbstractSecondOrderODEIntegrator <: DEIntegrator end
 abstract type AbstractRODEIntegrator <: DEIntegrator end
 abstract type AbstractSDEIntegrator <: DEIntegrator end
 abstract type AbstractDDEIntegrator <: DEIntegrator end
 abstract type AbstractDAEIntegrator <: DEIntegrator end
 
-export DEIntegrator, AbstractODEIntegrator, AbstractSplitODEIntegrator,
-       AbstractPartitionedODEIntegrator, AbstractSecondOrderODEIntegrator,
+export DEIntegrator, AbstractODEIntegrator,
+       AbstractSecondOrderODEIntegrator,
        AbstractRODEIntegrator, AbstractSDEIntegrator,
        AbstractDDEIntegrator, AbstractDAEIntegrator
 
@@ -117,8 +110,13 @@ abstract type AbstractTimeseriesSolution{T,N} <: AbstractDiffEqArray{T,N} end
 abstract type AbstractMonteCarloSolution{T,N} <: AbstractVectorOfArray{T,N} end
 abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractDiffEqArray{T,N} end
 
-const DESolution = Union{AbstractTimeseriesSolution,AbstractNoTimeSolution,AbstractMonteCarloSolution,AbstractNoiseProcess}
-export DESolution, AbstractTimeseriesSolution, AbstractSteadyStateSolution,AbstractNoTimeSolution,AbstractNoiseProcess
+const DESolution = Union{AbstractTimeseriesSolution,
+                         AbstractNoTimeSolution,
+                         AbstractMonteCarloSolution,
+                         AbstractNoiseProcess}
+export DESolution, AbstractTimeseriesSolution,
+       AbstractSteadyStateSolution,AbstractNoTimeSolution,
+       AbstractNoiseProcess
 
 abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} end
 abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
@@ -220,14 +218,14 @@ export DiscreteProblem
 export SteadyStateProblem, SteadyStateSolution
 export NoiseProblem
 export ODEProblem, ODESolution
-export SplitODEProblem, PartitionedODEProblem, SecondOrderODEProblem
+export SecondOrderODEProblem
 export RODEProblem, RODESolution, SDEProblem
-export SplitSDEProblem, PartitionedSDEProblem, SecondOrderSDEProblem
+export SecondOrderSDEProblem
 export DAEProblem, DAESolution
-export SplitDAEProblem, PartitionedDAEProblem
 export ConstantLagDDEProblem, DDEProblem
 
-export ParameterizedFunction, DAEParameterizedFunction, DDEParameterizedFunction,
+export ParameterizedFunction, DAEParameterizedFunction,
+       DDEParameterizedFunction,
        ProbParameterizedFunction, OutputParameterizedFunction
 
 export calculate_monte_errors
