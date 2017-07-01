@@ -63,7 +63,7 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
       end
     end
   end
-  vals
+  DiffEqArray(vals,tvals)
 end
 
 """
