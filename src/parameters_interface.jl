@@ -41,7 +41,7 @@ function problem_new_parameters(prob::ConstantLagDDEProblem,p)
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
-  DAEProblem(f,prob.h,u0,prob.lags,tspan)
+  ConstantLagDDEProblem(f,prob.h,u0,prob.lags,tspan)
 end
 param_values(prob::ConstantLagDDEProblem) = param_values(prob.f)
 num_params(prob::ConstantLagDDEProblem) = num_params(prob.f)
