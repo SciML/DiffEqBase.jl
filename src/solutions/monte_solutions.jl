@@ -22,7 +22,9 @@ end
 MonteCarloSolution{N}(sim, dims::NTuple{N},elapsedTime,converged) =
                   MonteCarloSolution{eltype(eltype(sim)), N, typeof(sim)}(sim,elapsedTime,converged)
 MonteCarloSolution(sim,elapsedTime,converged) =
-             MonteCarloSolution(sim, (size(sim[1])..., length(sim)),elapsedTime,converged)
+             MonteCarloSolution(sim, (length(sim),),elapsedTime,converged) # Vector of some type which is not an array
+MonteCarloSolution(sim::T,elapsedTime,converged) where T <: AbstractVector{T2} where T2 <: AbstractArray =
+             MonteCarloSolution(sim, (size(sim[1])..., length(sim)),elapsedTime,converged) # Requires `size` defined on `sim`
 
 type MonteCarloSummary{T,N,Tt,S,S2,S3,S4} <: AbstractMonteCarloSolution{T,N}
   t::Tt
