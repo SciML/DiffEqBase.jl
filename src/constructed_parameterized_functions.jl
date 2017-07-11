@@ -3,9 +3,8 @@ type ParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{is
   params::P
 end
 
-Base.@pure function ParameterizedFunction(f,p)
-  isinplace = numargs(f)>=4
-  ParameterizedFunction{isinplace,typeof(f),typeof(p)}(f,p)
+Base.@pure function ParameterizedFunction(f,p;iip = numargs(f)>=4)
+  ParameterizedFunction{iip,typeof(f),typeof(p)}(f,p)
 end
 
 (pf::ParameterizedFunction{true,F,P}){F,P}(t,u,du) = pf.f(t,u,pf.params,du)
@@ -18,9 +17,8 @@ type DAEParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction
   params::P
 end
 
-Base.@pure function DAEParameterizedFunction(f,p)
-  isinplace = numargs(f)>=5
-  DAEParameterizedFunction{isinplace,typeof(f),typeof(p)}(f,p)
+Base.@pure function DAEParameterizedFunction(f,p;iip=numargs(f)>=5)
+  DAEParameterizedFunction{iip,typeof(f),typeof(p)}(f,p)
 end
 
 (pf::DAEParameterizedFunction{true,F,P}){F,P}(t,u,du,out) = pf.f(t,u,pf.params,du,out)
@@ -33,9 +31,8 @@ type DDEParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction
   params::P
 end
 
-Base.@pure function DDEParameterizedFunction(f,p)
-  isinplace = numargs(f)>=5
-  DDEParameterizedFunction{isinplace,typeof(f),typeof(p)}(f,p)
+Base.@pure function DDEParameterizedFunction(f,p;iip=numargs(f)>=5)
+  DDEParameterizedFunction{iip,typeof(f),typeof(p)}(f,p)
 end
 
 (pf::DDEParameterizedFunction{true,F,P}){F,P}(t,u,h,du) = pf.f(t,u,h,pf.params,du)
