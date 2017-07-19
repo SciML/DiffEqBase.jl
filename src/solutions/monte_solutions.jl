@@ -116,6 +116,11 @@ end
 @recipe function f(sim::MonteCarloSummary;
                    idxs= typeof(sim.u[1])<:AbstractArray ? eachindex(sim.u[1]) : 1,
                    error_style=:ribbon,ci_type=:quantile)
+  if typeof(sim.u[1])<:AbstractArray
+    u = vecarr_to_vectors(sim.u)
+  else
+    u = [sim.u.u]
+  end
   if ci_type == :SEM
     if typeof(sim.u[1])<:AbstractArray
       ci_low = vecarr_to_vectors(VectorOfArray([sqrt(sim.v[i]/sim.num_monte).*1.96 for i in 1:length(sim.v)]))
@@ -134,11 +139,6 @@ end
     end
   else
     error("ci_type choice not valid. Must be :variance or :quantile")
-  end
-  if typeof(sim.u[1])<:AbstractArray
-    u = vecarr_to_vectors(sim.u)
-  else
-    u = [sim.u.u]
   end
   for i in idxs
     @series begin
