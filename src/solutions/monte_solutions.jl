@@ -126,11 +126,11 @@ end
     end
   elseif ci_type == :quantile
     if typeof(sim.u[1])<:AbstractArray
-      ci_low = vecarr_to_vectors(sim.qlow)
-      ci_high = vecarr_to_vectors(sim.qhigh)
+      ci_low = u - vecarr_to_vectors(sim.qlow) 
+      ci_high = vecarr_to_vectors(sim.qhigh) - u
     else
-      ci_low = [sim.qlow]
-      ci_high = [sim.qhigh]
+      ci_low = [u - sim.qlow]
+      ci_high = [sim.qhigh - u]
     end
   else
     error("ci_type choice not valid. Must be :variance or :quantile")
