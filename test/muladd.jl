@@ -28,3 +28,7 @@ using DiffEqBase, Base.Test
     :(function f(x, y, z) $(Base.muladd)(x, y, z) end)
 @test macroexpand(:(@muladd for i in 1:n z = x*i + y end)) ==
     :(for i in 1:n z = $(Base.muladd)(x, i, y) end)
+
+# Additional factors
+@test macroexpand(:(@muladd a*b*c+d)) == :($(Base.muladd)(a, b*c, d))
+@test macroexpand(:(@muladd a*b*c*d+e)) == :($(Base.muladd)(a, b*c*d, e))
