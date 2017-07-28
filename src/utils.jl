@@ -38,9 +38,9 @@ end
 
 function to_muladd(ex::Expr)
     if !isaddition(ex)
-        if ex.head == :macrocall
-            # expand macros first (enables use of @. inside of @muladd expression)
-            return to_muladd(macroexpand(ex))
+        if ex.head == :macrocall && length(ex.args)==2 && ex.args[1] == Symbol("@__dot__")
+            # expand @. macros first (enables use of @. inside of @muladd expression)
+            return to_muladd(Base.Broadcast.__dot__(ex.args[2]))
         else
             # if expression is no sum apply the reduction to its arguments
             return Expr(ex.head, to_muladd.(ex.args)...)
