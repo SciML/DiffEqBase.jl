@@ -43,8 +43,14 @@ Base.issymmetric(A::DiffEqArrayOperator) = A._issymmetric
 Base.ishermitian(A::DiffEqArrayOperator) = A._ishermitian
 Base.isposdef(A::DiffEqArrayOperator) = A._isposdef
 
-(A::DiffEqArrayOperator)(t,u) = A.A*u
-(A::DiffEqArrayOperator)(t,u,du) = A_mul_B!(du,A.A,u)
+function (A::DiffEqArrayOperator)(t,u)
+  update_coefficients!(A,t,u)
+  A*u
+end
+function (A::DiffEqArrayOperator)(t,u,du)
+  update_coefficients!(A,t,u)
+  A_mul_B!(du,A.A,u)
+end
 
 ### Forward some extra operations
 Base.:*(A::DiffEqArrayOperator,B::DiffEqArrayOperator) = A.A*B.A
