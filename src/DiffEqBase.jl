@@ -202,7 +202,7 @@ export resize!,deleteat!,addat!,full_cache,user_cache,u_cache,du_cache,
        set_reltol!,get_du,get_dt,get_proposed_dt,set_proposed_dt!,u_modified!,
        savevalues!
 
-export numargs, @def, @muladd
+export numargs, @def
 
 export construct_correlated_noisefunc
 
