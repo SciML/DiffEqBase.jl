@@ -28,20 +28,25 @@ expmv(A::AbstractDiffEqOperator,t,u) = expm(t,A)*u
 expmv!(v,A::AbstractDiffEqOperator,t,u) = A_mul_B!(v,expm(t,A),u)
 
 ### Constant DiffEqOperator defined by an array
-immutable DiffEqArrayOperator{T,Arr<:AbstractMatrix{T}} <: AbstractDiffEqOperator{T}
+immutable DiffEqArrayOperator{T,Arr<:AbstractMatrix{T},F} <: AbstractDiffEqOperator{T}
   A::Arr
   _isreal::Bool
   _issymmetric::Bool
   _ishermitian::Bool
   _isposdef::Bool
+  update_func::F
 end
-DiffEqArrayOperator{T}(A::AbstractMatrix{T}) = DiffEqArrayOperator{T,typeof(A)}(
-                       A,isreal(A),issymmetric(A),ishermitian(A),isposdef(A))
+DEFAULT_UPDATE_FUNC = (A,t,u)->nothing
+DiffEqArrayOperator{T}(A::AbstractMatrix{T},update_func = DEFAULT_UPDATE_FUNC) = DiffEqArrayOperator{T,typeof(A)}(
+                       A,isreal(A),issymmetric(A),ishermitian(A),isposdef(A),update_func)
 
 Base.isreal(A::DiffEqArrayOperator) = A._isreal
 Base.issymmetric(A::DiffEqArrayOperator) = A._issymmetric
 Base.ishermitian(A::DiffEqArrayOperator) = A._ishermitian
 Base.isposdef(A::DiffEqArrayOperator) = A._isposdef
+
+update_coefficients!(A::DiffEqArrayOperator,t,u) = A.update_func(A.A,t,u)
+update_coefficients(A::DiffEqArrayOperator,t,u) = (A.update_func(A.A,t,u); A.A)
 
 function (A::DiffEqArrayOperator)(t,u)
   update_coefficients!(A,t,u)
