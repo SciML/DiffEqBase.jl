@@ -28,7 +28,7 @@ end
 struct SecondOrderODEProblem{iip} end
 function SecondOrderODEProblem(f,u0,du0,tspan;kwargs...)
   iip = isinplace(f,4)
-  SecondOrderODEProblem{iip}(_f,_u0,tspan;kwargs...)
+  SecondOrderODEProblem{iip}(f,u0,tspan;kwargs...)
 end
 function SecondOrderODEProblem{iip}(f,u0,du0,tspan;kwargs...) where iip
   if iip
