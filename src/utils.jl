@@ -6,8 +6,16 @@ Returns the number of parameters of `f` for the method which has the most parame
 function numargs(f)
   typ = Tuple{Any, Val{:analytic}, Vararg}
   typ2 = Tuple{Any, Type{Val{:analytic}}, Vararg} # This one is required for overloaded types
-  numparam = maximum([(m.sig<:typ || m.sig<:typ2) ? 0 : length(m.sig.parameters) for m in methods(f)]) #in v0.5, all are generic
+  numparam = maximum([(m.sig<:typ || m.sig<:typ2) ? 0 : num_types_in_tuple(m.sig) for m in methods(f)])
   return (numparam-1) #-1 in v0.5 since it adds f as the first parameter
+end
+
+function num_types_in_tuple(sig)
+  length(sig.parameters)
+end
+
+function num_types_in_tuple(sig::UnionAll)
+  length(Base.unwrap_unionall(sig).parameters)
 end
 
 function isinplace(f,inplace_param_number)
