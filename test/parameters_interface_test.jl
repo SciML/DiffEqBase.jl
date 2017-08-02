@@ -4,11 +4,14 @@ using DiffEqBase
 using Base.Test
 
 # sweet sweet lorenz equation
-lorenz = @ode_def_bare Lorenz begin
+lorenz = @ode_def Lorenz begin
   dx = σ*(y-x)
   dy = ρ*x-y-x*z
   dz = x*y-β*z
 end σ => 10.0 β = 8.0/3.0 ρ => 28.0
+
+lorenz_compat = DiffEqBase.CompatibilityDiffEqFunction(lorenz)
+@test lorenz_compat.jac != nothing
 
 # make a clean instance to change
 lorenz_test = Lorenz()

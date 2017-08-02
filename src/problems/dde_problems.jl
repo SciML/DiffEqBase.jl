@@ -9,9 +9,9 @@ type ConstantLagDDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractCons
   function ConstantLagDDEProblem{isinplace}(f,h,u0,lags,tspan;
     callback = nothing,mass_matrix=I) where {isinplace}
     new{typeof(u0),promote_type(map(typeof,tspan)...),
-                          typeof(lags),isinplace,typeof(f),typeof(h),
-                          typeof(callback),typeof(mass_matrix)}(
-                          f,h,u0,lags,tspan,callback,mass_matrix)
+                   typeof(lags),isinplace,typeof(f),typeof(h),
+                   typeof(callback),typeof(mass_matrix)}(
+                   f,h,u0,lags,tspan,callback,mass_matrix)
   end
 end
 

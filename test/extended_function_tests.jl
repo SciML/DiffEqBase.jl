@@ -64,9 +64,9 @@ lv = LotkaVolterra(0.0,0.0)
 @test !has_syms(lv)
 @test tfn(lv)
 
-f = @ode_def_nohes LotkaVolterraTest begin
+lotka = @ode_def_nohes LotkaVolterraTest begin
   dx = a*x - b*x*y
   dy = -c*y + d*x*y
 end a=>1.5 b=>1 c=3 d=1
 
-@test has_syms(f)
+@test has_syms(lotka)

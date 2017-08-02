@@ -25,7 +25,7 @@ sol = solve(prob,Tsit5())
 @test DiffEqBase.interpret_vars(([:x,:x], [:y,:z]),sol) == [(DiffEqBase.DEFAULT_PLOT_FUNC,1,2), (DiffEqBase.DEFAULT_PLOT_FUNC,1,3)]
 @test DiffEqBase.interpret_vars((:x, [:y,:z]),sol) == [(DiffEqBase.DEFAULT_PLOT_FUNC,1,2), (DiffEqBase.DEFAULT_PLOT_FUNC,1,3)]
 
-f = (x,y) -> (x+y,y)
+f(x,y) = (x+y,y)
 @test DiffEqBase.interpret_vars([(f,0,1), (1,3), (4,5)],sol) == [(f,0,1), (DiffEqBase.DEFAULT_PLOT_FUNC,1,3), (DiffEqBase.DEFAULT_PLOT_FUNC,4,5)]
 @test DiffEqBase.interpret_vars([1, (f,1,3), (4,5)],sol) == [(DiffEqBase.DEFAULT_PLOT_FUNC,0,1), (f,1,3), (DiffEqBase.DEFAULT_PLOT_FUNC,4,5)]
 @test DiffEqBase.interpret_vars([(f,:t,:x),(:t,:y)],sol) == [(f,0,1), (DiffEqBase.DEFAULT_PLOT_FUNC,0,2)]

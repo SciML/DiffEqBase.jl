@@ -157,6 +157,7 @@ include("solutions/dae_solutions.jl")
 include("solutions/monte_solutions.jl")
 include("solutions/solution_interface.jl")
 include("tableaus.jl")
+include("diffeqfunction.jl")
 include("problems/discrete_problems.jl")
 include("problems/steady_state_problems.jl")
 include("problems/ode_problems.jl")
@@ -227,6 +228,8 @@ export ConstantLagDDEProblem, DDEProblem
 export ParameterizedFunction, DAEParameterizedFunction,
        DDEParameterizedFunction,
        ProbParameterizedFunction, OutputParameterizedFunction
+
+export DiffEqFunction
 
 export calculate_monte_errors
 
