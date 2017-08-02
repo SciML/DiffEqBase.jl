@@ -1,5 +1,6 @@
 # Mu' = f
-mutable struct ODEProblem{uType,tType,isinplace,F,C,MM} <: AbstractODEProblem{uType,tType,isinplace}
+mutable struct ODEProblem{uType,tType,isinplace,F,C,MM} <:
+               AbstractODEProblem{uType,tType,isinplace}
   f::F
   u0::uType
   tspan::Tuple{tType,tType}
@@ -24,7 +25,12 @@ function ODEProblem(f,u0,tspan;kwargs...)
 end
 
 # u'' = f(t,u,du,ddu)
-function SecondOrderODEProblem(f,u0,du0,tspan;iip = isinplace(f,4),kwargs...)
+struct SecondOrderODEProblem{iip} end
+function SecondOrderODEProblem(f,u0,du0,tspan;kwargs...)
+  iip = isinplace(f,4)
+  SecondOrderODEProblem{iip}(_f,_u0,tspan;kwargs...)
+end
+function SecondOrderODEProblem{iip}(f,u0,du0,tspan;kwargs...)
   if iip
     f1 = function (t,u,v,du)
       du .= v
