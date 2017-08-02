@@ -1,4 +1,4 @@
-type ConstantLagDDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractConstantLagDDEProblem{uType,tType,lType,isinplace}
+mutable struct ConstantLagDDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractConstantLagDDEProblem{uType,tType,lType,isinplace}
   f::F
   h::H
   u0::uType
@@ -20,7 +20,7 @@ function ConstantLagDDEProblem(f,h,u0,lags,tspan;kwargs...)
   ConstantLagDDEProblem{iip}(f,h,u0,lags,tspan;kwargs...)
 end
 
-type DDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractDDEProblem{uType,tType,lType,isinplace}
+mutable struct DDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractDDEProblem{uType,tType,lType,isinplace}
   f::F
   h::H
   u0::uType

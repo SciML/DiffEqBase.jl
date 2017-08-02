@@ -1,6 +1,6 @@
 INITIALIZE_DEFAULT(cb,t,u,integrator) = nothing
 
-immutable ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: DECallback
+struct ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: DECallback
   condition::F1
   affect!::F2
   affect_neg!::F3
@@ -41,7 +41,7 @@ function ContinuousCallback(condition,affect!;
 
 end
 
-immutable DiscreteCallback{F1,F2,F3} <: DECallback
+struct DiscreteCallback{F1,F2,F3} <: DECallback
   condition::F1
   affect!::F2
   initialize::F3
@@ -52,7 +52,7 @@ DiscreteCallback(condition,affect!;
 
 # DiscreteCallback(condition,affect!,save_positions) = DiscreteCallback(condition,affect!,save_positions)
 
-immutable CallbackSet{T1<:Tuple,T2<:Tuple} <: DECallback
+struct CallbackSet{T1<:Tuple,T2<:Tuple} <: DECallback
   continuous_callbacks::T1
   discrete_callbacks::T2
 end

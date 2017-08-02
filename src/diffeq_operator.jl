@@ -28,7 +28,7 @@ expmv(A::AbstractDiffEqOperator,t,u) = expm(t,A)*u
 expmv!(v,A::AbstractDiffEqOperator,t,u) = A_mul_B!(v,expm(t,A),u)
 
 ### Constant DiffEqOperator defined by an array
-immutable DiffEqArrayOperator{T,Arr<:AbstractMatrix{T},F} <: AbstractDiffEqOperator{T}
+struct DiffEqArrayOperator{T,Arr<:AbstractMatrix{T},F} <: AbstractDiffEqOperator{T}
   A::Arr
   _isreal::Bool
   _issymmetric::Bool

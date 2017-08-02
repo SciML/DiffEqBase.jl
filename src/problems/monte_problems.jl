@@ -1,4 +1,4 @@
-type MonteCarloProblem{T,T2,T3,T4,T5} <: AbstractMonteCarloProblem
+mutable struct MonteCarloProblem{T,T2,T3,T4,T5} <: AbstractMonteCarloProblem
   prob::T
   prob_func::T2
   output_func::T3

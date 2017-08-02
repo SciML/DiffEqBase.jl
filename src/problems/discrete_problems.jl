@@ -1,7 +1,7 @@
 const DISCRETE_INPLACE_DEFAULT = (t,u,du) -> fill!(du,zero(eltype(u)))
 const DISCRETE_OUTOFPLACE_DEFAULT = (t,u) -> u
 
-type DiscreteProblem{uType,tType,isinplace,F,C} <: AbstractDiscreteProblem{uType,tType,isinplace}
+mutable struct DiscreteProblem{uType,tType,isinplace,F,C} <: AbstractDiscreteProblem{uType,tType,isinplace}
   f::F
   u0::uType
   tspan::Tuple{tType,tType}

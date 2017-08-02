@@ -3,7 +3,7 @@
 
 Holds a tableau which defines an explicit Runge-Kutta method.
 """
-type ExplicitRKTableau{MType<:AbstractMatrix,VType<:AbstractVector,fsal} <: ODERKTableau
+mutable struct ExplicitRKTableau{MType<:AbstractMatrix,VType<:AbstractVector,fsal} <: ODERKTableau
   A::MType
   c::VType
   α::VType
@@ -22,7 +22,7 @@ ExplicitRKTableau{MType,VType}(A::MType,c::VType,α::VType,order;
 
 Holds a tableau which defines an implicit Runge-Kutta method.
 """
-type ImplicitRKTableau{MType<:AbstractMatrix,VType<:AbstractVector} <: ODERKTableau
+mutable struct ImplicitRKTableau{MType<:AbstractMatrix,VType<:AbstractVector} <: ODERKTableau
   A::MType
   c::VType
   α::VType

@@ -12,12 +12,12 @@ g123{T}(::Val{:jac}, x::T) = 2
 h123(x,y) = 1
 h123{T}(x::T) = 2
 
-immutable T123 end
+struct T123 end
 (::T123)(a) = 1
 (::T123)(::Val{:jac}, a) = 1
 t123 = T123()
 
-immutable G123 end
+struct G123 end
 (::G123)(a) = 1
 (::G123)(b, a) = 1
 

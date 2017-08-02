@@ -1,4 +1,4 @@
-type ParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{isinplace}
+mutable struct ParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{isinplace}
   f::F
   params::P
 end
@@ -12,7 +12,7 @@ end
 (pf::ParameterizedFunction{false,F,P}){F,P}(t,u) = pf.f(t,u,pf.params)
 (pf::ParameterizedFunction{false,F,P}){F,P}(t,u,params) = pf.f(t,u,params)
 
-type DAEParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{isinplace}
+mutable struct DAEParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{isinplace}
   f::F
   params::P
 end
@@ -26,7 +26,7 @@ end
 (pf::DAEParameterizedFunction{false,F,P}){F,P}(t,u,du) = pf.f(t,u,pf.params,du)
 (pf::DAEParameterizedFunction{false,F,P}){F,P}(t,u,params,du) = pf.f(t,u,params,du)
 
-type DDEParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{isinplace}
+mutable struct DDEParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{isinplace}
   f::F
   params::P
 end
@@ -40,13 +40,13 @@ end
 (pf::DDEParameterizedFunction{false,F,P}){F,P}(t,u,h) = pf.f(t,u,h,pf.params)
 (pf::DDEParameterizedFunction{false,F,P}){F,P}(t,u,h,params) = pf.f(t,u,h,params)
 
-type ProbParameterizedFunction{F,P} <: ConstructedParameterizedFunction{false}
+mutable struct ProbParameterizedFunction{F,P} <: ConstructedParameterizedFunction{false}
   f::F
   params::P
 end
 (pf::ProbParameterizedFunction{F,P}){F,P}(prob,i) = pf.f(prob,i,params)
 
-type OutputParameterizedFunction{F,P} <: ConstructedParameterizedFunction{false}
+mutable struct OutputParameterizedFunction{F,P} <: ConstructedParameterizedFunction{false}
   f::F
   params::P
 end

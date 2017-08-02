@@ -1,4 +1,4 @@
-type LinSolveFactorize{F}
+mutable struct LinSolveFactorize{F}
   factorization::F
   A
 end

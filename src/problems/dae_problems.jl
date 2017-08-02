@@ -1,5 +1,5 @@
 # f(t,u,du,res) = 0
-type DAEProblem{uType,duType,tType,isinplace,F,C,D} <: AbstractDAEProblem{uType,duType,tType,isinplace}
+mutable struct DAEProblem{uType,duType,tType,isinplace,F,C,D} <: AbstractDAEProblem{uType,duType,tType,isinplace}
   f::F
   u0::uType
   du0::duType

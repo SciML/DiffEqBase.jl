@@ -69,7 +69,7 @@ end
 
 ### Abstract Interface
 
-immutable IntegratorTuples{I}
+struct IntegratorTuples{I}
  integrator::I
 end
 
@@ -86,7 +86,7 @@ done(tup::IntegratorTuples,state) = done(tup.integrator,state)
 
 tuples(integrator::DEIntegrator) = IntegratorTuples(integrator)
 
-immutable IntegratorIntervals{I}
+struct IntegratorIntervals{I}
  integrator::I
 end
 

@@ -1,10 +1,10 @@
-immutable HermiteInterpolation{T1,T2,T3} <: AbstractDiffEqInterpolation
+struct HermiteInterpolation{T1,T2,T3} <: AbstractDiffEqInterpolation
   t::T1
   u::T2
   du::T3
 end
 
-immutable LinearInterpolation{T1,T2} <: AbstractDiffEqInterpolation
+struct LinearInterpolation{T1,T2} <: AbstractDiffEqInterpolation
   t::T1
   u::T2
 end
