@@ -6,12 +6,18 @@ type ConstantLagDDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractCons
   tspan::Tuple{tType,tType}
   callback::C
   mass_matrix::MM
+  function ConstantLagDDEProblem{isinplace}(f,h,u0,lags,tspan;
+    callback = nothing,mass_matrix=I) where {isinplace}
+    new{typeof(u0),promote_type(map(typeof,tspan)...),
+                          typeof(lags),isinplace,typeof(f),typeof(h),
+                          typeof(callback),typeof(mass_matrix)}(
+                          f,h,u0,lags,tspan,callback,mass_matrix)
+  end
 end
 
-function ConstantLagDDEProblem(f,h,u0,lags,tspan;
-  iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4),
-  callback = nothing,mass_matrix=I)
-  ConstantLagDDEProblem{typeof(u0),promote_type(map(typeof,tspan)...),typeof(lags),iip,typeof(f),typeof(h),typeof(callback),typeof(mass_matrix)}(f,h,u0,lags,tspan,callback,mass_matrix)
+function ConstantLagDDEProblem(f,h,u0,lags,tspan;kwargs...)
+  iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4)
+  ConstantLagDDEProblem{iip}(f,h,u0,lags,tspan;kwargs...)
 end
 
 type DDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractDDEProblem{uType,tType,lType,isinplace}
@@ -22,10 +28,15 @@ type DDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: AbstractDDEProblem{uTyp
   tspan::Tuple{tType,tType}
   callback::C
   mass_matrix::MM
+  function DDEProblem{isinplace}(f,h,u0,lags,tspan;
+                                 callback = nothing,mass_matrix=I) where {isinplace}
+    new{typeof(u0),promote_type(map(typeof,tspan)...),
+               typeof(lags),isinplace,typeof(f),typeof(h),typeof(callback),
+               typeof(mass_matrix)}(f,h,u0,lags,tspan,callback,mass_matrix)
+  end
 end
 
-function DDEProblem(f,h,u0,lags,tspan;
-  iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4),
-  callback = nothing,mass_matrix=I)
-  DDEProblem{typeof(u0),promote_type(map(typeof,tspan)...),typeof(lags),iip,typeof(f),typeof(h),typeof(callback),typeof(mass_matrix)}(f,h,u0,lags,tspan,callback,mass_matrix)
+function DDEProblem(f,h,u0,lags,tspan;kwargs...)
+  iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4)
+  DDEProblem{iip}(f,h,u0,lags,tspan;kwargs...)
 end

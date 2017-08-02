@@ -7,15 +7,18 @@ type RODEProblem{uType,tType,isinplace,NP,F,C,MM,ND} <: AbstractRODEProblem{uTyp
   mass_matrix::MM
   rand_prototype::ND
   seed::UInt64
-end
-
-function RODEProblem(f,u0,tspan;
-                     iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4),
-                     rand_prototype = nothing,
-                     noise= nothing, seed = UInt64(0),
-                     callback=nothing,mass_matrix=I)
-  RODEProblem{typeof(u0),promote_type(map(typeof,tspan)...),
-              iip,typeof(noise),typeof(f),typeof(callback),
+  function RODEProblem{isinplace}(f,u0,tspan;
+                       rand_prototype = nothing,
+                       noise= nothing, seed = UInt64(0),
+                       callback=nothing,mass_matrix=I) where {isinplace}
+  new{typeof(u0),promote_type(map(typeof,tspan)...),
+              isinplace,typeof(noise),typeof(f),typeof(callback),
               typeof(mass_matrix),typeof(rand_prototype)}(
               f,u0,tspan,noise,callback,mass_matrix,rand_prototype,seed)
+  end
+end
+
+function RODEProblem(f,u0,tspan;kwargs...)
+  iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4)
+  RODEProblem{iip}(f,u0,tspan;kwargs...)
 end
