@@ -6,10 +6,10 @@ mutable struct ConstantLagDDEProblem{uType,tType,lType,isinplace,F,H,C,MM} <: Ab
   tspan::Tuple{tType,tType}
   callback::C
   mass_matrix::MM
-  function ConstantLagDDEProblem{isinplace}(f,h,u0,lags,tspan;
-    callback = nothing,mass_matrix=I) where {isinplace}
+  function ConstantLagDDEProblem{iip}(f,h,u0,lags,tspan;
+    callback = nothing,mass_matrix=I) where {iip}
     new{typeof(u0),promote_type(map(typeof,tspan)...),
-                   typeof(lags),isinplace,typeof(f),typeof(h),
+                   typeof(lags),iip,typeof(f),typeof(h),
                    typeof(callback),typeof(mass_matrix)}(
                    f,h,u0,lags,tspan,callback,mass_matrix)
   end

@@ -6,8 +6,9 @@ mutable struct DiscreteProblem{uType,tType,isinplace,F,C} <: AbstractDiscretePro
   u0::uType
   tspan::Tuple{tType,tType}
   callback::C
-  function DiscreteProblem{isinplace}(f,u0,tspan;callback = nothing) where {isinplace}
-    new{typeof(u0),promote_type(map(typeof,tspan)...),isinplace,
+  function DiscreteProblem{iip}(f,u0,tspan;
+           callback = nothing) where {iip}
+    new{typeof(u0),promote_type(map(typeof,tspan)...),iip,
         typeof(f),typeof(callback)}(f,u0,tspan,callback)
   end
 end

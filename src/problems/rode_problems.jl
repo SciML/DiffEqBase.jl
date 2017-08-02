@@ -7,12 +7,12 @@ mutable struct RODEProblem{uType,tType,isinplace,NP,F,C,MM,ND} <: AbstractRODEPr
   mass_matrix::MM
   rand_prototype::ND
   seed::UInt64
-  function RODEProblem{isinplace}(f,u0,tspan;
+  function RODEProblem{iip}(f,u0,tspan;
                        rand_prototype = nothing,
                        noise= nothing, seed = UInt64(0),
-                       callback=nothing,mass_matrix=I) where {isinplace}
+                       callback=nothing,mass_matrix=I) where {iip}
   new{typeof(u0),promote_type(map(typeof,tspan)...),
-              isinplace,typeof(noise),typeof(f),typeof(callback),
+              iip,typeof(noise),typeof(f),typeof(callback),
               typeof(mass_matrix),typeof(rand_prototype)}(
               f,u0,tspan,noise,callback,mass_matrix,rand_prototype,seed)
   end

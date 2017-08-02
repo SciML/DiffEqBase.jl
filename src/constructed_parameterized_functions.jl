@@ -1,10 +1,14 @@
 mutable struct ParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{isinplace}
   f::F
   params::P
+  function ParameterizedFunction{iip}(f,p) where iip
+    new{iip,typeof(f),typeof(p)}(f,p)
+  end
 end
 
-Base.@pure function ParameterizedFunction(f,p;iip = numargs(f)>=4)
-  ParameterizedFunction{iip,typeof(f),typeof(p)}(f,p)
+function ParameterizedFunction(f,p)
+  iip = numargs(f)>=4
+  ParameterizedFunction{iip}(f,p)
 end
 
 (pf::ParameterizedFunction{true,F,P}){F,P}(t,u,du) = pf.f(t,u,pf.params,du)
@@ -15,9 +19,13 @@ end
 mutable struct DAEParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{isinplace}
   f::F
   params::P
+  function DAEParameterizedFunction{iip}(f,p) where iip
+    new{iip,typeof(f),typeof(p)}(f,p)
+  end
 end
 
-Base.@pure function DAEParameterizedFunction(f,p;iip=numargs(f)>=5)
+function DAEParameterizedFunction(f,p)
+  iip=numargs(f)>=5
   DAEParameterizedFunction{iip,typeof(f),typeof(p)}(f,p)
 end
 
@@ -29,10 +37,14 @@ end
 mutable struct DDEParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{isinplace}
   f::F
   params::P
+  function DDEParameterizedFunction{iip}(f,p) where iip
+    new{iip,typeof(f),typeof(p)}(f,p)
+  end
 end
 
-Base.@pure function DDEParameterizedFunction(f,p;iip=numargs(f)>=5)
-  DDEParameterizedFunction{iip,typeof(f),typeof(p)}(f,p)
+function DDEParameterizedFunction(f,p)
+  iip=numargs(f)>=5
+  DDEParameterizedFunction{iip}(f,p)
 end
 
 (pf::DDEParameterizedFunction{true,F,P}){F,P}(t,u,h,du) = pf.f(t,u,h,pf.params,du)

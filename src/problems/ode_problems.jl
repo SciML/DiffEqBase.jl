@@ -5,15 +5,15 @@ mutable struct ODEProblem{uType,tType,isinplace,F,C,MM} <: AbstractODEProblem{uT
   tspan::Tuple{tType,tType}
   callback::C
   mass_matrix::MM
-  function ODEProblem{isinplace}(f,u0,tspan;
-                      callback=nothing,mass_matrix=I) where {isinplace}
+  function ODEProblem{iip}(f,u0,tspan;
+                      callback=nothing,mass_matrix=I) where {iip}
     if mass_matrix == I && typeof(f) <: Tuple
       _mm = ((I for i in 1:length(f))...)
     else
       _mm = mass_matrix
     end
     new{typeof(u0),promote_type(map(typeof,tspan)...),
-       isinplace,typeof(f),typeof(callback),typeof(_mm)}(
+       iip,typeof(f),typeof(callback),typeof(_mm)}(
        f,u0,tspan,callback,_mm)
   end
 end
