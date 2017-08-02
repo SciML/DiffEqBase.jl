@@ -1,4 +1,4 @@
-struct DiffEqFunction{F,Ta,Tt,TJ,TIJ,TW,TWt}
+struct DiffEqFunction{F,Ta,Tt,TJ,TIJ,TW,TWt,TPJ}
   f::F
   analytic::Ta
   tgrad::Tt
@@ -6,6 +6,7 @@ struct DiffEqFunction{F,Ta,Tt,TJ,TIJ,TW,TWt}
   invjac::TIJ
   invW::TW
   invW_t::TWt
+  paramjac::TPJ
 end
 
 ######### Backwards Compatibility Overloads
@@ -17,6 +18,7 @@ end
 (f::DiffEqFunction)(::Type{Val{:invjac}},args...) = f.invjac(args...)
 (f::DiffEqFunction)(::Type{Val{:invW}},args...) = f.invW(args...)
 (f::DiffEqFunction)(::Type{Val{:invW_t}},args...) = f.invW_t(args...)
+(f::DiffEqFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
 
 ######### Basic Constructor
 
@@ -25,8 +27,19 @@ DiffEqFunction(f;analytic=nothing,
                  jac=nothing,
                  invjac=nothing,
                  invW=nothing,
-                 invW_t=nothing) =
-                 DiffEqFunction(f,analytic,tgrad,jac,invjac,invW,invW_t)
+                 invW_t=nothing
+                 paramjac = nothing) =
+                 DiffEqFunction(f,analytic,tgrad,jac,invjac,invW,invW_t,paramjac)
+
+########## Existance Functions
+
+has_jac(f::DiffEqFunction) = f.jac != nothing
+has_invjac(f::DiffEqFunction) = f.invjac != nothing
+has_analytic(f::DiffEqFunction) = f.analytic != nothing
+has_tgrad(f::DiffEqFunction) = f.tgrad != nothing
+has_invW(f::DiffEqFunction) = f.invW != nothing
+has_invW_t(f::DiffEqFunction) = f.invW_t != nothing
+has_paramjac(f::DiffEqFunction) = f.paramjac != nothing
 
 ######### Compatibility Constructor from Tratis
 
@@ -61,5 +74,10 @@ function CompatibilityDiffEqFunction(f)
   else
     invW_t = nothing
   end
-  DiffEqFunction(f,analytic,tgrad,jac,invjac,invW,invW_t)
+  if has_paramjac(f)
+    paramjac = (args...) -> f(Val{:paramjac},args...)
+  else
+    paramjac = nothing
+  end
+  DiffEqFunction(f,analytic,tgrad,jac,invjac,invW,invW_t,paramjac)
 end
