@@ -27,7 +27,7 @@ DiffEqFunction(f;analytic=nothing,
                  jac=nothing,
                  invjac=nothing,
                  invW=nothing,
-                 invW_t=nothing
+                 invW_t=nothing,
                  paramjac = nothing) =
                  DiffEqFunction(f,analytic,tgrad,jac,invjac,invW,invW_t,paramjac)
 
