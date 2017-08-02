@@ -12,10 +12,10 @@ mutable struct ExplicitRKTableau{MType<:AbstractMatrix,VType<:AbstractVector,fsa
   order::Int
   adaptiveorder::Int #The lower order of the pair. Only used for adaptivity.
 end
-ExplicitRKTableau{MType,VType}(A::MType,c::VType,α::VType,order;
-                              adaptiveorder=0,αEEst=VType(),fsal=false) =
-                              ExplicitRKTableau{MType,VType,fsal}(
-                              A,c,α,αEEst,length(α),order,adaptiveorder)
+ExplicitRKTableau(A::MType,c::VType,α::VType,order;
+                  adaptiveorder=0,αEEst=VType(),fsal=false) where {MType,VType} =
+                  ExplicitRKTableau{MType,VType,fsal}(
+                  A,c,α,αEEst,length(α),order,adaptiveorder)
 
 """
 `ImplicitRKTableau`
@@ -31,7 +31,7 @@ mutable struct ImplicitRKTableau{MType<:AbstractMatrix,VType<:AbstractVector} <:
   order::Int
   adaptiveorder::Int #The lower order of the pair. Only used for adaptivity.
 end
-ImplicitRKTableau{MType,VType}(A::MType,c::VType,α::VType,order;
-                              adaptiveorder=0,αEEst=VType()) =
-                              ImplicitRKTableau{MType,VType}(
-                              A,c,α,αEEst,length(α),order,adaptiveorder)
+ImplicitRKTableau(A::MType,c::VType,α::VType,order;
+                  adaptiveorder=0,αEEst=VType()) where {MType,VType} =
+                  ImplicitRKTableau{MType,VType}(
+                  A,c,α,αEEst,length(α),order,adaptiveorder)
