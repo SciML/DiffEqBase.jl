@@ -14,4 +14,4 @@ function SteadyStateProblem(f,u0;kwargs...)
 end
 
 SteadyStateProblem(prob::AbstractODEProblem) =
-      SteadyStateProblem(prob.f,prob.u0,iip=isinplace(prob),mass_matrix=prob.mass_matrix)
+      SteadyStateProblem(prob.f,prob.u0,mass_matrix=prob.mass_matrix)
