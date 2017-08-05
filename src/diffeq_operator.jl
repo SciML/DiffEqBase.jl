@@ -37,7 +37,7 @@ struct DiffEqArrayOperator{T,Arr<:AbstractMatrix{T},F} <: AbstractDiffEqOperator
   update_func::F
 end
 DEFAULT_UPDATE_FUNC = (A,t,u)->nothing
-DiffEqArrayOperator{T}(A::AbstractMatrix{T},update_func = DEFAULT_UPDATE_FUNC) = DiffEqArrayOperator{T,typeof(A)}(
+DiffEqArrayOperator{T}(A::AbstractMatrix{T},update_func = DEFAULT_UPDATE_FUNC) = DiffEqArrayOperator{T,typeof(A),typeof(update_func)}(
                        A,isreal(A),issymmetric(A),ishermitian(A),isposdef(A),update_func)
 
 Base.isreal(A::DiffEqArrayOperator) = A._isreal
