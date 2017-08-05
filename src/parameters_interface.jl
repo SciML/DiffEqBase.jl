@@ -30,8 +30,9 @@ function problem_new_parameters(prob::DAEProblem,p)
   f = (t,u,du,resid) -> prob.f(t,u,p,du,resid)
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
+  du0 = [uEltype(prob.du0[i]) for i in 1:length(prob.du0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
-  DAEProblem(f,u0,tspan)
+  DAEProblem(f,u0,du0,tspan,differential_vars=prob.differential_vars)
 end
 param_values(prob::DAEProblem) = param_values(prob.f)
 num_params(prob::DAEProblem) = num_params(prob.f)

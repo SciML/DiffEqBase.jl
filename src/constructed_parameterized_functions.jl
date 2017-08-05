@@ -26,7 +26,7 @@ end
 
 function DAEParameterizedFunction(f,p)
   iip=numargs(f)>=5
-  DAEParameterizedFunction{iip,typeof(f),typeof(p)}(f,p)
+  DAEParameterizedFunction{iip}(f,p)
 end
 
 (pf::DAEParameterizedFunction{true,F,P}){F,P}(t,u,du,out) = pf.f(t,u,pf.params,du,out)
