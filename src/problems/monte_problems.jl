@@ -8,7 +8,7 @@ end
 
 MonteCarloProblem(prob::DEProblem;
     output_func = (sol,i)-> (sol,false),
-    prob_func= (prob,i)->prob,
+    prob_func= (prob,i,repeat)->prob,
     reduction = (u,data,I)->(append!(u,data),false),
     u_init = []) =
     MonteCarloProblem(prob,prob_func,output_func,reduction,u_init)
