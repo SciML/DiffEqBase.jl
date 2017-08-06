@@ -13,7 +13,9 @@
 
 #=
 1. AbstractDiffEqLinearOperator <: AbstractDiffEqOperator
-2. Invariance under multiplication by a scalar
+2. Can absorb under multiplication by a scalar. In all algorithms things like
+   dt*L show up all the time, so the linear operator must be able to absorb
+   such constants.
 4. is_constant(A) trait for whether the operator is constant or not.
 5. diagonal, symmetric, etc traits from LinearMaps.jl.
 6. Optional: expm(A). Required for simple exponential integration.
@@ -105,7 +107,11 @@ struct DiffEqScalar{F,T}
 end
 DiffEqScalar(func,coeff=1.0) = DiffEqScalar{typeof(func),typeof(coeff)}(func,coeff)
 function (α::DiffEqScalar)(t)
-    DiffEqScalar(α.func,α.func(t))
+    if α.func == nothing
+        return DiffEqScalar(α.func,α.coeff)
+    else
+        return DiffEqScalar(α.func,α.func(t))
+    end
 end
 Base.:*(α::Number,B::DiffEqScalar) = DiffEqScalar(B.func,B.coeff*α)
 Base.:*(B::DiffEqScalar,α::Number) = DiffEqScalar(B.func,B.coeff*α)
@@ -122,7 +128,7 @@ expmv(L::AbstractDiffEqLinearOperator,t,u) = expm(t,L)*u
 expmv!(v,L::AbstractDiffEqLinearOperator,t,u) = A_mul_B!(v,expm(t,L),u)
 
 ### AbstractDiffEqLinearOperator defined by an array and update functions
-struct DiffEqArrayOperator{T,Arr<:AbstractMatrix{T},Sca,F} <: AbstractDiffEqLinearOperator{T}
+mutable struct DiffEqArrayOperator{T,Arr<:AbstractMatrix{T},Sca,F} <: AbstractDiffEqLinearOperator{T}
     A::Arr
     α::Sca
     _isreal::Bool
@@ -134,9 +140,9 @@ end
 DEFAULT_UPDATE_FUNC = (L,t,u)->nothing
 function DiffEqArrayOperator(A::AbstractMatrix{T},α=1.0,
                              update_func = DEFAULT_UPDATE_FUNC) where T
-    if !(typeof(α) <: Number)
+    if (typeof(α) <: Number)
         _α = DiffEqScalar(nothing,α)
-    elseif !(typeof(α) <: DiffEqScalar) # Assume it's some kind of function
+    elseif (typeof(α) <: DiffEqScalar) # Assume it's some kind of function
         _α = DiffEqScalar(α,1.0)
     else # Must be a DiffEqScalar already
         _α = α
@@ -170,8 +176,13 @@ function Base.:*(α::Number,L::DiffEqArrayOperator)
     DiffEqArrayOperator(L.A,DiffEqScalar(L.func,L.coeff*α),L.update_func)
 end
 Base.:*(L::DiffEqArrayOperator,α::Number) = α*L
+Base.:*(L::DiffEqArrayOperator,b::AbstractVector) = L.α.coeff*L.A*b
 Base.:*(L::DiffEqArrayOperator,b::AbstractArray) = L.α.coeff*L.A*b
-function Base.A_mul_B!(v,L::DiffEqArrayOperator,b::AbstractArray)
+function Base.A_mul_B!(v::AbstractVector,L::DiffEqArrayOperator,b::AbstractVector)
+    A_mul_B!(v,L.A,b)
+    scale!(b,L.α.coeff)
+end
+function Base.A_mul_B!(v::AbstractArray,L::DiffEqArrayOperator,b::AbstractArray)
     A_mul_B!(v,L.A,b)
     scale!(b,L.α.coeff)
 end
@@ -216,3 +227,8 @@ end
 function Base.:\(L::FactorizedDiffEqArrayOperator, b::AbstractArray)
     (L.A \ b) * L.inv_coeff
 end
+
+@inline Base.getindex(L::DiffEqArrayOperator,i::Int) = L.A[i]
+@inline Base.getindex{N}(L::DiffEqArrayOperator,I::Vararg{Int, N}) = L.A[I...]
+@inline Base.setindex!(L::DiffEqArrayOperator, v, i::Int) = (L.A[i]=v)
+@inline Base.setindex!{N}(L::DiffEqArrayOperator, v, I::Vararg{Int, N}) = (L.A[I...]=v)
