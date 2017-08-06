@@ -70,13 +70,13 @@ struct AffineDiffEqOperator{T,T1,T2,U} <: AbstractDiffEqOperator{T}
 end
 
 
-function (L::AffineDiffEqOperator)(t,u)
+function (L::AffineDiffEqOperator)(t::Number,u)
     tmp = sum((update_coefficients(A,t,u); A*u for A in L.As))
     tmp2 = sum((typeof(B) <: Union{Number,AbstractArray} ? B : B(t) for B in L.Bs))
     tmp + tmp2
 end
 
-function (L::AffineDiffEqOperator)(t,u,du)
+function (L::AffineDiffEqOperator)(t::Number,u,du)
     update_coefficients!(L,t,u)
     L.u_cache == nothing && error("Can only use inplace AffineDiffEqOperator if u_cache is given.")
     u_cache = L.u_cache
