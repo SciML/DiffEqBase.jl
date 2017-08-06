@@ -4,8 +4,10 @@ module DiffEqBase
 
 using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat, Juno, LinearMaps
 
-import Base: length, ndims, size, getindex, setindex!, endof, show, print,
-             next, start, done, eltype, eachindex, similar
+import Base: length, ndims, size, getindex, setindex!, show, print,
+             next, start, done, similar, IndexStyle
+
+import Base.Broadcast: _containertype, promote_containertype, broadcast_c, broadcast_c!
 
 import Base: resize!, deleteat!
 

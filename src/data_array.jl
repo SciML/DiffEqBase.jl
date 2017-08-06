@@ -1,3 +1,20 @@
+# define AbstractArray interface of DEDataArray
+
+# iteration
+start(A::DEDataArray)  = start(A.x)
+next(A::DEDataArray, i) = next(A.x, i)
+done(A::DEDataArray, i) = done(A.x, i)
+length(A::DEDataArray) = length(A.x)
+
+# size
+size(A::DEDataArray) = (length(A.x),)
+ndims(A::DEDataArray) = 1
+
+# indexing
+getindex(A::DEDataArray, i::Int) = (A.x[i])
+setindex!(A::DEDataArray, x, i::Int) = (A.x[i] = x)
+Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
+
 similar(A::DEDataArray) = deepcopy(A)
 
 @generated function similar(A::DEDataArray,dims::Tuple)
@@ -9,15 +26,6 @@ end
   assignments = [s == :x ? :(zeros(A.x,T,dims)) : (s_new = Meta.quot(:($s)); :(deepcopy(getfield(A,$s_new)))) for s in fieldnames(A)]
   :(parameterless_type(A)($(assignments...)))
 end
-
-done(A::DEDataArray, i::Int) = done(A.x,i)
-eachindex(A::DEDataArray)      = eachindex(A.x)
-next(A::DEDataArray, i::Int) = next(A.x,i)
-start(A::DEDataArray)          = start(A.x)
-
-length(A::DEDataArray) = length(A.x)
-ndims(A::DEDataArray)  = ndims(A.x)
-size(A::DEDataArray)   = size(A.x)
 
 # Maybe should use fieldtype(typeof(dest), $i) ?
 @generated function recursivecopy!{T}(dest::DEDataArray{T}, src::DEDataArray{T})
@@ -35,8 +43,23 @@ end
   :($(assignments...); dest)
 end
 
-getindex( A::DEDataArray,    i::Int) = (A.x[i])
-setindex!(A::DEDataArray, x, i::Int) = (A.x[i] = x)
-getindex( A::DEDataArray,    i::Int...) = (A.x[i...])
-setindex!(A::DEDataArray, x, i::Int...) = (A.x[i...] = x)
-Base.IndexStyle(::Type{DEDataArray}) = Base.IndexLinear()
+# ensure that broadcasts dispatch to our broadcast methods below
+_containertype(::Type{T}) where {T<:DEDataArray} = T
+promote_containertype(::Type{T}, ::Type) where {T<:DEDataArray} = T
+promote_containertype(::Type, ::Type{T}) where {T<:DEDataArray} = T
+# avoid ambiguous definitions
+promote_containertype(::Type{T}, ::Type{T}) where {T<:DEDataArray} = T
+promote_containertype(::Type{T}, ::Type{Array}) where {T<:DEDataArray} = T
+promote_containertype(::Type{Array}, ::Type{T}) where {T<:DEDataArray} = T
+
+# apply generic broadcast methods to contained arrays
+broadcast_c(f, ::Type{<:DEDataArray}, as...) = broadcast(f, map(broadcast_content, as)...)
+
+# update contained array with generic broadcast methods
+function broadcast_c!(f, ::Type{<:DEDataArray}, ::Type, dest, as...)
+    broadcast!(f, dest.x, map(broadcast_content, as)...)
+    dest
+end
+
+broadcast_content(x) = x
+broadcast_content(x::DEDataArray) = x.x
