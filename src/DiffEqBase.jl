@@ -252,7 +252,7 @@ export is_diagonal_noise, is_sparse_noise
 
 export LinSolveFactorize, DEFAULT_LINSOLVE
 
-export AffineDiffEqOperator, update_coefficients!, is_constant
+export AffineDiffEqOperator, update_coefficients!, update_coefficients, is_constant
 
 export isautodifferentiable
 

@@ -80,7 +80,7 @@ function (L::AffineDiffEqOperator)(t,u,du)
     update_coefficients!(L,t,u)
     L.u_cache == nothing && error("Can only use inplace AffineDiffEqOperator if u_cache is given.")
     u_cache = L.u_cache
-    fill!(du,zero(du))
+    fill!(du,zero(first(du)))
     # TODO: Make type-stable via recursion
     for A in L.As
         A_mul_B!(u_cache,A,u)
