@@ -146,7 +146,8 @@ abstract type ConstructedParameterizedFunction{isinplace} <: AbstractParameteriz
 export AbstractParameterizedFunction, ConstructedParameterizedFunction
 
 abstract type AbstractDiffEqOperator{T} <: AbstractLinearMap{T} end
-export AbstractDiffEqOperator
+abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T} end
+export AbstractDiffEqLinearOperator, AbstractDiffEqOperator
 
 include("utils.jl")
 include("extended_functions.jl")
@@ -251,7 +252,7 @@ export is_diagonal_noise, is_sparse_noise
 
 export LinSolveFactorize, DEFAULT_LINSOLVE
 
-export DiffEqArrayOperator
+export AffineDiffEqOperator, DiffEqScalar, DiffEqArrayOperator
 
 export isautodifferentiable
 
