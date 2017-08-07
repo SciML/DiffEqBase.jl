@@ -7,4 +7,5 @@
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,t,u) = false
 (p::typeof(ODE_DEFAULT_UNSTABLE_CHECK))(dt,t,u::AbstractFloat) = isnan(u)
 (p::typeof(ODE_DEFAULT_UNSTABLE_CHECK)){T<:AbstractFloat}(dt,t,u::AbstractArray{T}) = any(isnan,u)
-(p::typeof(ODE_DEFAULT_UNSTABLE_CHECK))(dt,t,u::ArrayPartition) = any(isnan,chain(u.x...))
+(p::typeof(ODE_DEFAULT_UNSTABLE_CHECK))(dt,t,u::ArrayPartition) =
+                                                 any(any(isnan,x) for x in u.x)
