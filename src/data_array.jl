@@ -1,42 +1,70 @@
-similar(A::DEDataArray) = deepcopy(A)
+# iteration
+start(A::DEDataArray) = start(A.x)
+next(A::DEDataArray, i) = next(A.x, i)
+done(A::DEDataArray, i) = done(A.x, i)
 
-@generated function similar(A::DEDataArray,dims::Tuple)
-  assignments = [s == :x ? :(similar(A.x,dims)) : (s_new = Meta.quot(:($s)); :(deepcopy(getfield(A,$s_new)))) for s in fieldnames(A)]
-  :(typeof(A)($(assignments...)))
-end
-
-@generated function similar{T,N}(A::DEDataArray,::Type{T},dims::Tuple{Vararg{Int,N}})
-  assignments = [s == :x ? :(zeros(A.x,T,dims)) : (s_new = Meta.quot(:($s)); :(deepcopy(getfield(A,$s_new)))) for s in fieldnames(A)]
-  :(parameterless_type(A)($(assignments...)))
-end
-
-done(A::DEDataArray, i::Int) = done(A.x,i)
-eachindex(A::DEDataArray)      = eachindex(A.x)
-next(A::DEDataArray, i::Int) = next(A.x,i)
-start(A::DEDataArray)          = start(A.x)
-
+# size
 length(A::DEDataArray) = length(A.x)
-ndims(A::DEDataArray)  = ndims(A.x)
-size(A::DEDataArray)   = size(A.x)
+size(A::DEDataArray) = size(A.x)
 
-# Maybe should use fieldtype(typeof(dest), $i) ?
-@generated function recursivecopy!{T}(dest::DEDataArray{T}, src::DEDataArray{T})
-   assignments = [:(typeof(getfield(dest,$i)) <: AbstractArray ? recursivecopy!(getfield(dest, $i),getfield(src, $i)) : setfield!(dest, $i, getfield(src, $i))) for i=1:nfields(dest)]
-   :($(assignments...); dest)
+# indexing
+@inline function getindex(A::DEDataArray, I...)
+    @boundscheck checkbounds(A.x, I...)
+    @inbounds return A.x[I...]
+end
+@inline function setindex!(A::DEDataArray, x, I...)
+    @boundscheck checkbounds(A.x, I...)
+    @inbounds A.x[I...] = x
+end
+indices(A::DEDataArray) = indices(A.x)
+Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
+
+# similar data arrays
+@generated function similar(A::DEDataArray, ::Type{T}, dims::NTuple{N,Int}) where {T,N}
+    assignments = [s == :x ? :(similar(A.x, T, dims)) :
+                   (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
+                   for s in fieldnames(A)]
+    :(parameterless_type(A)($(assignments...)))
 end
 
-@generated function copy_non_array_fields{T}(arr::AbstractArray, previous::DEDataArray{T})
-  assignments = [:(getfield(previous,$i)) for i=2:nfields(previous)]
-  :(typeof(previous)(arr,$(assignments...)))
+"""
+    recursivecopy!(dest::T, src::T) where {T<:DEDataArray}
+
+Recursively copy fields of `src` to `dest`.
+"""
+@generated function recursivecopy!(dest::T, src::T) where {T<:DEDataArray}
+    assignments = [(sq = Meta.quot(s);
+                   :(typeof(getfield(dest, $sq)) <: AbstractArray ?
+                     recursivecopy!(getfield(dest, $sq), getfield(src, $sq)) :
+                     setfield!(dest, $sq, deepcopy(getfield(src, $sq)))))
+                   for s in fieldnames(dest)]
+    :($(assignments...); dest)
 end
 
-@generated function copy_non_array_fields!{T}(dest::DEDataArray{T}, src::DEDataArray{T})
-  assignments = [:(typeof(getfield(dest,$i)) <: AbstractArray ? recursivecopy!(getfield(dest, $i),getfield(src, $i)) : setfield!(dest, $i, getfield(src, $i))) for i=2:nfields(dest)]
-  :($(assignments...); dest)
+"""
+    copy_fields(arr:AbstractArray, template::DEDataArray)
+
+Create `DEDataArray` that wraps `arr` with all other fields set to a deep copy of the
+value in `template`.
+"""
+@generated function copy_fields(arr::AbstractArray, template::DEDataArray)
+    assignments = [s == :x ? :(arr) :
+                   (sq = Meta.quot(s); :(deepcopy(getfield(template, $sq))))
+                   for s in fieldnames(template)]
+    :(parameterless_type(template)($(assignments...)))
 end
 
-getindex( A::DEDataArray,    i::Int) = (A.x[i])
-setindex!(A::DEDataArray, x, i::Int) = (A.x[i] = x)
-getindex( A::DEDataArray,    i::Int...) = (A.x[i...])
-setindex!(A::DEDataArray, x, i::Int...) = (A.x[i...] = x)
-Base.IndexStyle(::Type{DEDataArray}) = Base.IndexLinear()
+"""
+    copy_fields!(dest::T, src::T) where {T<:DEDataArray}
+
+Replace all fields of `dest` except of its wrapped array with a copy of the value in `src`.
+Arrays are recursively copied.
+"""
+@generated function copy_fields!(dest::T, src::T) where {T<:DEDataArray}
+    assignments = [(sq = Meta.quot(s);
+                    :(typeof(getfield(dest, $sq)) <: AbstractArray ?
+                      recursivecopy!(getfield(dest, $sq), getfield(src, $sq)) :
+                      setfield!(dest, $sq, deepcopy(getfield(src, $sq)))))
+                   for s in fieldnames(dest) if s != :x]
+    :($(assignments...); dest)
+end

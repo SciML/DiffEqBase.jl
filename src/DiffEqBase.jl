@@ -4,8 +4,8 @@ module DiffEqBase
 
 using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat, Juno, LinearMaps
 
-import Base: length, ndims, size, getindex, setindex!, endof, show, print,
-             next, start, done, eltype, eachindex, similar
+import Base: length, size, getindex, setindex!, show, print,
+             next, start, done, similar, indices
 
 import Base: resize!, deleteat!
 
@@ -85,9 +85,13 @@ abstract type AbstractDiffEqInterpolation <: Function end
 abstract type AbstractDEOptions end
 abstract type DECache end
 abstract type DECallback end
-abstract type DEDataArray{T} <: AbstractVector{T} end
 
-export AbstractDiffEqInterpolation, AbstractDEOptions, DECache, DECallback, DEDataArray
+abstract type DEDataArray{T,N} <: AbstractArray{T,N} end
+const DEDataVector{T} = DEDataArray{T,1}
+const DEDataMatrix{T} = DEDataArray{T,2}
+
+export AbstractDiffEqInterpolation, AbstractDEOptions, DECache, DECallback, DEDataArray,
+       DEDataVector, DEDataMatrix
 
 # Integrators
 abstract type DEIntegrator end
@@ -205,6 +209,8 @@ export resize!,deleteat!,addat!,full_cache,user_cache,u_cache,du_cache,
        savevalues!
 
 export numargs, @def
+
+export recursivecopy!, copy_fields, copy_fields!
 
 export construct_correlated_noisefunc
 
