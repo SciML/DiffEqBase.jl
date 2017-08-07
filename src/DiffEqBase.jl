@@ -220,7 +220,8 @@ export DiscreteProblem
 export SteadyStateProblem, SteadyStateSolution
 export NoiseProblem
 export ODEProblem, ODESolution
-export AbstractDynamicalODEProblem, DynamicalODEProblem, SecondOrderODEProblem
+export AbstractDynamicalODEProblem, DynamicalODEFunction,
+       DynamicalODEProblem, SecondOrderODEProblem
 export RODEProblem, RODESolution, SDEProblem
 export SecondOrderSDEProblem
 export DAEProblem, DAESolution
