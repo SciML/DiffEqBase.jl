@@ -249,8 +249,6 @@ export ContinuousCallback, DiscreteCallback, CallbackSet
 
 export initialize!
 
-export copy_non_array_fields, copy_non_array_fields!
-
 export param_values, num_params, problem_new_parameters, set_param_values!
 
 export white_noise_func_wrapper, white_noise_func_wrapper!
