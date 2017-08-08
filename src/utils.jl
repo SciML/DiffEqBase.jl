@@ -26,7 +26,7 @@ function isinplace(f,inplace_param_number)
   numargs(f)>=inplace_param_number
 end
 
-function isinplace{iip}(f::AbstractParameterizedFunction{iip},inplace_param_number)
+function isinplace(f::AbstractParameterizedFunction{iip},inplace_param_number) where iip
   iip
 end
 

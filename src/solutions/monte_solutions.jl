@@ -1,4 +1,4 @@
-type MonteCarloTestSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
+mutable struct MonteCarloTestSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
   u::S
   errors::Dict{Symbol,Vector{T}}
   weak_errors::Dict{Symbol,T}
@@ -7,26 +7,26 @@ type MonteCarloTestSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
   elapsedTime::Float64
   converged::Bool
 end
-function MonteCarloTestSolution{T,N}(sim::AbstractMonteCarloSolution{T,N},errors,weak_errors,error_means,error_medians,elapsedTime,converged)
+function MonteCarloTestSolution(sim::AbstractMonteCarloSolution{T,N},errors,weak_errors,error_means,error_medians,elapsedTime,converged) where {T,N}
   MonteCarloTestSolution{T,N,typeof(sim.u)}(sim.u,errors,weak_errors,error_means,error_medians,sim.elapsedTime,sim.converged)
 end
 function MonteCarloTestSolution(u,errors,weak_errors,error_means,error_medians,elapsedTime,converged)
   MonteCarloTestSolution(MonteCarloSolution(u,elapsedTime,converged),errors,weak_errors,error_means,error_medians,elapsedTime,converged)
 end
 
-type MonteCarloSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
+mutable struct MonteCarloSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
   u::S
   elapsedTime::Float64
   converged::Bool
 end
-MonteCarloSolution{N}(sim, dims::NTuple{N},elapsedTime,converged) =
+MonteCarloSolution(sim, dims::NTuple{N},elapsedTime,converged) where {N} =
                   MonteCarloSolution{eltype(eltype(sim)), N, typeof(sim)}(sim,elapsedTime,converged)
 MonteCarloSolution(sim,elapsedTime,converged) =
              MonteCarloSolution(sim, (length(sim),),elapsedTime,converged) # Vector of some type which is not an array
 MonteCarloSolution(sim::T,elapsedTime,converged) where T <: AbstractVector{T2} where T2 <: AbstractArray =
              MonteCarloSolution(sim, (size(sim[1])..., length(sim)),elapsedTime,converged) # Requires `size` defined on `sim`
 
-type MonteCarloSummary{T,N,Tt,S,S2,S3,S4} <: AbstractMonteCarloSolution{T,N}
+mutable struct MonteCarloSummary{T,N,Tt,S,S2,S3,S4} <: AbstractMonteCarloSolution{T,N}
   t::Tt
   u::S
   v::S2

@@ -1,11 +1,11 @@
 using DiffEqBase, Base.Test
 
-type VectorType{T} <: DEDataVector{T}
+mutable struct VectorType{T} <: DEDataVector{T}
     x::Vector{T}
     f::T
 end
 
-type MatrixType{T,S} <: DEDataMatrix{T}
+mutable struct MatrixType{T,S} <: DEDataMatrix{T}
     f::S
     x::Matrix{T}
 end

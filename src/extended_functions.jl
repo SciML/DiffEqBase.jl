@@ -32,8 +32,8 @@ __has_jac(f) = check_first_arg(f, Val{:jac})
 __has_tgrad(f) = check_first_arg(f, Val{:tgrad})
 @generated SimpleTraits.trait{F}(::Type{HasJac{F}}) = __has_jac(F) ? :(HasJac{F}) : :(Not{HasJac{F}})
 @generated SimpleTraits.trait{F}(::Type{HastGrad{F}}) = __has_tgrad(F) ? :(HastGrad{F}) : :(Not{HastGrad{F}})
-has_jac{T}(f::T)   = istrait(HasJac{T})
-has_tgrad{T}(f::T) = istrait(HastGrad{T})
+has_jac(f::T) where {T} = istrait(HasJac{T})
+has_tgrad(f::T) where {T} = istrait(HastGrad{T})
 
 # Performance
 @traitdef HasExpJac{F}
@@ -48,10 +48,10 @@ __has_invW_t(f) = check_first_arg(f, Val{:invW_t})
 @generated SimpleTraits.trait{F}(::Type{HasInvJac{F}}) = __has_invjac(F) ? :(HasInvJac{F}) : :(Not{HasInvJac{F}})
 @generated SimpleTraits.trait{F}(::Type{HasInvW{F}}) = __has_invW(F) ? :(HasInvW{F}) : :(Not{HasInvW{F}})
 @generated SimpleTraits.trait{F}(::Type{HasInvW_t{F}}) = __has_invW_t(F) ? :(HasInvW_t{F}) : :(Not{HasInvW_t{F}})
-has_expjac{T}(f::T) = istrait(HasExpJac{T})
-has_invjac{T}(f::T) = istrait(HasInvJac{T})
-has_invW{T}(f::T)   = istrait(HasInvW{T})
-has_invW_t{T}(f::T) = istrait(HasInvW_t{T})
+has_expjac(f::T) where {T} = istrait(HasExpJac{T})
+has_invjac(f::T) where {T} = istrait(HasInvJac{T})
+has_invW(f::T) where {T} = istrait(HasInvW{T})
+has_invW_t(f::T) where {T} = istrait(HasInvW_t{T})
 
 # Hessians
 @traitdef HasHes{F}
@@ -60,8 +60,8 @@ __has_hes(f) = check_first_arg(f, Val{:hes})
 __has_invhes(f) = check_first_arg(f, Val{:invhes})
 @generated SimpleTraits.trait{F}(::Type{HasHes{F}}) = __has_hes(F) ? :(HasHes{F}) : :(Not{HasHes{F}})
 @generated SimpleTraits.trait{F}(::Type{HasInvHes{F}}) = __has_invhes(F) ? :(HasInvHes{F}) : :(Not{HasInvHes{F}})
-has_hes{T}(f::T)      = istrait(HasHes{T})
-has_invhes{T}(f::T)   = istrait(HasInvHes{T})
+has_hes(f::T) where {T} = istrait(HasHes{T})
+has_invhes(f::T) where {T} = istrait(HasInvHes{T})
 
 # Parameter-Based
 @traitdef HasParamDeriv{F}
@@ -70,20 +70,20 @@ __has_paramderiv(f) = check_first_arg(f, Val{:deriv})
 __has_paramjac(f) = check_first_arg(f, Val{:paramjac})
 @generated SimpleTraits.trait{F}(::Type{HasParamDeriv{F}}) = __has_paramderiv(F) ? :(HasParamDeriv{F}) : :(Not{HasParamDeriv{F}})
 @generated SimpleTraits.trait{F}(::Type{HasParamJac{F}}) = __has_paramjac(F) ? :(HasParamJac{F}) : :(Not{HasParamJac{F}})
-has_paramderiv{T}(f::T) = istrait(HasParamDeriv{T})
-has_paramjac{T}(f::T)   = istrait(HasParamJac{T})
+has_paramderiv(f::T) where {T} = istrait(HasParamDeriv{T})
+has_paramjac(f::T) where {T} = istrait(HasParamJac{T})
 
 ## Parameter Names Check
 @traitdef HasSyms{F}
 __has_syms(f) = :syms ∈ fieldnames(f)
 @generated SimpleTraits.trait{F}(::Type{HasSyms{F}}) = __has_syms(F) ? :(HasSyms{F}) : :(Not{HasSyms{F}})
-has_syms{T}(f::T) = istrait(HasSyms{T})
+has_syms(f::T) where {T} = istrait(HasSyms{T})
 
 ## Analytical Solution Check
 @traitdef HasAnalytic{F}
 __has_analytic(f) = check_first_arg(f, Val{:analytic})
 @generated SimpleTraits.trait{F}(::Type{HasAnalytic{F}}) = __has_analytic(F) ? :(HasAnalytic{F}) : :(Not{HasAnalytic{F}})
-has_analytic{T}(f::T) = istrait(HasAnalytic{T})
+has_analytic(f::T) where {T} = istrait(HasAnalytic{T})
 
 # now a trait methods can dispatch on this:
 # @traitfn fn(g::::HasJac, ...) = ...

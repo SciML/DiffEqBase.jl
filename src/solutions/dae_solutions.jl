@@ -1,4 +1,4 @@
-type DAESolution{T,N,uType,duType,uType2,DType,tType,P,A,ID} <: AbstractODESolution{T,N}
+mutable struct DAESolution{T,N,uType,duType,uType2,DType,tType,P,A,ID} <: AbstractODESolution{T,N}
   u::uType
   du::duType
   u_analytic::uType2
@@ -14,11 +14,11 @@ end
 (sol::DAESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
 (sol::DAESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
 
-function build_solution{uType,duType,tType,isinplace}(
+function build_solution(
         prob::AbstractDAEProblem{uType,duType,tType,isinplace},
-        alg,t,u;dense=false,du=[],
-        interp = !isempty(du) ? HermiteInterpolation(t,u,du) : LinearInterpolation(t,u),
-        timeseries_errors=true,dense_errors=true, retcode = :Default, kwargs...)
+alg,t,u;dense=false,du=[],
+interp = !isempty(du) ? HermiteInterpolation(t,u,du) : LinearInterpolation(t,u),
+timeseries_errors=true,dense_errors=true, retcode = :Default, kwargs...) where {uType,duType,tType,isinplace}
 
   T = eltype(eltype(u))
   N = length((size(u[1])..., length(u)))
