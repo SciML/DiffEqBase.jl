@@ -12,12 +12,12 @@ struct FwdEulerAlg <: EulerAlgs end
 
 struct BwdEulerAlg <: EulerAlgs end
 
-function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
-                                                 Alg::FwdEulerAlg;
-                                                 dt=(p.tspan[2]-p.tspan[1])/100,
-                                                 tstops=tType[],
-                                                 kwargs... # ignored kwargs
-                                                 )
+function DiffEqBase.solve(p::AbstractODEProblem{uType,tType,isinplace},
+                          Alg::FwdEulerAlg;
+                          dt=(p.tspan[2]-p.tspan[1])/100,
+                          tstops=tType[],
+                          kwargs... # ignored kwargs
+                          ) where {uType,tType,isinplace}
     u0 = p.u0
     f = p.f
     tspan = p.tspan
@@ -40,14 +40,14 @@ function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tTy
     build_solution(p, Alg, tstops, out)
 end
 
-function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
-                                                 Alg::BwdEulerAlg;
-                                                 dt=(p.tspan[2]-p.tspan[1])/100,
-                                                 tstops=tType[],
-                                                 tol=1e-5,
-                                                 maxiter=100,
-                                                 kwargs... # ignored kwargs
-                                                 )
+function DiffEqBase.solve(p::AbstractODEProblem{uType,tType,isinplace},
+                          Alg::BwdEulerAlg;
+                          dt=(p.tspan[2]-p.tspan[1])/100,
+                          tstops=tType[],
+                          tol=1e-5,
+                          maxiter=100,
+                          kwargs... # ignored kwargs
+                          ) where {uType,tType,isinplace}
     u0 = p.u0
     f = p.f
     tspan = p.tspan

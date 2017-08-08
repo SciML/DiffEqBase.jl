@@ -12,7 +12,7 @@ g123{T}(::Val{:jac}, x::T) = 2
 @code_llvm has_jac(g123)
 
 h123(x,y) = 1
-h123{T}(x::T) = 2
+h123(x::T) where {T} = 2
 
 struct T123 end
 (::T123)(a) = 1
@@ -51,7 +51,7 @@ struct G123 end
 
 using ParameterizedFunctions
 
-type  LotkaVolterra <: ParameterizedFunction
+mutable struct  LotkaVolterra <: ParameterizedFunction
           a::Float64
           b::Float64
 end

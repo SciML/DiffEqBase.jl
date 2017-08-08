@@ -1,10 +1,10 @@
-is_diagonal_noise{uType,tType,isinplace,ND}(prob::AbstractRODEProblem{uType,tType,isinplace,ND}) = ND <: Void
+is_diagonal_noise(prob::AbstractRODEProblem{uType,tType,isinplace,ND}) where {uType,tType,isinplace,ND} = ND <: Void
 
-isinplace{uType,tType,iip}(prob::AbstractODEProblem{uType,tType,iip}) = iip
-isinplace{uType,iip}(prob::AbstractSteadyStateProblem{uType,iip}) = iip
-isinplace{uType,tType,iip,ND}(prob::AbstractRODEProblem{uType,tType,iip,ND}) = iip
-isinplace{uType,tType,lType,iip}(prob::AbstractDDEProblem{uType,tType,lType,iip}) = iip
-isinplace{uType,duType,tType,iip}(prob::AbstractDAEProblem{uType,duType,tType,iip}) = iip
+isinplace(prob::AbstractODEProblem{uType,tType,iip}) where {uType,tType,iip} = iip
+isinplace(prob::AbstractSteadyStateProblem{uType,iip}) where {uType,iip} = iip
+isinplace(prob::AbstractRODEProblem{uType,tType,iip,ND}) where {uType,tType,iip,ND} = iip
+isinplace(prob::AbstractDDEProblem{uType,tType,lType,iip}) where {uType,tType,lType,iip} = iip
+isinplace(prob::AbstractDAEProblem{uType,duType,tType,iip}) where {uType,duType,tType,iip} = iip
 isinplace(prob::AbstractNoiseProblem) = isinplace(prob.noise)
 
 ### Displays
@@ -15,7 +15,7 @@ Juno.@render Juno.Inline x::DEProblem begin
 end
 
 Base.summary(prob::DEProblem) = string(parameterless_type(prob)," with uType ",typeof(prob.u0)," and tType ",typeof(prob.tspan[1]),". In-place: ",isinplace(prob))
-Base.summary{uType,iip}(prob::AbstractSteadyStateProblem{uType,iip}) = string(parameterless_type(prob)," with uType ",uType)
+Base.summary(prob::AbstractSteadyStateProblem{uType,iip}) where {uType,iip} = string(parameterless_type(prob)," with uType ",uType)
 Base.summary(prob::AbstractNoiseProblem) = string(parameterless_type(prob)," with WType ",typeof(prob.noise.W[1])," and tType ",typeof(prob.tspan[1]),". In-place: ",isinplace(prob))
 function Base.show(io::IO, A::DEProblem)
   println(io,summary(A))

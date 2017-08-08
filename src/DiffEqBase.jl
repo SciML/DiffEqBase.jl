@@ -188,7 +188,7 @@ include("common_defaults.jl")
 include("data_array.jl")
 include("internal_euler.jl")
 
-type ConvergenceSetup{P,C}
+mutable struct ConvergenceSetup{P,C}
     probs::P
     convergence_axis::C
 end

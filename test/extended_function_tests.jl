@@ -10,7 +10,7 @@ g123(x,y) = 1
 g123{T}(::Val{:jac}, x::T) = 2
 
 h123(x,y) = 1
-h123{T}(x::T) = 2
+h123(x::T) where {T} = 2
 
 struct T123 end
 (::T123)(a) = 1
