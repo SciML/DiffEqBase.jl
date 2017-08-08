@@ -13,6 +13,10 @@ import RecursiveArrayTools: recursivecopy!, tuples
 
 import RecursiveArrayTools: chain
 
+function solve end
+function solve! end
+function init end
+
 # Problems
 abstract type DEProblem end
 abstract type DEElement end
@@ -182,16 +186,12 @@ include("diffeq_operator.jl")
 include("linear_nonlinear.jl")
 include("common_defaults.jl")
 include("data_array.jl")
+include("internal_euler.jl")
 
 type ConvergenceSetup{P,C}
     probs::P
     convergence_axis::C
 end
-
-function solve end
-function solve! end
-function init end
-function step!(d::DEIntegrator) error("Integrator stepping is not implemented") end
 
 export DEParameters, Mesh, ExplicitRKTableau, ImplicitRKTableau
 

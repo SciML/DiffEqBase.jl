@@ -1,3 +1,4 @@
+function step!(d::DEIntegrator) error("Integrator stepping is not implemented") end
 resize!(i::DEIntegrator,ii::Int) = error("resize!: method has not been implemented for the integrator")
 deleteat!(i::DEIntegrator,ii) = error("deleteat!: method has not been implemented for the integrator")
 addat!(i::DEIntegrator,ii,val=zeros(length(idxs))) = error("addat!: method has not been implemented for the integrator")

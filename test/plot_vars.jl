@@ -1,17 +1,21 @@
-using OrdinaryDiffEq, ParameterizedFunctions, DiffEqBase, Base.Test
+using DiffEqBase.InternalEuler, DiffEqBase, Base.Test
 
 # Here's the problem to solve
 
-lorenz = @ode_def_bare Lorenz begin
-  dx = σ*(y-x)
-  dy = ρ*x-y-x*z
-  dz = x*y-β*z
-end σ = 10. β = 8./3. ρ => 28.
+struct LorenzFunction <: Function
+    syms::Vector{Symbol}
+end
+
+function (::LorenzFunction)(t,u)
+ [10.0(u[2]-u[1]),u[1]*(28.0-u[3]) - u[2],u[1]*u[2] - (8/3)*u[3]]
+end
+lorenz = LorenzFunction([:x,:y,:z])
 
 u0 = [1., 5., 10.]
 tspan = (0., 100.)
 prob = ODEProblem(lorenz, u0, tspan)
-sol = solve(prob,Tsit5())
+dt = 0.1
+sol = solve(prob,InternalEuler.FwdEulerAlg(), tstops=0:dt:1)
 
 @test DiffEqBase.interpret_vars([(0,1), (1,3), (4,5)],sol) == [(DiffEqBase.DEFAULT_PLOT_FUNC,0,1), (DiffEqBase.DEFAULT_PLOT_FUNC,1,3), (DiffEqBase.DEFAULT_PLOT_FUNC,4,5)]
 @test DiffEqBase.interpret_vars([1, (1,3), (4,5)],sol) == [(DiffEqBase.DEFAULT_PLOT_FUNC,0,1), (DiffEqBase.DEFAULT_PLOT_FUNC,1,3), (DiffEqBase.DEFAULT_PLOT_FUNC,4,5)]

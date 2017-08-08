@@ -1,19 +1,19 @@
 # This is a simple example showing how forward and backward Euler
 # could be wrapped
 
+module InternalEuler
+
 using DiffEqBase
 
 # make a algorithm type
-abstract EulerAlgs <: DiffEqBase.AbstractODEAlgorithm
+abstract type EulerAlgs <: DiffEqBase.AbstractODEAlgorithm end
 
-immutable FwdEulerAlg <: EulerAlgs
-end
+struct FwdEulerAlg <: EulerAlgs end
 
-immutable BwdEulerAlg <: EulerAlgs
-end
+struct BwdEulerAlg <: EulerAlgs end
 
 function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
-                                                 Alg::Type{FwdEulerAlg};
+                                                 Alg::FwdEulerAlg;
                                                  dt=(p.tspan[2]-p.tspan[1])/100,
                                                  tstops=tType[],
                                                  kwargs... # ignored kwargs
@@ -37,16 +37,11 @@ function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tTy
         out[i] = out[i-1] + dt*f(t,out[i-1])
     end
     # make solution type
-    build_ode_solution(p, Alg(), tstops, out)
+    build_solution(p, Alg, tstops, out)
 end
 
-# Try it
-dt = 0.01
-p = ODETestProblem((t,u)->u, 1.0, (t,u) -> exp(t), (0.0,1.0))
-sol = solve(p, FwdEulerAlg, tstops=0:dt:1)
-
 function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tType,isinplace},
-                                                 Alg::Type{BwdEulerAlg};
+                                                 Alg::BwdEulerAlg;
                                                  dt=(p.tspan[2]-p.tspan[1])/100,
                                                  tstops=tType[],
                                                  tol=1e-5,
@@ -75,7 +70,7 @@ function DiffEqBase.solve{uType,tType,isinplace}(p::AbstractODEProblem{uType,tTy
         out[i] = newton(t, dt, out[i-1], f, jac, tol, maxiter)
     end
     # make solution type
-    build_ode_solution(p, Alg(), tstops, out)
+    build_solution(p, Alg, tstops, out)
 end
 
 function newton(t, dt, u_last, f, jac, tol, maxiter)
@@ -89,21 +84,4 @@ function newton(t, dt, u_last, f, jac, tol, maxiter)
     error("Newton not converged")
 end
 
-# Try it
-ff(t,u) = u
-ff(::Val{:jac}, t, u) = 1
-p2 = ODETestProblem(ff, 1.0, (t,u) -> exp(t), (0.0,1.0) )
-sol2 = solve(p2, BwdEulerAlg, tstops=0:dt:1)
-
-
-
-using Plots
-plot(sol)
-plot!(sol2)
-#plot!(sol2, plot_analytic=true)
-
-using DiffEqDevTools
-dts = 1./2.^(8:-1:4)
-sim = test_convergence(dts,p2,BwdEulerAlg)
-@show sim.𝒪est[:final]
-plot(sim)
+end
