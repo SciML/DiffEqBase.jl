@@ -44,29 +44,3 @@ struct G123 end
 @test !tfn(G123())
 @test !tfn(T123)  # NOTE this is inconsistent as has_jac(T123)==true
 @test !tfn(G123)
-
-
-using ParameterizedFunctions
-
-type  LotkaVolterra <: AbstractParameterizedFunction{true}
-          a::Float64
-          b::Float64
-end
-(p::LotkaVolterra)(t,u,du) = begin
-        du[1] = p.a * u[1] - p.b * u[1]*u[2]
-        du[2] = -3 * u[2] + u[1]*u[2]
-end
-(p::LotkaVolterra)(::Val{:jac}, t, u, J) = 1
-
-lv = LotkaVolterra(0.0,0.0)
-
-@test has_jac(lv)
-@test !has_syms(lv)
-@test tfn(lv)
-
-lotka = @ode_def_nohes LotkaVolterraTest begin
-  dx = a*x - b*x*y
-  dy = -c*y + d*x*y
-end a=>1.5 b=>1 c=3 d=1
-
-@test has_syms(lotka)
