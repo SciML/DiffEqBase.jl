@@ -65,9 +65,13 @@ struct AffineDiffEqOperator{T,T1,T2,U} <: AbstractDiffEqOperator{T}
     Bs::T2
     u_cache::U
     function AffineDiffEqOperator{T}(As,Bs,u_cache=nothing) where T
+        all([size(a) == size(As[1])
+             for a in As]) || error("Operator sizes do not agree")
         new{T,typeof(As),typeof(Bs),typeof(u_cache)}(As,Bs,u_cache)
     end
 end
+
+Base.size(L::AffineDiffEqOperator) = size(L.As[1])
 
 
 function (L::AffineDiffEqOperator)(t::Number,u)
