@@ -68,3 +68,7 @@ Arrays are recursively copied.
                    for s in fieldnames(dest) if s != :x]
     :($(assignments...); dest)
 end
+
+################# Overloads for stiff solvers ##################################
+
+Base.A_ldiv_B!(A::DEDataArray,F::Factorization, B::DEDataArray) = A_ldiv_B!(A.x,F,B.x)
