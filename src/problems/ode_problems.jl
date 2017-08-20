@@ -76,3 +76,31 @@ function SecondOrderODEProblem{iip}(f,u0,du0,tspan;kwargs...) where iip
   ODEProblem{iip}(DynamicalODEFunction{iip}(f1,f),_u0,tspan,
                   SecondOrderODEProblem{iip}();kwargs...)
 end
+
+struct SplitFunction{iip,F1,F2,C} <: Function
+    f1::F1
+    f2::F2
+    cache::C
+    SplitFunction{iip}(f1,f2,cache) where iip =
+                        new{iip,typeof(f1),typeof(f2),typeof(cache)}(f1,f2,cache)
+end
+function (f::SplitFunction)(t,u)
+    f.f1(t,u) + f.f2(t,u)
+end
+function (f::SplitFunction)(t,u,du)
+    f.f1(t,u,f.cache)
+    f.f2(t,u,du)
+    du .+= f.cache
+end
+
+abstract type AbstractSplitODEProblem end
+struct SplitODEProblem{iip} <: AbstractSplitODEProblem end
+# u' = Au + f
+function SplitODEProblem(f1,f2,u0,tspan;kwargs...)
+  iip = isinplace(f2,3)
+  SplitODEProblem{iip}(f1,f2,u0,tspan;kwargs...)
+end
+function SplitODEProblem{iip}(f1,f2,u0,tspan;
+                                     func_cache=similar(u0),kwargs...) where iip
+  ODEProblem{iip}(SplitFunction{iip}(f1,f2,func_cache),u0,tspan;kwargs...)
+end
