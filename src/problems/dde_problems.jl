@@ -34,7 +34,7 @@ mutable struct DDEProblem{uType,tType,lType,lType2,isinplace,F,H,C,MM} <:
   function DDEProblem{isinplace}(f,h,u0,tspan,constant_lags,dependent_lags=nothing;
                                  mass_matrix=I,
                                  neutral = mass_matrix == I ?
-                                           true : det(mass_matrix)==1,
+                                           false : det(mass_matrix)!=1,
                                  callback = nothing) where {isinplace}
     new{typeof(u0),promote_type(map(typeof,tspan)...),
                typeof(constant_lags),typeof(dependent_lags),
