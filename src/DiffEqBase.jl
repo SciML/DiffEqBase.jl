@@ -62,6 +62,10 @@ abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractOD
 
 export AbstractSecondOrderODEProblem
 
+abstract type AbstractBVProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
+
+export AbstractBVProblem
+
 # Algorithms
 abstract type DEAlgorithm end
 abstract type AbstractSteadyStateAlgorithm <: DEAlgorithm end
@@ -173,6 +177,7 @@ include("problems/ode_problems.jl")
 include("problems/rode_problems.jl")
 include("problems/sde_problems.jl")
 include("problems/noise_problems.jl")
+include("problems/bvp_problems.jl")
 include("problems/dae_problems.jl")
 include("problems/dde_problems.jl")
 include("problems/monte_problems.jl")
@@ -233,6 +238,8 @@ export RODEProblem, RODESolution, SDEProblem
 export SecondOrderSDEProblem
 export DAEProblem, DAESolution
 export ConstantLagDDEProblem, DDEProblem
+
+export BVProblem, TwoPointBVProblem
 
 export ParameterizedFunction, DAEParameterizedFunction,
        DDEParameterizedFunction,
