@@ -44,6 +44,7 @@ is_constant(L::AbstractDiffEqLinearOperator) = true
 # Other ones from LinearMaps.jl
 # Generic fallbacks
 Base.expm(L::AbstractDiffEqLinearOperator,t) = expm(t*L)
+has_expm(L::AbstractDiffEqLinearOperator,t) = true
 expmv(L::AbstractDiffEqLinearOperator,t,u) = expm(t,L)*u
 expmv!(v,L::AbstractDiffEqLinearOperator,t,u) = A_mul_B!(v,expm(t,L),u)
 # Factorizations have no fallback and just error
