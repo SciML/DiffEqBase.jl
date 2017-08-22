@@ -40,10 +40,10 @@ function build_solution(
   if has_analytic(f)
     if !(typeof(prob.u0) <: Tuple)
       u_analytic = Vector{typeof(prob.u0)}(0)
-      errors = Dict{Symbol,eltype(prob.u0)}()
+      errors = Dict{Symbol,real(eltype(prob.u0))}()
     else
       u_analytic = Vector{typeof(ArrayPartition(prob.u0))}(0)
-      errors = Dict{Symbol,eltype(prob.u0[1])}()
+      errors = Dict{Symbol,real(eltype(prob.u0[1]))}()
     end
 
     sol = ODESolution{T,N,typeof(u),typeof(u_analytic),typeof(errors),typeof(t),typeof(k),
@@ -76,17 +76,17 @@ function calculate_solution_errors!(sol::AbstractODESolution;fill_uanalytic=true
 
   save_everystep = length(sol.u) > 2
   if !isempty(sol.u_analytic)
-    sol.errors[:final] = recursive_mean(abs.(sol.u[end].-sol.u_analytic[end]))
+    sol.errors[:final] = norm(recursive_mean(abs.(sol.u[end].-sol.u_analytic[end])))
 
     if save_everystep && timeseries_errors
-      sol.errors[:l∞] = maximum(vecvecapply((x)->abs.(x),sol.u-sol.u_analytic))
-      sol.errors[:l2] = sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic)))
+      sol.errors[:l∞] = norm(maximum(vecvecapply((x)->abs.(x),sol.u-sol.u_analytic)))
+      sol.errors[:l2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic))))
       if sol.dense && dense_errors
         densetimes = collect(linspace(sol.t[1],sol.t[end],100))
         interp_u = sol(densetimes)
         interp_analytic = VectorOfArray([f(Val{:analytic},t,sol.prob.u0) for t in densetimes])
-        sol.errors[:L∞] = maximum(abs.(interp_u.-interp_analytic))
-        sol.errors[:L2] = sqrt(mean((interp_u.-interp_analytic).^2))
+        sol.errors[:L∞] = norm(maximum(abs.(interp_u.-interp_analytic)))
+        sol.errors[:L2] = norm(sqrt(mean((interp_u.-interp_analytic).^2)))
       end
     end
   end

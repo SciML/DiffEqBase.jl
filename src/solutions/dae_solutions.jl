@@ -31,19 +31,19 @@ timeseries_errors=true,dense_errors=true, retcode = :Default, kwargs...) where {
 
     save_everystep = length(u) > 2
 
-    errors = Dict{Symbol,eltype(u[1])}()
+    errors = Dict{Symbol,real(eltype(prob.u0))}()
     if !isempty(u_analytic)
-      errors[:final] = recursive_mean(abs.(u[end]-u_analytic[end]))
+      errors[:final] = norm(recursive_mean(abs.(u[end]-u_analytic[end])))
 
       if save_everystep && timeseries_errors
-        errors[:l∞] = maximum(vecvecapply((x)->abs.(x),u-u_analytic))
-        errors[:l2] = sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,u-u_analytic)))
+        errors[:l∞] = norm(maximum(vecvecapply((x)->abs.(x),u-u_analytic)))
+        errors[:l2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,u-u_analytic))))
         if dense && dense_errors
           densetimes = collect(linspace(t[1],t[end],100))
           interp_u = interp(densetimes)
           interp_analytic = [prob.analytic(t,u[1]) for t in densetimes]
-          errors[:L∞] = maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic))
-          errors[:L2] = sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,interp_u-interp_analytic)))
+          errors[:L∞] = norm(maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic)))
+          errors[:L2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,interp_u-interp_analytic))))
         end
       end
     end

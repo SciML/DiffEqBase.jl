@@ -40,7 +40,7 @@ function build_solution(
 
   if has_analytic(f)
     u_analytic = Vector{typeof(prob.u0)}(0)
-    errors = Dict{Symbol,eltype(prob.u0)}()
+    errors = Dict{Symbol,real(eltype(prob.u0))}()
     sol = RODESolution{T,N,typeof(u),typeof(u_analytic),typeof(errors),typeof(t),typeof(W),
                        typeof(prob),typeof(alg),typeof(interp)}(
                        u,u_analytic,errors,t,W,prob,alg,interp,dense,0,retcode,seed)
@@ -73,17 +73,17 @@ function calculate_solution_errors!(sol::AbstractRODESolution;fill_uanalytic=tru
   end
 
   if !isempty(sol.u_analytic)
-    sol.errors[:final] = recursive_mean(abs.(sol.u[end]-sol.u_analytic[end]))
+    sol.errors[:final] = norm(recursive_mean(abs.(sol.u[end]-sol.u_analytic[end])))
     if timeseries_errors
-      sol.errors[:l∞] = maximum(vecvecapply((x)->abs.(x),sol.u-sol.u_analytic))
-      sol.errors[:l2] = sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic)))
+      sol.errors[:l∞] = norm(maximum(vecvecapply((x)->abs.(x),sol.u-sol.u_analytic)))
+      sol.errors[:l2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic))))
     end
     if dense_errors
       densetimes = collect(linspace(sol.t[1],sol.t[end],100))
       interp_u = sol(densetimes)
       interp_analytic = [f(Val{:analytic},t,sol.u[1],sol.W(t)[1]) for t in densetimes]
-      sol.errors[:L∞] = maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic))
-      sol.errors[:L2] = sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,interp_u-interp_analytic)))
+      sol.errors[:L∞] = norm(maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic)))
+      sol.errors[:L2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,interp_u-interp_analytic))))
     end
   end
 end
