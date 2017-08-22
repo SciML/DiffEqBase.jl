@@ -26,8 +26,8 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
   tdir = sign(t[end]-t[1])
   idx = sortperm(tvals,rev=tdir<0)
   i = 2 # Start the search thinking it's between t[1] and t[2]
-  tvals[idx[end]] > t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
-  tvals[idx[1]] < t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
+  tdir*tvals[idx[end]] > tdir*t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
+  tdir*tvals[idx[1]] < tdir*t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   if typeof(idxs) <: Number
     vals = Vector{eltype(first(u))}(length(tvals))
   elseif typeof(idxs) <: AbstractVector
@@ -78,8 +78,8 @@ times t (sorted), with values u and derivatives ks
   tdir = sign(t[end]-t[1])
   idx = sortperm(tvals,rev=tdir<0)
   i = 2 # Start the search thinking it's between t[1] and t[2]
-  tvals[idx[end]] > t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
-  tvals[idx[1]] < t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
+  tdir*tvals[idx[end]] > tdir*t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
+  tdir*tvals[idx[1]] < tdir*t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   @inbounds for j in idx
     t = tvals[j]
     i = searchsortedfirst(@view(t[i:end]),tval,rev=tdir<0)+i-1 # It's in the interval t[i-1] to t[i]
@@ -127,9 +127,9 @@ times t (sorted), with values u and derivatives ks
 @inline function interpolation(tval::Number,id,idxs,deriv)
   t = id.t; u = id.u
   typeof(id) <: HermiteInterpolation && (du = id.du)
-  tval > t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
-  tval < t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   tdir = sign(t[end]-t[1])
+  tdir*tval > tdir*t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
+  tdir*tval < tdir*t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   @inbounds i = searchsortedfirst(t,tval,rev=tdir<0) # It's in the interval t[i-1] to t[i]
   avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
   avoid_constant_ends && i==1 && (i+=1)
@@ -167,9 +167,9 @@ times t (sorted), with values u and derivatives ks
 @inline function interpolation!(out,tval::Number,id,idxs,deriv)
   t = id.t; u = id.u
   typeof(id) <: HermiteInterpolation && (du = id.du)
-  tval > t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
-  tval < t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   tdir = sign(t[end]-t[1])
+  tdir*tval > tdir*t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
+  tdir*tval < tdir*t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   @inbounds i = searchsortedfirst(t,tval,rev=tdir<0) # It's in the interval t[i-1] to t[i]
   avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
   avoid_constant_ends && i==1 && (i+=1)
