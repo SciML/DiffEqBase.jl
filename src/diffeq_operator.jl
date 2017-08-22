@@ -12,6 +12,16 @@
 update_coefficients!(L,t,u) = nothing
 update_coefficients(L,t,u) = L
 
+# Traits
+is_constant(L::AbstractDiffEqOperator) = false
+has_expmv!(L::AbstractDiffEqOperator) = false # expmv!(v, L, t, u)
+has_expmv(L::AbstractDiffEqOperator) = false # v = expm(L, t, u)
+has_expm(L::AbstractDiffEqOperator) = false # v = expm(L, t)*u
+has_mul(L::AbstractDiffEqOperator) = true # du = L*u
+has_mul!(L::AbstractDiffEqOperator) = false # A_mul_B!(du, L, u)
+has_ldiv(L::AbstractDiffEqOperator) = false # du = L\u
+has_ldiv!(L::AbstractDiffEqOperator) = false # A_ldiv_B!(du, L, u)
+
 ### AbstractDiffEqLinearOperator Interface
 
 #=
