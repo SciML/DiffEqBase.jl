@@ -1,6 +1,6 @@
 INITIALIZE_DEFAULT(cb,t,u,integrator) = nothing
 
-struct ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: DECallback
+struct ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   condition::F1
   affect!::F2
   affect_neg!::F3
@@ -58,7 +58,7 @@ struct CallbackSet{T1<:Tuple,T2<:Tuple} <: DECallback
 end
 
 CallbackSet(callback::DiscreteCallback) = CallbackSet((),(callback,))
-CallbackSet(callback::ContinuousCallback) = CallbackSet((callback,),())
+CallbackSet(callback::AbstractContinuousCallback) = CallbackSet((callback,),())
 CallbackSet() = CallbackSet((),())
 CallbackSet(cb::Void) = CallbackSet()
 
@@ -67,7 +67,7 @@ CallbackSet(callbacks::Union{DECallback,Void}...) = CallbackSet(split_callbacks(
 
 @inline split_callbacks(cs, ds) = cs, ds
 @inline split_callbacks(cs, ds, c::Void, args...) = split_callbacks(cs, ds, args...)
-@inline split_callbacks(cs, ds, c::ContinuousCallback, args...) = split_callbacks((cs..., c), ds, args...)
+@inline split_callbacks(cs, ds, c::AbstractContinuousCallback, args...) = split_callbacks((cs..., c), ds, args...)
 @inline split_callbacks(cs, ds, d::DiscreteCallback, args...) = split_callbacks(cs, (ds..., d), args...)
 @inline function split_callbacks(cs, ds, d::CallbackSet, args...)
   split_callbacks((cs...,d.continuous_callbacks...), (ds..., d.discrete_callbacks...), args...)
