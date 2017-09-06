@@ -71,4 +71,5 @@ end
 
 ################# Overloads for stiff solvers ##################################
 
-Base.A_ldiv_B!(A::DEDataArray,F::Factorization, B::DEDataArray) = A_ldiv_B!(A.x,F,B.x)
+A_ldiv_B!(A::DEDataArray,F::Factorization, B::DEDataArray) = A_ldiv_B!(A.x,F,B.x)
+A_ldiv_B!(F::Factorization, B::DEDataArray) = A_ldiv_B!(F, B.x)
