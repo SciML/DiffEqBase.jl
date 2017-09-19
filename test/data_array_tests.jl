@@ -53,14 +53,14 @@ a2 = similar(a); b2 = similar(b, (1,4)); b3 = similar(b, Float64, (1, 4))
 DiffEqBase.recursivecopy!(a2, a)
 DiffEqBase.recursivecopy!(b2, b)
 @test a2.x == A && vec(b2.x) == vec(B)
-@test_throws MethodError DiffEqBase.recursivecopy!(b3, b)
+DiffEqBase.recursivecopy!(b3, b)
 
 # copy all fields except of field x
 a2.f = 3.0; b2.f = -1; b3.f == 0
 DiffEqBase.copy_fields!(a, a2)
 DiffEqBase.copy_fields!(b, b2)
 @test a.f == 3.0 && b.f == -1.0
-@test_throws MethodError DiffEqBase.copy_fields!(b, b3)
+DiffEqBase.copy_fields!(b, b3)
 
 # create data array with field x replaced by new array
 a3 = DiffEqBase.copy_fields([1.0; 0.0], a)
