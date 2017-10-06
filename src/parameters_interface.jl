@@ -2,7 +2,11 @@ function param_values(f::AbstractParameterizedFunction)
   [getfield(f,s) for s in f.params]
 end
 function set_param_values!(f::AbstractParameterizedFunction,params)
-  [setfield!(f,s,p) for (s,p) in zip(f.params,params)]
+  if typeof(f.params) <: AbstractArray
+    [setfield!(f,s,p) for (s,p) in zip(f.params,params)]
+  else
+    f.params = params
+  end
 end
 function set_param_values!(f::AbstractParameterizedFunction,params::Dict)
     for (name, value) in params

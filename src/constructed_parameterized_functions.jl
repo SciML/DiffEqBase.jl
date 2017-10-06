@@ -68,4 +68,10 @@ end
 
 param_values(pf::ConstructedParameterizedFunction) = pf.params
 num_params(pf::ConstructedParameterizedFunction) = length(pf.params)
-set_param_values!(pf::ConstructedParameterizedFunction,params) = (pf.params .= params)
+function set_param_values!(pf::ConstructedParameterizedFunction,params)
+  if typeof(pf.params) <: Number
+    pf.params = params
+  else
+    pf.params .= params
+  end
+end
