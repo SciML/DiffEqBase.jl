@@ -51,6 +51,16 @@ end
 param_values(prob::ConstantLagDDEProblem) = param_values(prob.f)
 num_params(prob::ConstantLagDDEProblem) = num_params(prob.f)
 
+function problem_new_parameters(prob::DDEProblem,p)
+  f = (t,u,h,du) -> prob.f(t,u,h,p,du)
+  uEltype = eltype(p)
+  u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
+  tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
+  DDEProblem(f,prob.h,u0,tspan,prob.constant_lags,prob.dependent_lags)
+end
+param_values(prob::DDEProblem) = param_values(prob.f)
+num_params(prob::DDEProblem) = num_params(prob.f)
+
 function problem_new_parameters(prob::SDEProblem,p)
   fpars = num_params(prob.f)
   if fpars > 0
