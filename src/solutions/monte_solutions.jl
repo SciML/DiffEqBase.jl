@@ -88,10 +88,6 @@ end
 function Base.show(io::IO, m::MIME"text/plain", A::AbstractMonteCarloSolution)
   print(io,summary(A))
 end
-function Base.display(A::AbstractMonteCarloSolution)
-  print(summary(A))
-  nothing
-end
 function Base.print(io::IO,A::AbstractMonteCarloSolution)
   show(io,A)
 end

@@ -47,31 +47,6 @@ function Base.show(io::IO, A::AbstractSteadyStateProblem)
   print(io,"u0: ")
   show(io, A.u0)
 end
-function Base.display(io::IO, A::DEProblem)
-  println(io,summary(A))
-  print(io,"timespan: ")
-  display(io,A.tspan)
-  println(io)
-  print(io,"u0: ")
-  display(io, A.u0)
-end
-function Base.display(io::IO, A::AbstractNoiseProblem)
-  println(io,summary(A))
-  print(io,"timespan: ")
-  display(io,A.tspan)
-  println(io)
-end
-function Base.display(io::IO, A::AbstractDAEProblem)
-  println(io,summary(A))
-  print(io,"timespan: ")
-  display(io,A.tspan)
-  println(io)
-  print(io,"u0: ")
-  display(io, A.u0)
-  println(io)
-  print(io,"du0: ")
-  display(io, A.du0)
-end
 function Base.print(io::IO,A::DEProblem)
   show(io,A)
 end
@@ -83,8 +58,5 @@ Base.println(A::DEProblem) = println(STDOUT,A)
 
 Base.summary(prob::AbstractMonteCarloProblem) = string(DiffEqBase.parameterless_type(prob)," with problem ",DiffEqBase.parameterless_type(prob.prob))
 function Base.show(io::IO, A::AbstractMonteCarloProblem)
-  println(io,summary(A))
-end
-function Base.display(io::IO, A::AbstractMonteCarloProblem)
   println(io,summary(A))
 end

@@ -39,16 +39,6 @@ function Base.show(io::IO, m::MIME"text/plain", A::AbstractTimeseriesSolution)
   print(io,"u: ")
   show(io,m,A.u)
 end
-function Base.display(A::AbstractTimeseriesSolution)
-  println(summary(A))
-  println(string("retcode: ",A.retcode))
-  println(string("Interpolation: "),interp_summary(A.interp))
-  println("t:")
-  display(A.t)
-  println("u:")
-  display(A.u)
-  nothing
-end
 function Base.print(io::IO,A::AbstractTimeseriesSolution)
   println(io,string("Retcode: ",A.retcode))
   println(io,string("Interpolation: "),interp_summary(A.interp))

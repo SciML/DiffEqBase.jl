@@ -41,13 +41,6 @@ function Base.show(io::IO, m::MIME"text/plain", A::DEIntegrator)
   print(io,"u: ")
   show(io,m,A.u)
 end
-function Base.display(A::DEIntegrator)
-  println(summary(A))
-  println(string("t: ",A.t))
-  println("u:")
-  display(A.u)
-  nothing
-end
 function Base.print(io::IO,A::DEIntegrator)
   println(io,string("t: ",A.t))
   println(io,string("u: ",summary(A.u)))
