@@ -75,14 +75,16 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
     else
       end_idx = sol.tslocation
     end
+    start_idx = 1
   else
-    end_idx = findlast(x -> x<tspan[end],sol.t)
+    start_idx = findfirst(x -> x>=tspan[end],sol.t)
+    end_idx = findlast(x -> x<=tspan[end],sol.t)
   end
 
   if denseplot
     # Generate the points from the plot from dense function
     if tspan == nothing
-      plott = collect(linspace(sol.t[1],sol.t[end_idx],plotdensity))
+      plott = collect(linspace(sol.t[start_idx],sol.t[end_idx],plotdensity))
     else
       plott = collect(linspace(tspan[1],tspan[end],plotdensity))
     end
@@ -108,14 +110,14 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
       end
     else
       if tspan == nothing
-        plott = sol.t[1:end_idx]
+        plott = sol.t[start_idx:end_idx]
       else
         plott = collect(linspace(tspan[1],tspan[2],plotdensity))
       end
 
-      plot_timeseries = sol.u[1:end_idx]
+      plot_timeseries = sol.u[start_idx:end_idx]
       if plot_analytic
-        plot_analytic_timeseries = sol.u_analytic[1:end_idx]
+        plot_analytic_timeseries = sol.u_analytic[start_idx:end_idx]
       else
         plot_analytic_timeseries = nothing
       end
