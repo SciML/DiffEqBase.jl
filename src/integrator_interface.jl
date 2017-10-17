@@ -41,18 +41,6 @@ function Base.show(io::IO, m::MIME"text/plain", A::DEIntegrator)
   print(io,"u: ")
   show(io,m,A.u)
 end
-function Base.print(io::IO,A::DEIntegrator)
-  println(io,string("t: ",A.t))
-  println(io,string("u: ",summary(A.u)))
-  Base.showarray(IOContext(io, :limit => true),A.u,false;header=false)
-end
-function Base.println(io::IO,A::DEIntegrator)
-  println(io,string("t: ",A.t))
-  println(io,string("u: ",summary(A.u)))
-  Base.showarray(IOContext(io, :limit => true),A.u,false;header=false)
-end
-Base.print(A::DEIntegrator) = print(STDOUT,A)
-Base.println(A::DEIntegrator) = println(STDOUT,A)
 
 # Juno Rendering
 
