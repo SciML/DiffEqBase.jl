@@ -47,16 +47,6 @@ function Base.show(io::IO, A::AbstractSteadyStateProblem)
   print(io,"u0: ")
   show(io, A.u0)
 end
-function Base.print(io::IO,A::DEProblem)
-  show(io,A)
-end
-function Base.println(io::IO,A::DEProblem)
-  show(io,A)
-end
-Base.print(A::DEProblem) = print(STDOUT,A)
-Base.println(A::DEProblem) = println(STDOUT,A)
 
 Base.summary(prob::AbstractMonteCarloProblem) = string(DiffEqBase.parameterless_type(prob)," with problem ",DiffEqBase.parameterless_type(prob.prob))
-function Base.show(io::IO, A::AbstractMonteCarloProblem)
-  println(io,summary(A))
-end
+Base.show(io::IO, A::AbstractMonteCarloProblem) = print(io,summary(A))
