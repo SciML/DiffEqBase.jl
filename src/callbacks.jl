@@ -1,4 +1,4 @@
-INITIALIZE_DEFAULT(cb,t,u,integrator) = nothing
+INITIALIZE_DEFAULT(cb,t,u,integrator) = u_modified!(integrator,false)
 
 struct ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   condition::F1
