@@ -64,18 +64,28 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
                    plot_analytic=false,
                    denseplot = (sol.dense || typeof(sol.prob) <: AbstractDiscreteProblem) && !(typeof(sol) <: AbstractRODESolution),
                    plotdensity = sol.tslocation==0 ? (typeof(sol.prob) <: AbstractDiscreteProblem ? 100*length(sol) : 10*length(sol)) : 100*sol.tslocation,
+                   tspan = nothing,
                    vars=nothing)
 
   int_vars = interpret_vars(vars,sol)
-  if sol.tslocation == 0
-    end_idx = length(sol)
+
+  if tspan == nothing
+    if sol.tslocation == 0
+      end_idx = length(sol)
+    else
+      end_idx = sol.tslocation
+    end
   else
-    end_idx = sol.tslocation
+    end_idx = findlast(x -> x<tspan[end],sol.t)
   end
 
   if denseplot
     # Generate the points from the plot from dense function
-    plott = collect(linspace(sol.t[1],sol.t[end_idx],plotdensity))
+    if tspan == nothing
+      plott = collect(linspace(sol.t[1],sol.t[end_idx],plotdensity))
+    else
+      plott = collect(linspace(tspan[1],tspan[end],plotdensity))
+    end
     plot_timeseries = sol(plott)
     if plot_analytic
       if typeof(sol.prob.f) <: Tuple
@@ -97,7 +107,12 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
         plot_analytic_timeseries = nothing
       end
     else
-      plott = sol.t[1:end_idx]
+      if tspan == nothing
+        plott = sol.t[1:end_idx]
+      else
+        plott = collect(linspace(tspan[1],tspan[2],plotdensity))
+      end
+
       plot_timeseries = sol.u[1:end_idx]
       if plot_analytic
         plot_analytic_timeseries = sol.u_analytic[1:end_idx]
