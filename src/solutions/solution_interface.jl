@@ -39,26 +39,6 @@ function Base.show(io::IO, m::MIME"text/plain", A::AbstractTimeseriesSolution)
   print(io,"u: ")
   show(io,m,A.u)
 end
-function Base.print(io::IO,A::AbstractTimeseriesSolution)
-  println(io,string("Retcode: ",A.retcode))
-  println(io,string("Interpolation: "),interp_summary(A.interp))
-  println(io,string("t: ",summary(A.t)))
-  Base.showarray(IOContext(io, :limit => true),reshape(A.t,1,:),false;header=false)
-  println(io)
-  println(io,string("u: ",summary(A.u)))
-  Base.showarray(IOContext(io, :limit => true),A.u,false;header=false)
-end
-function Base.println(io::IO,A::AbstractTimeseriesSolution)
-  println(io,string("Retcode: ",A.retcode))
-  println(io,string("Interpolation: "),interp_summary(A.interp))
-  println(io,string("t: ",summary(A.t)))
-  Base.showarray(IOContext(io, :limit => true),reshape(A.t,1,:),false;header=false)
-  println(io)
-  println(io,string("u: ",summary(A.u)))
-  Base.showarray(IOContext(io, :limit => true),A.u,false;header=false)
-end
-Base.print(A::AbstractTimeseriesSolution) = print(STDOUT,A)
-Base.println(A::AbstractTimeseriesSolution) = println(STDOUT,A)
 
 tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.t,sol.u)
 
