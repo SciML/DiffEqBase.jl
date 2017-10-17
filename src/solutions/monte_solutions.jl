@@ -88,14 +88,6 @@ end
 function Base.show(io::IO, m::MIME"text/plain", A::AbstractMonteCarloSolution)
   print(io,summary(A))
 end
-function Base.print(io::IO,A::AbstractMonteCarloSolution)
-  show(io,A)
-end
-function Base.println(io::IO,A::AbstractMonteCarloSolution)
-  show(io,A)
-end
-Base.print(A::AbstractMonteCarloSolution) = print(STDOUT,A)
-Base.println(A::AbstractMonteCarloSolution) = println(STDOUT,A)
 
 ### Plot Recipes
 
