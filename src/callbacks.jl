@@ -1,4 +1,6 @@
-INITIALIZE_DEFAULT(cb,t,u,integrator) = nothing
+# Necessary to have initialize set u_modified to false if all don't do anything
+# otherwise unnecessary save
+INITIALIZE_DEFAULT(cb,t,u,integrator) = integrator.u_modified = false
 
 struct ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   condition::F1
