@@ -1,4 +1,4 @@
-struct DiffEqFunction{F,Ta,Tt,TJ,TIJ,TW,TWt,TPJ}
+struct DiffEqFunction{iip,F,Ta,Tt,TJ,TIJ,TW,TWt,TPJ} <: AbstractDiffEqFunction{iip}
   f::F
   analytic::Ta
   tgrad::Tt
@@ -22,14 +22,47 @@ end
 
 ######### Basic Constructor
 
-DiffEqFunction(f;analytic=nothing,
+function DiffEqFunction{iip}(f;analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
                  invjac=nothing,
                  invW=nothing,
                  invW_t=nothing,
-                 paramjac = nothing) =
-                 DiffEqFunction(f,analytic,tgrad,jac,invjac,invW,invW_t,paramjac)
+                 paramjac = nothing) where iip
+                 DiffEqFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
+                 typeof(jac),typeof(invjac),typeof(invW),typeof(invW_t),
+                 typeof(paramjac)}(f,analytic,tgrad,jac,invjac,invW,invW_t,
+                 paramjac)
+end
+
+######### No Specialization Constructors
+
+struct NSODEFunction{iip} <: AbstractDiffEqFunction{iip} end
+
+function NSODEFunction(f,t,u;kwargs...)
+  iip = typeof(f)<: Tuple ? isinplace(f[2],3) : isinplace(f,3)
+  NSODEFunction{iip}(f,t,u;kwargs...)
+end
+
+function NSODEFunction{iip}(f,t,u;analytic=nothing,
+                 tgrad=nothing,
+                 jac=nothing,
+                 invjac=nothing,
+                 invW=nothing,
+                 invW_t=nothing,
+                 paramjac = nothing) where iip
+                 if iip
+                   _f = (t,u,du) -> (f(t,u,du);nothing)
+                   wrap_f = FunctionWrappers.FunctionWrapper{Void,Tuple{typeof(t),typeof(u),typeof(u)}}(_f)
+                 else
+                   _f = f
+                   wrap_f = FunctionWrappers.FunctionWrapper{typeof(u),Tuple{typeof(t),typeof(u)}}(_f)
+                 end
+                 DiffEqFunction{iip,typeof(wrap_f),typeof(analytic),typeof(tgrad),
+                 typeof(jac),typeof(invjac),typeof(invW),typeof(invW_t),
+                 typeof(paramjac)}(wrap_f,analytic,tgrad,jac,invjac,invW,invW_t,
+                 paramjac)
+end
 
 ########## Existance Functions
 

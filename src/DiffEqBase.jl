@@ -2,7 +2,8 @@ __precompile__()
 
 module DiffEqBase
 
-using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat, Juno, LinearMaps
+using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat, Juno,
+      LinearMaps, FunctionWrappers
 
 import Base: length, size, getindex, setindex!, show, print,
              next, start, done, similar, indices, A_ldiv_B!
@@ -161,6 +162,10 @@ export AbstractParameterizedFunction, ConstructedParameterizedFunction
 abstract type AbstractDiffEqOperator{T} <: AbstractLinearMap{T} end
 abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T} end
 export AbstractDiffEqLinearOperator, AbstractDiffEqOperator
+
+
+abstract type AbstractDiffEqFunction{iip} <: Function end
+export AbstractDiffEqFunction
 
 include("utils.jl")
 include("extended_functions.jl")
