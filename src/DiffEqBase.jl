@@ -199,6 +199,8 @@ include("common_defaults.jl")
 include("data_array.jl")
 include("internal_euler.jl")
 
+export NSODEFunction
+
 struct ConvergenceSetup{P,C}
     probs::P
     convergence_axis::C
