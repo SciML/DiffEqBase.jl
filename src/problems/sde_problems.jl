@@ -1,4 +1,4 @@
-mutable struct SDEProblem{uType,tType,isinplace,NP,F,G,C,MM,ND} <: AbstractSDEProblem{uType,tType,isinplace,ND}
+struct SDEProblem{uType,tType,isinplace,NP,F,G,C,MM,ND} <: AbstractSDEProblem{uType,tType,isinplace,ND}
   f::F
   g::G
   u0::uType

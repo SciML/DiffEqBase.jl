@@ -1,5 +1,5 @@
 # Mu' = f
-mutable struct SteadyStateProblem{uType,isinplace,F,MM} <: AbstractSteadyStateProblem{uType,isinplace}
+struct SteadyStateProblem{uType,isinplace,F,MM} <: AbstractSteadyStateProblem{uType,isinplace}
   f::F
   u0::uType
   mass_matrix::MM
