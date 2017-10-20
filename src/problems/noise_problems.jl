@@ -1,4 +1,4 @@
-mutable struct NoiseProblem{N<:AbstractNoiseProcess,T} <: AbstractNoiseProblem
+struct NoiseProblem{N<:AbstractNoiseProcess,T} <: AbstractNoiseProblem
   noise::N
   tspan::Tuple{T,T}
   seed::UInt64

@@ -1,7 +1,7 @@
 struct StandardODEProblem end
 
 # Mu' = f
-mutable struct ODEProblem{uType,tType,isinplace,F,C,MM,PT} <:
+struct ODEProblem{uType,tType,isinplace,F,C,MM,PT} <:
                AbstractODEProblem{uType,tType,isinplace}
   f::F
   u0::uType
