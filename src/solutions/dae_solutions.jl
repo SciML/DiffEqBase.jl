@@ -55,9 +55,25 @@ timeseries_errors=true,dense_errors=true, retcode = :Default, kwargs...) where {
   end
 end
 
-function build_solution(sol::AbstractDAESolution,u_analytic,errors)
+function build_solution(sol::AbstractDAESolution{T,N},u_analytic,errors) where {T,N}
   DAESolution{T,N,typeof(sol.u),typeof(sol.du),typeof(u_analytic),typeof(errors),typeof(sol.t),
                      typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
                      sol.u,sol.du,u_analytic,errors,sol.t,sol.interp_data,
               sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation,sol.retcode)
+end
+
+function solution_new_retcode(sol::AbstractDAESolution{T,N},retcode) where {T,N}
+  DAESolution{T,N,typeof(sol.u),typeof(sol.du),typeof(sol.u_analytic),
+              typeof(sol.errors),typeof(sol.t),
+              typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+              sol.u,sol.du,sol.u_analytic,sol.errors,sol.t,sol.interp_data,
+              sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation,retcode)
+end
+
+function solution_new_tslocation(sol::AbstractDAESolution{T,N},tslocation) where {T,N}
+  DAESolution{T,N,typeof(sol.u),typeof(sol.du),typeof(sol.u_analytic),
+              typeof(sol.errors),typeof(sol.t),
+              typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+              sol.u,sol.du,sol.u_analytic,sol.errors,sol.t,sol.interp_data,
+              sol.prob,sol.alg,sol.interp,sol.dense,tslocation,sol.retcode)
 end

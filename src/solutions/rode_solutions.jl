@@ -88,17 +88,23 @@ function calculate_solution_errors!(sol::AbstractRODESolution;fill_uanalytic=tru
   end
 end
 
-function build_solution(sol::AbstractRODESolution,u_analytic,errors)
-  T = eltype(eltype(sol.u))
-
-  if typeof(sol.u) <: Tuple
-    N = length((size(ArrayPartition(sol.u))..., length(sol.u)))
-  else
-    N = length((size(sol.u[1])..., length(sol.u)))
-  end
-
+function build_solution(sol::AbstractRODESolution{T,N},u_analytic,errors) where {T,N}
   RODESolution{T,N,typeof(sol.u),typeof(u_analytic),typeof(errors),typeof(sol.t),
                typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
                sol.u,u_analytic,errors,sol.t,sol.W,sol.prob,sol.alg,sol.interp,
                sol.dense,sol.tslocation,sol.retcode,sol.seed)
+end
+
+function solution_new_retcode(sol::AbstractRODESolution{T,N},retcode) where {T,N}
+  RODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),typeof(sol.t),
+               typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+               sol.u,sol.u_analytic,sol.errors,sol.t,sol.W,sol.prob,sol.alg,sol.interp,
+               sol.dense,sol.tslocation,retcode,sol.seed)
+end
+
+function solution_new_tslocation(sol::AbstractRODESolution{T,N},tslocation) where {T,N}
+  RODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),typeof(sol.t),
+               typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+               sol.u,sol.u_analytic,sol.errors,sol.t,sol.W,sol.prob,sol.alg,sol.interp,
+               sol.dense,tslocation,sol.retcode,sol.seed)
 end
