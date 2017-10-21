@@ -1,4 +1,4 @@
-mutable struct SteadyStateSolution{T,N,uType,R,P,A} <: AbstractSteadyStateSolution{T,N}
+struct SteadyStateSolution{T,N,uType,R,P,A} <: AbstractSteadyStateSolution{T,N}
   u::uType
   resid::R
   prob::P

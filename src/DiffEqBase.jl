@@ -257,7 +257,7 @@ export DiffEqFunction
 
 export calculate_monte_errors
 
-export build_solution, calculate_solution_errors!
+export build_solution, solution_new_retcode, calculate_solution_errors!
 
 export ConvergenceSetup
 

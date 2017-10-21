@@ -1,6 +1,6 @@
 ### Concrete Types
 
-mutable struct RODESolution{T,N,uType,uType2,DType,tType,randType,P,A,IType} <: AbstractRODESolution{T,N}
+struct RODESolution{T,N,uType,uType2,DType,tType,randType,P,A,IType} <: AbstractRODESolution{T,N}
   u::uType
   u_analytic::uType2
   errors::DType

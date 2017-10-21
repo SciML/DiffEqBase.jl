@@ -1,4 +1,4 @@
-mutable struct MonteCarloTestSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
+struct MonteCarloTestSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
   u::S
   errors::Dict{Symbol,Vector{T}}
   weak_errors::Dict{Symbol,T}
@@ -14,7 +14,7 @@ function MonteCarloTestSolution(u,errors,weak_errors,error_means,error_medians,e
   MonteCarloTestSolution(MonteCarloSolution(u,elapsedTime,converged),errors,weak_errors,error_means,error_medians,elapsedTime,converged)
 end
 
-mutable struct MonteCarloSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
+struct MonteCarloSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
   u::S
   elapsedTime::Float64
   converged::Bool
@@ -26,7 +26,7 @@ MonteCarloSolution(sim,elapsedTime,converged) =
 MonteCarloSolution(sim::T,elapsedTime,converged) where T <: AbstractVector{T2} where T2 <: AbstractArray =
              MonteCarloSolution(sim, (size(sim[1])..., length(sim)),elapsedTime,converged) # Requires `size` defined on `sim`
 
-mutable struct MonteCarloSummary{T,N,Tt,S,S2,S3,S4} <: AbstractMonteCarloSolution{T,N}
+struct MonteCarloSummary{T,N,Tt,S,S2,S3,S4} <: AbstractMonteCarloSolution{T,N}
   t::Tt
   u::S
   v::S2

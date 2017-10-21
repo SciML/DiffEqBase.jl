@@ -1,4 +1,4 @@
-mutable struct ODESolution{T,N,uType,uType2,DType,tType,rateType,P,A,IType} <: AbstractODESolution{T,N}
+struct ODESolution{T,N,uType,uType2,DType,tType,rateType,P,A,IType} <: AbstractODESolution{T,N}
   u::uType
   u_analytic::uType2
   errors::DType
@@ -101,3 +101,16 @@ function build_solution(sol::AbstractODESolution,u_analytic,errors)
                      sol.u,u_analytic,errors,sol.t,sol.k,sol.prob,
                      sol.alg,sol.interp,sol.dense,sol.tslocation,sol.retcode)
 end
+
+function solution_new_retcode(sol::AbstractODESolution,retcode)
+  T = eltype(eltype(sol.u))
+  N = length((size(sol.u[1])..., length(sol.u)))
+  @show sol
+  @show sol.u
+  @show N
+  ODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),
+                     typeof(sol.t),typeof(sol.k),
+                     typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+                     sol.u,sol.u_analytic,sol.errors,sol.t,sol.k,sol.prob,
+                     sol.alg,sol.interp,sol.dense,sol.tslocation,retcode)
+ end
