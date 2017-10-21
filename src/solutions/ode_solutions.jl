@@ -92,25 +92,25 @@ function calculate_solution_errors!(sol::AbstractODESolution;fill_uanalytic=true
   end
 end
 
-function build_solution(sol::AbstractODESolution,u_analytic,errors)
-  T = eltype(eltype(sol.u))
-  N = length((size(sol.u[1])..., length(sol.u)))
-
+function build_solution(sol::AbstractODESolution{T,N},u_analytic,errors) where {T,N}
   ODESolution{T,N,typeof(sol.u),typeof(u_analytic),typeof(errors),typeof(sol.t),typeof(sol.k),
                      typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
                      sol.u,u_analytic,errors,sol.t,sol.k,sol.prob,
                      sol.alg,sol.interp,sol.dense,sol.tslocation,sol.retcode)
 end
 
-function solution_new_retcode(sol::AbstractODESolution,retcode)
-  T = eltype(eltype(sol.u))
-  N = length((size(sol.u[1])..., length(sol.u)))
-  @show sol
-  @show sol.u
-  @show N
+function solution_new_retcode(sol::AbstractODESolution{T,N},retcode) where {T,N}
   ODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),
                      typeof(sol.t),typeof(sol.k),
                      typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
                      sol.u,sol.u_analytic,sol.errors,sol.t,sol.k,sol.prob,
                      sol.alg,sol.interp,sol.dense,sol.tslocation,retcode)
  end
+
+ function solution_new_tslocation(sol::AbstractODESolution{T,N},tslocation) where {T,N}
+   ODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),
+                      typeof(sol.t),typeof(sol.k),
+                      typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+                      sol.u,sol.u_analytic,sol.errors,sol.t,sol.k,sol.prob,
+                      sol.alg,sol.interp,sol.dense,tslocation,sol.retcode)
+  end
