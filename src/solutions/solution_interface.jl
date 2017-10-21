@@ -43,14 +43,12 @@ end
 tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.t,sol.u)
 
 function start(sol::AbstractTimeseriesSolution)
-  sol.tslocation = 1
-  1
+  0
 end
 
 function next(sol::AbstractTimeseriesSolution,state)
   state += 1
-  sol.tslocation = state
-  (sol,state)
+  (solution_new_tslocation(sol,state),state)
 end
 
 function done(sol::AbstractTimeseriesSolution,state)
