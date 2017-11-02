@@ -104,3 +104,19 @@ function SplitODEProblem{iip}(f1,f2,u0,tspan;
                                      func_cache=similar(u0),kwargs...) where iip
   ODEProblem{iip}(SplitFunction{iip}(f1,f2,func_cache),u0,tspan;kwargs...)
 end
+
+"""
+    set_u0(prob::ODEProblem, u0) -> newprob
+Create a new problem from `prob` that has instead initial state `u0`.
+"""
+function set_u0(prob::ODEProblem, u0)
+    ODEProblem{isinplace(prob)}(
+    prob.f,
+    u0,
+    prob.tspan,
+    prob.callback,
+    prob.mass_matrix,
+    prob.problem_type)
+end
+
+export set_u0
