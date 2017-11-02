@@ -39,8 +39,8 @@ prob = SDEProblem{true}(f,g,u0,tspan)
 f_1delay = function (t,u,h,du)
     du[1] = - h(t-1)[1]
 end
-prob =  ConstantLagDDEProblem(f_1delay,t->zeros(1),ones(1),ones(1),(0.0, 10.0))
-prob =  ConstantLagDDEProblem{true}(f_1delay,t->zeros(1),ones(1),ones(1),(0.0, 10.0))
+prob =  DDEProblem(f_1delay,t->zeros(1),ones(1),(0.0, 10.0),ones(1))
+prob =  DDEProblem{true}(f_1delay,t->zeros(1),ones(1),(0.0, 10.0),ones(1))
 
 
 function f(tres, y, yp, r)
