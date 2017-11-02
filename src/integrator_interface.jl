@@ -20,6 +20,10 @@ add_tstop!(i::DEIntegrator,t) = error("add_tstop!: method has not been implement
 add_saveat!(i::DEIntegrator,t) = error("add_saveat!: method has not been implemented for the integrator")
 set_abstol!(i::DEIntegrator,t) = error("set_abstol!: method has not been implemented for the integrator")
 set_reltol!(i::DEIntegrator,t) = error("set_reltol!: method has not been implemented for the integrator")
+reinit!(integrator::DEIntegrator,u0 = integrator.sol.prob.u0,
+       t0 = integrator.sol.prob.tspan[1], tf = integrator.sol.prob.tspan[2],
+       erase_sol = true; kwargs...) =
+       error("reinit!: method has not been implemented for the integrator")
 
 ### Addat isn't a real thing. Let's make it a real thing Gretchen
 
@@ -27,6 +31,10 @@ function addat!(a::AbstractArray,idxs,val=zeros(length(idxs)))
   flip_range = UnitRange(idxs.start,idxs.start-length(idxs))
   splice!(a,flip_range,val)
 end
+
+### Integrator traits
+
+has_reinit(i::DEIntegrator) = false
 
 ### Display
 

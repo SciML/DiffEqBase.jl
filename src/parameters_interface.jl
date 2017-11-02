@@ -20,38 +20,38 @@ num_params(f::AbstractParameterizedFunction) = length(f.params)
 param_values(f) = nothing
 num_params(f) = 0
 
-function problem_new_parameters(prob::ODEProblem,p)
+function problem_new_parameters(prob::ODEProblem,p;kwargs...)
   f = (t,u,du) -> prob.f(t,u,p,du)
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
-  ODEProblem(f,u0,tspan)
+  ODEProblem(f,u0,tspan;kwargs...)
 end
 param_values(prob::ODEProblem) = param_values(prob.f)
 num_params(prob::ODEProblem) = num_params(prob.f)
 
-function problem_new_parameters(prob::DAEProblem,p)
+function problem_new_parameters(prob::DAEProblem,p;kwargs...)
   f = (t,u,du,resid) -> prob.f(t,u,p,du,resid)
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   du0 = [uEltype(prob.du0[i]) for i in 1:length(prob.du0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
-  DAEProblem(f,u0,du0,tspan,differential_vars=prob.differential_vars)
+  DAEProblem(f,u0,du0,tspan,differential_vars=prob.differential_vars;kwargs...)
 end
 param_values(prob::DAEProblem) = param_values(prob.f)
 num_params(prob::DAEProblem) = num_params(prob.f)
 
-function problem_new_parameters(prob::DDEProblem,p)
+function problem_new_parameters(prob::DDEProblem,p;kwargs...)
   f = (t,u,h,du) -> prob.f(t,u,h,p,du)
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
-  DDEProblem(f,prob.h,u0,tspan,prob.constant_lags,prob.dependent_lags)
+  DDEProblem(f,prob.h,u0,tspan,prob.constant_lags,prob.dependent_lags;kwargs...)
 end
 param_values(prob::DDEProblem) = param_values(prob.f)
 num_params(prob::DDEProblem) = num_params(prob.f)
 
-function problem_new_parameters(prob::SDEProblem,p)
+function problem_new_parameters(prob::SDEProblem,p;kwargs...)
   fpars = num_params(prob.f)
   if fpars > 0
     f = (t,u,du) -> prob.f(t,u,@view(p[1:fpars]),du)
@@ -67,7 +67,7 @@ function problem_new_parameters(prob::SDEProblem,p)
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
-  SDEProblem(f,g,u0,tspan)
+  SDEProblem(f,g,u0,tspan;kwargs...)
 end
 param_values(prob::SDEProblem) = (A = [param_values(prob.f) ; param_values(prob.g)]; [A.!=nothing])
 num_params(prob::SDEProblem) = num_params(prob.f) + num_params(prob.g)
