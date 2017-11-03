@@ -20,9 +20,7 @@ add_tstop!(i::DEIntegrator,t) = error("add_tstop!: method has not been implement
 add_saveat!(i::DEIntegrator,t) = error("add_saveat!: method has not been implemented for the integrator")
 set_abstol!(i::DEIntegrator,t) = error("set_abstol!: method has not been implemented for the integrator")
 set_reltol!(i::DEIntegrator,t) = error("set_reltol!: method has not been implemented for the integrator")
-reinit!(integrator::DEIntegrator,u0 = integrator.sol.prob.u0,
-       t0 = integrator.sol.prob.tspan[1], tf = integrator.sol.prob.tspan[2],
-       erase_sol = true; kwargs...) =
+reinit!(integrator::DEIntegrator,args...; kwargs...) =
        error("reinit!: method has not been implemented for the integrator")
 auto_dt_reset!(integrator::DEIntegrator) = error("auto_dt_reset!: method has not been implemented for the integrator")
 
