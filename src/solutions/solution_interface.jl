@@ -151,6 +151,33 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
   if length(int_vars[1]) >= 4 && getindex.(int_vars,4) == zeros(length(int_vars))
     zguide --> "t"
   end
+
+  if getindex.(int_vars,2) == zeros(length(int_vars))
+    if tspan == nothing
+      xlims --> (sol.t[1],sol.t[end])
+    else
+      xlims --> (tspan[1],tspan[end])
+    end
+  end
+
+  mins = minimum(sol[int_vars[1][3],:])
+  maxs = maximum(sol[int_vars[1][3],:])
+  for iv in int_vars
+    mins = min(mins,minimum(sol[iv[3],:]))
+    maxs = max(mins,maximum(sol[iv[3],:]))
+  end
+  ylims --> (mins,maxs)
+
+  if length(int_vars[1]) >= 4
+    mins = minimum(sol[int_vars[1][4],:])
+    maxs = maximum(sol[int_vars[1][4],:])
+    for iv in int_vars
+      mins = min(mins,minimum(sol[iv[4],:]))
+      maxs = max(mins,maximum(sol[iv[4],:]))
+    end
+    zlims --> (mins,maxs)
+  end
+
   label --> reshape(labels,1,length(labels))
   (plot_vecs...)
 end
