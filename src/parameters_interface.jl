@@ -25,7 +25,9 @@ function problem_new_parameters(prob::ODEProblem,p;kwargs...)
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
-  ODEProblem(f,u0,tspan;kwargs...)
+  ODEProblem{isinplace(prob)}(f,u0,tspan,prob.problem_type;
+  callback = prob.callback, mass_matrix = prob.mass_matrix,
+  kwargs...)
 end
 param_values(prob::ODEProblem) = param_values(prob.f)
 num_params(prob::ODEProblem) = num_params(prob.f)
@@ -36,7 +38,10 @@ function problem_new_parameters(prob::DAEProblem,p;kwargs...)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   du0 = [uEltype(prob.du0[i]) for i in 1:length(prob.du0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
-  DAEProblem(f,u0,du0,tspan,differential_vars=prob.differential_vars;kwargs...)
+  DAEProblem{isinplace(prob)}(f,u0,du0,tspan;
+  differential_vars=prob.differential_vars,
+  callback = prob.callback,
+  kwargs...)
 end
 param_values(prob::DAEProblem) = param_values(prob.f)
 num_params(prob::DAEProblem) = num_params(prob.f)
@@ -46,7 +51,11 @@ function problem_new_parameters(prob::DDEProblem,p;kwargs...)
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
-  DDEProblem(f,prob.h,u0,tspan,prob.constant_lags,prob.dependent_lags;kwargs...)
+  DDEProblem{isinplace(prob)}(f,prob.h,u0,tspan,prob.constant_lags,
+  prob.dependent_lags;
+  callback = prob.callback, mass_matrix = prob.mass_matrix,
+  neutral = prob.neutral,
+  kwargs...)
 end
 param_values(prob::DDEProblem) = param_values(prob.f)
 num_params(prob::DDEProblem) = num_params(prob.f)
@@ -67,7 +76,11 @@ function problem_new_parameters(prob::SDEProblem,p;kwargs...)
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
-  SDEProblem(f,g,u0,tspan;kwargs...)
+  SDEProblem{isinplace(prob)}(f,g,u0,tspan;
+  noise_rate_prototype = prob.noise_rate_prototype,
+  noise= prob.noise, seed = prob.seed,
+  callback = prob.callback,mass_matrix=prob.mass_matrix,
+  kwargs...)
 end
 param_values(prob::SDEProblem) = (A = [param_values(prob.f) ; param_values(prob.g)]; [A.!=nothing])
 num_params(prob::SDEProblem) = num_params(prob.f) + num_params(prob.g)
