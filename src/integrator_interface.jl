@@ -24,6 +24,7 @@ reinit!(integrator::DEIntegrator,u0 = integrator.sol.prob.u0,
        t0 = integrator.sol.prob.tspan[1], tf = integrator.sol.prob.tspan[2],
        erase_sol = true; kwargs...) =
        error("reinit!: method has not been implemented for the integrator")
+auto_dt_reset!(integrator::DEIntegrator) = error("auto_dt_reset!: method has not been implemented for the integrator")
 
 ### Addat isn't a real thing. Let's make it a real thing Gretchen
 
