@@ -164,7 +164,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
   maxs = maximum(sol[int_vars[1][3],:])
   for iv in int_vars
     mins = min(mins,minimum(sol[iv[3],:]))
-    maxs = max(mins,maximum(sol[iv[3],:]))
+    maxs = max(maxs,maximum(sol[iv[3],:]))
   end
   ylims --> (mins,maxs)
 
