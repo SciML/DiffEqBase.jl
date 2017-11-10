@@ -62,7 +62,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
                    plot_analytic=false,
                    denseplot = (sol.dense || typeof(sol.prob) <: AbstractDiscreteProblem) && !(typeof(sol) <: AbstractRODESolution),
                    plotdensity = sol.tslocation==0 ? (typeof(sol.prob) <: AbstractDiscreteProblem ? 100*length(sol) : 10*length(sol)) : 100*sol.tslocation,
-                   tspan = nothing,
+                   tspan = nothing, axis_safety = 0.1,
                    vars=nothing)
 
   int_vars = interpret_vars(vars,sol)
@@ -158,24 +158,34 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
     else
       xlims --> (tspan[1],tspan[end])
     end
-  end
-
-  mins = minimum(sol[int_vars[1][3],:])
-  maxs = maximum(sol[int_vars[1][3],:])
-  for iv in int_vars
-    mins = min(mins,minimum(sol[iv[3],:]))
-    maxs = max(maxs,maximum(sol[iv[3],:]))
-  end
-  ylims --> (mins,maxs)
-
-  if length(int_vars[1]) >= 4
-    mins = minimum(sol[int_vars[1][4],:])
-    maxs = maximum(sol[int_vars[1][4],:])
+  else
+    mins = minimum(sol[int_vars[1][2],:])
+    maxs = maximum(sol[int_vars[1][2],:])
     for iv in int_vars
-      mins = min(mins,minimum(sol[iv[4],:]))
-      maxs = max(mins,maximum(sol[iv[4],:]))
+      mins = min(mins,minimum(sol[iv[2],:]))
+      maxs = max(maxs,maximum(sol[iv[2],:]))
     end
-    zlims --> (mins,maxs)
+    xlims --> ((1-sign(mins)*axis_safety)*mins,(1+sign(maxs)*axis_safety)*maxs)
+  end
+
+  if all(getindex.(int_vars,1) .== DiffEqBase.DEFAULT_PLOT_FUNC)
+    mins = minimum(sol[int_vars[1][3],:])
+    maxs = maximum(sol[int_vars[1][3],:])
+    for iv in int_vars
+      mins = min(mins,minimum(sol[iv[3],:]))
+      maxs = max(maxs,maximum(sol[iv[3],:]))
+    end
+    ylims --> ((1-sign(mins)*axis_safety)*mins,(1+sign(maxs)*axis_safety)*maxs)
+
+    if length(int_vars[1]) >= 4
+      mins = minimum(sol[int_vars[1][4],:])
+      maxs = maximum(sol[int_vars[1][4],:])
+      for iv in int_vars
+        mins = min(mins,minimum(sol[iv[4],:]))
+        maxs = max(mins,maximum(sol[iv[4],:]))
+      end
+      zlims --> ((1-sign(mins)*axis_safety)*mins,(1+sign(maxs)*axis_safety)*maxs)
+    end
   end
 
   label --> reshape(labels,1,length(labels))
