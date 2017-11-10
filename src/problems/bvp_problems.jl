@@ -16,9 +16,14 @@ struct BVProblem{uType,tType,isinplace,F,bF,PT,CB,MM} <: AbstractBVProblem{uType
     end
 end
 
-function BVProblem(f,bc,u0,tspan;kwargs...)
+function BVProblem(f,bc,u0::Array,tspan;kwargs...)
     iip = DiffEqBase.isinplace(f,3)
     BVProblem{iip}(f,bc,u0,tspan;kwargs...)
+end
+
+function BVProblem(f,bc,initialGuess::Any,tspan::StepRangeLen;kwargs...)
+    u0 = [ initialGuess( i ) for i in tspan]
+    BVProblem(f,bc,u0,[tspan[1],tspan[end]])
 end
 
 struct TwoPointBVPFunction{bF}
