@@ -16,9 +16,20 @@ struct BVProblem{uType,tType,isinplace,F,bF,PT,CB,MM} <: AbstractBVProblem{uType
     end
 end
 
-function BVProblem(f,bc,u0,tspan;kwargs...)
+function BVProblem(f,bc,u0::AbstractArray,tspan;kwargs...)
     iip = DiffEqBase.isinplace(f,3)
     BVProblem{iip}(f,bc,u0,tspan;kwargs...)
+end
+
+# convenience interfaces:
+# Allow any previous timeseries solution
+function BVProblem(f,bc,sol::T,tspan;kwargs...) where {T<:AbstractTimeseriesSolution}
+    BVProblem(f,bc,sol.u,tspan)
+end
+# Allow a function of time for the initial guess
+function BVProblem(f,bc,initialGuess::T,tspan::AbstractVector;kwargs...) where {T}
+    u0 = [ initialGuess( i ) for i in tspan]
+    BVProblem(f,bc,u0,(tspan[1],tspan[end]))
 end
 
 struct TwoPointBVPFunction{bF}
