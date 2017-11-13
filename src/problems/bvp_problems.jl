@@ -16,7 +16,7 @@ struct BVProblem{uType,tType,isinplace,F,bF,PT,CB,MM} <: AbstractBVProblem{uType
     end
 end
 
-function BVProblem(f,bc,u0::Array,tspan;kwargs...)
+function BVProblem(f,bc,u0::AbstractArray,tspan;kwargs...)
     iip = DiffEqBase.isinplace(f,3)
     BVProblem{iip}(f,bc,u0,tspan;kwargs...)
 end
