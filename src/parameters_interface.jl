@@ -21,7 +21,11 @@ param_values(f) = nothing
 num_params(f) = 0
 
 function problem_new_parameters(prob::ODEProblem,p;kwargs...)
-  f = (t,u,du) -> prob.f(t,u,p,du)
+  if isinplace(prob)
+    f = (t,u,du) -> prob.f(t,u,p,du)
+  else
+    f = (t,u) -> prob.f(t,u,p)
+  end
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
@@ -33,7 +37,11 @@ param_values(prob::ODEProblem) = param_values(prob.f)
 num_params(prob::ODEProblem) = num_params(prob.f)
 
 function problem_new_parameters(prob::DAEProblem,p;kwargs...)
-  f = (t,u,du,resid) -> prob.f(t,u,p,du,resid)
+  if isinplace(prob)
+    f = (t,u,du,resid) -> prob.f(t,u,p,du,resid)
+  else
+    f = (t,u,du) -> prob.f(t,u,p,du)
+  end
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   du0 = [uEltype(prob.du0[i]) for i in 1:length(prob.du0)]
@@ -47,7 +55,11 @@ param_values(prob::DAEProblem) = param_values(prob.f)
 num_params(prob::DAEProblem) = num_params(prob.f)
 
 function problem_new_parameters(prob::DDEProblem,p;kwargs...)
-  f = (t,u,h,du) -> prob.f(t,u,h,p,du)
+  if isinplace(prob)
+    f = (t,u,h,du) -> prob.f(t,u,h,p,du)
+  else
+    f = (t,u,h) -> prob.f(t,u,h,p)
+  end
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
@@ -63,15 +75,27 @@ num_params(prob::DDEProblem) = num_params(prob.f)
 function problem_new_parameters(prob::SDEProblem,p;kwargs...)
   fpars = num_params(prob.f)
   if fpars > 0
-    f = (t,u,du) -> prob.f(t,u,@view(p[1:fpars]),du)
+    if isinplace(prob)
+      f = (t,u,du) -> prob.f(t,u,@view(p[1:fpars]),du)
+    else
+      f = (t,u) -> prob.f(t,u,@view(p[1:fpars]))
+    end
     if num_params(prob.g) > 0
-      g = (t,u,du) -> prob.g(t,u,@view(p[(fpars+1):end]),du)
+      if isinplace(prob)
+        g = (t,u,du) -> prob.g(t,u,@view(p[(fpars+1):end]),du)
+      else
+        g = (t,u) -> prob.g(t,u,@view(p[(fpars+1):end]))
+      end
     else
       g = prob.g
     end
   else
     f = prob.f
-    g = (t,u,du) -> prob.g(t,u,p,du)
+    if isinplace(prob)
+      g = (t,u,du) -> prob.g(t,u,p,du)
+    else
+      g = (t,u) -> prob.g(t,u,p)
+    end
   end
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
