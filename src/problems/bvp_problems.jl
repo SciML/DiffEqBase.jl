@@ -21,6 +21,11 @@ function BVProblem(f,bc,u0::Array,tspan;kwargs...)
     BVProblem{iip}(f,bc,u0,tspan;kwargs...)
 end
 
+# convenience interface:
+function BVProblem(f,bc,solutionGuess::T,tspan;kwargs...) where {T<:AbstractODESolution}
+    BVProblem(f,bc,solutionGuess.u,tspan)
+end
+
 function BVProblem(f,bc,initialGuess::Any,tspan::StepRangeLen;kwargs...)
     u0 = [ initialGuess( i ) for i in tspan]
     BVProblem(f,bc,u0,[tspan[1],tspan[end]])
