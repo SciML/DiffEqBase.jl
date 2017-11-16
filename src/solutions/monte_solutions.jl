@@ -96,6 +96,9 @@ end
   for i in idxs
     @series begin
       legend := false
+      xlims --> (-Inf,Inf)
+      ylims --> (-Inf,Inf)
+      zlims --> (-Inf,Inf)
       sim[i]
     end
   end
