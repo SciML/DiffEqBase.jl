@@ -16,6 +16,24 @@ end
 (pf::ParameterizedFunction{false,F,P})(t,u) where {F,P} = pf.f(t,u,pf.params)
 (pf::ParameterizedFunction{false,F,P})(t,u,params) where {F,P} = pf.f(t,u,params)
 
+mutable struct BVParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{isinplace}
+  f::F
+  params::P
+  function BVParameterizedFunction{iip}(f,p) where iip
+    new{iip,typeof(f),typeof(p)}(f,p)
+  end
+end
+
+function BVParameterizedFunction(f,p)
+  iip = numargs(f)>=4
+  BVParameterizedFunction{iip}(f,p)
+end
+
+(pf::BVParameterizedFunction{true,F,P})(t,u,du) where {F,P} = pf.f(t,u,pf.params,du)
+(pf::BVParameterizedFunction{true,F,P})(t,u,params,du) where {F,P} = pf.f(t,u,params,du)
+(pf::BVParameterizedFunction{false,F,P})(t,u) where {F,P} = pf.f(t,u,pf.params)
+(pf::BVParameterizedFunction{false,F,P})(t,u,params) where {F,P} = pf.f(t,u,params)
+
 mutable struct DAEParameterizedFunction{isinplace,F,P} <: ConstructedParameterizedFunction{isinplace}
   f::F
   params::P

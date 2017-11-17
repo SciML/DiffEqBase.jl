@@ -36,6 +36,23 @@ end
 param_values(prob::ODEProblem) = param_values(prob.f)
 num_params(prob::ODEProblem) = num_params(prob.f)
 
+function problem_new_parameters(prob::BVProblem,p;kwargs...)
+  if isinplace(prob)
+    f = (t,u,du) -> prob.f(t,u,p,du)
+  else
+    f = (t,u) -> prob.f(t,u,p)
+  end
+  bc = ( res, sol ) -> prob.bc( res, sol, p )
+  uEltype = eltype(p)
+  u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
+  tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
+  BVProblem{isinplace(prob)}(f,bc,u0,tspan,prob.problem_type;
+  callback = prob.callback, mass_matrix = prob.mass_matrix,
+  kwargs...)
+end
+param_values(prob::BVProblem) = param_values(prob.f)
+num_params(prob::BVProblem) = num_params(prob.f)
+
 function problem_new_parameters(prob::DAEProblem,p;kwargs...)
   if isinplace(prob)
     f = (t,u,du,resid) -> prob.f(t,u,p,du,resid)
