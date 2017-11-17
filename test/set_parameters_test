@@ -1,0 +1,27 @@
+using BoundaryValueDiffEq, ParameterizedFunctions
+
+const g = 9.81
+tspan = (0.0,pi/2)
+simplependulum = @ode_def_nohes SimplePendulum begin
+    dΘ = Ψ
+    dΨ = -(g/L)*sin(Θ)
+    println( L )
+end L => 1.0
+
+function bc1(residual, u, p)
+    residual[1] = u[end÷2][1] + pi/2 # the solution at the middle of the time span should be -pi/2
+    residual[2] = u[end][1] - pi/2 # the solution at the end of the time span should be pi/2
+end
+
+ode = ODEProblem(simplependulum, [pi/2, pi/2],tspan)
+simplependulum( 0.0, [ 1.0, 2.0 ], state )
+ode = problem_new_parameters( ode, 2.0 )
+ode.f( 0.0, [ 1.0, 2.0 ], state )
+
+bvp1 = BVProblem(simplependulum, bc1, [pi/2,pi/2], tspan)
+simplependulum( 0.0, [ 1.0, 2.0 ], state )
+bvp1 = problem_new_parameters( bvp1, 2.0 )
+state = [ 0.0, 0.0 ]
+bvp1.f( 0.0, [ 1.0, 2.0 ], state )
+print( state )
+# sol1 = solve(bvp1, GeneralMIRK4(), dt=0.05)
