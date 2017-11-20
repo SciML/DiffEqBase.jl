@@ -36,8 +36,10 @@ export AbstractNoiseProblem
 abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem end
 abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
                       AbstractODEProblem{uType,tType,isinplace} end
+abstract type AbstractAnalyticalProblem{uType,tType,isinplace} <:
+                      AbstractODEProblem{uType,tType,isinplace} end
 
-export AbstractODEProblem, AbstractDiscreteProblem
+export AbstractODEProblem, AbstractDiscreteProblem, AbstractAnalyticalProblem
 
 abstract type AbstractRODEProblem{uType,tType,isinplace,ND} <: DEProblem end
 
@@ -129,13 +131,14 @@ const DESolution = Union{AbstractTimeseriesSolution,
                          AbstractMonteCarloSolution,
                          AbstractNoiseProcess}
 export DESolution, AbstractTimeseriesSolution,
-       AbstractSteadyStateSolution,AbstractNoTimeSolution,
+       AbstractNoTimeSolution,
        AbstractNoiseProcess
 
 abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} end
+abstract type AbstractAnalyticalSolution{T,N} <: AbstractTimeseriesSolution{T,N} end
 abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
 
-export AbstractODESolution
+export AbstractSteadyStateSolution, AbstractODESolution, AbstractAnalyticalSolution
 
 # Needed for plot recipes
 abstract type AbstractDDESolution{T,N} <: AbstractODESolution{T,N} end
@@ -179,6 +182,7 @@ include("tableaus.jl")
 include("diffeqfunction.jl")
 include("problems/discrete_problems.jl")
 include("problems/steady_state_problems.jl")
+include("problems/analytical_problems.jl")
 include("problems/ode_problems.jl")
 include("problems/rode_problems.jl")
 include("problems/sde_problems.jl")

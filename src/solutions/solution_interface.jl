@@ -168,23 +168,27 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
     xlims --> ((1-sign(mins)*axis_safety)*mins,(1+sign(maxs)*axis_safety)*maxs)
   end
 
-  if all(getindex.(int_vars,1) .== DiffEqBase.DEFAULT_PLOT_FUNC)
-    mins = minimum(sol[int_vars[1][3],:])
-    maxs = maximum(sol[int_vars[1][3],:])
-    for iv in int_vars
-      mins = min(mins,minimum(sol[iv[3],:]))
-      maxs = max(maxs,maximum(sol[iv[3],:]))
-    end
-    ylims --> ((1-sign(mins)*axis_safety)*mins,(1+sign(maxs)*axis_safety)*maxs)
-
-    if length(int_vars[1]) >= 4
-      mins = minimum(sol[int_vars[1][4],:])
-      maxs = maximum(sol[int_vars[1][4],:])
+  # Analytical solutions do not save enough information to have a good idea
+  # of the axis ahead of time
+  if !(typeof(sol) <: AbstractAnalyticalSolution)
+    if all(getindex.(int_vars,1) .== DiffEqBase.DEFAULT_PLOT_FUNC)
+      mins = minimum(sol[int_vars[1][3],:])
+      maxs = maximum(sol[int_vars[1][3],:])
       for iv in int_vars
-        mins = min(mins,minimum(sol[iv[4],:]))
-        maxs = max(mins,maximum(sol[iv[4],:]))
+        mins = min(mins,minimum(sol[iv[3],:]))
+        maxs = max(maxs,maximum(sol[iv[3],:]))
       end
-      zlims --> ((1-sign(mins)*axis_safety)*mins,(1+sign(maxs)*axis_safety)*maxs)
+      ylims --> ((1-sign(mins)*axis_safety)*mins,(1+sign(maxs)*axis_safety)*maxs)
+
+      if length(int_vars[1]) >= 4
+        mins = minimum(sol[int_vars[1][4],:])
+        maxs = maximum(sol[int_vars[1][4],:])
+        for iv in int_vars
+          mins = min(mins,minimum(sol[iv[4],:]))
+          maxs = max(mins,maximum(sol[iv[4],:]))
+        end
+        zlims --> ((1-sign(mins)*axis_safety)*mins,(1+sign(maxs)*axis_safety)*maxs)
+      end
     end
   end
 
