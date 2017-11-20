@@ -81,8 +81,11 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
 
   if denseplot
     # Generate the points from the plot from dense function
-    if tspan == nothing
+    if tspan == nothing && !(typeof(sol) <: AbstractAnalyticalSolution)
       plott = collect(linspace(sol.t[start_idx],sol.t[end_idx],plotdensity))
+    elseif typeof(sol) <: AbstractAnalyticalSolution
+      tspan = sol.prob.tspan
+      plott = collect(linspace(tspan[1],tspan[end],plotdensity))
     else
       plott = collect(linspace(tspan[1],tspan[end],plotdensity))
     end
