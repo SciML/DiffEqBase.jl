@@ -61,7 +61,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
 @recipe function f(sol::AbstractTimeseriesSolution;
                    plot_analytic=false,
                    denseplot = (sol.dense || typeof(sol.prob) <: AbstractDiscreteProblem) && !(typeof(sol) <: AbstractRODESolution),
-                   plotdensity = sol.tslocation==0 ? (typeof(sol.prob) <: AbstractDiscreteProblem ? 100*length(sol) : 10*length(sol)) : 100*sol.tslocation,
+                   plotdensity = sol.tslocation==0 ? (typeof(sol.prob) <: AbstractDiscreteProblem ? max(100,100*length(sol)) : max(100,10*length(sol))) : 100*sol.tslocation,
                    tspan = nothing, axis_safety = 0.1,
                    vars=nothing)
 
