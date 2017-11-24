@@ -17,8 +17,8 @@ struct ODEProblem{uType,tType,isinplace,F,C,MM,PT} <:
       _mm = mass_matrix
     end
     new{typeof(u0),promote_type(map(typeof,tspan)...),
-       iip,typeof(f),typeof(callback),typeof(_mm),StandardODEProblem}(
-       f,u0,tspan,callback,_mm,StandardODEProblem())
+       iip,typeof(f),typeof(callback),typeof(_mm),typeof(problem_type)}(
+       f,u0,tspan,callback,_mm,problem_type)
   end
 end
 
