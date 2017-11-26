@@ -173,7 +173,8 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
 
   # Analytical solutions do not save enough information to have a good idea
   # of the axis ahead of time
-  if !(typeof(sol) <: AbstractAnalyticalSolution)
+  # Only set axis for animations
+  if sol.tslocation != 0 && !(typeof(sol) <: AbstractAnalyticalSolution)
     if all(getindex.(int_vars,1) .== DiffEqBase.DEFAULT_PLOT_FUNC)
       mins = minimum(sol[int_vars[1][3],:])
       maxs = maximum(sol[int_vars[1][3],:])
