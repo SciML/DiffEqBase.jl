@@ -1,12 +1,5 @@
 ### Abstract Interface
 
-# Juno Rendering
-
-Juno.@render Juno.Inline x::DESolution begin
-  fields = fieldnames(typeof(x))
-  Juno.LazyTree(typeof(x), () -> [Juno.SubTree(Juno.Text("$f → "), Juno.getfield′(x, f)) for f in fields])
-end
-
 # No Time Solution : Forward to `A.u`
 Base.getindex(A::AbstractNoTimeSolution,i::Int) = A.u[i]
 Base.getindex(A::AbstractNoTimeSolution,I::Vararg{Int, N}) where {N} = A.u[I]

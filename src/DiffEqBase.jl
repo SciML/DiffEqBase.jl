@@ -2,8 +2,8 @@ __precompile__()
 
 module DiffEqBase
 
-using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat, Juno,
-      LinearMaps, FunctionWrappers
+using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat,
+      LinearMaps, FunctionWrappers, Requires
 
 import Base: length, size, getindex, setindex!, show, print,
              next, start, done, similar, indices, A_ldiv_B!
@@ -202,6 +202,7 @@ include("linear_nonlinear.jl")
 include("common_defaults.jl")
 include("data_array.jl")
 include("internal_euler.jl")
+include("juno_rendering.jl")
 
 export NSODEFunction
 

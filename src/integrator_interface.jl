@@ -49,13 +49,6 @@ function Base.show(io::IO, m::MIME"text/plain", A::DEIntegrator)
   show(io,m,A.u)
 end
 
-# Juno Rendering
-
-Juno.@render Juno.Inline x::DEIntegrator begin
-  fields = fieldnames(typeof(x))
-  Juno.LazyTree(typeof(x), () -> [Juno.SubTree(Juno.Text("$f → "), Juno.getfield′(x, f)) for f in fields])
-end
-
 ### Abstract Interface
 
 struct IntegratorTuples{I}
