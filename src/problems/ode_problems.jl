@@ -101,8 +101,9 @@ function SplitODEProblem(f1,f2,u0,tspan;kwargs...)
   SplitODEProblem{iip}(f1,f2,u0,tspan;kwargs...)
 end
 function SplitODEProblem{iip}(f1,f2,u0,tspan;
-                                     func_cache=similar(u0),kwargs...) where iip
-  ODEProblem{iip}(SplitFunction{iip}(f1,f2,func_cache),u0,tspan;kwargs...)
+                                     func_cache=nothing,kwargs...) where iip
+  iip ? _func_cache = similar(u0) : _func_cache = nothing
+  ODEProblem{iip}(SplitFunction{iip}(f1,f2,_func_cache),u0,tspan,SplitODEProblem{iip}();kwargs...)
 end
 
 """
