@@ -247,6 +247,7 @@ export ODEProblem, ODESolution
 export AbstractDynamicalODEProblem, DynamicalODEFunction,
        DynamicalODEProblem, SecondOrderODEProblem,
        AbstractSplitODEProblem, SplitFunction, SplitODEProblem
+export AbstractSplitSDEProblem, SplitSDEProblem
 export RODEProblem, RODESolution, SDEProblem
 export SecondOrderSDEProblem
 export DAEProblem, DAESolution

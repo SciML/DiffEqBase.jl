@@ -1,3 +1,5 @@
+struct StandardSDEProblem end
+
 struct SDEProblem{uType,tType,isinplace,NP,F,G,C,MM,ND} <: AbstractSDEProblem{uType,tType,isinplace,ND}
   f::F
   g::G
@@ -8,7 +10,7 @@ struct SDEProblem{uType,tType,isinplace,NP,F,G,C,MM,ND} <: AbstractSDEProblem{uT
   mass_matrix::MM
   noise_rate_prototype::ND
   seed::UInt64
-  function SDEProblem{iip}(f,g,u0,tspan;
+  function SDEProblem{iip}(f,g,u0,tspan,problem_type=StandardSDEProblem();
           noise_rate_prototype = nothing,
           noise= nothing, seed = UInt64(0),
           callback = nothing,mass_matrix=I) where {iip}
@@ -31,4 +33,17 @@ end
 function SDEProblem(f,g,u0,tspan;kwargs...)
   iip = typeof(f)<: Tuple ? isinplace(f[2],3) : isinplace(f,3)
   SDEProblem{iip}(f,g,u0,tspan;kwargs...)
+end
+
+abstract type AbstractSplitSDEProblem end
+struct SplitSDEProblem{iip} <: AbstractSplitSDEProblem end
+# u' = Au + f
+function SplitSDEProblem(f1,f2,g,u0,tspan;kwargs...)
+  iip = isinplace(f2,3)
+  SplitSDEProblem{iip}(f1,f2,g,u0,tspan;kwargs...)
+end
+function SplitSDEProblem{iip}(f1,f2,g,u0,tspan;
+                                     func_cache=nothing,kwargs...) where iip
+  iip ? _func_cache = similar(u0) : _func_cache = nothing
+  SDEProblem{iip}(SplitFunction{iip}(f1,f2,_func_cache),g,u0,tspan,SplitSDEProblem{iip}();kwargs...)
 end
