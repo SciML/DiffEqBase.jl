@@ -94,6 +94,7 @@ end
 @recipe function f(sim::AbstractMonteCarloSolution;
                    idxs = typeof(sim.u)<:AbstractArray ? eachindex(sim.u) : 1)
   for i in idxs
+    size(sim[i].u, 1) == 0 && continue
     @series begin
       legend := false
       xlims --> (-Inf,Inf)
