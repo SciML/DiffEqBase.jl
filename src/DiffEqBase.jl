@@ -97,13 +97,15 @@ abstract type AbstractDEOptions end
 abstract type DECache end
 abstract type DECallback end
 abstract type AbstractContinuousCallback <: DECallback end
+abstract type AbstractDiscreteCallback <: DECallback end
 
 abstract type DEDataArray{T,N} <: AbstractArray{T,N} end
 const DEDataVector{T} = DEDataArray{T,1}
 const DEDataMatrix{T} = DEDataArray{T,2}
 
 export AbstractDiffEqInterpolation, AbstractDEOptions, DECache, DECallback,
-       AbstractContinuousCallback, DEDataArray, DEDataVector, DEDataMatrix
+       AbstractContinuousCallback, AbstractDiscreteCallback, DEDataArray,
+       DEDataVector, DEDataMatrix
 
 # Integrators
 abstract type DEIntegrator end
