@@ -221,7 +221,7 @@ export solve, solve!, init, step!
 
 export tuples, intervals
 
-export resize!,deleteat!,addat!,full_cache,user_cache,u_cache,du_cache,
+export resize!,deleteat!,addat!,get_tmp_cache,full_cache,user_cache,u_cache,du_cache,
        resize_non_user_cache!,deleteat_non_user_cache!,addat_non_user_cache!,
        terminate!,
        add_tstop!,add_saveat!,set_abstol!,
