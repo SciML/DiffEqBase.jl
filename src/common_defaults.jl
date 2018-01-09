@@ -1,5 +1,5 @@
 @inline UNITLESS_ABS2(x) = Real(abs2(x)/(typeof(x)(one(x))*typeof(x)(one(x))))
-@inline ODE_DEFAULT_NORM(u::Number) = abs(u)
+@inline ODE_DEFAULT_NORM(u::Union{AbstractFloat,Complex}) = abs(u)
 @inline ODE_DEFAULT_NORM(u::Array{T}) where T<:Union{AbstractFloat,Complex} =
                                          @fastmath sqrt(sum(abs2,u) / length(u))
 @inline ODE_DEFAULT_NORM(u::AbstractArray) = sqrt(sum(UNITLESS_ABS2,u) / length(u))
