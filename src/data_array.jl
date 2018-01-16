@@ -17,6 +17,7 @@ end
     @inbounds A.x[I...] = x
 end
 indices(A::DEDataArray) = indices(A.x)
+Base.linearindices(A::DEDataArray) = linearindices(A.x)
 Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
 
 # similar data arrays
