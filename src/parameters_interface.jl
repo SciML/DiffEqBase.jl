@@ -14,6 +14,7 @@ function set_param_values!(f::AbstractParameterizedFunction,params::Dict)
     end
 end
 num_params(f::AbstractParameterizedFunction) = length(f.params)
+isinplace(::AbstractParameterizedFunction{iip}) where iip = iip
 
 # Fallbacks
 

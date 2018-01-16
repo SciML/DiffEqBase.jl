@@ -93,3 +93,5 @@ function set_param_values!(pf::ConstructedParameterizedFunction,params)
     pf.params .= params
   end
 end
+
+isinplace(::ConstructedParameterizedFunction{iip}) where iip = iip
