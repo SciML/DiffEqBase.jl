@@ -70,7 +70,7 @@ function calculate_solution_errors!(sol::AbstractODESolution;fill_uanalytic=true
 
   if fill_uanalytic
     for i in 1:size(sol.u,1)
-      push!(sol.u_analytic,f(Val{:analytic},sol.t[i],sol.prob.u0))
+      push!(sol.u_analytic,f(Val{:analytic},sol.prob.u0,sol.prob.p,sol.t[i]))
     end
   end
 

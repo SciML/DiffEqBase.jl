@@ -26,7 +26,7 @@ timeseries_errors=true,dense_errors=true, retcode = :Default, kwargs...) where {
   if has_analytic(prob.f)
     u_analytic = Vector{typeof(prob.u0)}(0)
     for i in 1:size(u,1)
-      push!(u_analytic,prob.analytic(t[i],prob.u0))
+      push!(u_analytic,prob.analytic(prob.u0,t[i]))
     end
 
     save_everystep = length(u) > 2

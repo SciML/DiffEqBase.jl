@@ -1,15 +1,17 @@
 struct StandardODEProblem end
 
 # Mu' = f
-struct ODEProblem{uType,tType,isinplace,F,C,MM,PT} <:
+struct ODEProblem{uType,tType,isinplace,P,F,C,MM,PT} <:
                AbstractODEProblem{uType,tType,isinplace}
   f::F
   u0::uType
   tspan::Tuple{tType,tType}
+  p::P
   callback::C
   mass_matrix::MM
   problem_type::PT
-  function ODEProblem{iip}(f,u0,tspan,problem_type=StandardODEProblem();
+  function ODEProblem{iip}(f,u0,tspan,p=nothing,
+                      problem_type=StandardODEProblem();
                       callback=nothing,mass_matrix=I) where {iip}
     if mass_matrix == I && typeof(f) <: Tuple
       _mm = ((I for i in 1:length(f))...)
@@ -17,14 +19,15 @@ struct ODEProblem{uType,tType,isinplace,F,C,MM,PT} <:
       _mm = mass_matrix
     end
     new{typeof(u0),promote_type(map(typeof,tspan)...),
-       iip,typeof(f),typeof(callback),typeof(_mm),typeof(problem_type)}(
-       f,u0,tspan,callback,_mm,problem_type)
+       iip,typeof(p),typeof(f),typeof(callback),typeof(_mm),
+       typeof(problem_type)}(
+       f,u0,tspan,p,callback,_mm,problem_type)
   end
 end
 
-function ODEProblem(f,u0,tspan;kwargs...)
-  iip = typeof(f)<: Tuple ? isinplace(f[2],3) : isinplace(f,3)
-  ODEProblem{iip}(f,u0,tspan;kwargs...)
+function ODEProblem(f,u0,tspan,p=nothing;kwargs...)
+  iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4)
+  ODEProblem{iip}(f,u0,tspan,p;kwargs...)
 end
 
 abstract type AbstractDynamicalODEProblem end
@@ -39,41 +42,41 @@ struct DynamicalODEFunction{iip,F1,F2} <: Function
     DynamicalODEFunction{iip}(f1,f2) where iip =
                         new{iip,typeof(f1),typeof(f2)}(f1,f2)
 end
-function (f::DynamicalODEFunction)(t,u)
-    ArrayPartition(f.f1(t,u.x[1],u.x[2]),f.f2(t,u.x[1],u.x[2]))
+function (f::DynamicalODEFunction)(u,p,t)
+    ArrayPartition(f.f1(u.x[1],u.x[2],p,t),f.f2(u.x[1],u.x[2],p,t))
 end
-function (f::DynamicalODEFunction)(t,u,du)
-    f.f1(t,u.x[1],u.x[2],du.x[1])
-    f.f2(t,u.x[1],u.x[2],du.x[2])
+function (f::DynamicalODEFunction)(du,u,p,t)
+    f.f1(du.x[1],u.x[1],u.x[2],p,t)
+    f.f2(du.x[2],u.x[1],u.x[2],p,t)
 end
 
-function DynamicalODEProblem(f1,f2,u0,du0,tspan;kwargs...)
-  iip = isinplace(f1,4)
-  DynamicalODEProblem{iip}(f1,f2,u0,du0,tspan;kwargs...)
+function DynamicalODEProblem(f1,f2,u0,du0,tspan,p=nothing;kwargs...)
+  iip = isinplace(f1,5)
+  DynamicalODEProblem{iip}(f1,f2,u0,du0,tspan,p;kwargs...)
 end
-function DynamicalODEProblem{iip}(f1,f2,u0,du0,tspan;kwargs...) where iip
-    ODEProblem{iip}(DynamicalODEFunction{iip}(f1,f2),(u0,du0),tspan;kwargs...)
+function DynamicalODEProblem{iip}(f1,f2,u0,du0,tspan,p=nothing;kwargs...) where iip
+    ODEProblem{iip}(DynamicalODEFunction{iip}(f1,f2),(u0,du0),tspan,p;kwargs...)
 end
 
 # u'' = f(t,u,du,ddu)
 struct SecondOrderODEProblem{iip} <: AbstractDynamicalODEProblem end
-function SecondOrderODEProblem(f,u0,du0,tspan;kwargs...)
-  iip = isinplace(f,4)
-  SecondOrderODEProblem{iip}(f,u0,du0,tspan;kwargs...)
+function SecondOrderODEProblem(f,u0,du0,tspan,p=nothing;kwargs...)
+  iip = isinplace(f,5)
+  SecondOrderODEProblem{iip}(f,u0,du0,tspan,p;kwargs...)
 end
-function SecondOrderODEProblem{iip}(f,u0,du0,tspan;kwargs...) where iip
+function SecondOrderODEProblem{iip}(f,u0,du0,tspan,p=nothing;kwargs...) where iip
   if iip
-    f1 = function (t,u,v,du)
+    f1 = function (du,u,v,p,t)
       du .= v
     end
   else
-    f1 = function (t,u,v)
+    f1 = function (u,v,p,t)
       v
     end
   end
   _f = (f1,f)
   _u0 = (u0,du0)
-  ODEProblem{iip}(DynamicalODEFunction{iip}(f1,f),_u0,tspan,
+  ODEProblem{iip}(DynamicalODEFunction{iip}(f1,f),_u0,tspan,p,
                   SecondOrderODEProblem{iip}();kwargs...)
 end
 
@@ -84,26 +87,27 @@ struct SplitFunction{iip,F1,F2,C} <: Function
     SplitFunction{iip}(f1,f2,cache) where iip =
                         new{iip,typeof(f1),typeof(f2),typeof(cache)}(f1,f2,cache)
 end
-function (f::SplitFunction)(t,u)
-    f.f1(t,u) + f.f2(t,u)
+function (f::SplitFunction)(u,p,t)
+    f.f1(u,p,t) + f.f2(u,p,t)
 end
-function (f::SplitFunction)(t,u,du)
-    f.f1(t,u,f.cache)
-    f.f2(t,u,du)
+function (f::SplitFunction)(du,u,p,t)
+    f.f1(f.cache,u,p,t)
+    f.f2(du,u,p,t)
     du .+= f.cache
 end
 
 abstract type AbstractSplitODEProblem end
 struct SplitODEProblem{iip} <: AbstractSplitODEProblem end
 # u' = Au + f
-function SplitODEProblem(f1,f2,u0,tspan;kwargs...)
-  iip = isinplace(f2,3)
-  SplitODEProblem{iip}(f1,f2,u0,tspan;kwargs...)
+function SplitODEProblem(f1,f2,u0,tspan,p=nothing;kwargs...)
+  iip = isinplace(f2,4)
+  SplitODEProblem{iip}(f1,f2,u0,tspan,p;kwargs...)
 end
-function SplitODEProblem{iip}(f1,f2,u0,tspan;
+function SplitODEProblem{iip}(f1,f2,u0,tspan,p=nothing;
                                      func_cache=nothing,kwargs...) where iip
   iip ? _func_cache = similar(u0) : _func_cache = nothing
-  ODEProblem{iip}(SplitFunction{iip}(f1,f2,_func_cache),u0,tspan,SplitODEProblem{iip}();kwargs...)
+  ODEProblem{iip}(SplitFunction{iip}(f1,f2,_func_cache),u0,tspan,p,
+                                     SplitODEProblem{iip}();kwargs...)
 end
 
 """
