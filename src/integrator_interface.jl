@@ -63,7 +63,7 @@ function next(tup::IntegratorTuples,state)
   state += 1
   step!(tup.integrator) # Iter updated in the step! header
   # Next is callbacks -> iterator  -> top
-  (tup.integrator.t,tup.integrator.u),state
+  (tup.integrator.u,tup.integrator.t),state
 end
 
 done(tup::IntegratorTuples,state) = done(tup.integrator,state)
@@ -80,7 +80,7 @@ function next(tup::IntegratorIntervals,state)
   state += 1
   step!(tup.integrator) # Iter updated in the step! header
   # Next is callbacks -> iterator  -> top
-  (tup.integrator.tprev,tup.integrator.uprev,tup.integrator.t,tup.integrator.u),state
+  (tup.integrator.uprev,tup.integrator.tprev,tup.integrator.u,tup.integrator.t),state
 end
 
 done(tup::IntegratorIntervals,state) = done(tup.integrator,state)

@@ -1,14 +1,15 @@
 # Mu' = f
-struct SteadyStateProblem{uType,isinplace,F,MM} <: AbstractSteadyStateProblem{uType,isinplace}
+struct SteadyStateProblem{uType,isinplace,P,F,MM} <: AbstractSteadyStateProblem{uType,isinplace}
   f::F
   u0::uType
+  p::P
   mass_matrix::MM
-  function SteadyStateProblem{iip}(f,u0;mass_matrix=I) where iip
-    new{typeof(u0),iip,typeof(f),typeof(mass_matrix)}(f,u0,mass_matrix)
+  function SteadyStateProblem{iip}(f,u0,p=nothing;mass_matrix=I) where iip
+    new{typeof(u0),iip,typeof(p),typeof(f),typeof(mass_matrix)}(f,u0,p,mass_matrix)
   end
 end
 
-function SteadyStateProblem(f,u0;kwargs...)
+function SteadyStateProblem(f,u0,p=nothing;kwargs...)
   iip = isinplace(f,3)
   SteadyStateProblem{iip}(f,u0;kwargs...)
 end

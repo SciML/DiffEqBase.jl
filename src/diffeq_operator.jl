@@ -9,8 +9,8 @@
 3. is_constant(A) trait for whether the operator is constant or not.
 =#
 
-update_coefficients!(L,t,u) = nothing
-update_coefficients(L,t,u) = L
+update_coefficients!(L,u,p,t) = nothing
+update_coefficients(L,u,p,t) = L
 
 # Traits
 is_constant(L::AbstractDiffEqOperator) = false
@@ -45,8 +45,8 @@ is_constant(L::AbstractDiffEqLinearOperator) = true
 # Generic fallbacks
 Base.expm(L::AbstractDiffEqLinearOperator,t) = expm(t*L)
 has_expm(L::AbstractDiffEqLinearOperator,t) = true
-expmv(L::AbstractDiffEqLinearOperator,t,u) = expm(t,L)*u
-expmv!(v,L::AbstractDiffEqLinearOperator,t,u) = A_mul_B!(v,expm(t,L),u)
+expmv(L::AbstractDiffEqLinearOperator,t,u) = expm(L,t)*u
+expmv!(v,L::AbstractDiffEqLinearOperator,t,u) = A_mul_B!(v,expm(L,t),u)
 # Factorizations have no fallback and just error
 
 """
@@ -85,14 +85,14 @@ end
 Base.size(L::AffineDiffEqOperator) = size(L.As[1])
 
 
-function (L::AffineDiffEqOperator)(t::Number,u)
+function (L::AffineDiffEqOperator)(u,p,t::Number)
     tmp = sum((update_coefficients(A,t,u); A*u for A in L.As))
     tmp2 = sum((typeof(B) <: Union{Number,AbstractArray} ? B : B(t) for B in L.Bs))
     tmp + tmp2
 end
 
-function (L::AffineDiffEqOperator)(t::Number,u,du)
-    update_coefficients!(L,t,u)
+function (L::AffineDiffEqOperator)(du,u,p,t::Number)
+    update_coefficients!(L,u,p,t)
     L.u_cache == nothing && error("Can only use inplace AffineDiffEqOperator if u_cache is given.")
     u_cache = L.u_cache
     fill!(du,zero(first(du)))
@@ -111,8 +111,8 @@ function (L::AffineDiffEqOperator)(t::Number,u,du)
     end
 end
 
-function update_coefficients!(L::AffineDiffEqOperator,t,u)
+function update_coefficients!(L::AffineDiffEqOperator,u,p,t)
     # TODO: Make type-stable via recursion
-    for A in L.As; update_coefficients!(A,t,u); end
-    for B in L.Bs; update_coefficients!(B,t,u); end
+    for A in L.As; update_coefficients!(A,u,p,t); end
+    for B in L.Bs; update_coefficients!(B,u,p,t); end
 end

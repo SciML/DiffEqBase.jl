@@ -161,8 +161,7 @@ abstract type DECostFunction end
 export Tableau, ODERKTableau, DECostFunction
 
 abstract type AbstractParameterizedFunction{isinplace} <: Function end
-abstract type ConstructedParameterizedFunction{isinplace} <: AbstractParameterizedFunction{isinplace} end
-export AbstractParameterizedFunction, ConstructedParameterizedFunction
+export AbstractParameterizedFunction
 
 abstract type AbstractDiffEqOperator{T} <: AbstractLinearMap{T} end
 abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T} end
@@ -198,7 +197,6 @@ include("interpolation.jl")
 include("callbacks.jl")
 include("integrator_interface.jl")
 include("parameters_interface.jl")
-include("constructed_parameterized_functions.jl")
 include("diffeq_operator.jl")
 include("linear_nonlinear.jl")
 include("common_defaults.jl")

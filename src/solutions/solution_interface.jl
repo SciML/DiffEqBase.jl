@@ -33,7 +33,7 @@ function Base.show(io::IO, m::MIME"text/plain", A::AbstractTimeseriesSolution)
   show(io,m,A.u)
 end
 
-tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.t,sol.u)
+tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.u,sol.t)
 
 function start(sol::AbstractTimeseriesSolution)
   0

@@ -12,15 +12,16 @@ struct FwdEulerAlg <: EulerAlgs end
 
 struct BwdEulerAlg <: EulerAlgs end
 
-function DiffEqBase.solve(p::AbstractODEProblem{uType,tType,isinplace},
+function DiffEqBase.solve(prob::AbstractODEProblem{uType,tType,isinplace},
                           Alg::FwdEulerAlg;
-                          dt=(p.tspan[2]-p.tspan[1])/100,
+                          dt=(prob.tspan[2]-prob.tspan[1])/100,
                           tstops=tType[],
                           kwargs... # ignored kwargs
                           ) where {uType,tType,isinplace}
-    u0 = p.u0
-    f = p.f
-    tspan = p.tspan
+    u0 = prob.u0
+    f = prob.f
+    tspan = prob.tspan
+    p = prob.p
     @assert !isinplace "Only out of place functions supported"
 
     if isempty(tstops)
@@ -34,27 +35,28 @@ function DiffEqBase.solve(p::AbstractODEProblem{uType,tType,isinplace},
     for i=2:nt
         t = tstops[i]
         dt = t-tstops[i-1]
-        out[i] = out[i-1] + dt*f(t,out[i-1])
+        out[i] = out[i-1] + dt*f(out[i-1],p,t)
     end
     # make solution type
-    build_solution(p, Alg, tstops, out)
+    build_solution(prob, Alg, tstops, out)
 end
 
-function DiffEqBase.solve(p::AbstractODEProblem{uType,tType,isinplace},
+function DiffEqBase.solve(prob::AbstractODEProblem{uType,tType,isinplace},
                           Alg::BwdEulerAlg;
-                          dt=(p.tspan[2]-p.tspan[1])/100,
+                          dt=(prob.tspan[2]-prob.tspan[1])/100,
                           tstops=tType[],
                           tol=1e-5,
                           maxiter=100,
                           kwargs... # ignored kwargs
                           ) where {uType,tType,isinplace}
-    u0 = p.u0
-    f = p.f
-    tspan = p.tspan
+    u0 = prob.u0
+    f = prob.f
+    tspan = prob.tspan
+    p = prob.p
     # TODO: fix numparameters as it picks up the Jacobian
 #    @assert !isinplace "Only out of place functions supported"
     @assert DiffEqBase.has_jac(f) "Provide Jacobian as f(::Val{:jac}, ...)"
-    jac = (t,u) -> f(Val{:jac}(), t, u)
+    jac = (u,p,t) -> f(Val{:jac}(),u,p,t)
 
     if isempty(tstops)
         tstops = tspan[1]:dt:tspan[2]
@@ -67,17 +69,17 @@ function DiffEqBase.solve(p::AbstractODEProblem{uType,tType,isinplace},
     for i=2:nt
         t = tstops[i]
         dt = t-tstops[i-1]
-        out[i] = newton(t, dt, out[i-1], f, jac, tol, maxiter)
+        out[i] = newton(t, dt, out[i-1], p, f, jac, tol, maxiter)
     end
     # make solution type
-    build_solution(p, Alg, tstops, out)
+    build_solution(prob, Alg, tstops, out)
 end
 
-function newton(t, dt, u_last, f, jac, tol, maxiter)
-    res = (u) -> u - u_last - dt*f(t,u)
-    u = u_last + dt*f(t,u_last) # forward Euler step as first guess
+function newton(t, dt, u_last, p, f, jac, tol, maxiter)
+    res = (u) -> u - u_last - dt*f(u,p,t)
+    u = u_last + dt*f(u_last,p,t) # forward Euler step as first guess
     for i=1:maxiter
-        du = -(I - dt*jac(t,u))\res(u)
+        du = -(I - dt*jac(u,p,t))\res(u)
         u += du
         norm(du, Inf)<tol && return u
     end

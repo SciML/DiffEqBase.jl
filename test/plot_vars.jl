@@ -6,7 +6,7 @@ struct LorenzFunction <: Function
     syms::Vector{Symbol}
 end
 
-function (::LorenzFunction)(t,u)
+function (::LorenzFunction)(u,p,t)
  [10.0(u[2]-u[1]),u[1]*(28.0-u[3]) - u[2],u[1]*u[2] - (8/3)*u[3]]
 end
 lorenz = LorenzFunction([:x,:y,:z])
