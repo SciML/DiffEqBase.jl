@@ -11,8 +11,8 @@ struct ODESolution{T,N,uType,uType2,DType,tType,rateType,P,A,IType} <: AbstractO
   tslocation::Int
   retcode::Symbol
 end
-(sol::ODESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
-(sol::ODESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
+(sol::ODESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv,sol.prob.p)
+(sol::ODESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv,sol.prob.p)
 
 function build_solution(
         prob::Union{AbstractODEProblem,AbstractDDEProblem},

@@ -11,8 +11,8 @@ struct DAESolution{T,N,uType,duType,uType2,DType,tType,P,A,ID} <: AbstractDAESol
   tslocation::Int
   retcode::Symbol
 end
-(sol::DAESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
-(sol::DAESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
+(sol::DAESolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv,sol.prob.p)
+(sol::DAESolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv,sol.prob.p)
 
 function build_solution(
         prob::AbstractDAEProblem{uType,duType,tType,isinplace},

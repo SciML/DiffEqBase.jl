@@ -20,7 +20,7 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
 (id::LinearInterpolation)(tvals,idxs,deriv) = interpolation(tvals,id,idxs,deriv)
 (id::LinearInterpolation)(val,tvals,idxs,deriv) = interpolation!(val,tvals,id,idxs,deriv)
 
-@inline function interpolation(tvals,id,idxs,deriv)
+@inline function interpolation(tvals,id,idxs,deriv,p)
   t = id.t; u = id.u
   typeof(id) <: HermiteInterpolation && (du = id.du)
   tdir = sign(t[end]-t[1])
@@ -72,7 +72,7 @@ interpolation(tvals,t,u,ks)
 Get the value at tvals where the solution is known at the
 times t (sorted), with values u and derivatives ks
 """
-@inline function interpolation!(vals,tvals,id,idxs,deriv)
+@inline function interpolation!(vals,tvals,id,idxs,deriv,p)
   t = id.t; u = id.u
   typeof(id) <: HermiteInterpolation && (du = id.du)
   tdir = sign(t[end]-t[1])
@@ -124,7 +124,7 @@ interpolation(tval::Number,t,u,ks)
 Get the value at tval where the solution is known at the
 times t (sorted), with values u and derivatives ks
 """
-@inline function interpolation(tval::Number,id,idxs,deriv)
+@inline function interpolation(tval::Number,id,idxs,deriv,p)
   t = id.t; u = id.u
   typeof(id) <: HermiteInterpolation && (du = id.du)
   tdir = sign(t[end]-t[1])
@@ -164,7 +164,7 @@ interpolation!(out,tval::Number,t,u,ks)
 Get the value at tval where the solution is known at the
 times t (sorted), with values u and derivatives ks
 """
-@inline function interpolation!(out,tval::Number,id,idxs,deriv)
+@inline function interpolation!(out,tval::Number,id,idxs,deriv,p)
   t = id.t; u = id.u
   typeof(id) <: HermiteInterpolation && (du = id.du)
   tdir = sign(t[end]-t[1])
