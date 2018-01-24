@@ -1,6 +1,6 @@
 # Necessary to have initialize set u_modified to false if all don't do anything
 # otherwise unnecessary save
-INITIALIZE_DEFAULT(cb,t,u,integrator) = integrator.u_modified = false
+INITIALIZE_DEFAULT(cb,u,t,integrator) = integrator.u_modified = false
 
 struct ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   condition::F1
@@ -76,17 +76,17 @@ CallbackSet(callbacks::Union{DECallback,Void}...) = CallbackSet(split_callbacks(
 end
 
 # Recursively apply initialize! and return whether any modified u
-function initialize!(cb::CallbackSet,t,u,integrator::DEIntegrator)
-  initialize!(t,u,integrator,false,cb.continuous_callbacks...,cb.discrete_callbacks...)
+function initialize!(cb::CallbackSet,u,t,integrator::DEIntegrator)
+  initialize!(u,t,integrator,false,cb.continuous_callbacks...,cb.discrete_callbacks...)
 end
-initialize!(cb::CallbackSet{Tuple{},Tuple{}},t,u,integrator::DEIntegrator) = false
-function initialize!(t,u,integrator::DEIntegrator,any_modified::Bool,
+initialize!(cb::CallbackSet{Tuple{},Tuple{}},u,t,integrator::DEIntegrator) = false
+function initialize!(u,t,integrator::DEIntegrator,any_modified::Bool,
                      c::DECallback,cs::DECallback...)
-  c.initialize(c,t,u,integrator)
-  initialize!(t,u,integrator,any_modified || integrator.u_modified,cs...)
+  c.initialize(c,u,t,integrator)
+  initialize!(u,t,integrator,any_modified || integrator.u_modified,cs...)
 end
-function initialize!(t,u,integrator::DEIntegrator,any_modified::Bool,
+function initialize!(u,t,integrator::DEIntegrator,any_modified::Bool,
                      c::DECallback)
-  c.initialize(c,t,u,integrator)
+  c.initialize(c,u,t,integrator)
   any_modified || integrator.u_modified
 end

@@ -1,11 +1,11 @@
 ### AbstractDiffEqOperator Interface
 
 #=
-1. Function call and multiplication: L(t,u,du) for inplace and du = L(t,u) for
+1. Function call and multiplication: L(u,p,t,du) for inplace and du = L(u,p,t) for
    out-of-place, meaning L*u and A_mul_B!.
-2. If the operator is not a constant, update it with (t,u). A mutating form, i.e.
-   update_coefficients!(A,t,u) that changes the internal coefficients, and a
-   out-of-place form B = update_coefficients(A,t,u).
+2. If the operator is not a constant, update it with (u,p,t). A mutating form, i.e.
+   update_coefficients!(A,u,p,t) that changes the internal coefficients, and a
+   out-of-place form B = update_coefficients(A,u,p,t).
 3. is_constant(A) trait for whether the operator is constant or not.
 =#
 
@@ -32,7 +32,7 @@ has_ldiv!(L::AbstractDiffEqOperator) = false # A_ldiv_B!(du, L, u)
 4. is_constant(A) trait for whether the operator is constant or not.
 5. Optional: diagonal, symmetric, etc traits from LinearMaps.jl.
 6. Optional: expm(A). Required for simple exponential integration.
-7. Optional: expmv(A,t,u) = expm(t*A)*u and expmv!(v,A::DiffEqOperator,t,u)
+7. Optional: expmv(A,u,p,t) = expm(t*A)*u and expmv!(v,A::DiffEqOperator,u,p,t)
    Required for sparse-saving exponential integration.
 8. Optional: factorizations. A_ldiv_B, factorize et. al. This is only required
    for algorithms which use the factorization of the operator (Crank-Nicholson),
@@ -44,9 +44,9 @@ is_constant(L::AbstractDiffEqLinearOperator) = true
 # Other ones from LinearMaps.jl
 # Generic fallbacks
 Base.expm(L::AbstractDiffEqLinearOperator,t) = expm(t*L)
-has_expm(L::AbstractDiffEqLinearOperator,t) = true
-expmv(L::AbstractDiffEqLinearOperator,t,u) = expm(L,t)*u
-expmv!(v,L::AbstractDiffEqLinearOperator,t,u) = A_mul_B!(v,expm(L,t),u)
+has_expm(L::AbstractDiffEqLinearOperator) = true
+expmv(L::AbstractDiffEqLinearOperator,u,p,t) = expm(L,t)*u
+expmv!(v,L::AbstractDiffEqLinearOperator,u,p,t) = A_mul_B!(v,expm(L,t),u)
 # Factorizations have no fallback and just error
 
 """
@@ -60,10 +60,10 @@ Takes in two tuples for split Affine DiffEqs
 
 1. update_coefficients! works by updating the coefficients of the component
    operators.
-2. Function calls L(t,u) and L(t,u,du) are fallbacks interpretted in this form.
+2. Function calls L(u,p,t) and L(u,p,t,du) are fallbacks interpretted in this form.
    This will allow them to work directly in the nonlinear ODE solvers without
    modification.
-3. f(t,u,du) is only allowed if a u_cache is given
+3. f(u,p,t,du) is only allowed if a u_cache is given
 4. B(t) can be Union{Number,AbstractArray}, in which case they are constants.
    Otherwise they are interpreted they are functions v=B(t) and B(v,t)
 
@@ -86,7 +86,7 @@ Base.size(L::AffineDiffEqOperator) = size(L.As[1])
 
 
 function (L::AffineDiffEqOperator)(u,p,t::Number)
-    tmp = sum((update_coefficients(A,t,u); A*u for A in L.As))
+    tmp = sum((update_coefficients(A,u,p,t); A*u for A in L.As))
     tmp2 = sum((typeof(B) <: Union{Number,AbstractArray} ? B : B(t) for B in L.Bs))
     tmp + tmp2
 end

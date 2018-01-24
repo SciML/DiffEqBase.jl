@@ -1,6 +1,6 @@
 using DiffEqBase, Base.Test
 
-condtion= function (t,u,integrator) # Event when event_f(t,u,k) == 0
+condtion= function (u,t,integrator) # Event when event_f(u,t,k) == 0
   t - 2.95
 end
 

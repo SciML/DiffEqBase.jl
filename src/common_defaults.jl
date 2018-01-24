@@ -5,10 +5,12 @@
 @inline ODE_DEFAULT_NORM(u::AbstractArray) = sqrt(sum(UNITLESS_ABS2,u) / length(u))
 @inline ODE_DEFAULT_NORM(u::AbstractArray{T,N}) where {T<:AbstractArray,N} = sqrt(sum(ODE_DEFAULT_NORM,u) / length(u))
 @inline ODE_DEFAULT_NORM(u) = norm(u)
-@inline ODE_DEFAULT_ISOUTOFDOMAIN(t,u) = false
-@inline ODE_DEFAULT_PROG_MESSAGE(dt,t,u) = "dt="*string(dt)*"\nt="*string(t)*"\nmax u="*string(maximum(abs.(u)))
-@inline ODE_DEFAULT_UNSTABLE_CHECK(dt,t,u) = false
-(p::typeof(ODE_DEFAULT_UNSTABLE_CHECK))(dt,t,u::AbstractFloat) = isnan(u)
-(p::typeof(ODE_DEFAULT_UNSTABLE_CHECK))(dt,t,u::AbstractArray{T}) where {T<:AbstractFloat} = any(isnan,u)
-(p::typeof(ODE_DEFAULT_UNSTABLE_CHECK))(dt,t,u::ArrayPartition) =
+@inline ODE_DEFAULT_ISOUTOFDOMAIN(u,p,t) = false
+@inline ODE_DEFAULT_PROG_MESSAGE(dt,u,p,t) =
+           "dt="*string(dt)*"\nt="*string(t)*"\nmax u="*string(maximum(abs.(u)))
+@inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u,p,t) = false
+@inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u,p,t::AbstractFloat) = isnan(u)
+@inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u,p,t::AbstractArray{T}) where
+                                               {T<:AbstractFloat} = any(isnan,u)
+@inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u,p,t::ArrayPartition) =
                                                  any(any(isnan,x) for x in u.x)
