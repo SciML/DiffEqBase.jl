@@ -68,7 +68,7 @@ function calculate_monte_errors(u;elapsedTime=0.0,converged=false,
   end
   if weak_dense_errors
     densetimes = collect(linspace(u[1].t[1],u[1].t[end],100))
-    u_analytic = [[sol.prob.f(Val{:analytic},densetimes[i],sol.prob.u0,sol.W(densetimes[i])[1]) for i in eachindex(densetimes)] for sol in u]
+    u_analytic = [[sol.prob.f(Val{:analytic},sol.prob.u0,sol.prob.p,densetimes[i],sol.W(densetimes[i])[1]) for i in eachindex(densetimes)] for sol in u]
     dense_weak_errors = [mean([u[j](densetimes)[i] - u_analytic[j][i] for j in 1:length(u)]) for i in eachindex(densetimes)]
     dense_L2_errors = [sqrt.(sum(abs2,err)/length(err)) for err in dense_weak_errors]
     L2_tmp = sqrt(sum(abs2,dense_L2_errors)/length(dense_L2_errors))
