@@ -15,10 +15,10 @@ interp_summary(::LinearInterpolation) = "1st order linear"
 interp_summary(::Void) = "No interpolation"
 interp_summary(sol::DESolution) = interp_summary(sol.interp)
 
-(id::HermiteInterpolation)(tvals,idxs,deriv) = interpolation(tvals,id,idxs,deriv)
-(id::HermiteInterpolation)(val,tvals,idxs,deriv) = interpolation!(val,tvals,id,idxs,deriv)
-(id::LinearInterpolation)(tvals,idxs,deriv) = interpolation(tvals,id,idxs,deriv)
-(id::LinearInterpolation)(val,tvals,idxs,deriv) = interpolation!(val,tvals,id,idxs,deriv)
+(id::HermiteInterpolation)(tvals,idxs,deriv,p) = interpolation(tvals,id,idxs,deriv,p)
+(id::HermiteInterpolation)(val,tvals,idxs,deriv,p) = interpolation!(val,tvals,id,idxs,deriv,p)
+(id::LinearInterpolation)(tvals,idxs,deriv,p) = interpolation(tvals,id,idxs,deriv,p)
+(id::LinearInterpolation)(val,tvals,idxs,deriv,p) = interpolation!(val,tvals,id,idxs,deriv,p)
 
 @inline function interpolation(tvals,id,idxs,deriv,p)
   t = id.t; u = id.u
