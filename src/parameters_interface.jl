@@ -51,5 +51,5 @@ end
 
 function problem_new_parameters(prob::MonteCarloProblem,p)
   MonteCarloProblem(problem_new_parameters(prob.prob,p),
-                    prob_func,output_func,prob.reduction,prob.u_init)
+                    prob.prob_func,prob.output_func,prob.reduction,prob.u_init)
 end
