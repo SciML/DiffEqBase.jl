@@ -14,13 +14,13 @@ struct BVProblem{uType,tType,isinplace,P,F,bF,PT,CB,MM} <: AbstractBVProblem{uTy
                             callback=nothing,mass_matrix=I) where {iip}
         new{typeof(u0),eltype(tspan),iip,typeof(p),typeof(f),typeof(bc),
                   typeof(problem_type),typeof(callback),typeof(mass_matrix)}(
-                  f,bc,u0,tspan,problem_type,callback,mass_matrix)
+                  f,bc,u0,tspan,p,problem_type,callback,mass_matrix)
     end
 end
 
 function BVProblem(f,bc,u0::AbstractArray,tspan,p=nothing;kwargs...)
     iip = DiffEqBase.isinplace(f,4)
-    BVProblem{iip}(f,bc,u0,tspan;kwargs...)
+    BVProblem{iip}(f,bc,u0,tspan,p;kwargs...)
 end
 
 # convenience interfaces:
