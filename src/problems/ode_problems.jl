@@ -50,33 +50,32 @@ function (f::DynamicalODEFunction)(du,u,p,t)
     f.f2(du.x[2],u.x[1],u.x[2],p,t)
 end
 
-function DynamicalODEProblem(f1,f2,u0,du0,tspan,p=nothing;kwargs...)
+function DynamicalODEProblem(f1,f2,du0,u0,tspan,p=nothing;kwargs...)
   iip = isinplace(f1,5)
-  DynamicalODEProblem{iip}(f1,f2,u0,du0,tspan,p;kwargs...)
+  DynamicalODEProblem{iip}(f1,f2,du0,u0,tspan,p;kwargs...)
 end
-function DynamicalODEProblem{iip}(f1,f2,u0,du0,tspan,p=nothing;kwargs...) where iip
-    ODEProblem{iip}(DynamicalODEFunction{iip}(f1,f2),(u0,du0),tspan,p;kwargs...)
+function DynamicalODEProblem{iip}(f1,f2,du0,u0,tspan,p=nothing;kwargs...) where iip
+    ODEProblem{iip}(DynamicalODEFunction{iip}(f1,f2),(du0,u0),tspan,p;kwargs...)
 end
 
 # u'' = f(t,u,du,ddu)
 struct SecondOrderODEProblem{iip} <: AbstractDynamicalODEProblem end
-function SecondOrderODEProblem(f,u0,du0,tspan,p=nothing;kwargs...)
+function SecondOrderODEProblem(f,du0,u0,tspan,p=nothing;kwargs...)
   iip = isinplace(f,5)
-  SecondOrderODEProblem{iip}(f,u0,du0,tspan,p;kwargs...)
+  SecondOrderODEProblem{iip}(f,du0,u0,tspan,p;kwargs...)
 end
-function SecondOrderODEProblem{iip}(f,u0,du0,tspan,p=nothing;kwargs...) where iip
+function SecondOrderODEProblem{iip}(f,du0,u0,tspan,p=nothing;kwargs...) where iip
   if iip
-    f1 = function (du,u,v,p,t)
+    f2 = function (du,v,u,p,t)
       du .= v
     end
   else
-    f1 = function (u,v,p,t)
+    f2 = function (v,u,p,t)
       v
     end
   end
-  _f = (f1,f)
-  _u0 = (u0,du0)
-  ODEProblem{iip}(DynamicalODEFunction{iip}(f1,f),_u0,tspan,p,
+  _u0 = (du0,u0)
+  ODEProblem{iip}(DynamicalODEFunction{iip}(f,f2),_u0,tspan,p,
                   SecondOrderODEProblem{iip}();kwargs...)
 end
 
