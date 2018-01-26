@@ -21,7 +21,7 @@ function problem_new_parameters(prob::DAEProblem,p;kwargs...)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   du0 = [uEltype(prob.du0[i]) for i in 1:length(prob.du0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
-  DAEProblem{isinplace(prob)}(prob.f,u0,du0,tspan,p;
+  DAEProblem{isinplace(prob)}(prob.f,du0,u0,tspan,p;
   differential_vars=prob.differential_vars,
   callback = prob.callback,
   kwargs...)
@@ -31,8 +31,9 @@ function problem_new_parameters(prob::DDEProblem,p;kwargs...)
   uEltype = eltype(p)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
-  DDEProblem{isinplace(prob)}(prob.f,prob.h,u0,tspan,p,prob.constant_lags,
-  prob.dependent_lags;
+  DDEProblem{isinplace(prob)}(prob.f,u0,prob.h,tspan,p;
+                              constant_lags = prob.constant_lags,
+                              dependent_lags = prob.dependent_lags,
   callback = prob.callback, mass_matrix = prob.mass_matrix,
   neutral = prob.neutral,
   kwargs...)
