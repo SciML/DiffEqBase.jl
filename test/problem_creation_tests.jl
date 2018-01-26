@@ -39,8 +39,8 @@ prob = SDEProblem{true}(f,g,u0,tspan)
 f_1delay = function (du,u,h,p,t)
     du[1] = - h(t-1)[1]
 end
-prob =  DDEProblem(f_1delay,t->zeros(1),ones(1),(0.0, 10.0),nothing,ones(1))
-prob =  DDEProblem{true}(f_1delay,t->zeros(1),ones(1),(0.0, 10.0),nothing,ones(1))
+prob =  DDEProblem(f_1delay,ones(1),t->zeros(1),(0.0, 10.0),constant_lags = ones(1))
+prob =  DDEProblem{true}(f_1delay,ones(1),t->zeros(1),(0.0, 10.0),dependent_lags = ones(1))
 
 
 function f(r, yp, y, p,tres)
@@ -51,8 +51,8 @@ function f(r, yp, y, p,tres)
 end
 u0 = [1.0, 0, 0]
 du0 = [-0.04, 0.04, 0.0]
-prob_dae_resrob = DAEProblem(f,u0,du0,(0.0,100000.0))
-prob_dae_resrob = DAEProblem{true}(f,u0,du0,(0.0,100000.0))
+prob_dae_resrob = DAEProblem(f,du0,u0,(0.0,100000.0))
+prob_dae_resrob = DAEProblem{true}(f,du0,u0,(0.0,100000.0))
 
 
 f(u,t,W) = 1.01u.+0.87u.*W
