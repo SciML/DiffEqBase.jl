@@ -1,19 +1,22 @@
 # f(t,u,du,res) = 0
-struct DAEProblem{uType,duType,tType,isinplace,P,F,C,D} <: AbstractDAEProblem{uType,duType,tType,isinplace}
+struct DAEProblem{uType,duType,tType,isinplace,P,J,F,C,D} <: AbstractDAEProblem{uType,duType,tType,isinplace}
   f::F
   du0::duType
-  u0::uType  
+  u0::uType
   tspan::Tuple{tType,tType}
   p::P
+  jac_prototype::J
   callback::C
   differential_vars::D
   function DAEProblem{iip}(f,du0,u0,tspan,p=nothing;
                       callback = nothing,
                       differential_vars = nothing) where {iip}
     new{typeof(u0),typeof(du0),promote_type(map(typeof,tspan)...),
-               iip,typeof(p),typeof(f),typeof(callback),
+               iip,typeof(p),typeof(jac_prototype),
+               typeof(f),typeof(callback),
                typeof(differential_vars)}(
-               f,du0,u0,tspan,p,callback,differential_vars)
+               f,du0,u0,tspan,p,jac_prototype,
+               callback,differential_vars)
   end
 end
 

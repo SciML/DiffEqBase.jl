@@ -1,20 +1,24 @@
 struct StandardBVProblem end
 
-struct BVProblem{uType,tType,isinplace,P,F,bF,PT,CB,MM} <: AbstractBVProblem{uType,tType,isinplace}
+struct BVProblem{uType,tType,isinplace,P,J,F,bF,PT,CB,MM} <: AbstractBVProblem{uType,tType,isinplace}
     f::F
     bc::bF
     u0::uType
     tspan::Tuple{tType,tType}
     p::P
+    jac_prototype::J
     problem_type::PT
     callback::CB
     mass_matrix::MM
     function BVProblem{iip}(f,bc,u0,tspan,p=nothing,
                             problem_type=StandardBVProblem();
+                            jac_prototype = nothing,
                             callback=nothing,mass_matrix=I) where {iip}
-        new{typeof(u0),eltype(tspan),iip,typeof(p),typeof(f),typeof(bc),
+        new{typeof(u0),eltype(tspan),iip,typeof(p),typeof(jac_prototype),
+                  typeof(f),typeof(bc),
                   typeof(problem_type),typeof(callback),typeof(mass_matrix)}(
-                  f,bc,u0,tspan,p,problem_type,callback,mass_matrix)
+                  f,bc,u0,tspan,p,jac_prototype,
+                  problem_type,callback,mass_matrix)
     end
 end
 

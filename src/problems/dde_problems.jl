@@ -1,16 +1,18 @@
-struct DDEProblem{uType,tType,lType,lType2,isinplace,P,F,H,C,MM} <:
+struct DDEProblem{uType,tType,lType,lType2,isinplace,P,J,F,H,C,MM} <:
                           AbstractDDEProblem{uType,tType,lType,isinplace}
   f::F
   u0::uType
   h::H
   tspan::Tuple{tType,tType}
   p::P
+  jac_prototype::J
   constant_lags::lType
   dependent_lags::lType2
   callback::C
   mass_matrix::MM
   neutral::Bool
   function DDEProblem{isinplace}(f,u0,h,tspan,p=nothing;
+                                 jac_prototype = nothing,
                                  constant_lags=[],
                                  dependent_lags=[],
                                  mass_matrix=I,
@@ -19,8 +21,11 @@ struct DDEProblem{uType,tType,lType,lType2,isinplace,P,F,H,C,MM} <:
                                  callback = nothing) where {isinplace}
     new{typeof(u0),promote_type(map(typeof,tspan)...),
                typeof(constant_lags),typeof(dependent_lags),
-               isinplace,typeof(p),typeof(f),typeof(h),typeof(callback),
-               typeof(mass_matrix)}(f,u0,h,tspan,p,constant_lags,
+               isinplace,typeof(p),typeof(jac_prototype),
+               typeof(f),typeof(h),typeof(callback),
+               typeof(mass_matrix)}(f,u0,h,tspan,p,
+                                    jac_prototype,
+                                    constant_lags,
                                     dependent_lags,callback,
                                     mass_matrix,neutral)
   end
