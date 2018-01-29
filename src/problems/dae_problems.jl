@@ -9,6 +9,7 @@ struct DAEProblem{uType,duType,tType,isinplace,P,J,F,C,D} <: AbstractDAEProblem{
   callback::C
   differential_vars::D
   function DAEProblem{iip}(f,du0,u0,tspan,p=nothing;
+                      jac_prototype = nothing,
                       callback = nothing,
                       differential_vars = nothing) where {iip}
     new{typeof(u0),typeof(du0),promote_type(map(typeof,tspan)...),
