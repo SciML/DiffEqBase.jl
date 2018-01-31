@@ -90,3 +90,8 @@ function initialize!(u,t,integrator::DEIntegrator,any_modified::Bool,
   c.initialize(c,u,t,integrator)
   any_modified || integrator.u_modified
 end
+
+# Helpers
+Base.isempty(cb::CallbackSet) = isempty(cb.continuous_callbacks) && isempty(cb.discrete_callbacks)
+Base.isempty(cb::AbstractContinuousCallback) = false
+Base.isempty(cb::AbstractDiscreteCallback) = false
