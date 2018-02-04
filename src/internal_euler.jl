@@ -22,7 +22,6 @@ function DiffEqBase.solve(prob::AbstractODEProblem{uType,tType,isinplace},
     f = prob.f
     tspan = prob.tspan
     p = prob.p
-    @assert !isinplace "Only out of place functions supported"
 
     if isempty(tstops)
         tstops = tspan[1]:dt:tspan[2]
@@ -32,10 +31,16 @@ function DiffEqBase.solve(prob::AbstractODEProblem{uType,tType,isinplace},
     nt = length(tstops)
     out = Vector{uType}(nt)
     out[1] = copy(u0)
+    tmp = copy(u0)
     for i=2:nt
         t = tstops[i]
         dt = t-tstops[i-1]
-        out[i] = out[i-1] + dt*f(out[i-1],p,t)
+        if isinplace
+            f(tmp,out[i-1],p,t)
+            out[i] = out[i-1] + dt*tmp
+        else
+            out[i] = out[i-1] + dt*f(out[i-1],p,t)
+        end
     end
     # make solution type
     build_solution(prob, Alg, tstops, out)

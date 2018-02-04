@@ -1,5 +1,4 @@
 using DiffEqBase, DiffEqBase.InternalEuler
-using ParameterizedFunctions
 using IteratorInterfaceExtensions
 using Base.Test
 
@@ -19,14 +18,17 @@ array = collect(getiterator(sol))
 @test length(array) == 17
 @test fieldnames(array[1]) == [:timestamp, :value1, :value2]
 
-f_2dlinear_named = @ode_def LotkaVolterra begin
-    dx = 1.5*x - 1*x*y
-    dy = -3*y + 1*x*y
+struct LotkaVolterra
+    syms::Vector{Symbol}
 end
-  
+function (::LotkaVolterra)(du,u,p,t)
+    du[1] = 1.5*u[1] - 1*u[1]*u[2]
+    du[2] = -3*u[2] + 1*u[1]*u[2]
+end
+f_2dlinear_named = LotkaVolterra([:x,:y])
 prob = ODEProblem(f_2dlinear_named,[1.0,1.0],(0.0,1.0))
-sol =solve(prob,Tsit5())
+sol =solve(prob,InternalEuler.FwdEulerAlg(),dt=0.1)
 array = collect(getiterator(sol))
 
-@test length(array) == 7
+@test length(array) == 11
 @test fieldnames(array[1]) == [:timestamp, :x, :y]
