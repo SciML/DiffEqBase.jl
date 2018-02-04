@@ -10,4 +10,5 @@ tic()
 @time @testset "Plot Variables" begin include("plot_vars.jl") end
 @time @testset "Problem Creation Tests" begin include("problem_creation_tests.jl") end
 @time @testset "Affine differential equation operators" begin include("affine_operators_tests.jl") end
+@time @testset "TableTraits" begin include("tabletraits_tests.jl") end
 toc()
