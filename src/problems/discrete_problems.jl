@@ -1,5 +1,5 @@
-const DISCRETE_INPLACE_DEFAULT = (du,u,p,t) -> fill!(du,zero(eltype(u)))
-const DISCRETE_OUTOFPLACE_DEFAULT = (u,p,t) -> zero(eltype(u))
+const DISCRETE_INPLACE_DEFAULT = (du,u,p,t) -> du.=u
+const DISCRETE_OUTOFPLACE_DEFAULT = (u,p,t) -> u
 
 struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{uType,tType,isinplace}
   f::F
