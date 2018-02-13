@@ -172,6 +172,9 @@ export AbstractDiffEqLinearOperator, AbstractDiffEqOperator
 abstract type AbstractDiffEqFunction{iip} <: Function end
 export AbstractDiffEqFunction
 
+abstract type AbstractReactionNetwork end
+export AbstractReactionNetwork
+
 include("utils.jl")
 include("extended_functions.jl")
 include("solutions/steady_state_solutions.jl")
