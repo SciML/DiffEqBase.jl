@@ -121,9 +121,11 @@ function set_u0(prob::ODEProblem, u0)
     prob.f,
     u0,
     prob.tspan,
-    prob.callback,
-    prob.mass_matrix,
-    prob.problem_type)
+    prob.p,
+    prob.problem_type;
+    jac_prototype = prob.jac_prototype,
+    callback = prob.callback,
+    mass_matrix = prob.mass_matrix)
 end
 
 export set_u0

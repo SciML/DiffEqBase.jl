@@ -15,6 +15,19 @@ prob = ODEProblem{true}(f,u0,tspan)
 prob = ODEProblem{false}(f,u0,tspan)
 @test isinplace(prob) == false
 
+# Create a ODEProblem and test set_u0:
+prob1 = SplitODEProblem(f,f,u0,tspan,Dict();
+                        mass_matrix=eye(length(u0)))
+prob2 = set_u0(prob1,prob1.u0+1)
+@test prob1.f === prob2.f
+@test prob1.p === prob2.p
+@test prob1.u0 + 1 ≈ prob2.u0
+@test prob1.tspan == prob2.tspan
+@test prob1.jac_prototype === prob2.jac_prototype
+@test prob1.callback === prob2.callback
+@test prob1.mass_matrix === prob2.mass_matrix
+@test prob1.problem_type === prob2.problem_type
+
 function f(dv,u,v,p,t)
   dv .= 2.*v
 end
