@@ -1,3 +1,10 @@
+"""
+    step!(integ::DEIntegrator [, dt])
+Perform one (successful) step on the integrator.
+
+Alternative, if a `dt` is given, then `step!` the integrator until
+there is a temporal difference `≥ dt` in `integ.t`.
+"""
 function step!(d::DEIntegrator) error("Integrator stepping is not implemented") end
 resize!(i::DEIntegrator,ii::Int) = error("resize!: method has not been implemented for the integrator")
 deleteat!(i::DEIntegrator,ii) = error("deleteat!: method has not been implemented for the integrator")
@@ -182,13 +189,6 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 end
 
 
-"""
-    step!(integ::DEIntegrator [, dt])
-Perform one (successful) step on the integrator.
-
-Alternative, if a `dt` is given, then `step!` the integrator until
-there is a temporal difference `≥ dt` in `integ.t`.
-"""
 function step!(integ::DEIntegrator, dt::Real)
     t = integ.t
     while integ.t < t + dt
