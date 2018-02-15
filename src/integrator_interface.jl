@@ -188,11 +188,11 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
   (plot_vecs...)
 end
 
-
-function step!(integ::DEIntegrator, dt::Real)
+function step!(integ::DEIntegrator, dt::Real, stop_at_tdt = false)
     t = integ.t
-    while integ.t < t + dt
+    next_t = t+dt
+    stop_at_tdt && add_tstop(integ,next_t)
+    while integ.t < next_t
         step!(integ)
     end
 end
-
