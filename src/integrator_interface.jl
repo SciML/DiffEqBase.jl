@@ -182,6 +182,13 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 end
 
 
+"""
+    step!(integ::DEIntegrator [, dt])
+Perform one (successful) step on the integrator.
+
+Alternative, if a `dt` is given, then `step!` the integrator until
+there is a temporal difference `≥ dt` in `integ.t`.
+"""
 function step!(integ::DEIntegrator, dt::Real)
     t = integ.t
     while integ.t < t + dt
