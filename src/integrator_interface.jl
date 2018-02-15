@@ -180,3 +180,12 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
   label --> reshape(labels,1,length(labels))
   (plot_vecs...)
 end
+
+
+function step!(integ::DEIntegrator, Δt::Real)
+    t = integ.t
+    while integ.t < t + Δt
+        step!(integ)
+    end
+end
+
