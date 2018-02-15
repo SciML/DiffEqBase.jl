@@ -182,9 +182,9 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 end
 
 
-function step!(integ::DEIntegrator, Δt::Real)
+function step!(integ::DEIntegrator, dt::Real)
     t = integ.t
-    while integ.t < t + Δt
+    while integ.t < t + dt
         step!(integ)
     end
 end
