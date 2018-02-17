@@ -12,4 +12,5 @@ tic()
 @time @testset "Remake tests" begin include("remake_tests.jl") end
 @time @testset "Affine differential equation operators" begin include("affine_operators_tests.jl") end
 @time @testset "TableTraits" begin include("tabletraits_tests.jl") end
+@time @testset "Integrator interface" begin include("integrator_tests.jl") end
 toc()
