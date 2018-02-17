@@ -8,7 +8,7 @@ struct DAEProblem{uType,duType,tType,isinplace,P,J,F,C,D} <: AbstractDAEProblem{
   jac_prototype::J
   callback::C
   differential_vars::D
-  function DAEProblem{iip}(f,du0,u0,tspan,p=nothing;
+  @add_kwonly function DAEProblem{iip}(f,du0,u0,tspan,p=nothing;
                       jac_prototype = nothing,
                       callback = nothing,
                       differential_vars = nothing) where {iip}

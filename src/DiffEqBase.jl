@@ -260,6 +260,8 @@ export ConstantLagDDEProblem, DDEProblem
 
 export BVProblem, TwoPointBVProblem
 
+export remake
+
 export ParameterizedFunction, DAEParameterizedFunction,
        DDEParameterizedFunction,
        ProbParameterizedFunction, OutputParameterizedFunction

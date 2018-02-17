@@ -4,7 +4,7 @@ struct AnalyticalProblem{uType,tType,isinplace,P,F,C} <: AbstractAnalyticalProbl
   tspan::Tuple{tType,tType}
   p::P
   callback::C
-  function AnalyticalProblem{iip}(f,u0,tspan,p=nothing;
+  @add_kwonly function AnalyticalProblem{iip}(f,u0,tspan,p=nothing;
            callback = nothing) where {iip}
     new{typeof(u0),promote_type(map(typeof,tspan)...),iip,typeof(p),
         typeof(f),typeof(callback)}(f,u0,tspan,p,callback)

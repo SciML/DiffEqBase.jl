@@ -10,7 +10,7 @@ struct BVProblem{uType,tType,isinplace,P,J,F,bF,PT,CB,MM} <: AbstractBVProblem{u
     problem_type::PT
     callback::CB
     mass_matrix::MM
-    function BVProblem{iip}(f,bc,u0,tspan,p=nothing,
+    @add_kwonly function BVProblem{iip}(f,bc,u0,tspan,p=nothing,
                             problem_type=StandardBVProblem();
                             jac_prototype = nothing,
                             callback=nothing,mass_matrix=I) where {iip}
@@ -41,6 +41,7 @@ end
 struct TwoPointBVPFunction{bF}
     bc::bF
 end
+TwoPointBVPFunction(; bc = error("No argument bc")) = TwoPointBVPFunction(bc)
 (f::TwoPointBVPFunction)(residual, ua, ub, p) = f.bc(residual, ua, ub, p)
 (f::TwoPointBVPFunction)(residual, u, p) = f.bc(residual, u[1], u[end], p)
 

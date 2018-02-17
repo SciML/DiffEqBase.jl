@@ -5,7 +5,7 @@ struct SteadyStateProblem{uType,isinplace,P,J,F,MM} <: AbstractSteadyStateProble
   p::P
   jac_prototype::J
   mass_matrix::MM
-  function SteadyStateProblem{iip}(f,u0,p=nothing;
+  @add_kwonly function SteadyStateProblem{iip}(f,u0,p=nothing;
                                    jac_prototype=nothing,
                                    mass_matrix=I) where iip
     new{typeof(u0),iip,typeof(p),typeof(jac_prototype),

@@ -7,7 +7,7 @@ struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{u
   tspan::Tuple{tType,tType}
   p::P
   callback::C
-  function DiscreteProblem{iip}(f,u0,tspan,p=nothing;
+  @add_kwonly function DiscreteProblem{iip}(f,u0,tspan,p=nothing;
            callback = nothing) where {iip}
     new{typeof(u0),promote_type(map(typeof,tspan)...),iip,
         typeof(p),
