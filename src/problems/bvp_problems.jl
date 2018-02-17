@@ -41,6 +41,7 @@ end
 struct TwoPointBVPFunction{bF}
     bc::bF
 end
+TwoPointBVPFunction(; bc = error("No argument bc")) = TwoPointBVPFunction(bc)
 (f::TwoPointBVPFunction)(residual, ua, ub, p) = f.bc(residual, ua, ub, p)
 (f::TwoPointBVPFunction)(residual, u, p) = f.bc(residual, u[1], u[end], p)
 
