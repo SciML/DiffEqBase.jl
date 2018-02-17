@@ -172,7 +172,7 @@ struct_as_dict(st) = [(n => getfield(st, n)) for n in fieldnames(typeof(st))]
 Re-construct `thing` with new field values specified by the keyword
 arguments.
 """
-function remake(thing; kwargs...)
+@generated function remake(thing; kwargs...)
   T = parameterless_type(thing)
   constructor = if method_exists(T, ())
     # This path is required for, e.g., NoiseProblem
@@ -181,5 +181,5 @@ function remake(thing; kwargs...)
     # Assume that T wants isinplace
     T{isinplace(thing)}
   end
-  return constructor(; struct_as_dict(thing)..., kwargs...)
+  return :($constructor(; struct_as_dict(thing)..., kwargs...))
 end
