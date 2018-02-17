@@ -3,7 +3,8 @@
 Perform one (successful) step on the integrator.
 
 Alternative, if a `dt` is given, then `step!` the integrator until
-there is a temporal difference `≥ dt` in `integ.t`.
+there is a temporal difference `≥ dt` in `integ.t`.  It returns the
+actual temporal difference advanced by the integrator.
 """
 function step!(d::DEIntegrator) error("Integrator stepping is not implemented") end
 resize!(i::DEIntegrator,ii::Int) = error("resize!: method has not been implemented for the integrator")
@@ -195,4 +196,5 @@ function step!(integ::DEIntegrator, dt::Real, stop_at_tdt = false)
     while integ.t < next_t
         step!(integ)
     end
+    return integ.t - t
 end
