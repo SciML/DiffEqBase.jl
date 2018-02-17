@@ -200,3 +200,11 @@ function step!(integ::DEIntegrator, dt::Real, stop_at_tdt = false)
     end
     return integ.t - t
 end
+
+"""
+    set_t!(integrator::DEIntegrator, t::Real)
+
+Set current time point of the `integrator` to `t`.
+"""
+set_t!(integrator::DEIntegrator, t::Real) =
+    error("integrator: method has not been implemented for the integrator")
