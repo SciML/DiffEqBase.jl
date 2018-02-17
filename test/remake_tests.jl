@@ -24,7 +24,7 @@ end
 u0 = ones(2)
 tspan = (0,1.0)
 
-# Create a ODEProblem and test set_u0:
+# Create a ODEProblem and test remake:
 prob1 = SplitODEProblem(f,f,u0,tspan,Dict(); mass_matrix=eye(length(u0)))
 prob2 = remake(prob1; u0 = prob1.u0 + 1)
 @test prob1.f === prob2.f
