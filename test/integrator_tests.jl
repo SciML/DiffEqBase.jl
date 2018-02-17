@@ -1,13 +1,14 @@
 mutable struct DummyIntegrator <: DEIntegrator
   t
   dt
+  tdir
   tstops
 
-  DummyIntegrator() = new(0,1,[])
+  DummyIntegrator() = new(0,1,1,[])
 end
 
 function DiffEqBase.add_tstop!(integrator::DummyIntegrator,t)
-  integrator.dt * (t - integrator.t) < 0 && error("Tried to add a tstop that is behind the current time. This is strictly forbidden")
+  integrator.tdir * (t - integrator.t) < 0 && error("Tried to add a tstop that is behind the current time. This is strictly forbidden")
   push!(integrator.tstops,t)
 end
 
@@ -22,3 +23,4 @@ end
 integrator = DummyIntegrator()
 @test step!(integrator, 1.5) == 2
 @test step!(integrator, 1.5, true) == 1.5
+@test_throws ErrorException step!(integrator, -1)

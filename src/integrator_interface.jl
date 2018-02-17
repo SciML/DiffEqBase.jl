@@ -36,6 +36,14 @@ reinit!(integrator::DEIntegrator,args...; kwargs...) =
        error("reinit!: method has not been implemented for the integrator")
 auto_dt_reset!(integrator::DEIntegrator) = error("auto_dt_reset!: method has not been implemented for the integrator")
 
+"""
+    set_t!(integrator::DEIntegrator, t::Real)
+
+Set current time point of the `integrator` to `t`.
+"""
+set_t!(integrator::DEIntegrator, t::Real) =
+    error("set_t!: method has not been implemented for the integrator")
+
 ### Addat isn't a real thing. Let's make it a real thing Gretchen
 
 function addat!(a::AbstractArray,idxs,val=zeros(length(idxs)))
@@ -192,6 +200,7 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 end
 
 function step!(integ::DEIntegrator, dt::Real, stop_at_tdt = false)
+    (dt * integ.tdir) < 0 && error("Cannot step backward.")
     t = integ.t
     next_t = t+dt
     stop_at_tdt && add_tstop!(integ,next_t)
@@ -200,11 +209,3 @@ function step!(integ::DEIntegrator, dt::Real, stop_at_tdt = false)
     end
     return integ.t - t
 end
-
-"""
-    set_t!(integrator::DEIntegrator, t::Real)
-
-Set current time point of the `integrator` to `t`.
-"""
-set_t!(integrator::DEIntegrator, t::Real) =
-    error("integrator: method has not been implemented for the integrator")
