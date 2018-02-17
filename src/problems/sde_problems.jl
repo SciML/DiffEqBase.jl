@@ -12,7 +12,7 @@ struct SDEProblem{uType,tType,isinplace,P,J,NP,F,G,C,MM,ND} <: AbstractSDEProble
   mass_matrix::MM
   noise_rate_prototype::ND
   seed::UInt64
-  function SDEProblem{iip}(f,g,u0,tspan,p=nothing,problem_type=StandardSDEProblem();
+  @add_kwonly function SDEProblem{iip}(f,g,u0,tspan,p=nothing,problem_type=StandardSDEProblem();
           jac_prototype = nothing,
           noise_rate_prototype = nothing,
           noise= nothing, seed = UInt64(0),

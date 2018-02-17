@@ -11,7 +11,7 @@ struct DDEProblem{uType,tType,lType,lType2,isinplace,P,J,F,H,C,MM} <:
   callback::C
   mass_matrix::MM
   neutral::Bool
-  function DDEProblem{isinplace}(f,u0,h,tspan,p=nothing;
+  @add_kwonly function DDEProblem{isinplace}(f,u0,h,tspan,p=nothing;
                                  jac_prototype = nothing,
                                  constant_lags=[],
                                  dependent_lags=[],

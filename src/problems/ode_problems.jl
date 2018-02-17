@@ -11,7 +11,7 @@ struct ODEProblem{uType,tType,isinplace,P,F,J,C,MM,PT} <:
   callback::C
   mass_matrix::MM
   problem_type::PT
-  function ODEProblem{iip}(f,u0,tspan,p=nothing,
+  @add_kwonly function ODEProblem{iip}(f,u0,tspan,p=nothing,
                       problem_type=StandardODEProblem();
                       jac_prototype = nothing,
                       callback=nothing,mass_matrix=I) where {iip}
@@ -42,7 +42,7 @@ struct DynamicalODEProblem{iip} <: AbstractDynamicalODEProblem end
 struct DynamicalODEFunction{iip,F1,F2} <: Function
     f1::F1
     f2::F2
-    DynamicalODEFunction{iip}(f1,f2) where iip =
+    @add_kwonly DynamicalODEFunction{iip}(f1,f2) where iip =
                         new{iip,typeof(f1),typeof(f2)}(f1,f2)
 end
 function (f::DynamicalODEFunction)(u,p,t)
@@ -86,7 +86,7 @@ struct SplitFunction{iip,F1,F2,C} <: Function
     f1::F1
     f2::F2
     cache::C
-    SplitFunction{iip}(f1,f2,cache) where iip =
+    @add_kwonly SplitFunction{iip}(f1,f2,cache) where iip =
                         new{iip,typeof(f1),typeof(f2),typeof(cache)}(f1,f2,cache)
 end
 function (f::SplitFunction)(u,p,t)

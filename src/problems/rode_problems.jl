@@ -9,7 +9,7 @@ mutable struct RODEProblem{uType,tType,isinplace,P,J,NP,F,C,MM,ND} <: AbstractRO
   mass_matrix::MM
   rand_prototype::ND
   seed::UInt64
-  function RODEProblem{iip}(f,u0,tspan,p=nothing;
+  @add_kwonly function RODEProblem{iip}(f,u0,tspan,p=nothing;
                        jac_prototype = nothing,
                        rand_prototype = nothing,
                        noise= nothing, seed = UInt64(0),
