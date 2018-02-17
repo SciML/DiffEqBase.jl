@@ -163,3 +163,23 @@ function add_kwonly(::Type{Val{:call}}, default_call::Expr)
 
   return kwonly_call
 end
+
+struct_as_dict(st) = [(n => getfield(st, n)) for n in fieldnames(typeof(st))]
+
+"""
+    remake(thing; <keyword arguments>)
+
+Re-construct `thing` with new field values specified by the keyword
+arguments.
+"""
+function remake(thing; kwargs...)
+  T = parameterless_type(thing)
+  constructor = if method_exists(T, ())
+    # This path is required for, e.g., NoiseProblem
+    T
+  else
+    # Assume that T wants isinplace
+    T{isinplace(thing)}
+  end
+  return constructor(; struct_as_dict(thing)..., kwargs...)
+end
