@@ -52,6 +52,15 @@ Set current state of the `integrator` to `u`.
 set_u!(integrator::DEIntegrator, u) =
     error("set_u!: method has not been implemented for the integrator")
 
+
+"""
+    set_u!(integrator::DEIntegrator, u, t)
+
+Set current state of the `integrator` to `u` and `t`
+"""
+set_ut!(integrator::DEIntegrator, u, t) =
+    error("set_ut!: method has not been implemented for the integrator")
+
 ### Addat isn't a real thing. Let's make it a real thing Gretchen
 
 function addat!(a::AbstractArray,idxs,val=zeros(length(idxs)))
