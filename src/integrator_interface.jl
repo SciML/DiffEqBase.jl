@@ -54,7 +54,7 @@ set_u!(integrator::DEIntegrator, u) =
 
 
 """
-    set_u!(integrator::DEIntegrator, u, t)
+    set_ut!(integrator::DEIntegrator, u, t)
 
 Set current state of the `integrator` to `u` and `t`
 """
