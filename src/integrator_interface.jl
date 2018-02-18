@@ -1,9 +1,12 @@
 """
-    step!(integ::DEIntegrator [, dt])
+    step!(integ::DEIntegrator [, dt [, stop_at_tdt]])
 Perform one (successful) step on the integrator.
 
 Alternative, if a `dt` is given, then `step!` the integrator until
-there is a temporal difference `≥ dt` in `integ.t`.
+there is a temporal difference `≥ dt` in `integ.t`.  It returns the
+actual temporal difference advanced by the integrator.  When `true` is
+passed to the optional third argument, the integrator advances exactly
+`dt`.
 """
 function step!(d::DEIntegrator) error("Integrator stepping is not implemented") end
 resize!(i::DEIntegrator,ii::Int) = error("resize!: method has not been implemented for the integrator")
@@ -32,6 +35,31 @@ set_reltol!(i::DEIntegrator,t) = error("set_reltol!: method has not been impleme
 reinit!(integrator::DEIntegrator,args...; kwargs...) =
        error("reinit!: method has not been implemented for the integrator")
 auto_dt_reset!(integrator::DEIntegrator) = error("auto_dt_reset!: method has not been implemented for the integrator")
+
+"""
+    set_t!(integrator::DEIntegrator, t::Real)
+
+Set current time point of the `integrator` to `t`.
+"""
+set_t!(integrator::DEIntegrator, t::Real) =
+    error("set_t!: method has not been implemented for the integrator")
+
+"""
+    set_u!(integrator::DEIntegrator, u)
+
+Set current state of the `integrator` to `u`.
+"""
+set_u!(integrator::DEIntegrator, u) =
+    error("set_u!: method has not been implemented for the integrator")
+
+
+"""
+    set_ut!(integrator::DEIntegrator, u, t)
+
+Set current state of the `integrator` to `u` and `t`
+"""
+set_ut!(integrator::DEIntegrator, u, t) =
+    error("set_ut!: method has not been implemented for the integrator")
 
 ### Addat isn't a real thing. Let's make it a real thing Gretchen
 
@@ -189,10 +217,12 @@ intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 end
 
 function step!(integ::DEIntegrator, dt::Real, stop_at_tdt = false)
+    (dt * integ.tdir) < 0 && error("Cannot step backward.")
     t = integ.t
     next_t = t+dt
-    stop_at_tdt && add_tstop(integ,next_t)
+    stop_at_tdt && add_tstop!(integ,next_t)
     while integ.t < next_t
         step!(integ)
     end
+    return integ.t - t
 end
