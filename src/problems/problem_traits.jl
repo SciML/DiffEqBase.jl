@@ -1,10 +1,13 @@
 is_diagonal_noise(prob::AbstractRODEProblem{uType,tType,isinplace,ND}) where {uType,tType,isinplace,ND} = ND <: Void
 
-isinplace(prob::AbstractODEProblem{uType,tType,iip}) where {uType,tType,iip} = iip
-isinplace(prob::AbstractSteadyStateProblem{uType,iip}) where {uType,iip} = iip
-isinplace(prob::AbstractRODEProblem{uType,tType,iip,ND}) where {uType,tType,iip,ND} = iip
-isinplace(prob::AbstractDDEProblem{uType,tType,lType,iip}) where {uType,tType,lType,iip} = iip
-isinplace(prob::AbstractDAEProblem{uType,duType,tType,iip}) where {uType,duType,tType,iip} = iip
+isinplace(prob::P) where {P <: DEProblem} = isinplace(P)
+isinplace(::Type{<:AbstractODEProblem{uType,tType,iip}}) where {uType,tType,iip} = iip
+isinplace(::Type{<:AbstractSteadyStateProblem{uType,iip}}) where {uType,iip} = iip
+isinplace(::Type{<:AbstractRODEProblem{uType,tType,iip,ND}}) where {uType,tType,iip,ND} = iip
+isinplace(::Type{<:AbstractDDEProblem{uType,tType,lType,iip}}) where {uType,tType,lType,iip} = iip
+isinplace(::Type{<:AbstractDAEProblem{uType,duType,tType,iip}}) where {uType,duType,tType,iip} = iip
+isinplace(::Type{NoiseProblem{N}}) where N = isinplace(N)
+isinplace(::Type{<:AbstractNoiseProcess{T,N,iip}}) where {T,N,iip} = iip
 isinplace(prob::AbstractNoiseProblem) = isinplace(prob.noise)
 
 ### Displays

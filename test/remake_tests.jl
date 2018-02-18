@@ -35,3 +35,4 @@ prob2 = remake(prob1; u0 = prob1.u0 + 1)
 @test prob1.callback === prob2.callback
 @test prob1.mass_matrix === prob2.mass_matrix
 @test prob1.problem_type === prob2.problem_type
+@inferred remake(prob1; u0 = prob1.u0 + 1)
