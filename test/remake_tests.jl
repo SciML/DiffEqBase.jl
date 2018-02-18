@@ -35,3 +35,22 @@ prob2 = remake(prob1; u0 = prob1.u0 + 1)
 @test prob1.callback === prob2.callback
 @test prob1.mass_matrix === prob2.mass_matrix
 @test prob1.problem_type === prob2.problem_type
+
+# Test remake with NoiseProblem (a struct w/o isinplace type parameter):
+struct DummyNoiseProcess <: AbstractNoiseProcess{Int,1,true}
+    dummy
+end
+tspan1 = (0.0, 1.0)
+tspan2 = (0.0, 2.0)
+noise1 = NoiseProblem(DummyNoiseProcess(Dict()), tspan1)
+noise2 = remake(noise1; tspan=tspan2)
+@test noise1.noise === noise2.noise
+@test noise1.tspan == tspan1
+@test noise2.tspan == tspan2
+@test noise1.tspan != noise2.tspan
+
+# Test remake with TwoPointBVPFunction (manually defined):
+f1 = DiffEqBase.TwoPointBVPFunction(() -> 1)
+f2 = remake(f1; bc = () -> 2)
+@test f1.bc() == 1
+@test f2.bc() == 2
