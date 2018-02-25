@@ -15,7 +15,7 @@ end
 
 function SteadyStateProblem(f,u0,p=nothing;kwargs...)
   iip = isinplace(f,3)
-  SteadyStateProblem{iip}(f,u0;kwargs...)
+  SteadyStateProblem{iip}(f,u0,p;kwargs...)
 end
 
 SteadyStateProblem(prob::AbstractODEProblem) =
