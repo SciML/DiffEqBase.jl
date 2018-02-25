@@ -304,7 +304,7 @@ function add_labels!(labels,x,dims,sol)
   if x[2] == 0 && dims == 3
     tmp_lab = "$(lys...)(t)"
   else
-    if has_syms(sol.prob.f)
+    if has_syms(sol.prob.f) && x[2] != 0
       tmp = sol.prob.f.syms[x[2]]
       tmp_lab = "($tmp,$(lys...))"
     else
