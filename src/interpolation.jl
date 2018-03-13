@@ -9,9 +9,15 @@ struct LinearInterpolation{T1,T2} <: AbstractDiffEqInterpolation
   u::T2
 end
 
+struct ConstantInterpolation{T1,T2} <: AbstractDiffEqInterpolation
+  t::T1
+  u::T2
+end
+
 interp_summary(::AbstractDiffEqInterpolation) = "Unknown"
 interp_summary(::HermiteInterpolation) = "3rd order Hermite"
 interp_summary(::LinearInterpolation) = "1st order linear"
+interp_summary(::ConstantInterpolation) = "Piecewise constant interpolation"
 interp_summary(::Void) = "No interpolation"
 interp_summary(sol::DESolution) = interp_summary(sol.interp)
 
@@ -19,6 +25,8 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
 (id::HermiteInterpolation)(val,tvals,idxs,deriv,p) = interpolation!(val,tvals,id,idxs,deriv,p)
 (id::LinearInterpolation)(tvals,idxs,deriv,p) = interpolation(tvals,id,idxs,deriv,p)
 (id::LinearInterpolation)(val,tvals,idxs,deriv,p) = interpolation!(val,tvals,id,idxs,deriv,p)
+(id::ConstantInterpolation)(tvals,idxs,deriv,p) = interpolation(tvals,id,idxs,deriv,p)
+(id::ConstantInterpolation)(val,tvals,idxs,deriv,p) = interpolation!(val,tvals,id,idxs,deriv,p)
 
 @inline function interpolation(tvals,id,idxs,deriv,p)
   t = id.t; u = id.u
@@ -367,5 +375,54 @@ Linear Interpolation
     @. out = (y₁ - y₀)/dt
   else
     @views @. out = (y₁[idxs] - y₀[idxs])/dt
+  end
+end
+
+############################### Linear Interpolants
+
+"""
+Constant Interpolation
+"""
+@inline function interpolant(Θ,id::ConstantInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}})
+  if typeof(idxs) <: Void
+    out = @. y₀
+  else
+    out = similar(y₀,indices(idxs))
+    @views @. out = y₀[idxs]
+  end
+  out
+end
+
+@inline function interpolant(Θ,id::ConstantInterpolation,dt,y₀,y₁,idxs,T::Type{Val{1}})
+  if typeof(idxs) <: Void
+    out = zeros(eltype(y₀),length(y₀))
+  else
+    out = similar(y₀,indices(idxs))
+    @views @. out = 0
+  end
+  out
+end
+
+"""
+Constant Interpolation
+"""
+@inline function interpolant!(out,Θ,id::ConstantInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}})
+  if out == nothing
+    return y₀[idxs]
+  elseif idxs == nothing
+    @. out = y₀
+  else
+    @views @. out = y₀[idxs]
+  end
+end
+
+"""
+Constant Interpolation
+"""
+@inline function interpolant!(out,Θ,id::ConstantInterpolation,dt,y₀,y₁,idxs,T::Type{Val{1}})
+  if out == nothing
+    return zeros(eltype(y₀),length(idxs))
+  else
+    @. out = 0
   end
 end
