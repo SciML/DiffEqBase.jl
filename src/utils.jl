@@ -38,9 +38,6 @@ macro def(name, definition)
     end
 end
 
-realtype{T}(::Type{T}) = T
-realtype{T}(::Type{Complex{T}}) = T
-
 using Compat.TypeUtils: typename
 
 if :wrapper in fieldnames(TypeName)
