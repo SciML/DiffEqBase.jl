@@ -58,8 +58,10 @@ set_u!(integrator::DEIntegrator, u) =
 
 Set current state of the `integrator` to `u` and `t`
 """
-set_ut!(integrator::DEIntegrator, u, t) =
-    error("set_ut!: method has not been implemented for the integrator")
+function set_ut!(integrator::DEIntegrator, u, t)
+  DiffEqBase.set_u!(integrator, u)
+  DiffEqBase.set_t!(integrator, t)
+end
 
 ### Addat isn't a real thing. Let's make it a real thing Gretchen
 
