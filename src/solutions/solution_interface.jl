@@ -72,15 +72,23 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
     end_idx = findlast(x -> x<=tspan[end],sol.t)
   end
 
+  # determine type of spacing for plott
+  tscale = get(plotattributes, :xscale, :identity)
+  densetspacer = if tscale in [:ln, :log10, :log2]
+    (start, stop, n) -> logspace(log10(start), log10(stop), n)
+  else
+    linspace
+  end
+
   if denseplot
     # Generate the points from the plot from dense function
     if tspan == nothing && !(typeof(sol) <: AbstractAnalyticalSolution)
-      plott = collect(linspace(sol.t[start_idx],sol.t[end_idx],plotdensity))
+      plott = collect(densetspacer(sol.t[start_idx],sol.t[end_idx],plotdensity))
     elseif typeof(sol) <: AbstractAnalyticalSolution
       tspan = sol.prob.tspan
-      plott = collect(linspace(tspan[1],tspan[end],plotdensity))
+      plott = collect(densetspacer(tspan[1],tspan[end],plotdensity))
     else
-      plott = collect(linspace(tspan[1],tspan[end],plotdensity))
+      plott = collect(densetspacer(tspan[1],tspan[end],plotdensity))
     end
     plot_timeseries = sol(plott)
     if plot_analytic
@@ -106,7 +114,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
       if tspan == nothing
         plott = sol.t[start_idx:end_idx]
       else
-        plott = collect(linspace(tspan[1],tspan[2],plotdensity))
+        plott = collect(densetspacer(tspan[1],tspan[2],plotdensity))
       end
 
       plot_timeseries = sol.u[start_idx:end_idx]
