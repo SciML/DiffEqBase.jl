@@ -8,7 +8,7 @@ sol =solve(prob,InternalEuler.FwdEulerAlg();dt=1//2^(4))
 array = collect(getiterator(sol))
 
 @test length(array) == 17
-@test fieldnames(array[1]) == [:timestamp, :value]
+@test collect(fieldnames(array[1])) == [:timestamp, :value]
 
 f_2dlinear = (du,u,p,t) -> du.=1.01u
 prob = ODEProblem(f_2dlinear,rand(2),(0.0,1.0))
@@ -16,7 +16,7 @@ sol =solve(prob,InternalEuler.FwdEulerAlg();dt=1//2^(4))
 array = collect(getiterator(sol))
 
 @test length(array) == 17
-@test fieldnames(array[1]) == [:timestamp, :value1, :value2]
+@test collect(fieldnames(array[1])) == [:timestamp, :value1, :value2]
 
 struct LotkaVolterra
     syms::Vector{Symbol}
@@ -31,4 +31,4 @@ sol =solve(prob,InternalEuler.FwdEulerAlg(),dt=0.1)
 array = collect(getiterator(sol))
 
 @test length(array) == 11
-@test fieldnames(array[1]) == [:timestamp, :x, :y]
+@test collect(fieldnames(array[1])) == [:timestamp, :x, :y]
