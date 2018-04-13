@@ -90,6 +90,8 @@ end
 
 ### Error check (retcode)
 
+last_step_failed(integrator::DEIntegrator) = false
+
 """
     check_error(integrator)
 
@@ -117,7 +119,7 @@ function check_error(integrator::DEIntegrator)
     end
     return :Unstable
   end
-  if integrator.last_stepfail && !integrator.opts.adaptive
+  if last_step_failed(integrator)
     if integrator.opts.verbose
       warn("Newton steps could not converge and algorithm is not adaptive. Use a lower dt.")
     end
