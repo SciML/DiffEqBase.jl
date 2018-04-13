@@ -156,7 +156,22 @@ end
   integrator,state
 end
 
-@inline done(integrator::DEIntegrator, _) = check_error!(integrator) != :Success
+@inline function done(integrator::DEIntegrator, _)
+  if check_error!(integrator) != :Success
+    return true
+  elseif isempty(integrator.opts.tstops)
+    postamble!(integrator)
+    return true
+  elseif integrator.just_hit_tstop
+    integrator.just_hit_tstop = false
+    if integrator.opts.stop_at_next_tstop
+      postamble!(integrator)
+      return true
+    end
+  end
+  false
+end
+
 done(integrator::DEIntegrator) = done(integrator,integrator.iter)
 
 eltype(integrator::DEIntegrator) = typeof(integrator)
