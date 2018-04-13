@@ -88,6 +88,61 @@ function Base.show(io::IO, m::MIME"text/plain", A::DEIntegrator)
   show(io,m,A.u)
 end
 
+### Error check (retcode)
+
+"""
+    check_error(integrator)
+
+Check state of `integrator` and return one of the
+[Return Codes](http://docs.juliadiffeq.org/latest/basics/solution.html#Return-Codes-(RetCodes)-1)
+"""
+function check_error(integrator::DEIntegrator)
+  # This implementation is intended to be used for ODEIntegrator and
+  # SDEIntegrator.
+  if integrator.iter > integrator.opts.maxiters
+    if integrator.opts.verbose
+      warn("Interrupted. Larger maxiters is needed.")
+    end
+    return :MaxIters
+  end
+  if !integrator.opts.force_dtmin && integrator.opts.adaptive && abs(integrator.dt) <= abs(integrator.opts.dtmin)
+    if integrator.opts.verbose
+      warn("dt <= dtmin. Aborting. If you would like to force continuation with dt=dtmin, set force_dtmin=true")
+    end
+    return :DtLessThanMin
+  end
+  if integrator.opts.unstable_check(integrator.dt,integrator.u,integrator.p,integrator.t)
+    if integrator.opts.verbose
+      warn("Instability detected. Aborting")
+    end
+    return :Unstable
+  end
+  if integrator.last_stepfail && !integrator.opts.adaptive
+    if integrator.opts.verbose
+      warn("Newton steps could not converge and algorithm is not adaptive. Use a lower dt.")
+    end
+    return :ConvergenceFailure
+  end
+  return :Success
+end
+
+function postamble! end
+
+"""
+    check_error!(integrator)
+
+Same as `check_error` but also set solution's return code
+(`integrator.sol.retcode`) and run `postamble!`.
+"""
+function check_error!(integrator::DEIntegrator)
+  code = check_error(integrator)
+  if code != :Success
+    integrator.sol = solution_new_retcode(integrator.sol, code)
+    postamble!(integrator)
+  end
+  return code
+end
+
 ### Abstract Interface
 
 struct IntegratorTuples{I}
