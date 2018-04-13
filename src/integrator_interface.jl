@@ -143,6 +143,24 @@ function check_error!(integrator::DEIntegrator)
   return code
 end
 
+### Default Iterator Interface
+
+function start(integrator::DEIntegrator)
+  0
+end
+
+@inline function next(integrator::DEIntegrator,state)
+  state += 1
+  step!(integrator) # Iter updated in the step! header
+  # Next is callbacks -> iterator  -> top
+  integrator,state
+end
+
+@inline done(integrator::DEIntegrator, _) = check_error!(integrator) != :Success
+done(integrator::DEIntegrator) = done(integrator,integrator.iter)
+
+eltype(integrator::DEIntegrator) = typeof(integrator)
+
 ### Abstract Interface
 
 struct IntegratorTuples{I}

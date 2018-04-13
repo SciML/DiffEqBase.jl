@@ -7,7 +7,7 @@ using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat,
       IteratorInterfaceExtensions, NamedTuples
 
 import Base: length, size, getindex, setindex!, show, print,
-             next, start, done, similar, indices, A_ldiv_B!
+             next, start, done, eltype, similar, indices, A_ldiv_B!
 
 import Base: resize!, deleteat!
 
