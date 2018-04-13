@@ -88,6 +88,96 @@ function Base.show(io::IO, m::MIME"text/plain", A::DEIntegrator)
   show(io,m,A.u)
 end
 
+### Error check (retcode)
+
+last_step_failed(integrator::DEIntegrator) = false
+
+"""
+    check_error(integrator)
+
+Check state of `integrator` and return one of the
+[Return Codes](http://docs.juliadiffeq.org/latest/basics/solution.html#Return-Codes-(RetCodes)-1)
+"""
+function check_error(integrator::DEIntegrator)
+  # This implementation is intended to be used for ODEIntegrator and
+  # SDEIntegrator.
+  if integrator.iter > integrator.opts.maxiters
+    if integrator.opts.verbose
+      warn("Interrupted. Larger maxiters is needed.")
+    end
+    return :MaxIters
+  end
+  if !integrator.opts.force_dtmin && integrator.opts.adaptive && abs(integrator.dt) <= abs(integrator.opts.dtmin)
+    if integrator.opts.verbose
+      warn("dt <= dtmin. Aborting. If you would like to force continuation with dt=dtmin, set force_dtmin=true")
+    end
+    return :DtLessThanMin
+  end
+  if integrator.opts.unstable_check(integrator.dt,integrator.u,integrator.p,integrator.t)
+    if integrator.opts.verbose
+      warn("Instability detected. Aborting")
+    end
+    return :Unstable
+  end
+  if last_step_failed(integrator)
+    if integrator.opts.verbose
+      warn("Newton steps could not converge and algorithm is not adaptive. Use a lower dt.")
+    end
+    return :ConvergenceFailure
+  end
+  return :Success
+end
+
+function postamble! end
+
+"""
+    check_error!(integrator)
+
+Same as `check_error` but also set solution's return code
+(`integrator.sol.retcode`) and run `postamble!`.
+"""
+function check_error!(integrator::DEIntegrator)
+  code = check_error(integrator)
+  if code != :Success
+    integrator.sol = solution_new_retcode(integrator.sol, code)
+    postamble!(integrator)
+  end
+  return code
+end
+
+### Default Iterator Interface
+
+function start(integrator::DEIntegrator)
+  0
+end
+
+@inline function next(integrator::DEIntegrator,state)
+  state += 1
+  step!(integrator) # Iter updated in the step! header
+  # Next is callbacks -> iterator  -> top
+  integrator,state
+end
+
+@inline function done(integrator::DEIntegrator, _)
+  if check_error!(integrator) != :Success
+    return true
+  elseif isempty(integrator.opts.tstops)
+    postamble!(integrator)
+    return true
+  elseif integrator.just_hit_tstop
+    integrator.just_hit_tstop = false
+    if integrator.opts.stop_at_next_tstop
+      postamble!(integrator)
+      return true
+    end
+  end
+  false
+end
+
+done(integrator::DEIntegrator) = done(integrator,integrator.iter)
+
+eltype(integrator::DEIntegrator) = typeof(integrator)
+
 ### Abstract Interface
 
 struct IntegratorTuples{I}
