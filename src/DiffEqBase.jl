@@ -222,7 +222,7 @@ export isinplace, noise_class
 
 export solve, solve!, init, step!
 
-export tuples, intervals
+export tuples, intervals, TimeChoiceIterator
 
 export resize!,deleteat!,addat!,get_tmp_cache,full_cache,user_cache,u_cache,du_cache,
        resize_non_user_cache!,deleteat_non_user_cache!,addat_non_user_cache!,
