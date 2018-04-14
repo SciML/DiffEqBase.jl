@@ -3,8 +3,7 @@
 Perform one (successful) step on the integrator.
 
 Alternative, if a `dt` is given, then `step!` the integrator until
-there is a temporal difference `≥ dt` in `integ.t`.  It returns the
-actual temporal difference advanced by the integrator.  When `true` is
+there is a temporal difference `≥ dt` in `integ.t`.  When `true` is
 passed to the optional third argument, the integrator advances exactly
 `dt`.
 """
@@ -351,5 +350,4 @@ function step!(integ::DEIntegrator, dt::Real, stop_at_tdt = false)
         step!(integ)
         integ.sol.retcode in (:Default, :Success) || break
     end
-    return integ.t - t
 end

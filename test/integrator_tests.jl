@@ -25,7 +25,13 @@ function DiffEqBase.step!(integrator::DummyIntegrator)
   integrator.t = t_next
 end
 
+function step_dt!(integrator, args...)
+  t = integrator.t
+  step!(integrator, args...)
+  integrator.t - t
+end
+
 integrator = DummyIntegrator()
-@test step!(integrator, 1.5) == 2
-@test step!(integrator, 1.5, true) == 1.5
+@test step_dt!(integrator, 1.5) == 2
+@test step_dt!(integrator, 1.5, true) == 1.5
 @test_throws ErrorException step!(integrator, -1)
