@@ -159,7 +159,7 @@ end
 end
 
 @inline function done(integrator::DEIntegrator, _)
-  if check_error!(integrator) != :Success
+  if ! (integrator.sol.retcode in (:Default, :Success))
     return true
   elseif isempty(integrator.opts.tstops)
     postamble!(integrator)
