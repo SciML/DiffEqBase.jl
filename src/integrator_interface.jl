@@ -178,7 +178,7 @@ done(integrator::DEIntegrator) = done(integrator,integrator.iter)
 
 eltype(integrator::DEIntegrator) = typeof(integrator)
 
-### Abstract Interface
+### Other Iterators
 
 struct IntegratorTuples{I}
  integrator::I
@@ -213,6 +213,40 @@ end
 done(tup::IntegratorIntervals,state) = done(tup.integrator,state)
 
 intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
+
+struct TimeChoiceIterator{T,T2}
+  integrator::T
+  ts::T2
+end
+
+Base.start(iter::TimeChoiceIterator) = 1
+function Base.next(iter::TimeChoiceIterator,state)
+  t = iter.ts[state]
+  integrator = iter.integrator
+  if isinplace(integrator.sol.prob)
+    tmp = first(get_tmp_cache(integrator))
+    if t == integrator.t
+      tmp .= integrator.u
+    elseif t < integrator.t
+      integrator(tmp,t)
+    else
+      step!(integrator,t-integrator.t)
+      integrator(tmp,t)
+    end
+    return (tmp,t),state+1
+  else
+    if t == integrator.t
+      tmp = integrator.u
+    elseif t < integrator.t
+      tmp = integrator(t)
+    else
+      step!(integrator,t-integrator.t)
+      tmp = integrator(t)
+    end
+    return (tmp,t),state+1
+  end
+end
+Base.done(iter::TimeChoiceIterator,state) = state > length(iter.ts)
 
 @recipe function f(integrator::DEIntegrator;
                     denseplot=(integrator.opts.calck || typeof(integrator) <: AbstractSDEIntegrator)  && integrator.iter>0,
