@@ -208,6 +208,7 @@ include("data_array.jl")
 include("internal_euler.jl")
 include("juno_rendering.jl")
 include("tabletraits.jl")
+include("alg_traits.jl")
 
 export NSODEFunction
 
@@ -216,9 +217,9 @@ struct ConvergenceSetup{P,C}
     convergence_axis::C
 end
 
-export DEParameters, Mesh, ExplicitRKTableau, ImplicitRKTableau
+export ExplicitRKTableau, ImplicitRKTableau
 
-export isinplace, noise_class
+export isinplace
 
 export solve, solve!, init, step!
 
@@ -235,13 +236,11 @@ export numargs, @def
 
 export recursivecopy!, copy_fields, copy_fields!
 
-export construct_correlated_noisefunc
-
-export HasJac, HastGrad, HasParamFuncs, HasParamDeriv, HasParamJac,
+export HasJac, HastGrad, HasParamDeriv, HasParamJac,
        HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
 
 export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
-       has_tgrad, has_paramfuncs, has_paramderiv, has_paramjac,
+       has_tgrad, has_paramderiv, has_paramjac,
        has_syms, has_analytic
 
 export DiscreteProblem
@@ -254,17 +253,12 @@ export AbstractDynamicalODEProblem, DynamicalODEFunction,
        AbstractSplitODEProblem, SplitFunction, SplitODEProblem
 export AbstractSplitSDEProblem, SplitSDEProblem
 export RODEProblem, RODESolution, SDEProblem
-export SecondOrderSDEProblem
 export DAEProblem, DAESolution
-export ConstantLagDDEProblem, DDEProblem
+export DDEProblem
 
 export BVProblem, TwoPointBVProblem
 
 export remake
-
-export ParameterizedFunction, DAEParameterizedFunction,
-       DDEParameterizedFunction,
-       ProbParameterizedFunction, OutputParameterizedFunction
 
 export DiffEqFunction
 
@@ -279,11 +273,9 @@ export ContinuousCallback, DiscreteCallback, CallbackSet
 
 export initialize!
 
-export param_values, num_params, problem_new_parameters, set_param_values!
+export problem_new_parameters
 
-export white_noise_func_wrapper, white_noise_func_wrapper!
-
-export is_diagonal_noise, is_sparse_noise
+export is_diagonal_noise
 
 export LinSolveFactorize, DEFAULT_LINSOLVE
 

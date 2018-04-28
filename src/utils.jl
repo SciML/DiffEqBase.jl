@@ -175,3 +175,18 @@ function remake(thing; kwargs...)
   end
   return constructor(; struct_as_dict(thing)..., kwargs...)
 end
+
+"""
+    undefined_exports(mod)
+
+List symbols `export`'ed but not actually defined.
+"""
+function undefined_exports(mod)
+  undefined = []
+  for name in names(mod)
+    if ! isdefined(mod, name)
+      push!(undefined, name)
+    end
+  end
+  return undefined
+end
