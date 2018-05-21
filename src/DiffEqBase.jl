@@ -282,6 +282,4 @@ export LinSolveFactorize, DEFAULT_LINSOLVE
 export AffineDiffEqOperator, update_coefficients!, update_coefficients, is_constant,
        has_expmv!, has_expmv, has_expm, has_mul, has_mul!, has_ldiv, has_ldiv!
 
-export isautodifferentiable
-
 end # module
