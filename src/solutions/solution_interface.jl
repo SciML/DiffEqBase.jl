@@ -164,7 +164,11 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
 
   if getindex.(int_vars,2) == zeros(length(int_vars))
     if tspan == nothing
-      xlims --> (sol.t[1],sol.t[end])
+      if tdir > 0
+        xlims --> (sol.t[1],sol.t[end])
+      else
+        xlims --> (sol.t[end],sol.t[1])
+      end
     else
       xlims --> (tspan[1],tspan[end])
     end
