@@ -39,12 +39,12 @@ end
 
 struct NSODEFunction{iip} <: AbstractDiffEqFunction{iip} end
 
-function NSODEFunction(f,t,u;kwargs...)
-  iip = typeof(f)<: Tuple ? isinplace(f[2],3) : isinplace(f,3)
-  NSODEFunction{iip}(f,t,u;kwargs...)
+function NSODEFunction(f,u,p,t;kwargs...)
+  iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4)
+  NSODEFunction{iip}(f,u,p,t;kwargs...)
 end
 
-function NSODEFunction{iip}(f,t,u;analytic=nothing,
+function NSODEFunction{iip}(f,u,p,t;analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
                  invjac=nothing,
@@ -52,11 +52,11 @@ function NSODEFunction{iip}(f,t,u;analytic=nothing,
                  invW_t=nothing,
                  paramjac = nothing) where iip
                  if iip
-                   _f = (t,u,du) -> (f(t,u,du);nothing)
-                   wrap_f = FunctionWrappers.FunctionWrapper{Void,Tuple{typeof(t),typeof(u),typeof(u)}}(_f)
+                   _f = (du,u,p,t) -> (f(du,u,p,t);nothing)
+                   wrap_f = FunctionWrappers.FunctionWrapper{Void,Tuple{typeof(u),typeof(u),typeof(p),typeof(t)}}(_f)
                  else
                    _f = f
-                   wrap_f = FunctionWrappers.FunctionWrapper{typeof(u),Tuple{typeof(t),typeof(u)}}(_f)
+                   wrap_f = FunctionWrappers.FunctionWrapper{typeof(u),Tuple{typeof(u),typeof(p),typeof(t)}}(_f)
                  end
                  DiffEqFunction{iip,typeof(wrap_f),typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(invjac),typeof(invW),typeof(invW_t),
