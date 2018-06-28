@@ -51,7 +51,7 @@ function build_solution(
 
     return sol
   else
-    return RODESolution{T,N,typeof(u),Void,Void,typeof(t),
+    return RODESolution{T,N,typeof(u),Nothing,Nothing,typeof(t),
                         typeof(W),typeof(prob),typeof(alg),typeof(interp)}(
                         u,nothing,nothing,t,W,prob,alg,interp,dense,0,retcode,seed)
   end
@@ -79,7 +79,7 @@ function calculate_solution_errors!(sol::AbstractRODESolution;fill_uanalytic=tru
       sol.errors[:l2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic))))
     end
     if dense_errors
-      densetimes = collect(linspace(sol.t[1],sol.t[end],100))
+      densetimes = collect(range(sol.t[1], stop=sol.t[end], length=100))
       interp_u = sol(densetimes)
       interp_analytic = [f(Val{:analytic},t,sol.u[1],sol.W(t)[1]) for t in densetimes]
       sol.errors[:L∞] = norm(maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic)))

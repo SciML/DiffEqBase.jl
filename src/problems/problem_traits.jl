@@ -1,4 +1,4 @@
-is_diagonal_noise(prob::AbstractRODEProblem{uType,tType,isinplace,ND}) where {uType,tType,isinplace,ND} = ND <: Void
+is_diagonal_noise(prob::AbstractRODEProblem{uType,tType,isinplace,ND}) where {uType,tType,isinplace,ND} = ND <: Nothing
 
 isinplace(prob::AbstractODEProblem{uType,tType,iip}) where {uType,tType,iip} = iip
 isinplace(prob::AbstractSteadyStateProblem{uType,iip}) where {uType,iip} = iip

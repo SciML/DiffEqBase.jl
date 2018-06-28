@@ -30,7 +30,7 @@ function IteratorInterfaceExtensions.getiterator(sol::DESolution)
         end
     end
 
-    col_expressions = Array{Expr,1}()
+    col_expressions = Array{Expr,1}(undef)
 
     # Add timestamp column
     push!(col_expressions, Expr(:(::), :timestamp, timestamp_type))

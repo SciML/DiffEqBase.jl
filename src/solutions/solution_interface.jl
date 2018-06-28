@@ -48,7 +48,7 @@ function done(sol::AbstractTimeseriesSolution,state)
   state >= length(sol)
 end
 
-DEFAULT_PLOT_FUNC(x...) = (x...)
+DEFAULT_PLOT_FUNC(x...) = (x...,)
 DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
 
 @recipe function f(sol::AbstractTimeseriesSolution;
@@ -398,23 +398,7 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
 
     f = x[1]
 
-    if VERSION < v"0.6-" && length(tmp) == 3
-      # Work around bug
-      #=
-      f = (x...) -> x
-      test = Any[rand(5),rand(5)]
-      f.(test...)
-      test = Any[rand(5),rand(5),rand(5)]
-      f.(test...)
-      =#
-      res = Any[]
-      for i in eachindex(tmp[1])
-        push!(res,(tmp[1][i],tmp[2][i],tmp[3][i]))
-      end
-      tmp = res
-    else
-      tmp = f.(tmp...)
-    end
+    tmp = f.(tmp...)
 
     tmp = tuple((getindex.(tmp,i) for i in eachindex(tmp[1]))...)
     for i in eachindex(tmp)

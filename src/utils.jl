@@ -168,7 +168,7 @@ arguments.
 """
 function remake(thing; kwargs...)
   T = parameterless_type(thing)
-  constructor = if method_exists(T, ())
+  constructor = if hasmethod(T, ())
     # This path is required for, e.g., NoiseProblem
     T
   else

@@ -1,4 +1,4 @@
-using Base.Test, DiffEqBase, SimpleTraits
+using Test, DiffEqBase, SimpleTraits
 
 f123(x,y) = 1
 f123(::Val{:jac}, x) = 2
@@ -7,7 +7,7 @@ f123(::Val{:jac}, x) = 2
 @code_llvm has_jac(f123)
 
 g123(x,y) = 1
-g123{T}(::Val{:jac}, x::T) = 2
+g123(::Val{:jac}, x::T) where {T} = 2
 @traitimpl HasJac{typeof(g123)}
 @code_llvm has_jac(g123)
 

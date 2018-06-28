@@ -43,10 +43,10 @@ has_ldiv!(L::AbstractDiffEqOperator) = false # A_ldiv_B!(du, L, u)
 is_constant(L::AbstractDiffEqLinearOperator) = true
 # Other ones from LinearMaps.jl
 # Generic fallbacks
-Base.expm(L::AbstractDiffEqLinearOperator,t) = expm(t*L)
+Base.expm(L::AbstractDiffEqLinearOperator,t) = exp(t*L)
 has_expm(L::AbstractDiffEqLinearOperator) = true
-expmv(L::AbstractDiffEqLinearOperator,u,p,t) = expm(L,t)*u
-expmv!(v,L::AbstractDiffEqLinearOperator,u,p,t) = A_mul_B!(v,expm(L,t),u)
+expmv(L::AbstractDiffEqLinearOperator,u,p,t) = exp(L,t)*u
+expmv!(v,L::AbstractDiffEqLinearOperator,u,p,t) = A_mul_B!(v,exp(L,t),u)
 # Factorizations have no fallback and just error
 
 """

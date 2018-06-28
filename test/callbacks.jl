@@ -1,4 +1,4 @@
-using DiffEqBase, Base.Test
+using DiffEqBase, Test
 
 condtion= function (u,t,integrator) # Event when event_f(u,t,k) == 0
   t - 2.95

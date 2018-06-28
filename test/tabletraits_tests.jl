@@ -1,6 +1,6 @@
 using DiffEqBase, DiffEqBase.InternalEuler
 using IteratorInterfaceExtensions
-using Base.Test
+using Test
 
 f_1dlinear = (u,p,t) -> 1.01u
 prob = ODEProblem(f_1dlinear,rand(),(0.0,1.0))

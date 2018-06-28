@@ -54,7 +54,7 @@ function build_solution(
     end
     return sol
   else
-    return ODESolution{T,N,typeof(u),Void,Void,typeof(t),typeof(k),
+    return ODESolution{T,N,typeof(u),Nothing,Nothing,typeof(t),typeof(k),
                        typeof(prob),typeof(alg),typeof(interp)}(u,nothing,nothing,
                        t,k,prob,alg,interp,dense,0,retcode)
   end
@@ -82,7 +82,7 @@ function calculate_solution_errors!(sol::AbstractODESolution;fill_uanalytic=true
       sol.errors[:l∞] = norm(maximum(vecvecapply((x)->abs.(x),sol.u-sol.u_analytic)))
       sol.errors[:l2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,sol.u-sol.u_analytic))))
       if sol.dense && dense_errors
-        densetimes = collect(linspace(sol.t[1],sol.t[end],100))
+        densetimes = collect(range(sol.t[1], stop=sol.t[end], length=100))
         interp_u = sol(densetimes)
         interp_analytic = VectorOfArray([f(Val{:analytic},sol.prob.u0,sol.prob.p,t) for t in densetimes])
         sol.errors[:L∞] = norm(maximum(abs.(interp_u.-interp_analytic)))

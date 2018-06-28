@@ -62,13 +62,13 @@ end
 CallbackSet(callback::AbstractDiscreteCallback) = CallbackSet((),(callback,))
 CallbackSet(callback::AbstractContinuousCallback) = CallbackSet((callback,),())
 CallbackSet() = CallbackSet((),())
-CallbackSet(cb::Void) = CallbackSet()
+CallbackSet(cb::Nothing) = CallbackSet()
 
 # For Varargs, use recursion to make it type-stable
-CallbackSet(callbacks::Union{DECallback,Void}...) = CallbackSet(split_callbacks((), (), callbacks...)...)
+CallbackSet(callbacks::Union{DECallback,Nothing}...) = CallbackSet(split_callbacks((), (), callbacks...)...)
 
 @inline split_callbacks(cs, ds) = cs, ds
-@inline split_callbacks(cs, ds, c::Void, args...) = split_callbacks(cs, ds, args...)
+@inline split_callbacks(cs, ds, c::Nothing, args...) = split_callbacks(cs, ds, args...)
 @inline split_callbacks(cs, ds, c::AbstractContinuousCallback, args...) = split_callbacks((cs..., c), ds, args...)
 @inline split_callbacks(cs, ds, d::AbstractDiscreteCallback, args...) = split_callbacks(cs, (ds..., d), args...)
 @inline function split_callbacks(cs, ds, d::CallbackSet, args...)

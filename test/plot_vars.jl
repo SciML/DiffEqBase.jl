@@ -1,4 +1,4 @@
-using DiffEqBase.InternalEuler, DiffEqBase, Base.Test
+using DiffEqBase.InternalEuler, DiffEqBase, Test
 
 # Here's the problem to solve
 

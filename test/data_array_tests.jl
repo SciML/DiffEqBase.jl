@@ -1,4 +1,4 @@
-using DiffEqBase, Base.Test
+using DiffEqBase, Test
 
 mutable struct VectorType{T} <: DEDataVector{T}
     x::Vector{T}
