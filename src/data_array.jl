@@ -24,7 +24,7 @@ Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
 @generated function similar(A::DEDataArray, ::Type{T}, dims::NTuple{N,Int}) where {T,N}
     assignments = [s == :x ? :(similar(A.x, T, dims)) :
                    (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
-                   for s in fieldnames(typeof(A))]
+                   for s in fieldnames(A)]
     :(parameterless_type(A)($(assignments...)))
 end
 
@@ -38,7 +38,7 @@ Recursively copy fields of `src` to `dest`.
                    :(typeof(getfield(dest, $sq)) <: AbstractArray ?
                      recursivecopy!(getfield(dest, $sq), getfield(src, $sq)) :
                      setfield!(dest, $sq, deepcopy(getfield(src, $sq)))))
-                   for s in fieldnames(typeof(dest))]
+                   for s in fieldnames(dest)]
     :($(assignments...); dest)
 end
 
@@ -51,7 +51,7 @@ value in `template`.
 @generated function copy_fields(arr::AbstractArray, template::DEDataArray)
     assignments = [s == :x ? :(arr) :
                    (sq = Meta.quot(s); :(deepcopy(getfield(template, $sq))))
-                   for s in fieldnames(typeof(template))]
+                   for s in fieldnames(template)]
     :(parameterless_type(template)($(assignments...)))
 end
 
@@ -67,7 +67,7 @@ Arrays are recursively copied.
                     :(typeof(getfield(dest, $sq)) <: AbstractArray ?
                       recursivecopy!(getfield(dest, $sq), getfield(src, $sq)) :
                       setfield!(dest, $sq, deepcopy(getfield(src, $sq)))))
-                   for s in fieldnames(typeof(dest)) if s != :x]
+                   for s in fieldnames(dest) if s != :x]
     :($(assignments...); dest)
 end
 
