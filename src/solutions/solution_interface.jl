@@ -74,8 +74,8 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
     end
     start_idx = 1
   else
-    start_idx = findfirst(x -> x>=tspan[end],sol.t)
-    end_idx = findlast(x -> x<=tspan[end],sol.t)
+    start_idx = something(findfirst(isequal(sol.t), x -> x>=tspan[end]), 0)
+    end_idx = something(findfirst(isequal(sol.t), x -> x<=tspan[end]), 0)
   end
 
   # determine type of spacing for plott
@@ -217,12 +217,12 @@ function interpret_vars(vars,sol)
     tmp_vars = []
     for var in vars
       if typeof(var) <: Symbol
-        var_int = findfirst(sol.prob.f.syms,var)
+        something(findfirst(isequal(sol.prob.f.syms), var), 0)
       elseif typeof(var) <: Union{Tuple,AbstractArray} #eltype(var) <: Symbol # Some kind of iterable
         tmp = []
         for x in var
           if typeof(x) <: Symbol
-            push!(tmp,findfirst(sol.prob.f.syms,x))
+            push!(tmp,something(findfirst(isequal(x), sol.prob.f.syms), 0))
           else
             push!(tmp,x)
           end
@@ -300,8 +300,8 @@ function interpret_vars(vars,sol)
   end
 
   # Here `vars` should be a list of tuples (x, y).
-  assert(typeof(vars) <: AbstractArray)
-  assert(eltype(vars) <: Tuple)
+  @assert(typeof(vars) <: AbstractArray)
+  @assert(eltype(vars) <: Tuple)
   vars
 end
 

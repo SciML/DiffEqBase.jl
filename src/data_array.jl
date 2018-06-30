@@ -17,14 +17,14 @@ end
     @inbounds A.x[I...] = x
 end
 indices(A::DEDataArray) = indices(A.x)
-Base.linearindices(A::DEDataArray) = linearindices(A.x)
+Base.LinearIndices(A::DEDataArray) = LinearIndices(A.x)
 Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
 
 # similar data arrays
 @generated function similar(A::DEDataArray, ::Type{T}, dims::NTuple{N,Int}) where {T,N}
     assignments = [s == :x ? :(similar(A.x, T, dims)) :
                    (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
-                   for s in fieldnames(A)]
+                   for s in fieldnames(typeof(A))]
     :(parameterless_type(A)($(assignments...)))
 end
 
@@ -38,7 +38,7 @@ Recursively copy fields of `src` to `dest`.
                    :(typeof(getfield(dest, $sq)) <: AbstractArray ?
                      recursivecopy!(getfield(dest, $sq), getfield(src, $sq)) :
                      setfield!(dest, $sq, deepcopy(getfield(src, $sq)))))
-                   for s in fieldnames(dest)]
+                   for s in fieldnames(typeof(dest))]
     :($(assignments...); dest)
 end
 
@@ -51,7 +51,7 @@ value in `template`.
 @generated function copy_fields(arr::AbstractArray, template::DEDataArray)
     assignments = [s == :x ? :(arr) :
                    (sq = Meta.quot(s); :(deepcopy(getfield(template, $sq))))
-                   for s in fieldnames(template)]
+                   for s in fieldnames(typeof(template))]
     :(parameterless_type(template)($(assignments...)))
 end
 
@@ -67,12 +67,12 @@ Arrays are recursively copied.
                     :(typeof(getfield(dest, $sq)) <: AbstractArray ?
                       recursivecopy!(getfield(dest, $sq), getfield(src, $sq)) :
                       setfield!(dest, $sq, deepcopy(getfield(src, $sq)))))
-                   for s in fieldnames(dest) if s != :x]
+                   for s in fieldnames(typeof(dest)) if s != :x]
     :($(assignments...); dest)
 end
 
 ################# Overloads for stiff solvers ##################################
 
-Base.A_ldiv_B!(A::DEDataArray,F::Factorization, B::DEDataArray) = A_ldiv_B!(A.x,F,B.x)
-Base.A_ldiv_B!(F::Factorization, B::DEDataArray) = A_ldiv_B!(F, B.x)
-Base.A_ldiv_B!(F::Factorization,A::Base.ReshapedArray{T1,T2,T3,T4}) where {T1,T2,T3<:DEDataArray,T4} = A_ldiv_B!(F,vec(A.parent.x))
+LinearAlgebra.A_ldiv_B!(A::DEDataArray,F::Factorization, B::DEDataArray) = A_ldiv_B!(A.x,F,B.x)
+LinearAlgebra.A_ldiv_B!(F::Factorization, B::DEDataArray) = A_ldiv_B!(F, B.x)
+LinearAlgebra.A_ldiv_B!(F::Factorization,A::Base.ReshapedArray{T1,T2,T3,T4}) where {T1,T2,T3<:DEDataArray,T4} = A_ldiv_B!(F,vec(A.parent.x))

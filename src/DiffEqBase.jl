@@ -7,13 +7,15 @@ using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat,
       IteratorInterfaceExtensions, NamedTuples
 
 import Base: length, size, getindex, setindex!, show, print,
-             next, start, done, eltype, similar, indices, A_ldiv_B!
+             next, start, done, eltype, similar, indices
 
 import Base: resize!, deleteat!
 
 import RecursiveArrayTools: recursivecopy!, tuples
 
 import RecursiveArrayTools: chain
+
+import LinearAlgebra: exp, A_ldiv_B!
 
 function solve end
 function solve! end
@@ -278,6 +280,6 @@ export is_diagonal_noise
 export LinSolveFactorize, DEFAULT_LINSOLVE
 
 export AffineDiffEqOperator, update_coefficients!, update_coefficients, is_constant,
-       has_expmv!, has_expmv, has_expm, has_mul, has_mul!, has_ldiv, has_ldiv!
+       has_expmv!, has_expmv, has_exp, has_mul, has_mul!, has_ldiv, has_ldiv!
 
 end # module

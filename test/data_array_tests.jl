@@ -28,7 +28,7 @@ b = MatrixType{Int,Float64}(2.0, copy(B))
 @test last(a) == 1.0 && last(b) == 3
 
 # indexing
-@test eachindex(a) == Base.linearindices(A) && eachindex(b) == Base.linearindices(B)
+@test eachindex(a) == Base.LinearIndices(A) && eachindex(b) == vec(Base.LinearIndices(B))
 @test a[2] == a[end] == 1.0
 @test b[3] == b[1,2] == 2 && b[:, 1] == [1; 4]
 

@@ -11,7 +11,7 @@
 # julia> f(::Val{:jac}, a, b, c) = 5
 # f (generic function with 1 method)
 #
-# julia> method_exists(f, Tuple{Val{:jac}, Vararg})
+# julia> hasmethod(f, Tuple{Val{:jac}, Vararg})
 # false
 #
 # Thus hand-code it:
@@ -75,8 +75,8 @@ has_paramjac(f::T) where {T} = istrait(HasParamJac{T})
 
 ## Parameter Names Check
 @traitdef HasSyms{F}
-__has_syms(f) = :syms ∈ fieldnames(f)
-@generated SimpleTraits.trait(::Type{HasSyms{F}}) where {F} = __has_syms(F) ? :(HasSyms{F}) : :(Not{HasSyms{F}})
+__has_syms(f) = :syms ∈ fieldnames(typeof(f))
+@generated SimpleTraits.trait{F}(::Type{HasSyms{F}}) = __has_syms(F) ? :(HasSyms{F}) : :(Not{HasSyms{F}})
 has_syms(f::T) where {T} = istrait(HasSyms{T})
 
 ## Analytical Solution Check

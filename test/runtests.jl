@@ -1,7 +1,7 @@
 using DiffEqBase
-using Test
+using Test, LinearAlgebra
 
-tic()
+@time begin
 @time @testset "Number of Parameters Calculation" begin include("numargs_test.jl") end
 @time @testset "Data Arrays" begin include("data_array_tests.jl") end
 @time @testset "Extended Functions" begin include("extended_function_tests.jl") end
@@ -13,4 +13,4 @@ tic()
 @time @testset "TableTraits" begin include("tabletraits_tests.jl") end
 @time @testset "Integrator interface" begin include("integrator_tests.jl") end
 @time @testset "Export tests" begin include("export_tests.jl") end
-toc()
+end
