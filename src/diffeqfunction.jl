@@ -34,6 +34,7 @@ function DiffEqFunction{iip}(f;analytic=nothing,
                  typeof(paramjac)}(f,analytic,tgrad,jac,invjac,invW,invW_t,
                  paramjac)
 end
+DiffEqFunction(f; kwargs...) = DiffEqFunction{isinplace(f, 4)}(f; kwargs...)
 
 ######### No Specialization Constructors
 
