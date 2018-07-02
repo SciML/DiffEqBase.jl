@@ -30,6 +30,8 @@ function isinplace(f::AbstractParameterizedFunction{iip},inplace_param_number) w
   iip
 end
 
+isinplace(f::AbstractDiffEqFunction{iip}, inplace_param_number) where {iip} = iip
+
 macro def(name, definition)
     return quote
         macro $(esc(name))()
