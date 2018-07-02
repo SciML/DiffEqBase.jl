@@ -1,4 +1,4 @@
-using DiffEqBase, Base.Test
+using DiffEqBase, Test
 
 f_op = (u,p,t) -> u
 f_ip = (du,u,p,t) -> du .= u

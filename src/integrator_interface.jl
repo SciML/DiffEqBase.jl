@@ -102,25 +102,25 @@ function check_error(integrator::DEIntegrator)
   # SDEIntegrator.
   if integrator.iter > integrator.opts.maxiters
     if integrator.opts.verbose
-      warn("Interrupted. Larger maxiters is needed.")
+      @warn("Interrupted. Larger maxiters is needed.")
     end
     return :MaxIters
   end
   if !integrator.opts.force_dtmin && integrator.opts.adaptive && abs(integrator.dt) <= abs(integrator.opts.dtmin)
     if integrator.opts.verbose
-      warn("dt <= dtmin. Aborting. If you would like to force continuation with dt=dtmin, set force_dtmin=true")
+      @warn("dt <= dtmin. Aborting. If you would like to force continuation with dt=dtmin, set force_dtmin=true")
     end
     return :DtLessThanMin
   end
   if integrator.opts.unstable_check(integrator.dt,integrator.u,integrator.p,integrator.t)
     if integrator.opts.verbose
-      warn("Instability detected. Aborting")
+      @warn("Instability detected. Aborting")
     end
     return :Unstable
   end
   if last_step_failed(integrator)
     if integrator.opts.verbose
-      warn("Newton steps could not converge and algorithm is not adaptive. Use a lower dt.")
+      @warn("Newton steps could not converge and algorithm is not adaptive. Use a lower dt.")
     end
     return :ConvergenceFailure
   end
