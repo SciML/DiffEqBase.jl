@@ -60,7 +60,7 @@ function check_keywords(alg, kwargs, warnlist)
     flg
 end
 warn_compat() =
-    warn("Please see http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html")
+    @warn("Please see http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html")
 
 
 """

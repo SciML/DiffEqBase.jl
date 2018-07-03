@@ -24,7 +24,7 @@ timeseries_errors=true,dense_errors=true, retcode = :Default, kwargs...) where {
   N = length((size(u[1])..., length(u)))
 
   if has_analytic(prob.f)
-    u_analytic = Vector{typeof(prob.u0)}(0)
+    u_analytic = Vector{typeof(prob.u0)}()
     for i in 1:size(u,1)
       push!(u_analytic,prob.analytic(prob.u0,t[i]))
     end

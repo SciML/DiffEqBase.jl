@@ -39,7 +39,7 @@ function build_solution(
   end
 
   if has_analytic(f)
-    u_analytic = Vector{typeof(prob.u0)}(0)
+    u_analytic = Vector{typeof(prob.u0)}()
     errors = Dict{Symbol,real(eltype(prob.u0))}()
     sol = RODESolution{T,N,typeof(u),typeof(u_analytic),typeof(errors),typeof(t),typeof(W),
                        typeof(prob),typeof(alg),typeof(interp)}(
