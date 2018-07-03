@@ -3,7 +3,7 @@ __precompile__()
 module DiffEqBase
 
 using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat,
-      LinearMaps, Requires, TableTraits,
+      Requires, TableTraits,
       IteratorInterfaceExtensions, NamedTuples
 
 import Base: length, size, getindex, setindex!, show, print,
@@ -166,7 +166,7 @@ export Tableau, ODERKTableau, DECostFunction
 abstract type AbstractParameterizedFunction{isinplace} <: Function end
 export AbstractParameterizedFunction
 
-abstract type AbstractDiffEqOperator{T} <: AbstractLinearMap{T} end
+abstract type AbstractDiffEqOperator{T} end
 abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T} end
 export AbstractDiffEqLinearOperator, AbstractDiffEqOperator
 
