@@ -10,6 +10,7 @@ using LinearAlgebra
 3. is_constant(A) trait for whether the operator is constant or not.
 =#
 
+Base.eltype(L::AbstractDiffEqOperator{T}) where T = T
 update_coefficients!(L,u,p,t) = nothing
 update_coefficients(L,u,p,t) = L
 
