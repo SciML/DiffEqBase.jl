@@ -17,7 +17,7 @@ end
     @inbounds A.x[I...] = x
 end
 indices(A::DEDataArray) = indices(A.x)
-Base.linearindices(A::DEDataArray) = linearindices(A.x)
+Base.LinearIndices(A::DEDataArray) = LinearIndices(A.x)
 Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
 
 # similar data arrays
@@ -73,6 +73,6 @@ end
 
 ################# Overloads for stiff solvers ##################################
 
-Base.A_ldiv_B!(A::DEDataArray,F::Factorization, B::DEDataArray) = A_ldiv_B!(A.x,F,B.x)
-Base.A_ldiv_B!(F::Factorization, B::DEDataArray) = A_ldiv_B!(F, B.x)
-Base.A_ldiv_B!(F::Factorization,A::Base.ReshapedArray{T1,T2,T3,T4}) where {T1,T2,T3<:DEDataArray,T4} = A_ldiv_B!(F,vec(A.parent.x))
+LinearAlgebra.A_ldiv_B!(A::DEDataArray,F::Factorization, B::DEDataArray) = A_ldiv_B!(A.x,F,B.x)
+LinearAlgebra.A_ldiv_B!(F::Factorization, B::DEDataArray) = A_ldiv_B!(F, B.x)
+LinearAlgebra.A_ldiv_B!(F::Factorization,A::Base.ReshapedArray{T1,T2,T3,T4}) where {T1,T2,T3<:DEDataArray,T4} = A_ldiv_B!(F,vec(A.parent.x))

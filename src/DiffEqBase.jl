@@ -3,17 +3,19 @@ __precompile__()
 module DiffEqBase
 
 using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat,
-      LinearMaps, Requires, TableTraits,
+      Requires, TableTraits,
       IteratorInterfaceExtensions, NamedTuples
 
 import Base: length, size, getindex, setindex!, show, print,
-             next, start, done, eltype, similar, indices, A_ldiv_B!
+             next, start, done, eltype, similar, indices
 
 import Base: resize!, deleteat!
 
 import RecursiveArrayTools: recursivecopy!, tuples
 
 import RecursiveArrayTools: chain
+
+import LinearAlgebra: exp, A_ldiv_B!
 
 function solve end
 function solve! end
@@ -164,7 +166,7 @@ export Tableau, ODERKTableau, DECostFunction
 abstract type AbstractParameterizedFunction{isinplace} <: Function end
 export AbstractParameterizedFunction
 
-abstract type AbstractDiffEqOperator{T} <: AbstractLinearMap{T} end
+abstract type AbstractDiffEqOperator{T} end
 abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T} end
 export AbstractDiffEqLinearOperator, AbstractDiffEqOperator
 
@@ -235,7 +237,7 @@ export numargs, @def
 export recursivecopy!, copy_fields, copy_fields!
 
 export HasJac, HastGrad, HasParamDeriv, HasParamJac,
-       HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
+       HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes
 
 export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
        has_tgrad, has_paramderiv, has_paramjac,
@@ -278,6 +280,6 @@ export is_diagonal_noise
 export LinSolveFactorize, DEFAULT_LINSOLVE
 
 export AffineDiffEqOperator, update_coefficients!, update_coefficients, is_constant,
-       has_expmv!, has_expmv, has_expm, has_mul, has_mul!, has_ldiv, has_ldiv!
+       has_expmv!, has_expmv, has_exp, has_mul, has_mul!, has_ldiv, has_ldiv!
 
 end # module

@@ -29,7 +29,7 @@ function DiffEqBase.solve(prob::AbstractODEProblem{uType,tType,isinplace},
     @assert tstops[1]==tspan[1]
 
     nt = length(tstops)
-    out = Vector{uType}(nt)
+    out = Vector{uType}(undef, nt)
     out[1] = copy(u0)
     tmp = copy(u0)
     for i=2:nt

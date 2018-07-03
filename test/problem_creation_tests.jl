@@ -1,4 +1,4 @@
-using DiffEqBase, Base.Test
+using DiffEqBase, Test
 
 function f(du,u,p,t)
   du[1] = 0.2u[1]

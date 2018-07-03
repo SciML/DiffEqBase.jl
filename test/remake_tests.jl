@@ -1,4 +1,5 @@
 using DiffEqBase: @add_kwonly, add_kwonly
+using LinearAlgebra
 
 @add_kwonly function f(a, b; c=3, d=4)
   (a, b, c, d)
@@ -25,11 +26,11 @@ u0 = ones(2)
 tspan = (0,1.0)
 
 # Create a ODEProblem and test remake:
-prob1 = SplitODEProblem(f,f,u0,tspan,Dict(); mass_matrix=eye(length(u0)))
-prob2 = remake(prob1; u0 = prob1.u0 + 1)
+prob1 = SplitODEProblem(f,f,u0,tspan,Dict(); mass_matrix=Matrix(I, length(u0), length(u0)))
+prob2 = remake(prob1; u0 = prob1.u0 .+ 1)
 @test prob1.f === prob2.f
 @test prob1.p === prob2.p
-@test prob1.u0 + 1 ≈ prob2.u0
+@test prob1.u0 .+ 1 ≈ prob2.u0
 @test prob1.tspan == prob2.tspan
 @test prob1.jac_prototype === prob2.jac_prototype
 @test prob1.callback === prob2.callback

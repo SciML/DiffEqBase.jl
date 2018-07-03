@@ -1,3 +1,4 @@
+using LinearAlgebra
 ### AbstractDiffEqOperator Interface
 
 #=
@@ -15,8 +16,8 @@ update_coefficients(L,u,p,t) = L
 # Traits
 is_constant(L::AbstractDiffEqOperator) = false
 has_expmv!(L::AbstractDiffEqOperator) = false # expmv!(v, L, t, u)
-has_expmv(L::AbstractDiffEqOperator) = false # v = expm(L, t, u)
-has_expm(L::AbstractDiffEqOperator) = false # v = expm(L, t)*u
+has_expmv(L::AbstractDiffEqOperator) = false # v = exp(L, t, u)
+has_exp(L::AbstractDiffEqOperator) = false # v = exp(L, t)*u
 has_mul(L::AbstractDiffEqOperator) = true # du = L*u
 has_mul!(L::AbstractDiffEqOperator) = false # A_mul_B!(du, L, u)
 has_ldiv(L::AbstractDiffEqOperator) = false # du = L\u
@@ -31,8 +32,8 @@ has_ldiv!(L::AbstractDiffEqOperator) = false # A_ldiv_B!(du, L, u)
    such constants.
 4. is_constant(A) trait for whether the operator is constant or not.
 5. Optional: diagonal, symmetric, etc traits from LinearMaps.jl.
-6. Optional: expm(A). Required for simple exponential integration.
-7. Optional: expmv(A,u,p,t) = expm(t*A)*u and expmv!(v,A::DiffEqOperator,u,p,t)
+6. Optional: exp(A). Required for simple exponential integration.
+7. Optional: expmv(A,u,p,t) = exp(t*A)*u and expmv!(v,A::DiffEqOperator,u,p,t)
    Required for sparse-saving exponential integration.
 8. Optional: factorizations. A_ldiv_B, factorize et. al. This is only required
    for algorithms which use the factorization of the operator (Crank-Nicholson),
@@ -43,10 +44,10 @@ has_ldiv!(L::AbstractDiffEqOperator) = false # A_ldiv_B!(du, L, u)
 is_constant(L::AbstractDiffEqLinearOperator) = true
 # Other ones from LinearMaps.jl
 # Generic fallbacks
-Base.expm(L::AbstractDiffEqLinearOperator,t) = expm(t*L)
-has_expm(L::AbstractDiffEqLinearOperator) = true
-expmv(L::AbstractDiffEqLinearOperator,u,p,t) = expm(L,t)*u
-expmv!(v,L::AbstractDiffEqLinearOperator,u,p,t) = A_mul_B!(v,expm(L,t),u)
+LinearAlgebra.exp(L::AbstractDiffEqLinearOperator,t) = exp(t*L)
+has_exp(L::AbstractDiffEqLinearOperator) = true
+expmv(L::AbstractDiffEqLinearOperator,u,p,t) = exp(L,t)*u
+expmv!(v,L::AbstractDiffEqLinearOperator,u,p,t) = A_mul_B!(v,exp(L,t),u)
 # Factorizations have no fallback and just error
 
 """

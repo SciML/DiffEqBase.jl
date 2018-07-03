@@ -1,12 +1,12 @@
 using DiffEqBase
-using Base.Test
+using Test
 
 mutable struct TestDiffEqOperator{T} <: AbstractDiffEqLinearOperator{T}
     m::Int
     n::Int
 end
 
-TestDiffEqOperator{T}(A::AbstractMatrix{T}) =
+TestDiffEqOperator(A::AbstractMatrix{T}) where {T} =
     TestDiffEqOperator{T}(size(A)...)
 
 Base.size(A::TestDiffEqOperator) = (A.m, A.n)

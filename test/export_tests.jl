@@ -1,4 +1,4 @@
 using DiffEqBase
-using Base.Test
+using Test
 
 @test DiffEqBase.undefined_exports(DiffEqBase) == []

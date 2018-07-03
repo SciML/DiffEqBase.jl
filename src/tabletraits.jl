@@ -20,7 +20,7 @@ function IteratorInterfaceExtensions.getiterator(sol::DESolution)
             else
                 push!(value_names, Symbol("value$i"))
             end
-        end            
+          end
     else
         push!(value_types, value_type)
         if has_syms(sol.prob.f)
@@ -38,7 +38,7 @@ function IteratorInterfaceExtensions.getiterator(sol::DESolution)
     for i in 1:length(value_types)
         push!(col_expressions, Expr(:(::), value_names[i], value_types[i]))
     end
-    
+
     t_expr = NamedTuples.make_tuple(col_expressions)
 
     t2 = :(DESolutionIterator{Float64,Float64})

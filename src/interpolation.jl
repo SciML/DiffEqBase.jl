@@ -18,7 +18,7 @@ interp_summary(::AbstractDiffEqInterpolation) = "Unknown"
 interp_summary(::HermiteInterpolation) = "3rd order Hermite"
 interp_summary(::LinearInterpolation) = "1st order linear"
 interp_summary(::ConstantInterpolation) = "Piecewise constant interpolation"
-interp_summary(::Void) = "No interpolation"
+interp_summary(::Nothing) = "No interpolation"
 interp_summary(sol::DESolution) = interp_summary(sol.interp)
 
 (id::HermiteInterpolation)(tvals,idxs,deriv,p) = interpolation(tvals,id,idxs,deriv,p)
@@ -214,7 +214,7 @@ Hairer Norsett Wanner Solving Ordinary Differential Equations I - Nonstiff Probl
 Hermite Interpolation
 """
 @inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{0}})
-  if typeof(idxs) <: Void
+  if typeof(idxs) <: Nothing
     out = @. (1-Θ)*y₀+Θ*y₁+Θ*(Θ-1)*((1-2Θ)*(y₁-y₀)+(Θ-1)*dt*dy₀ + Θ*dt*dy₁)
   else
     out = similar(y₀,indices(idxs))
@@ -229,7 +229,7 @@ end
 Hermite Interpolation
 """
 @inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{1}})
-  if typeof(idxs) <: Void
+  if typeof(idxs) <: Nothing
     out = @. dy₀ + Θ*(-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(3*dt*dy₀ + 3*dt*dy₁ + 6*y₀ - 6*y₁) + 6*y₁)/dt
   else
     out = similar(y₀,indices(idxs))
@@ -245,7 +245,7 @@ end
 Hermite Interpolation
 """
 @inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{2}})
-  if typeof(idxs) <: Void
+  if typeof(idxs) <: Nothing
     out = @. (-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁) + 6*y₁)/(dt*dt)
   else
     out = similar(y₀,indices(idxs))
@@ -260,7 +260,7 @@ end
 Hermite Interpolation
 """
 @inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{3}})
-  if typeof(idxs) <: Void
+  if typeof(idxs) <: Nothing
     out = @. (6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁)/(dt*dt*dt)
   else
     out = similar(y₀,indices(idxs))
@@ -331,7 +331,7 @@ end
 Linear Interpolation
 """
 @inline function interpolant(Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}})
-  if typeof(idxs) <: Void
+  if typeof(idxs) <: Nothing
     out = @. (1-Θ)*y₀ + Θ*y₁
   else
     out = similar(y₀,indices(idxs))
@@ -342,7 +342,7 @@ Linear Interpolation
 end
 
 @inline function interpolant(Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{1}})
-  if typeof(idxs) <: Void
+  if typeof(idxs) <: Nothing
     out = @. (y₁ - y₀)/dt
   else
     out = similar(y₀,indices(idxs))
@@ -384,7 +384,7 @@ end
 Constant Interpolation
 """
 @inline function interpolant(Θ,id::ConstantInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}})
-  if typeof(idxs) <: Void
+  if typeof(idxs) <: Nothing
     out = @. y₀
   else
     out = similar(y₀,indices(idxs))
@@ -394,7 +394,7 @@ Constant Interpolation
 end
 
 @inline function interpolant(Θ,id::ConstantInterpolation,dt,y₀,y₁,idxs,T::Type{Val{1}})
-  if typeof(idxs) <: Void
+  if typeof(idxs) <: Nothing
     out = zeros(eltype(y₀),length(y₀))
   else
     out = similar(y₀,indices(idxs))

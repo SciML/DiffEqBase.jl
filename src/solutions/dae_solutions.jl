@@ -39,7 +39,7 @@ timeseries_errors=true,dense_errors=true, retcode = :Default, kwargs...) where {
         errors[:l∞] = norm(maximum(vecvecapply((x)->abs.(x),u-u_analytic)))
         errors[:l2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,u-u_analytic))))
         if dense && dense_errors
-          densetimes = collect(linspace(t[1],t[end],100))
+          densetimes = collect(range(t[1], stop=t[end], length=100))
           interp_u = interp(densetimes)
           interp_analytic = [prob.analytic(t,u[1]) for t in densetimes]
           errors[:L∞] = norm(maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic)))
@@ -50,7 +50,7 @@ timeseries_errors=true,dense_errors=true, retcode = :Default, kwargs...) where {
     DAESolution{T,N,typeof(u),typeof(du),typeof(u_analytic),typeof(errors),typeof(t),
                        typeof(prob),typeof(alg),typeof(interp)}(u,du,u_analytic,errors,t,prob,alg,interp,dense,0,retcode)
   else
-    DAESolution{T,N,typeof(u),typeof(du),Void,Void,typeof(t),
+    DAESolution{T,N,typeof(u),typeof(du),Nothing,Nothing,typeof(t),
                        typeof(prob),typeof(alg),typeof(interp)}(u,du,nothing,nothing,t,prob,alg,interp,dense,0,retcode)
   end
 end
