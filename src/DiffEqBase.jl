@@ -237,7 +237,7 @@ export numargs, @def
 export recursivecopy!, copy_fields, copy_fields!
 
 export HasJac, HastGrad, HasParamDeriv, HasParamJac,
-       HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes, HasSyms
+       HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes
 
 export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
        has_tgrad, has_paramderiv, has_paramjac,
