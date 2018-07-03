@@ -74,10 +74,7 @@ has_paramderiv(f::T) where {T} = istrait(HasParamDeriv{T})
 has_paramjac(f::T) where {T} = istrait(HasParamJac{T})
 
 ## Parameter Names Check
-@traitdef HasSyms{F}
-__has_syms(f) = :syms ∈ fieldnames(typeof(f))
-@generated SimpleTraits.trait{F}(::Type{HasSyms{F}}) = __has_syms(F) ? :(HasSyms{F}) : :(Not{HasSyms{F}})
-has_syms(f::T) where {T} = istrait(HasSyms{T})
+Base.@pure has_syms(f::T) where {T} = :syms ∈ fieldnames(typeof(f))
 
 ## Analytical Solution Check
 @traitdef HasAnalytic{F}

@@ -217,7 +217,7 @@ function interpret_vars(vars,sol)
     tmp_vars = []
     for var in vars
       if typeof(var) <: Symbol
-        something(findfirst(isequal(sol.prob.f.syms), var), 0)
+        var_int = something(findfirst(isequal(var), sol.prob.f.syms), 0)
       elseif typeof(var) <: Union{Tuple,AbstractArray} #eltype(var) <: Symbol # Some kind of iterable
         tmp = []
         for x in var
