@@ -17,6 +17,7 @@ prob = ODEProblem(lorenz, u0, tspan)
 dt = 0.1
 sol = solve(prob,InternalEuler.FwdEulerAlg(), tstops=0:dt:1)
 
+@test has_syms(lorenz) == true
 @test DiffEqBase.interpret_vars([(0,1), (1,3), (4,5)],sol) == [(DiffEqBase.DEFAULT_PLOT_FUNC,0,1), (DiffEqBase.DEFAULT_PLOT_FUNC,1,3), (DiffEqBase.DEFAULT_PLOT_FUNC,4,5)]
 @test DiffEqBase.interpret_vars([1, (1,3), (4,5)],sol) == [(DiffEqBase.DEFAULT_PLOT_FUNC,0,1), (DiffEqBase.DEFAULT_PLOT_FUNC,1,3), (DiffEqBase.DEFAULT_PLOT_FUNC,4,5)]
 @test DiffEqBase.interpret_vars([1, 3, 4],sol) == [(DiffEqBase.DEFAULT_PLOT_FUNC,0,1), (DiffEqBase.DEFAULT_PLOT_FUNC,0,3), (DiffEqBase.DEFAULT_PLOT_FUNC,0,4)]

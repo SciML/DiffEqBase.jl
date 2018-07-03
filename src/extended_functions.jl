@@ -74,7 +74,7 @@ has_paramderiv(f::T) where {T} = istrait(HasParamDeriv{T})
 has_paramjac(f::T) where {T} = istrait(HasParamJac{T})
 
 ## Parameter Names Check
-@generated has_syms(f) = :syms ∈ fieldnames(typeof(f))
+has_syms(f) = :syms ∈ fieldnames(typeof(f))
 
 ## Analytical Solution Check
 @traitdef HasAnalytic{F}
