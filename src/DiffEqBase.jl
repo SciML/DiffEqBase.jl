@@ -3,7 +3,7 @@ __precompile__()
 module DiffEqBase
 
 using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat,
-      LinearMaps, FunctionWrappers, Requires, TableTraits,
+      LinearMaps, Requires, TableTraits,
       IteratorInterfaceExtensions, NamedTuples
 
 import Base: length, size, getindex, setindex!, show, print,
@@ -172,7 +172,7 @@ export AbstractDiffEqLinearOperator, AbstractDiffEqOperator
 abstract type AbstractDiffEqFunction{iip} <: Function end
 export AbstractDiffEqFunction
 
-abstract type AbstractReactionNetwork <: Function end 
+abstract type AbstractReactionNetwork <: Function end
 export AbstractReactionNetwork
 
 include("utils.jl")
@@ -209,8 +209,6 @@ include("internal_euler.jl")
 include("juno_rendering.jl")
 include("tabletraits.jl")
 include("alg_traits.jl")
-
-export NSODEFunction
 
 struct ConvergenceSetup{P,C}
     probs::P

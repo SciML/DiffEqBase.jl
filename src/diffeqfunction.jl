@@ -36,35 +36,6 @@ function DiffEqFunction{iip}(f;analytic=nothing,
 end
 DiffEqFunction(f; kwargs...) = DiffEqFunction{isinplace(f, 4)}(f; kwargs...)
 
-######### No Specialization Constructors
-
-struct NSODEFunction{iip} <: AbstractDiffEqFunction{iip} end
-
-function NSODEFunction(f,u,p,t;kwargs...)
-  iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4)
-  NSODEFunction{iip}(f,u,p,t;kwargs...)
-end
-
-function NSODEFunction{iip}(f,u,p,t;analytic=nothing,
-                 tgrad=nothing,
-                 jac=nothing,
-                 invjac=nothing,
-                 invW=nothing,
-                 invW_t=nothing,
-                 paramjac = nothing) where iip
-                 if iip
-                   _f = (du,u,p,t) -> (f(du,u,p,t);nothing)
-                   wrap_f = FunctionWrappers.FunctionWrapper{Void,Tuple{typeof(u),typeof(u),typeof(p),typeof(t)}}(_f)
-                 else
-                   _f = f
-                   wrap_f = FunctionWrappers.FunctionWrapper{typeof(u),Tuple{typeof(u),typeof(p),typeof(t)}}(_f)
-                 end
-                 DiffEqFunction{iip,typeof(wrap_f),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(invjac),typeof(invW),typeof(invW_t),
-                 typeof(paramjac)}(wrap_f,analytic,tgrad,jac,invjac,invW,invW_t,
-                 paramjac)
-end
-
 ########## Existance Functions
 
 has_jac(f::DiffEqFunction) = f.jac != nothing
