@@ -1,3 +1,5 @@
+const RECOMPILE_BY_DEFAULT = true
+
 abstract type AbstractODEFunction{iip} <: AbstractDiffEqFunction{iip} end
 struct ODEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
   f::F
@@ -22,7 +24,7 @@ end
 
 ######### Basic Constructor
 
-function ODEFunction{iip}(f;
+function ODEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
@@ -36,7 +38,21 @@ function ODEFunction{iip}(f;
                  f,analytic,tgrad,jac,invW,invW_t,
                  paramjac,syms)
 end
-ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4)}(f; kwargs...)
+function ODEFunction{iip,false}(f;
+                 analytic=nothing,
+                 tgrad=nothing,
+                 jac=nothing,
+                 invW=nothing,
+                 invW_t=nothing,
+                 paramjac = nothing,
+                 syms = nothing) where iip
+                 ODEFunction{iip,Any,Any,Any,
+                 Any,Any,Any,
+                 Any,typeof(syms)}(
+                 f,analytic,tgrad,jac,invW,invW_t,
+                 paramjac,syms)
+end
+ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 
 ########## Existance Functions
 
@@ -57,6 +73,7 @@ function Base.convert(::Type{ODEFunction},f)
     analytic = nothing
   end
   if __has_jac(f)
+    warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
     jac = (args...) -> f(Val{:jac},args...)
   else
     jac = nothing
@@ -97,6 +114,7 @@ function Base.convert(::Type{ODEFunction{iip}},f) where iip
     analytic = nothing
   end
   if __has_jac(f)
+    warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
     jac = (args...) -> f(Val{:jac},args...)
   else
     jac = nothing
@@ -126,6 +144,6 @@ function Base.convert(::Type{ODEFunction{iip}},f) where iip
   else
     syms = nothing
   end
-  ODEFunction{iip}(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
+  ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
