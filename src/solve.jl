@@ -14,7 +14,7 @@ end
 
 function get_concrete_problem(prob,kwargs)
   if typeof(prob.tspan) <: Function
-    _tspan = prob.u0(prob.p,prob.tspan[1])
+    _tspan = prob.tspan(prob.p)
   elseif prob.tspan == (nothing,nothing)
     if haskey(kwargs,:tspan)
       _tspan = kwargs.tspan

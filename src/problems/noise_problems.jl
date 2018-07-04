@@ -4,6 +4,7 @@ struct NoiseProblem{N<:AbstractNoiseProcess,T} <: AbstractNoiseProblem
   seed::UInt64
 end
 
-@add_kwonly NoiseProblem(noise,tspan;seed=UInt64(0)) = NoiseProblem{typeof(noise),
-             promote_type(map(typeof,tspan)...)}(
-             noise,tspan,seed)
+@add_kwonly function NoiseProblem(noise,tspan;seed=UInt64(0))
+  _tspan = promote_tspan(tspan)
+  NoiseProblem{typeof(noise),typeof(_tspan))}(
+             noise,_tspan,seed)

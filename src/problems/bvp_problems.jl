@@ -14,10 +14,11 @@ struct BVProblem{uType,tType,isinplace,P,J,F,bF,PT,CB,MM} <: AbstractBVProblem{u
                             problem_type=StandardBVProblem();
                             jac_prototype = nothing,
                             callback=nothing,mass_matrix=I) where {iip}
-        new{typeof(u0),eltype(tspan),iip,typeof(p),typeof(jac_prototype),
+        _tspan = promote_tspan(tspan)
+        new{typeof(u0),typeof(tspan),iip,typeof(p),typeof(jac_prototype),
                   typeof(f),typeof(bc),
                   typeof(problem_type),typeof(callback),typeof(mass_matrix)}(
-                  f,bc,u0,tspan,p,jac_prototype,
+                  f,bc,u0,_tspan,p,jac_prototype,
                   problem_type,callback,mass_matrix)
     end
 end

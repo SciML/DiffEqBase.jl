@@ -15,16 +15,17 @@ struct ODEProblem{uType,tType,isinplace,P,F,J,C,MM,PT} <:
                       problem_type=StandardODEProblem();
                       jac_prototype = nothing,
                       callback=nothing,mass_matrix=I)
+    _tspan = promote_tspan(tspan)
     if mass_matrix == I && typeof(f) <: Tuple
       _mm = ((I for i in 1:length(f))...)
     else
       _mm = mass_matrix
     end
-    new{typeof(u0),promote_type(map(typeof,tspan)...),
+    new{typeof(u0),typeof(_tspan),
        isinplace(f),typeof(p),typeof(f),typeof(jac_prototype),
        typeof(callback),typeof(_mm),
        typeof(problem_type)}(
-       f,u0,tspan,p,jac_prototype,callback,_mm,problem_type)
+       f,u0,_tspan,p,jac_prototype,callback,_mm,problem_type)
   end
 
   function ODEProblem{iip}(f,u0,tspan,p=nothing;kwargs...) where {iip}

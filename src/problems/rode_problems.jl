@@ -14,11 +14,12 @@ mutable struct RODEProblem{uType,tType,isinplace,P,J,NP,F,C,MM,ND} <: AbstractRO
                        rand_prototype = nothing,
                        noise= nothing, seed = UInt64(0),
                        callback=nothing,mass_matrix=I) where {iip}
-  new{typeof(u0),promote_type(map(typeof,tspan)...),
+  _tspan = promote_tspan(tspan)
+  new{typeof(u0),typeof(_tspan),
               iip,typeof(p),typeof(jac_prototype),
               typeof(noise),typeof(f),typeof(callback),
               typeof(mass_matrix),typeof(rand_prototype)}(
-              f,u0,tspan,p,jac_prototype,noise,callback,
+              f,u0,_tspan,p,jac_prototype,noise,callback,
               mass_matrix,rand_prototype,seed)
   end
 end
