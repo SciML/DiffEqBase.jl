@@ -3,7 +3,7 @@ struct DDEProblem{uType,tType,lType,lType2,isinplace,P,J,F,H,C,MM} <:
   f::F
   u0::uType
   h::H
-  tspan::Tuple{tType,tType}
+  tspan::tType
   p::P
   jac_prototype::J
   constant_lags::lType
@@ -19,11 +19,12 @@ struct DDEProblem{uType,tType,lType,lType2,isinplace,P,J,F,H,C,MM} <:
                                  neutral = mass_matrix == I ?
                                            false : det(mass_matrix)!=1,
                                  callback = nothing) where {isinplace}
-    new{typeof(u0),promote_type(map(typeof,tspan)...),
+    _tspan = promote_tspan(tspan)
+    new{typeof(u0),typeof(_tspan),
                typeof(constant_lags),typeof(dependent_lags),
                isinplace,typeof(p),typeof(jac_prototype),
                typeof(f),typeof(h),typeof(callback),
-               typeof(mass_matrix)}(f,u0,h,tspan,p,
+               typeof(mass_matrix)}(f,u0,h,_tspan,p,
                                     jac_prototype,
                                     constant_lags,
                                     dependent_lags,callback,

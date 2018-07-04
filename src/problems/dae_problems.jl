@@ -3,7 +3,7 @@ struct DAEProblem{uType,duType,tType,isinplace,P,J,F,C,D} <: AbstractDAEProblem{
   f::F
   du0::duType
   u0::uType
-  tspan::Tuple{tType,tType}
+  tspan::tType
   p::P
   jac_prototype::J
   callback::C
@@ -12,11 +12,12 @@ struct DAEProblem{uType,duType,tType,isinplace,P,J,F,C,D} <: AbstractDAEProblem{
                       jac_prototype = nothing,
                       callback = nothing,
                       differential_vars = nothing) where {iip}
-    new{typeof(u0),typeof(du0),promote_type(map(typeof,tspan)...),
+    _tspan = promote_tspan(tspan)
+    new{typeof(u0),typeof(du0),typeof(_tspan),
                iip,typeof(p),typeof(jac_prototype),
                typeof(f),typeof(callback),
                typeof(differential_vars)}(
-               f,du0,u0,tspan,p,jac_prototype,
+               f,du0,u0,_tspan,p,jac_prototype,
                callback,differential_vars)
   end
 end

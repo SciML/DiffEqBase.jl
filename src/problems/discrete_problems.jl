@@ -4,14 +4,15 @@ const DISCRETE_OUTOFPLACE_DEFAULT = (u,p,t) -> u
 struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{uType,tType,isinplace}
   f::F
   u0::uType
-  tspan::Tuple{tType,tType}
+  tspan::tType
   p::P
   callback::C
   @add_kwonly function DiscreteProblem{iip}(f,u0,tspan,p=nothing;
            callback = nothing) where {iip}
-    new{typeof(u0),promote_type(map(typeof,tspan)...),iip,
+    _tspan = promote_tspan(tspan)
+    new{typeof(u0),typeof(_tspan),iip,
         typeof(p),
-        typeof(f),typeof(callback)}(f,u0,tspan,p,callback)
+        typeof(f),typeof(callback)}(f,u0,_tspan,p,callback)
   end
 end
 

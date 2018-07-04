@@ -4,7 +4,7 @@ struct SDEProblem{uType,tType,isinplace,P,J,NP,F,G,C,MM,ND} <: AbstractSDEProble
   f::F
   g::G
   u0::uType
-  tspan::Tuple{tType,tType}
+  tspan::tType
   p::P
   jac_prototype::J
   noise::NP
@@ -17,19 +17,19 @@ struct SDEProblem{uType,tType,isinplace,P,J,NP,F,G,C,MM,ND} <: AbstractSDEProble
           noise_rate_prototype = nothing,
           noise= nothing, seed = UInt64(0),
           callback = nothing,mass_matrix=I) where {iip}
-
+    _tspan = promote_tspan(tspan)
     if mass_matrix == I && typeof(f) <: Tuple
       _mm = ((I for i in 1:length(f))...)
     else
       _mm = mass_matrix
     end
 
-    new{typeof(u0),promote_type(map(typeof,tspan)...),
+    new{typeof(u0),typeof(_tspan),
         iip,typeof(p),typeof(jac_prototype),
         typeof(noise),typeof(f),typeof(g),
         typeof(callback),typeof(_mm),
         typeof(noise_rate_prototype)}(
-        f,g,u0,tspan,p,jac_prototype,
+        f,g,u0,_tspan,p,jac_prototype,
         noise,callback,_mm,
         noise_rate_prototype,seed)
   end

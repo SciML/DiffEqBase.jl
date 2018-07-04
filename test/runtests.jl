@@ -13,4 +13,5 @@ using Test, LinearAlgebra
 @time @testset "TableTraits" begin include("tabletraits_tests.jl") end
 @time @testset "Integrator interface" begin include("integrator_tests.jl") end
 @time @testset "Export tests" begin include("export_tests.jl") end
+@time @testset "High Level solve Interface" begin include("high_level_solve.jl") end
 end
