@@ -4,7 +4,7 @@ struct BVProblem{uType,tType,isinplace,P,J,F,bF,PT,CB,MM} <: AbstractBVProblem{u
     f::F
     bc::bF
     u0::uType
-    tspan::Tuple{tType,tType}
+    tspan::tType
     p::P
     jac_prototype::J
     problem_type::PT

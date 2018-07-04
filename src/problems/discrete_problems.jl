@@ -4,7 +4,7 @@ const DISCRETE_OUTOFPLACE_DEFAULT = (u,p,t) -> u
 struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{uType,tType,isinplace}
   f::F
   u0::uType
-  tspan::Tuple{tType,tType}
+  tspan::tType
   p::P
   callback::C
   @add_kwonly function DiscreteProblem{iip}(f,u0,tspan,p=nothing;

@@ -3,7 +3,7 @@ struct DDEProblem{uType,tType,lType,lType2,isinplace,P,J,F,H,C,MM} <:
   f::F
   u0::uType
   h::H
-  tspan::Tuple{tType,tType}
+  tspan::tType
   p::P
   jac_prototype::J
   constant_lags::lType

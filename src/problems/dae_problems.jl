@@ -3,7 +3,7 @@ struct DAEProblem{uType,duType,tType,isinplace,P,J,F,C,D} <: AbstractDAEProblem{
   f::F
   du0::duType
   u0::uType
-  tspan::Tuple{tType,tType}
+  tspan::tType
   p::P
   jac_prototype::J
   callback::C

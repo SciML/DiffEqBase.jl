@@ -1,7 +1,7 @@
 mutable struct RODEProblem{uType,tType,isinplace,P,J,NP,F,C,MM,ND} <: AbstractRODEProblem{uType,tType,isinplace,ND}
   f::F
   u0::uType
-  tspan::Tuple{tType,tType}
+  tspan::tType
   p::P
   jac_prototype::J
   noise::NP

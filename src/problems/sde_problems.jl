@@ -4,7 +4,7 @@ struct SDEProblem{uType,tType,isinplace,P,J,NP,F,G,C,MM,ND} <: AbstractSDEProble
   f::F
   g::G
   u0::uType
-  tspan::Tuple{tType,tType}
+  tspan::tType
   p::P
   jac_prototype::J
   noise::NP

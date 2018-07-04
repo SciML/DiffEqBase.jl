@@ -5,7 +5,7 @@ struct ODEProblem{uType,tType,isinplace,P,F,J,C,MM,PT} <:
                AbstractODEProblem{uType,tType,isinplace}
   f::F
   u0::uType
-  tspan::Tuple{tType,tType}
+  tspan::tType
   p::P
   jac_prototype::J
   callback::C
