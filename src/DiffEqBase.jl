@@ -190,9 +190,9 @@ export BVProblem, TwoPointBVProblem
 
 export remake
 
-export DEDataArray, DEDataVector, DEDataMatrix 
+export DEDataArray, DEDataVector, DEDataMatrix
 
-export DiffEqFunction
+export ODEFunction
 
 export ContinuousCallback, DiscreteCallback, CallbackSet
 

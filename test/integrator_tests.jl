@@ -2,7 +2,7 @@ mutable struct DummySolution
   retcode
 end
 
-mutable struct DummyIntegrator <: DEIntegrator
+mutable struct DummyIntegrator <: DiffEqBase.DEIntegrator
   t
   dt
   tdir

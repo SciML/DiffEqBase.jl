@@ -12,3 +12,5 @@ DE_f_ip(du,u,p,t)
 f(u,p,t) = u
 jac = (u,p,t) -> 1
 @inferred ODEFunction{false}(f_op,jac=jac)
+
+f(du,u,p,t) = u

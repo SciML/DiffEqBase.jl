@@ -11,6 +11,8 @@ prob = ODEProblem(f,u0,tspan)
 @test typeof(prob.tspan) == Tuple{Float64,Float64}
 prob = ODEProblem{true}(f,u0,tspan)
 @test typeof(prob.tspan) == Tuple{Float64,Float64}
+prob = ODEProblem(ODEFunction{true}(f),u0,tspan)
+@test typeof(prob.tspan) == Tuple{Float64,Float64}
 @test isinplace(prob) == true
 prob = ODEProblem{false}(f,u0,tspan)
 @test isinplace(prob) == false

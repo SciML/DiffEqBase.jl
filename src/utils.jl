@@ -29,7 +29,10 @@ end
 function isinplace(f::AbstractParameterizedFunction{iip},inplace_param_number) where iip
   iip
 end
-
+function isinplace(f::AbstractParameterizedFunction{iip}) where iip
+  iip
+end
+isinplace(f::AbstractDiffEqFunction{iip}) where {iip} = iip
 isinplace(f::AbstractDiffEqFunction{iip}, inplace_param_number) where {iip} = iip
 
 macro def(name, definition)
