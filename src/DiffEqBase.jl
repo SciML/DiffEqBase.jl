@@ -2,7 +2,7 @@ __precompile__()
 
 module DiffEqBase
 
-using RecipesBase, SimpleTraits, RecursiveArrayTools, Compat,
+using RecipesBase, RecursiveArrayTools, Compat,
       Requires, TableTraits,
       IteratorInterfaceExtensions, NamedTuples
 
@@ -26,15 +26,9 @@ abstract type DEProblem end
 abstract type DEElement end
 abstract type DESensitivity end
 
-export DEProblem, DEElement, DESensitivity
-
 abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem end
 
-export AbstractSteadyStateProblem
-
 abstract type AbstractNoiseProblem <: DEProblem end
-
-export AbstractNoiseProblem
 
 abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem end
 abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
@@ -42,35 +36,20 @@ abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
 abstract type AbstractAnalyticalProblem{uType,tType,isinplace} <:
                       AbstractODEProblem{uType,tType,isinplace} end
 
-export AbstractODEProblem, AbstractDiscreteProblem, AbstractAnalyticalProblem
-
 abstract type AbstractRODEProblem{uType,tType,isinplace,ND} <: DEProblem end
-
-export AbstractRODEProblem
 
 abstract type AbstractSDEProblem{uType,tType,isinplace,ND} <:
                       AbstractRODEProblem{uType,tType,isinplace,ND} end
 
-export AbstractSDEProblem
-
 abstract type AbstractDAEProblem{uType,duType,tType,isinplace} <: DEProblem end
-
-export AbstractDAEProblem
 
 abstract type AbstractDDEProblem{uType,tType,lType,isinplace} <: DEProblem end
 abstract type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace} <:
                       AbstractDDEProblem{uType,tType,lType,isinplace} end
 
-export AbstractDDEProblem,
-       AbstractConstantLagDDEProblem
-
 abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
 
-export AbstractSecondOrderODEProblem
-
 abstract type AbstractBVProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
-
-export AbstractBVProblem
 
 # Algorithms
 abstract type DEAlgorithm end
@@ -82,18 +61,12 @@ abstract type AbstractSDEAlgorithm <: DEAlgorithm end
 abstract type AbstractDAEAlgorithm <: DEAlgorithm end
 abstract type AbstractDDEAlgorithm <: DEAlgorithm end
 
-export DEAlgorithm, AbstractSteadyStateAlgorithm, AbstractODEAlgorithm,
-       AbstractSecondOrderODEAlgorithm,
-       AbstractRODEAlgorithm, AbstractSDEAlgorithm,
-       AbstractDAEAlgorithm, AbstractDDEAlgorithm
-
 # Monte Carlo Simulations
 abstract type AbstractMonteCarloProblem <: DEProblem end
 abstract type AbstractMonteCarloEstimator <: DEProblem end
 
-export AbstractMonteCarloProblem, MonteCarloProblem
+export MonteCarloProblem
 export MonteCarloSolution, MonteCarloTestSolution, MonteCarloSummary
-export AbstractMonteCarloEstimator
 
 abstract type AbstractDiffEqInterpolation <: Function end
 abstract type AbstractDEOptions end
@@ -106,10 +79,6 @@ abstract type DEDataArray{T,N} <: AbstractArray{T,N} end
 const DEDataVector{T} = DEDataArray{T,1}
 const DEDataMatrix{T} = DEDataArray{T,2}
 
-export AbstractDiffEqInterpolation, AbstractDEOptions, DECache, DECallback,
-       AbstractContinuousCallback, AbstractDiscreteCallback, DEDataArray,
-       DEDataVector, DEDataMatrix
-
 # Integrators
 abstract type DEIntegrator end
 abstract type AbstractSteadyStateIntegrator <: DEIntegrator end
@@ -119,11 +88,6 @@ abstract type AbstractRODEIntegrator <: DEIntegrator end
 abstract type AbstractSDEIntegrator <: DEIntegrator end
 abstract type AbstractDDEIntegrator <: DEIntegrator end
 abstract type AbstractDAEIntegrator <: DEIntegrator end
-
-export DEIntegrator, AbstractODEIntegrator,
-       AbstractSecondOrderODEIntegrator,
-       AbstractRODEIntegrator, AbstractSDEIntegrator,
-       AbstractDDEIntegrator, AbstractDAEIntegrator
 
 # Solutions
 abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N} end
@@ -135,15 +99,10 @@ const DESolution = Union{AbstractTimeseriesSolution,
                          AbstractNoTimeSolution,
                          AbstractMonteCarloSolution,
                          AbstractNoiseProcess}
-export DESolution, AbstractTimeseriesSolution,
-       AbstractNoTimeSolution,
-       AbstractNoiseProcess
-
+export DESolution
 abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} end
 abstract type AbstractAnalyticalSolution{T,N} <: AbstractTimeseriesSolution{T,N} end
 abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
-
-export AbstractSteadyStateSolution, AbstractODESolution, AbstractAnalyticalSolution
 
 # Needed for plot recipes
 abstract type AbstractDDESolution{T,N} <: AbstractODESolution{T,N} end
@@ -151,31 +110,15 @@ abstract type AbstractRODESolution{T,N} <: AbstractODESolution{T,N} end
 abstract type AbstractDAESolution{T,N} <: AbstractODESolution{T,N} end
 abstract type AbstractSensitivitySolution{T,N} end
 
-export AbstractRODESolution,
-       AbstractDAESolution,
-       AbstractDDESolution,
-       AbstractSensitivitySolution, AbstractMonteCarloSolution
-
 # Misc
 abstract type Tableau end
 abstract type ODERKTableau <: Tableau end
 abstract type DECostFunction end
-
-export Tableau, ODERKTableau, DECostFunction
-
 abstract type AbstractParameterizedFunction{isinplace} <: Function end
-export AbstractParameterizedFunction
-
 abstract type AbstractDiffEqOperator{T} end
 abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T} end
-export AbstractDiffEqLinearOperator, AbstractDiffEqOperator
-
-
 abstract type AbstractDiffEqFunction{iip} <: Function end
-export AbstractDiffEqFunction
-
 abstract type AbstractReactionNetwork <: Function end
-export AbstractReactionNetwork
 
 include("utils.jl")
 include("extended_functions.jl")
@@ -217,8 +160,6 @@ struct ConvergenceSetup{P,C}
     convergence_axis::C
 end
 
-export ExplicitRKTableau, ImplicitRKTableau
-
 export isinplace
 
 export solve, solve!, init, step!
@@ -232,17 +173,6 @@ export resize!,deleteat!,addat!,get_tmp_cache,full_cache,user_cache,u_cache,du_c
        set_reltol!,get_du,get_dt,get_proposed_dt,set_proposed_dt!,u_modified!,
        savevalues!,reinit!, auto_dt_reset!, set_t!, set_u!, check_error
 
-export numargs, @def
-
-export recursivecopy!, copy_fields, copy_fields!
-
-export HasJac, HastGrad, HasParamDeriv, HasParamJac,
-       HasInvJac,HasInvW, HasInvW_t, HasHes, HasInvHes
-
-export has_jac, has_invjac, has_invW, has_invW_t, has_hes, has_invhes,
-       has_tgrad, has_paramderiv, has_paramjac,
-       has_syms, has_analytic
-
 export DiscreteProblem
 
 export SteadyStateProblem, SteadyStateSolution
@@ -250,8 +180,8 @@ export NoiseProblem
 export ODEProblem, ODESolution
 export AbstractDynamicalODEProblem, DynamicalODEFunction,
        DynamicalODEProblem, SecondOrderODEProblem,
-       AbstractSplitODEProblem, SplitFunction, SplitODEProblem
-export AbstractSplitSDEProblem, SplitSDEProblem
+       SplitFunction, SplitODEProblem
+export SplitSDEProblem
 export RODEProblem, RODESolution, SDEProblem
 export DAEProblem, DAESolution
 export DDEProblem
@@ -260,22 +190,15 @@ export BVProblem, TwoPointBVProblem
 
 export remake
 
+export DEDataArray, DEDataVector, DEDataMatrix 
+
 export DiffEqFunction
-
-export calculate_monte_errors
-
-export build_solution, solution_new_retcode, solution_new_tslocation,
-       calculate_solution_errors!
-
-export ConvergenceSetup
 
 export ContinuousCallback, DiscreteCallback, CallbackSet
 
 export initialize!
 
 export problem_new_parameters
-
-export is_diagonal_noise
 
 export LinSolveFactorize, DEFAULT_LINSOLVE
 
