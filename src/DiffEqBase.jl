@@ -17,10 +17,6 @@ import RecursiveArrayTools: chain
 
 import LinearAlgebra: exp, A_ldiv_B!
 
-function solve end
-function solve! end
-function init end
-
 # Problems
 abstract type DEProblem end
 abstract type DEElement end
@@ -130,6 +126,7 @@ include("solutions/monte_solutions.jl")
 include("solutions/solution_interface.jl")
 include("tableaus.jl")
 include("diffeqfunction.jl")
+include("problems/problem_utils.jl")
 include("problems/discrete_problems.jl")
 include("problems/steady_state_problems.jl")
 include("problems/analytical_problems.jl")
@@ -154,6 +151,7 @@ include("internal_euler.jl")
 include("juno_rendering.jl")
 include("tabletraits.jl")
 include("alg_traits.jl")
+include("solve.jl")
 
 struct ConvergenceSetup{P,C}
     probs::P
