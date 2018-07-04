@@ -1,7 +1,7 @@
 using DiffEqBase
 using Test
 
-mutable struct TestDiffEqOperator{T} <: AbstractDiffEqLinearOperator{T}
+mutable struct TestDiffEqOperator{T} <: DiffEqBase.AbstractDiffEqLinearOperator{T}
     m::Int
     n::Int
 end

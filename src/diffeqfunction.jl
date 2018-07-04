@@ -1,88 +1,131 @@
-struct DiffEqFunction{iip,F,Ta,Tt,TJ,TIJ,TW,TWt,TPJ} <: AbstractDiffEqFunction{iip}
+abstract type AbstractODEFunction{iip} <: AbstractDiffEqFunction{iip} end
+struct ODEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
   f::F
   analytic::Ta
   tgrad::Tt
   jac::TJ
-  invjac::TIJ
   invW::TW
   invW_t::TWt
   paramjac::TPJ
+  syms::S
 end
 
 ######### Backwards Compatibility Overloads
 
-(f::DiffEqFunction)(args...) = f.f(args...)
-(f::DiffEqFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
-(f::DiffEqFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
-(f::DiffEqFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
-(f::DiffEqFunction)(::Type{Val{:invjac}},args...) = f.invjac(args...)
-(f::DiffEqFunction)(::Type{Val{:invW}},args...) = f.invW(args...)
-(f::DiffEqFunction)(::Type{Val{:invW_t}},args...) = f.invW_t(args...)
-(f::DiffEqFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
+(f::ODEFunction)(args...) = f.f(args...)
+(f::ODEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
+(f::ODEFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
+(f::ODEFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
+(f::ODEFunction)(::Type{Val{:invW}},args...) = f.invW(args...)
+(f::ODEFunction)(::Type{Val{:invW_t}},args...) = f.invW_t(args...)
+(f::ODEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
 
 ######### Basic Constructor
 
-function DiffEqFunction{iip}(f;analytic=nothing,
+function ODEFunction{iip}(f;
+                 analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
-                 invjac=nothing,
                  invW=nothing,
                  invW_t=nothing,
-                 paramjac = nothing) where iip
-                 DiffEqFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(invjac),typeof(invW),typeof(invW_t),
-                 typeof(paramjac)}(f,analytic,tgrad,jac,invjac,invW,invW_t,
-                 paramjac)
+                 paramjac = nothing,
+                 syms = nothing) where iip
+                 ODEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
+                 typeof(jac),typeof(invW),typeof(invW_t),
+                 typeof(paramjac),typeof(syms)}(
+                 f,analytic,tgrad,jac,invW,invW_t,
+                 paramjac,syms)
 end
-DiffEqFunction(f; kwargs...) = DiffEqFunction{isinplace(f, 4)}(f; kwargs...)
+ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4)}(f; kwargs...)
 
 ########## Existance Functions
 
-has_jac(f::DiffEqFunction) = f.jac != nothing
-has_invjac(f::DiffEqFunction) = f.invjac != nothing
-has_analytic(f::DiffEqFunction) = f.analytic != nothing
-has_tgrad(f::DiffEqFunction) = f.tgrad != nothing
-has_invW(f::DiffEqFunction) = f.invW != nothing
-has_invW_t(f::DiffEqFunction) = f.invW_t != nothing
-has_paramjac(f::DiffEqFunction) = f.paramjac != nothing
+has_jac(f::ODEFunction) = f.jac != nothing
+has_analytic(f::ODEFunction) = f.analytic != nothing
+has_tgrad(f::ODEFunction) = f.tgrad != nothing
+has_invW(f::ODEFunction) = f.invW != nothing
+has_invW_t(f::ODEFunction) = f.invW_t != nothing
+has_paramjac(f::ODEFunction) = f.paramjac != nothing
+has_syms(f::ODEFunction) = f.syms != nothing
 
 ######### Compatibility Constructor from Tratis
 
-function CompatibilityDiffEqFunction(f)
-  if has_analytic(f)
+function Base.convert(::Type{ODEFunction},f)
+  if __has_analytic(f)
     analytic = (args...) -> f(Val{:analytic},args...)
   else
     analytic = nothing
   end
-  if has_jac(f)
+  if __has_jac(f)
     jac = (args...) -> f(Val{:jac},args...)
   else
     jac = nothing
   end
-  if has_invjac(f)
-    invjac = (args...) -> f(Val{:invjac},args...)
-  else
-    invjac = nothing
-  end
-  if has_tgrad(f)
+  if __has_tgrad(f)
     tgrad = (args...) -> f(Val{:tgrad},args...)
   else
     tgrad = nothing
   end
-  if has_invW(f)
+  if __has_invW(f)
     invW = (args...) -> f(Val{:invW},args...)
   else
     invW = nothing
   end
-  if has_invW_t(f)
+  if __has_invW_t(f)
     invW_t = (args...) -> f(Val{:invW_t},args...)
   else
     invW_t = nothing
   end
-  if has_paramjac(f)
+  if __has_paramjac(f)
     paramjac = (args...) -> f(Val{:paramjac},args...)
   else
     paramjac = nothing
   end
-  DiffEqFunction(f,analytic,tgrad,jac,invjac,invW,invW_t,paramjac)
+  if __has_syms(f)
+    syms = f.syms
+  else
+    syms = nothing
+  end
+  ODEFunction(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
+              invW_t=invW_t,paramjac=paramjac,syms=syms)
+end
+
+function Base.convert(::Type{ODEFunction{iip}},f) where iip
+  if __has_analytic(f)
+    analytic = (args...) -> f(Val{:analytic},args...)
+  else
+    analytic = nothing
+  end
+  if __has_jac(f)
+    jac = (args...) -> f(Val{:jac},args...)
+  else
+    jac = nothing
+  end
+  if __has_tgrad(f)
+    tgrad = (args...) -> f(Val{:tgrad},args...)
+  else
+    tgrad = nothing
+  end
+  if __has_invW(f)
+    invW = (args...) -> f(Val{:invW},args...)
+  else
+    invW = nothing
+  end
+  if __has_invW_t(f)
+    invW_t = (args...) -> f(Val{:invW_t},args...)
+  else
+    invW_t = nothing
+  end
+  if __has_paramjac(f)
+    paramjac = (args...) -> f(Val{:paramjac},args...)
+  else
+    paramjac = nothing
+  end
+  if __has_syms(f)
+    syms = f.syms
+  else
+    syms = nothing
+  end
+  ODEFunction{iip}(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
+              invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
