@@ -147,11 +147,11 @@ include("diffeq_operator.jl")
 include("linear_nonlinear.jl")
 include("common_defaults.jl")
 include("data_array.jl")
+include("solve.jl")
 include("internal_euler.jl")
 include("juno_rendering.jl")
 include("tabletraits.jl")
 include("alg_traits.jl")
-include("solve.jl")
 
 struct ConvergenceSetup{P,C}
     probs::P
