@@ -1,6 +1,6 @@
 function __solve end
-function __solve! end
 function __init end
+function solve! end
 
 function init(prob::DEProblem,args...;kwargs...)
   _prob = get_concrete_problem(prob,kwargs)
