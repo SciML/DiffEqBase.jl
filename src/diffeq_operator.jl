@@ -22,7 +22,7 @@ has_exp(L::AbstractDiffEqOperator) = false # v = exp(L, t)*u
 has_mul(L::AbstractDiffEqOperator) = true # du = L*u
 has_mul!(L::AbstractDiffEqOperator) = false # A_mul_B!(du, L, u)
 has_ldiv(L::AbstractDiffEqOperator) = false # du = L\u
-has_ldiv!(L::AbstractDiffEqOperator) = false # A_ldiv_B!(du, L, u)
+has_ldiv!(L::AbstractDiffEqOperator) = false # ldiv!(du, L, u)
 
 ### AbstractDiffEqLinearOperator Interface
 
