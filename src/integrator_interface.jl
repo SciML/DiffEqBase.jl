@@ -338,7 +338,7 @@ Base.done(iter::TimeChoiceIterator,state) = state > length(iter.ts)
   #legendfont --> font(11)
   #guidefont  --> font(11)
   label --> reshape(labels,1,length(labels))
-  (plot_vecs...)
+  (plot_vecs...,)
 end
 
 function step!(integ::DEIntegrator, dt::Real, stop_at_tdt = false)

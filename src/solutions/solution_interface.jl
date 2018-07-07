@@ -208,7 +208,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
   end
 
   label --> reshape(labels,1,length(labels))
-  (plot_vecs...)
+  (plot_vecs...,)
 end
 
 function interpret_vars(vars,sol)
