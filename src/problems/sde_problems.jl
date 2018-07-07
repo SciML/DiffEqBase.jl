@@ -19,7 +19,7 @@ struct SDEProblem{uType,tType,isinplace,P,J,NP,F,G,C,MM,ND} <: AbstractSDEProble
           callback = nothing,mass_matrix=I) where {iip}
     _tspan = promote_tspan(tspan)
     if mass_matrix == I && typeof(f) <: Tuple
-      _mm = ((I for i in 1:length(f))...)
+      _mm = ((I for i in 1:length(f))...,)
     else
       _mm = mass_matrix
     end

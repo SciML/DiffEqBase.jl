@@ -17,7 +17,7 @@ struct ODEProblem{uType,tType,isinplace,P,F,J,C,MM,PT} <:
                       callback=nothing,mass_matrix=I)
     _tspan = promote_tspan(tspan)
     if mass_matrix == I && typeof(f) <: Tuple
-      _mm = ((I for i in 1:length(f))...)
+      _mm = ((I for i in 1:length(f))...,)
     else
       _mm = mass_matrix
     end
