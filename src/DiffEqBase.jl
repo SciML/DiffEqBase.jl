@@ -15,7 +15,9 @@ import RecursiveArrayTools: recursivecopy!, tuples
 
 import RecursiveArrayTools: chain
 
-import LinearAlgebra: exp, A_ldiv_B!
+import LinearAlgebra: exp, ldiv!
+
+import Statistics: mean
 
 # Problems
 abstract type DEProblem end
@@ -191,7 +193,7 @@ export remake
 
 export DEDataArray, DEDataVector, DEDataMatrix
 
-export ODEFunction
+export ODEFunction, DiscreteFunction
 
 export ContinuousCallback, DiscreteCallback, CallbackSet
 

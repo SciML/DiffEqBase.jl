@@ -21,7 +21,7 @@ prob = ODEProblem{false}(f,u0,tspan)
 @test_broken @inferred ODEProblem(f,u0,tspan)
 
 function f(dv,u,v,p,t)
-  dv .= 2.*v
+  dv .= 2.0 .* v
 end
 u0 = ones(2)
 v0 = ones(2)

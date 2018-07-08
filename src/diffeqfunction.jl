@@ -12,6 +12,12 @@ struct ODEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
   syms::S
 end
 
+abstract type AbstractDiscreteFunction{iip} <: AbstractDiffEqFunction{iip} end
+struct DiscreteFunction{iip,F,Ta} <: AbstractDiscreteFunction{iip}
+  f::F
+  analytic::Ta
+end
+
 ######### Backwards Compatibility Overloads
 
 (f::ODEFunction)(args...) = f.f(args...)
@@ -21,6 +27,9 @@ end
 (f::ODEFunction)(::Type{Val{:invW}},args...) = f.invW(args...)
 (f::ODEFunction)(::Type{Val{:invW_t}},args...) = f.invW_t(args...)
 (f::ODEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
+
+(f::DiscreteFunction)(args...) = f.f(args...)
+(f::DiscreteFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
 
 ######### Basic Constructor
 
@@ -54,6 +63,18 @@ function ODEFunction{iip,false}(f;
 end
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 
+function DiscreteFunction{iip,true}(f;
+                 analytic=nothing) where iip
+                 DiscreteFunction{iip,typeof(f),typeof(analytic)}(
+                 f,analytic)
+end
+function DiscreteFunction{iip,false}(f;
+                 analytic=nothing) where iip
+                 DiscreteFunction{iip,Any,Any}(
+                 f,analytic)
+end
+DiscreteFunction(f; kwargs...) = DiscreteFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
+
 ########## Existance Functions
 
 has_jac(f::ODEFunction) = f.jac != nothing
@@ -63,6 +84,8 @@ has_invW(f::ODEFunction) = f.invW != nothing
 has_invW_t(f::ODEFunction) = f.invW_t != nothing
 has_paramjac(f::ODEFunction) = f.paramjac != nothing
 has_syms(f::ODEFunction) = f.syms != nothing
+
+has_analytic(f::DiscreteFunction) = f.analytic != nothing
 
 ######### Compatibility Constructor from Tratis
 
@@ -146,4 +169,22 @@ function Base.convert(::Type{ODEFunction{iip}},f) where iip
   end
   ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
+end
+
+function Base.convert(::Type{DiscreteFunction},f)
+  if __has_analytic(f)
+    analytic = (args...) -> f(Val{:analytic},args...)
+  else
+    analytic = nothing
+  end
+  DiscreteFunction(f,analytic=analytic)
+end
+
+function Base.convert(::Type{DiscreteFunction{iip}},f) where iip
+  if __has_analytic(f)
+    analytic = (args...) -> f(Val{:analytic},args...)
+  else
+    analytic = nothing
+  end
+  DiscreteFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic)
 end

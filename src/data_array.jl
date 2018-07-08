@@ -73,6 +73,6 @@ end
 
 ################# Overloads for stiff solvers ##################################
 
-LinearAlgebra.A_ldiv_B!(A::DEDataArray,F::Factorization, B::DEDataArray) = A_ldiv_B!(A.x,F,B.x)
-LinearAlgebra.A_ldiv_B!(F::Factorization, B::DEDataArray) = A_ldiv_B!(F, B.x)
-LinearAlgebra.A_ldiv_B!(F::Factorization,A::Base.ReshapedArray{T1,T2,T3,T4}) where {T1,T2,T3<:DEDataArray,T4} = A_ldiv_B!(F,vec(A.parent.x))
+LinearAlgebra.ldiv!(A::DEDataArray,F::Factorization, B::DEDataArray) = ldiv!(A.x,F,B.x)
+LinearAlgebra.ldiv!(F::Factorization, B::DEDataArray) = ldiv!(F, B.x)
+LinearAlgebra.ldiv!(F::Factorization,A::Base.ReshapedArray{T1,T2,T3,T4}) where {T1,T2,T3<:DEDataArray,T4} = ldiv!(F,vec(A.parent.x))
