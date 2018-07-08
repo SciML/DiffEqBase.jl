@@ -1,5 +1,5 @@
-const DISCRETE_INPLACE_DEFAULT = (du,u,p,t) -> du.=u
-const DISCRETE_OUTOFPLACE_DEFAULT = (u,p,t) -> u
+const DISCRETE_INPLACE_DEFAULT = convert(DiscreteFunction{true},(du,u,p,t) -> du.=u)
+const DISCRETE_OUTOFPLACE_DEFAULT = convert(DiscreteFunction{false},(u,p,t) -> u)
 
 struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{uType,tType,isinplace}
   f::F
@@ -8,7 +8,7 @@ struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{u
   p::P
   callback::C
   @add_kwonly function DiscreteProblem(f::AbstractDiscreteFunction,
-                                            u0,tspan::Tuple,p=nothing;
+                                            u0,tspan,p=nothing;
                                             callback = nothing)
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(_tspan),isinplace(f,4),
@@ -38,7 +38,7 @@ function DiscreteProblem(u0,tspan::Tuple,p::Tuple;kwargs...)
   else
     f = DISCRETE_OUTOFPLACE_DEFAULT
   end
-  DiscreteProblem(convert(DiscreteFunction{iip},f),u0,tspan,p;kwargs...)
+  DiscreteProblem(f,u0,tspan,p;kwargs...)
 end
 
 function DiscreteProblem(u0,tspan::Tuple,p=nothing;kwargs...)
@@ -48,5 +48,5 @@ function DiscreteProblem(u0,tspan::Tuple,p=nothing;kwargs...)
   else
     f = DISCRETE_OUTOFPLACE_DEFAULT
   end
-  DiscreteProblem(convert(DiscreteFunction{iip},f),u0,tspan,p;kwargs...)
+  DiscreteProblem(f,u0,tspan,p;kwargs...)
 end
