@@ -8,7 +8,7 @@ struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{u
   p::P
   callback::C
   @add_kwonly function DiscreteProblem(f::AbstractDiscreteFunction,
-                                            u0,tspan,p=nothing;
+                                            u0,tspan::Tuple,p=nothing;
                                             callback = nothing)
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(_tspan),isinplace(f,4),
@@ -21,7 +21,7 @@ struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{u
   end
 end
 
-function DiscreteProblem(f,u0,tspan::Tuple,p::Tuple;kwargs...)
+function DiscreteProblem(f,u0,tspan::Tuple,p;kwargs...)
   iip = isinplace(f,4)
   DiscreteProblem(convert(DiscreteFunction{iip},f),u0,tspan,p;kwargs...)
 end
