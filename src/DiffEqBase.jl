@@ -193,7 +193,7 @@ export remake
 
 export DEDataArray, DEDataVector, DEDataMatrix
 
-export ODEFunction
+export ODEFunction, DiscreteFunction
 
 export ContinuousCallback, DiscreteCallback, CallbackSet
 

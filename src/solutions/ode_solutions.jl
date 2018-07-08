@@ -37,7 +37,7 @@ function build_solution(
     f = prob.f
   end
 
-  if !(typeof(prob)<:DiscreteProblem) && has_analytic(f)
+  if has_analytic(f)
     if !(typeof(prob.u0) <: Tuple)
       u_analytic = Vector{typeof(prob.u0)}()
       errors = Dict{Symbol,real(eltype(prob.u0))}()
