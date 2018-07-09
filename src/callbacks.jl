@@ -21,7 +21,7 @@ ContinuousCallback(condition,affect!,affect_neg!;
                    rootfind=true,
                    save_positions=(true,true),
                    interp_points=10,
-                   abstol=1e-9,reltol=0) = ContinuousCallback(
+                   abstol=1e-16,reltol=0) = ContinuousCallback(
                               condition,affect!,affect_neg!,initialize,
                               idxs,
                               rootfind,interp_points,
@@ -34,7 +34,7 @@ function ContinuousCallback(condition,affect!;
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
-                   abstol=1e-9,reltol=0)
+                   abstol=1e-16,reltol=0)
 
  ContinuousCallback(
             condition,affect!,affect_neg!,initialize,idxs,
