@@ -12,6 +12,13 @@ struct ODEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
   syms::S
 end
 
+struct SplitFunction{iip,F1,F2,C,Ta} <: AbstractODEFunction{iip}
+    f1::F1
+    f2::F2
+    cache::C
+    analytic::Ta
+end
+
 abstract type AbstractDiscreteFunction{iip} <: AbstractDiffEqFunction{iip} end
 struct DiscreteFunction{iip,F,Ta} <: AbstractDiscreteFunction{iip}
   f::F
@@ -27,6 +34,14 @@ end
 (f::ODEFunction)(::Type{Val{:invW}},args...) = f.invW(args...)
 (f::ODEFunction)(::Type{Val{:invW_t}},args...) = f.invW_t(args...)
 (f::ODEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
+
+(f::SplitFunction)(u,p,t) = f.f1(u,p,t) + f.f2(u,p,t)
+(f::SplitFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
+function (f::SplitFunction)(du,u,p,t)
+    f.f1(f.cache,u,p,t)
+    f.f2(du,u,p,t)
+    du .+= f.cache
+end
 
 (f::DiscreteFunction)(args...) = f.f(args...)
 (f::DiscreteFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
@@ -63,6 +78,15 @@ function ODEFunction{iip,false}(f;
 end
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 
+SplitFunction{iip,true}(f1,f2; _func_cache=nothing,analytic=nothing) where iip =
+  SplitFunction{iip,typeof(f1),typeof(f2),typeof(_func_cache),typeof(analytic)}(f1,f2,_func_cache,analytic)
+SplitFunction{iip,false}(f1,f2; _func_cache=nothing,analytic=nothing) where iip =
+  SplitFunction{iip,Any,Any,Any}(f1,f2,_func_cache,analytic)
+function SplitFunction(f1,f2; kwargs...)
+  iip2 = isinplace(f2, 4)
+  SplitFunction{iip2,RECOMPILE_BY_DEFAULT}(f1, f2; kwargs...)
+end
+
 function DiscreteFunction{iip,true}(f;
                  analytic=nothing) where iip
                  DiscreteFunction{iip,typeof(f),typeof(analytic)}(
@@ -84,6 +108,8 @@ has_invW(f::ODEFunction) = f.invW != nothing
 has_invW_t(f::ODEFunction) = f.invW_t != nothing
 has_paramjac(f::ODEFunction) = f.paramjac != nothing
 has_syms(f::ODEFunction) = f.syms != nothing
+
+has_analytic(f::SplitFunction) = f.analytic != nothing
 
 has_analytic(f::DiscreteFunction) = f.analytic != nothing
 
@@ -129,7 +155,6 @@ function Base.convert(::Type{ODEFunction},f)
   ODEFunction(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
-
 function Base.convert(::Type{ODEFunction{iip}},f) where iip
   if __has_analytic(f)
     analytic = (args...) -> f(Val{:analytic},args...)
@@ -179,7 +204,6 @@ function Base.convert(::Type{DiscreteFunction},f)
   end
   DiscreteFunction(f,analytic=analytic)
 end
-
 function Base.convert(::Type{DiscreteFunction{iip}},f) where iip
   if __has_analytic(f)
     analytic = (args...) -> f(Val{:analytic},args...)
