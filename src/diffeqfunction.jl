@@ -82,10 +82,10 @@ SplitFunction{iip,true}(f1,f2; _func_cache=nothing,analytic=nothing) where iip =
   SplitFunction{iip,typeof(f1),typeof(f2),typeof(_func_cache),typeof(analytic)}(f1,f2,_func_cache,analytic)
 SplitFunction{iip,false}(f1,f2; _func_cache=nothing,analytic=nothing) where iip =
   SplitFunction{iip,Any,Any,Any}(f1,f2,_func_cache,analytic)
-function SplitFunction(f1,f2; kwargs...)
-  iip2 = isinplace(f2, 4)
-  SplitFunction{iip2,RECOMPILE_BY_DEFAULT}(f1, f2; kwargs...)
-end
+SplitFunction(f1,f2; kwargs...) = SplitFunction{isinplace(f2, 4),
+                                                RECOMPILE_BY_DEFAULT}(f1, f2; kwargs...)
+SplitFunction{iip}(f1,f2; kwargs...) where iip =
+  SplitFunction{iip,RECOMPILE_BY_DEFAULT}(f1, f2; kwargs...)
 
 function DiscreteFunction{iip,true}(f;
                  analytic=nothing) where iip

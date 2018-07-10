@@ -90,11 +90,21 @@ end
 abstract type AbstractSplitODEProblem end
 struct SplitODEProblem{iip} <: AbstractSplitODEProblem end
 # u' = Au + f
+function SplitODEProblem(f1,f2,u0,tspan,p=nothing;kwargs...)
+  f = SplitFunction(f1,f2)
+  SplitODEProblem(f,u0,tspan,p;kwargs...)
+end
+function SplitODEProblem{iip}(f1,f2,u0,tspan,p=nothing;kwargs...) where iip
+  f = SplitFunction{iip}(f1,f2)
+  SplitODEProblem(f,u0,tspan,p;kwargs...)
+end
+SplitODEProblem(f::SplitFunction,u0,tspan,p=nothing;kwargs...) =
+  SplitODEProblem{isinplace(f)}(f,u0,tspan,p;kwargs...)
 function SplitODEProblem{iip}(f::SplitFunction,u0,tspan,p=nothing;kwargs...) where iip
-  if _func_cache == nothing && iip
-    _func_cache = similar(u0)
-    f = SplitFunction{iip,RECOMPILE_BY_DEFAULT}(f.f1, f.f2;
-                     _func_cache=f._func_cache, analytic=f.analytic)
+  if f.cache == nothing && iip
+    cache = similar(u0)
+    f = SplitFunction{iip}(f.f1, f.f2;
+                     _func_cache=cache, analytic=f.analytic)
   end
   ODEProblem(f,u0,tspan,p,SplitODEProblem{iip}();kwargs...)
 end
