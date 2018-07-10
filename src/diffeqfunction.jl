@@ -13,10 +13,10 @@ struct ODEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
 end
 
 struct SplitFunction{iip,F1,F2,C,Ta} <: AbstractODEFunction{iip}
-    f1::F1
-    f2::F2
-    cache::C
-    analytic::Ta
+  f1::F1
+  f2::F2
+  cache::C
+  analytic::Ta
 end
 
 abstract type AbstractDiscreteFunction{iip} <: AbstractDiffEqFunction{iip} end
@@ -78,14 +78,19 @@ function ODEFunction{iip,false}(f;
 end
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 
+@add_kwonly function SplitFunction(f1,f2,cache,analytic)
+  f1 = ODEFunction(f1)
+  f2 = ODEFunction(f2)
+  SplitFunction{isinplace(f2),typeof(f1),typeof(f2),
+              typeof(cache),typeof(analytic)}(f1,f2,cache,analytic)
+end
 SplitFunction{iip,true}(f1,f2; _func_cache=nothing,analytic=nothing) where iip =
   SplitFunction{iip,typeof(f1),typeof(f2),typeof(_func_cache),typeof(analytic)}(f1,f2,_func_cache,analytic)
 SplitFunction{iip,false}(f1,f2; _func_cache=nothing,analytic=nothing) where iip =
   SplitFunction{iip,Any,Any,Any}(f1,f2,_func_cache,analytic)
-SplitFunction(f1,f2; kwargs...) = SplitFunction{isinplace(f2, 4),
-                                                RECOMPILE_BY_DEFAULT}(f1, f2; kwargs...)
+SplitFunction(f1,f2; kwargs...) = SplitFunction{isinplace(f2, 4)}(f1, f2; kwargs...)
 SplitFunction{iip}(f1,f2; kwargs...) where iip =
-  SplitFunction{iip,RECOMPILE_BY_DEFAULT}(f1, f2; kwargs...)
+SplitFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction{iip}(f1), ODEFunction{iip}(f2); kwargs...)
 
 function DiscreteFunction{iip,true}(f;
                  analytic=nothing) where iip
@@ -110,11 +115,18 @@ has_paramjac(f::ODEFunction) = f.paramjac != nothing
 has_syms(f::ODEFunction) = f.syms != nothing
 
 has_analytic(f::SplitFunction) = f.analytic != nothing
+has_jac(f::SplitFunction) = f.f2.jac != nothing
+has_tgrad(f::SplitFunction) = f.f2.tgrad != nothing
+has_invW(f::SplitFunction) = f.f2.invW != nothing
+has_invW_t(f::SplitFunction) = f.f2.invW_t != nothing
+has_paramjac(f::SplitFunction) = f.f2.paramjac != nothing
 
 has_analytic(f::DiscreteFunction) = f.analytic != nothing
 
 ######### Compatibility Constructor from Tratis
 
+ODEFunction(f::T) where T = return T<:ODEFunction ? f : convert(ODEFunction,f)
+ODEFunction{iip}(f::T) where {iip,T} = return T<:ODEFunction ? f : convert(ODEFunction{iip},f)
 function Base.convert(::Type{ODEFunction},f)
   if __has_analytic(f)
     analytic = (args...) -> f(Val{:analytic},args...)
@@ -196,6 +208,8 @@ function Base.convert(::Type{ODEFunction{iip}},f) where iip
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
 
+DiscreteFunction(f::T) where T = return T<:DiscreteFunction ? f : convert(DiscreteFunction,f)
+DiscreteFunction{iip}(f::T) where {iip,T} = return T<:DiscreteFunction ? f : convert(DiscreteFunction{iip},f)
 function Base.convert(::Type{DiscreteFunction},f)
   if __has_analytic(f)
     analytic = (args...) -> f(Val{:analytic},args...)
