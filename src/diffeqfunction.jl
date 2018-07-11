@@ -134,7 +134,7 @@ function Base.convert(::Type{ODEFunction},f)
     analytic = nothing
   end
   if __has_jac(f)
-    warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
+    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
     jac = (args...) -> f(Val{:jac},args...)
   else
     jac = nothing
@@ -174,7 +174,7 @@ function Base.convert(::Type{ODEFunction{iip}},f) where iip
     analytic = nothing
   end
   if __has_jac(f)
-    warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
+    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
     jac = (args...) -> f(Val{:jac},args...)
   else
     jac = nothing
