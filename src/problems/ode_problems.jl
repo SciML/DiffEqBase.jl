@@ -44,13 +44,13 @@ struct DynamicalODEProblem{iip} <: AbstractDynamicalODEProblem end
 # u' = f1(v)
 # v' = f2(t,u)
 function DynamicalODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kwargs...)
-  ODEProblem(f,ArrayPartition(du0,u0),tspan,p;kwargs...)
+  ODEProblem(f,(du0,u0),tspan,p;kwargs...)
 end
 function DynamicalODEProblem(f1,f2,du0,u0,tspan,p=nothing;kwargs...)
-  ODEProblem(DynamicalODEFunction(f1,f2),ArrayPartition(du0,u0),tspan,p;kwargs...)
+  ODEProblem(DynamicalODEFunction(f1,f2),(du0,u0),tspan,p;kwargs...)
 end
 function DynamicalODEProblem{iip}(f1,f2,du0,u0,tspan,p=nothing;kwargs...) where iip
-  ODEProblem(DynamicalODEFunction{iip}(f1,f2),ArrayPartition(du0,u0),tspan,p;kwargs...)
+  ODEProblem(DynamicalODEFunction{iip}(f1,f2),(du0,u0),tspan,p;kwargs...)
 end
 
 # u'' = f(t,u,du,ddu)
@@ -69,7 +69,7 @@ function SecondOrderODEProblem{iip}(f,du0,u0,tspan,p=nothing;kwargs...) where ii
       v
     end
   end
-  _u0 = ArrayPartition(du0,u0)
+  _u0 = (du0,u0)
   ODEProblem(DynamicalODEFunction{iip}(f,f2),_u0,tspan,p,
                   SecondOrderODEProblem{iip}();kwargs...)
 end
