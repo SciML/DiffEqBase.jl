@@ -12,6 +12,9 @@ function IteratorInterfaceExtensions.getiterator(sol::DESolution)
     value_types = Type[]
     value_names = Symbol[]
 
+    push!(value_types, timestamp_type)
+    push!(value_names, :timestamp)
+
     if value_type<:AbstractArray
         for i in 1:length(sol.u[1])
             push!(value_types, eltype(sol.u[1]))
@@ -30,24 +33,7 @@ function IteratorInterfaceExtensions.getiterator(sol::DESolution)
         end
     end
 
-    col_expressions = Array{Expr,1}()
-
-    # Add timestamp column
-    push!(col_expressions, Expr(:(::), :timestamp, timestamp_type))
-
-    for i in 1:length(value_types)
-        push!(col_expressions, Expr(:(::), value_names[i], value_types[i]))
-    end
-
-    t_expr = NamedTuples.make_tuple(col_expressions)
-
-    t2 = :(DESolutionIterator{Float64,Float64})
-    t2.args[2] = t_expr
-    t2.args[3] = typeof(sol)
-
-    t = eval(t2)
-
-    si = t(sol)
+    si = DESolutionIterator{NamedTuple{(value_names...,),Tuple{value_types...}},typeof(sol)}(sol)
 
     return si
 end
@@ -56,34 +42,25 @@ function Base.length(iter::DESolutionIterator)
     return length(iter.sol)
 end
 
-function Base.eltype(iter::DESolutionIterator{T,S}) where {T,S}
-    return T
-end
-
 Base.eltype(::Type{DESolutionIterator{T,TS}}) where {T,TS} = T
 
-function Base.start(iter::DESolutionIterator)
-    return 1
-end
-
-@generated function Base.next(iter::DESolutionIterator{T,S}, state) where {T,S}
-    constructor_call = Expr(:call, :($T))
-    push!(constructor_call.args, :(iter.sol.t[i]))
-    for i in 1:length(T.parameters)-1
-        if length(T.parameters)>2
-            push!(constructor_call.args, :(iter.sol.u[i][$i]))
+@generated function Base.iterate(iter::DESolutionIterator{T,S}, state=1) where {T,S}
+    columns = []
+    push!(columns, :(iter.sol.t[state]))
+    nfield = length(fieldnames(T))
+    for i in 1:nfield-1
+        if nfield > 2
+            push!(columns, :(iter.sol.u[state][$i]))
         else
-            push!(constructor_call.args, :(iter.sol.u[i]))
+            push!(columns, :(iter.sol.u[state]))
         end
     end
 
     quote
-        i = state
-        a = $constructor_call
-        return a, state+1
+        if state > length(iter)
+            return nothing
+        else        
+            return $(T)(($(columns...),)), state+1
+        end
     end
-end
-
-function Base.done(iter::DESolutionIterator, state)
-    return state>length(iter.sol)
 end

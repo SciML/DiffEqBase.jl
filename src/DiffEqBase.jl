@@ -3,8 +3,7 @@ __precompile__()
 module DiffEqBase
 
 using RecipesBase, RecursiveArrayTools, Compat,
-      Requires, TableTraits,
-      IteratorInterfaceExtensions, NamedTuples
+      Requires, TableTraits, IteratorInterfaceExtensions
 
 import Base: length, size, getindex, setindex!, show, print,
              next, start, done, eltype, similar, indices
