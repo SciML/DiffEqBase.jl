@@ -68,14 +68,16 @@ end
 
 @generated function Base.next(iter::DESolutionIterator{T,S}, state) where {T,S}
     constructor_call = Expr(:call, :($T))
-    push!(constructor_call.args, :(iter.sol.t[i]))
+    args=[]
+    push!(args, :(iter.sol.t[i]))
     for i in 1:length(T.parameters)-1
         if length(T.parameters)>2
-            push!(constructor_call.args, :(iter.sol.u[i][$i]))
+            push!(args, :(iter.sol.u[i][$i]))
         else
-            push!(constructor_call.args, :(iter.sol.u[i]))
+            push!(args, :(iter.sol.u[i]))
         end
     end
+    push!(constructor_call.args, Expr(:tuple, args...))
 
     quote
         i = state
