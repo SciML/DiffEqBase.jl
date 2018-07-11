@@ -85,9 +85,9 @@ ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f;
               typeof(cache),typeof(analytic)}(f1,f2,cache,analytic)
 end
 SplitFunction{iip,true}(f1,f2; _func_cache=nothing,analytic=nothing) where iip =
-  SplitFunction{iip,typeof(f1),typeof(f2),typeof(_func_cache),typeof(analytic)}(f1,f2,_func_cache,analytic)
+SplitFunction{iip,typeof(f1),typeof(f2),typeof(_func_cache),typeof(analytic)}(f1,f2,_func_cache,analytic)
 SplitFunction{iip,false}(f1,f2; _func_cache=nothing,analytic=nothing) where iip =
-  SplitFunction{iip,Any,Any,Any}(f1,f2,_func_cache,analytic)
+SplitFunction{iip,Any,Any,Any}(f1,f2,_func_cache,analytic)
 SplitFunction(f1,f2; kwargs...) = SplitFunction{isinplace(f2, 4)}(f1, f2; kwargs...)
 SplitFunction{iip}(f1,f2; kwargs...) where iip =
 SplitFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction{iip}(f1), ODEFunction{iip}(f2); kwargs...)
@@ -115,11 +115,11 @@ has_paramjac(f::ODEFunction) = f.paramjac != nothing
 has_syms(f::ODEFunction) = f.syms != nothing
 
 has_analytic(f::SplitFunction) = f.analytic != nothing
-has_jac(f::SplitFunction) = f.f2.jac != nothing
-has_tgrad(f::SplitFunction) = f.f2.tgrad != nothing
-has_invW(f::SplitFunction) = f.f2.invW != nothing
-has_invW_t(f::SplitFunction) = f.f2.invW_t != nothing
-has_paramjac(f::SplitFunction) = f.f2.paramjac != nothing
+has_jac(f::SplitFunction) = f.f1.jac != nothing
+has_tgrad(f::SplitFunction) = f.f1.tgrad != nothing
+has_invW(f::SplitFunction) = f.f1.invW != nothing
+has_invW_t(f::SplitFunction) = f.f1.invW_t != nothing
+has_paramjac(f::SplitFunction) = f.f1.paramjac != nothing
 
 has_analytic(f::DiscreteFunction) = f.analytic != nothing
 
