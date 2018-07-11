@@ -21,11 +21,6 @@ struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{u
   end
 end
 
-function DiscreteProblem(f,u0,tspan::Tuple,p;kwargs...)
-  iip = isinplace(f,4)
-  DiscreteProblem(convert(DiscreteFunction{iip},f),u0,tspan,p;kwargs...)
-end
-
 function DiscreteProblem(f,u0,tspan::Tuple,p=nothing;kwargs...)
   iip = isinplace(f,4)
   DiscreteProblem(convert(DiscreteFunction{iip},f),u0,tspan,p;kwargs...)

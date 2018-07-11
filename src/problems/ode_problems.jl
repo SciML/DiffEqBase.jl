@@ -87,32 +87,24 @@ function SecondOrderODEProblem{iip}(f,du0,u0,tspan,p=nothing;kwargs...) where ii
                   SecondOrderODEProblem{iip}();kwargs...)
 end
 
-struct SplitFunction{iip,F1,F2,C} <: AbstractODEFunction{iip}
-    f1::F1
-    f2::F2
-    cache::C
-    @add_kwonly SplitFunction{iip}(f1,f2,cache) where iip =
-                        new{iip,typeof(f1),typeof(f2),typeof(cache)}(f1,f2,cache)
-end
-function (f::SplitFunction)(u,p,t)
-    f.f1(u,p,t) + f.f2(u,p,t)
-end
-function (f::SplitFunction)(du,u,p,t)
-    f.f1(f.cache,u,p,t)
-    f.f2(du,u,p,t)
-    du .+= f.cache
-end
-
 abstract type AbstractSplitODEProblem end
 struct SplitODEProblem{iip} <: AbstractSplitODEProblem end
 # u' = Au + f
 function SplitODEProblem(f1,f2,u0,tspan,p=nothing;kwargs...)
-  iip = isinplace(f2,4)
-  SplitODEProblem{iip}(f1,f2,u0,tspan,p;kwargs...)
+  f = SplitFunction(f1,f2)
+  SplitODEProblem(f,u0,tspan,p;kwargs...)
 end
-function SplitODEProblem{iip}(f1,f2,u0,tspan,p=nothing;
-                                     func_cache=nothing,kwargs...) where iip
-  iip ? _func_cache = similar(u0) : _func_cache = nothing
-  ODEProblem(SplitFunction{iip}(f1,f2,_func_cache),u0,tspan,p,
-                                SplitODEProblem{iip}();kwargs...)
+function SplitODEProblem{iip}(f1,f2,u0,tspan,p=nothing;kwargs...) where iip
+  f = SplitFunction{iip}(f1,f2)
+  SplitODEProblem(f,u0,tspan,p;kwargs...)
+end
+SplitODEProblem(f::SplitFunction,u0,tspan,p=nothing;kwargs...) =
+  SplitODEProblem{isinplace(f)}(f,u0,tspan,p;kwargs...)
+function SplitODEProblem{iip}(f::SplitFunction,u0,tspan,p=nothing;kwargs...) where iip
+  if f.cache == nothing && iip
+    cache = similar(u0)
+    f = SplitFunction{iip}(f.f1, f.f2;
+                     _func_cache=cache, analytic=f.analytic)
+  end
+  ODEProblem(f,u0,tspan,p,SplitODEProblem{iip}();kwargs...)
 end
