@@ -43,27 +43,14 @@ abstract type AbstractDynamicalODEProblem end
 struct DynamicalODEProblem{iip} <: AbstractDynamicalODEProblem end
 # u' = f1(v)
 # v' = f2(t,u)
-
-struct DynamicalODEFunction{iip,F1,F2} <: AbstractODEFunction{iip}
-    f1::F1
-    f2::F2
-    @add_kwonly DynamicalODEFunction{iip}(f1,f2) where iip =
-                        new{iip,typeof(f1),typeof(f2)}(f1,f2)
+function DynamicalODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kwargs...)
+  ODEProblem(f,ArrayPartition(du0,u0),tspan,p;kwargs...)
 end
-function (f::DynamicalODEFunction)(u,p,t)
-    ArrayPartition(f.f1(u.x[1],u.x[2],p,t),f.f2(u.x[1],u.x[2],p,t))
-end
-function (f::DynamicalODEFunction)(du,u,p,t)
-    f.f1(du.x[1],u.x[1],u.x[2],p,t)
-    f.f2(du.x[2],u.x[1],u.x[2],p,t)
-end
-
 function DynamicalODEProblem(f1,f2,du0,u0,tspan,p=nothing;kwargs...)
-  iip = isinplace(f1,5)
-  DynamicalODEProblem{iip}(f1,f2,du0,u0,tspan,p;kwargs...)
+  ODEProblem(DynamicalODEFunction(f1,f2),ArrayPartition(du0,u0),tspan,p;kwargs...)
 end
 function DynamicalODEProblem{iip}(f1,f2,du0,u0,tspan,p=nothing;kwargs...) where iip
-    ODEProblem(DynamicalODEFunction{iip}(f1,f2),(du0,u0),tspan,p;kwargs...)
+  ODEProblem(DynamicalODEFunction{iip}(f1,f2),ArrayPartition(du0,u0),tspan,p;kwargs...)
 end
 
 # u'' = f(t,u,du,ddu)
@@ -82,7 +69,7 @@ function SecondOrderODEProblem{iip}(f,du0,u0,tspan,p=nothing;kwargs...) where ii
       v
     end
   end
-  _u0 = (du0,u0)
+  _u0 = ArrayPartition(du0,u0)
   ODEProblem(DynamicalODEFunction{iip}(f,f2),_u0,tspan,p,
                   SecondOrderODEProblem{iip}();kwargs...)
 end

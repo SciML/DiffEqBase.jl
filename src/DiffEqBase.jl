@@ -178,9 +178,8 @@ export DiscreteProblem
 export SteadyStateProblem, SteadyStateSolution
 export NoiseProblem
 export ODEProblem, ODESolution
-export AbstractDynamicalODEProblem, DynamicalODEFunction,
-       DynamicalODEProblem, SecondOrderODEProblem,
-       SplitFunction, SplitODEProblem
+export DynamicalODEFunction, DynamicalODEProblem,
+       SecondOrderODEProblem, SplitFunction, SplitODEProblem
 export SplitSDEProblem
 export RODEProblem, RODESolution, SDEProblem
 export DAEProblem, DAESolution
