@@ -34,7 +34,6 @@ struct ODEProblem{uType,tType,isinplace,P,F,J,C,MM,PT} <:
 end
 
 function ODEProblem(f,u0,tspan,p=nothing;kwargs...)
-  #iip = typeof(f)<: Tuple ? isinplace(f[2],4) : isinplace(f,4)
   ODEProblem(convert(ODEFunction,f),u0,tspan,p;kwargs...)
 end
 
