@@ -42,27 +42,14 @@ abstract type AbstractDynamicalODEProblem end
 struct DynamicalODEProblem{iip} <: AbstractDynamicalODEProblem end
 # u' = f1(v)
 # v' = f2(t,u)
-
-struct DynamicalODEFunction{iip,F1,F2} <: AbstractODEFunction{iip}
-    f1::F1
-    f2::F2
-    @add_kwonly DynamicalODEFunction{iip}(f1,f2) where iip =
-                        new{iip,typeof(f1),typeof(f2)}(f1,f2)
+function DynamicalODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kwargs...)
+  ODEProblem(f,(du0,u0),tspan,p;kwargs...)
 end
-function (f::DynamicalODEFunction)(u,p,t)
-    ArrayPartition(f.f1(u.x[1],u.x[2],p,t),f.f2(u.x[1],u.x[2],p,t))
-end
-function (f::DynamicalODEFunction)(du,u,p,t)
-    f.f1(du.x[1],u.x[1],u.x[2],p,t)
-    f.f2(du.x[2],u.x[1],u.x[2],p,t)
-end
-
 function DynamicalODEProblem(f1,f2,du0,u0,tspan,p=nothing;kwargs...)
-  iip = isinplace(f1,5)
-  DynamicalODEProblem{iip}(f1,f2,du0,u0,tspan,p;kwargs...)
+  ODEProblem(DynamicalODEFunction(f1,f2),(du0,u0),tspan,p;kwargs...)
 end
 function DynamicalODEProblem{iip}(f1,f2,du0,u0,tspan,p=nothing;kwargs...) where iip
-    ODEProblem(DynamicalODEFunction{iip}(f1,f2),(du0,u0),tspan,p;kwargs...)
+  ODEProblem(DynamicalODEFunction{iip}(f1,f2),(du0,u0),tspan,p;kwargs...)
 end
 
 # u'' = f(t,u,du,ddu)
@@ -84,6 +71,26 @@ function SecondOrderODEProblem{iip}(f,du0,u0,tspan,p=nothing;kwargs...) where ii
   _u0 = (du0,u0)
   ODEProblem(DynamicalODEFunction{iip}(f,f2),_u0,tspan,p,
                   SecondOrderODEProblem{iip}();kwargs...)
+end
+function SecondOrderODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kwargs...)
+  iip = isinplace(f.f1, 5)
+  _u0 = (du0,u0)
+  if f.f2.f == nothing
+    if iip
+      f2 = function (du,v,u,p,t)
+        du .= v
+      end
+    else
+      f2 = function (v,u,p,t)
+        v
+      end
+    end
+    return ODEProblem(DynamicalODEFunction{iip}(f.f1,f2;analytic=f.analytic),_u0,tspan,p,
+                  SecondOrderODEProblem{iip}();kwargs...)
+  else
+    return ODEProblem(DynamicalODEFunction{iip}(f.f1,f.f2;analytic=f.analytic),_u0,tspan,p,
+                  SecondOrderODEProblem{iip}();kwargs...)
+  end
 end
 
 abstract type AbstractSplitODEProblem end
