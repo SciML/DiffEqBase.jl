@@ -73,6 +73,26 @@ function SecondOrderODEProblem{iip}(f,du0,u0,tspan,p=nothing;kwargs...) where ii
   ODEProblem(DynamicalODEFunction{iip}(f,f2),_u0,tspan,p,
                   SecondOrderODEProblem{iip}();kwargs...)
 end
+function SecondOrderODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kwargs...)
+  iip = isinplace(f.f1, 5)
+  _u0 = (du0,u0)
+  if f.f2.f == nothing
+    if iip
+      f2 = function (du,v,u,p,t)
+        du .= v
+      end
+    else
+      f2 = function (v,u,p,t)
+        v
+      end
+    end
+    return ODEProblem(DynamicalODEFunction{iip}(f.f1,f2;analytic=f.analytic),_u0,tspan,p,
+                  SecondOrderODEProblem{iip}();kwargs...)
+  else
+    return ODEProblem(DynamicalODEFunction{iip}(f.f1,f.f2;analytic=f.analytic),_u0,tspan,p,
+                  SecondOrderODEProblem{iip}();kwargs...)
+  end
+end
 
 abstract type AbstractSplitODEProblem end
 struct SplitODEProblem{iip} <: AbstractSplitODEProblem end

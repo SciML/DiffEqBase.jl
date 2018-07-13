@@ -110,14 +110,14 @@ ODEFunction{iip}(f2); kwargs...)
 
 @add_kwonly function DynamicalODEFunction{iip}(f1,f2,analytic) where iip
   f1 = ODEFunction(f1)
-  f2 = ODEFunction(f2)
+  f2 != nothing && (f2 = ODEFunction(f2))
   DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(analytic)}(f1,f2,analytic)
 end
 DynamicalODEFunction{iip,true}(f1,f2;analytic=nothing) where iip =
 DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(analytic)}(f1,f2,analytic)
 DynamicalODEFunction{iip,false}(f1,f2;analytic=nothing) where iip =
 DynamicalODEFunction{iip,Any,Any,Any}(f1,f2,analytic)
-DynamicalODEFunction(f1,f2; kwargs...) = DynamicalODEFunction{isinplace(f2, 5)}(f1, f2; kwargs...)
+DynamicalODEFunction(f1,f2=nothing; kwargs...) = DynamicalODEFunction{isinplace(f1, 5)}(f1, f2; kwargs...)
 DynamicalODEFunction{iip}(f1,f2; kwargs...) where iip =
 DynamicalODEFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction{iip}(f1), ODEFunction{iip}(f2); kwargs...)
 
