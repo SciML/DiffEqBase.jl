@@ -11,7 +11,7 @@ struct DAEProblem{uType,duType,tType,isinplace,P,J,F,C,D} <: AbstractDAEProblem{
   @add_kwonly function DAEProblem(f::AbstractODEFunction,du0,u0,tspan,p=nothing;
                       jac_prototype = nothing,
                       callback = nothing,
-                      differential_vars = nothing) where
+                      differential_vars = nothing)
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(du0),typeof(_tspan),
                iip,typeof(p),typeof(jac_prototype),
