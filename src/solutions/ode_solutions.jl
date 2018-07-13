@@ -62,15 +62,11 @@ end
 
 function calculate_solution_errors!(sol::AbstractODESolution;fill_uanalytic=true,timeseries_errors=true,dense_errors=true)
 
-  if typeof(sol.prob.f) <: Tuple
-    f = sol.prob.f[1]
-  else
-    f = sol.prob.f
-  end
+  f = sol.prob.f
 
   if fill_uanalytic
     for i in 1:size(sol.u,1)
-      push!(sol.u_analytic,f(Val{:analytic},sol.prob.u0,sol.prob.p,sol.t[i]))
+      push!(sol.u_analytic,f.analytic(sol.prob.u0,sol.prob.p,sol.t[i]))
     end
   end
 
@@ -84,7 +80,7 @@ function calculate_solution_errors!(sol::AbstractODESolution;fill_uanalytic=true
       if sol.dense && dense_errors
         densetimes = collect(range(sol.t[1], stop=sol.t[end], length=100))
         interp_u = sol(densetimes)
-        interp_analytic = VectorOfArray([f(Val{:analytic},sol.prob.u0,sol.prob.p,t) for t in densetimes])
+        interp_analytic = VectorOfArray([f.analytic(sol.prob.u0,sol.prob.p,t) for t in densetimes])
         sol.errors[:L∞] = norm(maximum(abs.(interp_u.-interp_analytic)))
         sol.errors[:L2] = norm(sqrt(mean((interp_u.-interp_analytic).^2)))
       end
