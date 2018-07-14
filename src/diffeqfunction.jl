@@ -43,6 +43,20 @@ struct DiscreteFunction{iip,F,Ta} <: AbstractDiscreteFunction{iip}
   analytic::Ta
 end
 
+abstract type AbstractSDEFunction{iip} <: AbstractDiffEqFunction{iip} end
+struct SDEFunction{iip,F,G,Ta,Tt,TJ,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
+  f::F
+  g::G
+  analytic::Ta
+  tgrad::Tt
+  jac::TJ
+  invW::TW
+  invW_t::TWt
+  paramjac::TPJ
+  ggprime::GG
+  syms::S
+end
+
 abstract type AbstractDAEFunction{iip} <: AbstractDiffEqFunction{iip} end
 struct DAEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractDAEFunction{iip}
   f::F
@@ -94,6 +108,14 @@ end
 
 (f::DDEFunction)(args...) = f.f(args...)
 (f::DDEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
+
+(f::SDEFunction)(args...) = f.f(args...)
+(f::SDEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
+(f::SDEFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
+(f::SDEFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
+(f::SDEFunction)(::Type{Val{:invW}},args...) = f.invW(args...)
+(f::SDEFunction)(::Type{Val{:invW_t}},args...) = f.invW_t(args...)
+(f::SDEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
 
 ######### Basic Constructor
 
@@ -167,6 +189,40 @@ function DiscreteFunction{iip,false}(f;
                  f,analytic)
 end
 DiscreteFunction(f; kwargs...) = DiscreteFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
+
+function SDEFunction{iip,true}(f,g;
+                 analytic=nothing,
+                 tgrad=nothing,
+                 jac=nothing,
+                 invW=nothing,
+                 invW_t=nothing,
+                 paramjac = nothing,
+                 ggprime = nothing,
+                 syms = nothing) where iip
+                 SDEFunction{iip,typeof(f),typeof(g),
+                 typeof(analytic),typeof(tgrad),
+                 typeof(jac),typeof(invW),typeof(invW_t),
+                 typeof(paramjac),typeof(syms),
+                 typeof(ggprime)}(
+                 f,g,analytic,tgrad,jac,invW,invW_t,
+                 paramjac,ggprime,syms)
+end
+function SDEFunction{iip,false}(f,g;
+                 analytic=nothing,
+                 tgrad=nothing,
+                 jac=nothing,
+                 invW=nothing,
+                 invW_t=nothing,
+                 paramjac = nothing,
+                 ggprime = nothing,
+                 syms = nothing) where iip
+                 SDEFunction{iip,Any,Any,Any,Any,
+                 Any,Any,Any,
+                 Any,typeof(syms),Any}(
+                 f,g,analytic,tgrad,jac,invW,invW_t,
+                 paramjac,ggprime,syms)
+end
+SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 
 function DAEFunction{iip,true}(f;
                  analytic=nothing,
@@ -353,6 +409,7 @@ function Base.convert(::Type{DiscreteFunction{iip}},f) where iip
   DiscreteFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic)
 end
 
+DAEFunction{iip}(f::T) where {iip,T} = return T<:DAEFunction ? f : convert(DAEFunction{iip},f)
 function Base.convert(::Type{DAEFunction},f)
   if __has_analytic(f)
     analytic = (args...) -> f(Val{:analytic},args...)
@@ -434,6 +491,7 @@ function Base.convert(::Type{DAEFunction{iip}},f) where iip
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
 
+DDEFunction{iip}(f::T) where {iip,T} = return T<:DDEFunction ? f : convert(DDEFunction{iip},f)
 function Base.convert(::Type{DDEFunction},f)
   if __has_analytic(f)
     analytic = (args...) -> f(Val{:analytic},args...)
@@ -459,4 +517,87 @@ function Base.convert(::Type{DDEFunction{iip}},f) where iip
     syms = nothing
   end
   DDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic,syms=syms)
+end
+
+SDEFunction{iip}(f::T,g::T2) where {iip,T,T2} = return T<:SDEFunction ? f : convert(SDEFunction{iip},f,g)
+function Base.convert(::Type{SDEFunction},f,g)
+  if __has_analytic(f)
+    analytic = (args...) -> f(Val{:analytic},args...)
+  else
+    analytic = nothing
+  end
+  if __has_jac(f)
+    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
+    jac = (args...) -> f(Val{:jac},args...)
+  else
+    jac = nothing
+  end
+  if __has_tgrad(f)
+    tgrad = (args...) -> f(Val{:tgrad},args...)
+  else
+    tgrad = nothing
+  end
+  if __has_invW(f)
+    invW = (args...) -> f(Val{:invW},args...)
+  else
+    invW = nothing
+  end
+  if __has_invW_t(f)
+    invW_t = (args...) -> f(Val{:invW_t},args...)
+  else
+    invW_t = nothing
+  end
+  if __has_paramjac(f)
+    paramjac = (args...) -> f(Val{:paramjac},args...)
+  else
+    paramjac = nothing
+  end
+  if __has_syms(f)
+    syms = f.syms
+  else
+    syms = nothing
+  end
+  SDEFunction(f,g,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
+              invW_t=invW_t,paramjac=paramjac,syms=syms)
+end
+function Base.convert(::Type{SDEFunction{iip}},f,g) where iip
+  if __has_analytic(f)
+    analytic = (args...) -> f(Val{:analytic},args...)
+  else
+    analytic = nothing
+  end
+  if __has_jac(f)
+    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
+    jac = (args...) -> f(Val{:jac},args...)
+  else
+    jac = nothing
+  end
+  if __has_tgrad(f)
+    tgrad = (args...) -> f(Val{:tgrad},args...)
+  else
+    tgrad = nothing
+  end
+  if __has_invW(f)
+    invW = (args...) -> f(Val{:invW},args...)
+  else
+    invW = nothing
+  end
+  if __has_invW_t(f)
+    invW_t = (args...) -> f(Val{:invW_t},args...)
+  else
+    invW_t = nothing
+  end
+  if __has_paramjac(f)
+    paramjac = (args...) -> f(Val{:paramjac},args...)
+  else
+    paramjac = nothing
+  end
+  if __has_syms(f)
+    syms = f.syms
+  else
+    syms = nothing
+  end
+  SDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g,analytic=analytic,
+              tgrad=tgrad,jac=jac,invW=invW,
+              invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
