@@ -11,18 +11,19 @@ struct DDEProblem{uType,tType,lType,lType2,isinplace,P,J,F,H,C,MM} <:
   callback::C
   mass_matrix::MM
   neutral::Bool
-  @add_kwonly function DDEProblem{isinplace}(f,u0,h,tspan,p=nothing;
+  @add_kwonly function DDEProblem(f::AbstractDDEFunction,
+                                 u0,h,tspan,p=nothing;
                                  jac_prototype = nothing,
                                  constant_lags=[],
                                  dependent_lags=[],
                                  mass_matrix=I,
                                  neutral = mass_matrix == I ?
                                            false : det(mass_matrix)!=1,
-                                 callback = nothing) where {isinplace}
+                                 callback = nothing)
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(_tspan),
                typeof(constant_lags),typeof(dependent_lags),
-               isinplace,typeof(p),typeof(jac_prototype),
+               isinplace(f),typeof(p),typeof(jac_prototype),
                typeof(f),typeof(h),typeof(callback),
                typeof(mass_matrix)}(f,u0,h,_tspan,p,
                                     jac_prototype,
@@ -30,9 +31,13 @@ struct DDEProblem{uType,tType,lType,lType2,isinplace,P,J,F,H,C,MM} <:
                                     dependent_lags,callback,
                                     mass_matrix,neutral)
   end
+
+  function DDEProblem{iip}(f,u0,h,tspan,p=nothing;kwargs...)
+    DDEProblem(convert(DDEFunction{iip},f),u0,h,tspan,p;kwargs...)
+  end
+
 end
 
 function DDEProblem(f,u0,h,tspan,p=nothing;kwargs...)
-  iip = typeof(f)<: Tuple ? isinplace(f[2],5) : isinplace(f,5)
-  DDEProblem{iip}(f,u0,h,tspan,p;kwargs...)
+  DDEProblem(convert(DDEFunction,f),u0,h,tspan,p;kwargs...)
 end
