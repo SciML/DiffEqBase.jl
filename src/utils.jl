@@ -50,7 +50,7 @@ function check_keywords(alg, kwargs, warnlist)
         if kw in warnlist
             if val != nothing
                 flg = true
-                warn(string("The ", kw, " argument is ignored by ", alg, "."))
+                @warn(string("The ", kw, " argument is ignored by ", alg, "."))
             end
         end
     end
