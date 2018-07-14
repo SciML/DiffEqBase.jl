@@ -32,7 +32,7 @@ struct DDEProblem{uType,tType,lType,lType2,isinplace,P,J,F,H,C,MM} <:
                                     mass_matrix,neutral)
   end
 
-  function DDEProblem{iip}(f,u0,h,tspan,p=nothing;kwargs...)
+  function DDEProblem{iip}(f,u0,h,tspan,p=nothing;kwargs...) where {iip}
     DDEProblem(convert(DDEFunction{iip},f),u0,h,tspan,p;kwargs...)
   end
 

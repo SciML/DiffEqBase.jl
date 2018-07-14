@@ -36,12 +36,12 @@ struct SDEProblem{uType,tType,isinplace,P,J,NP,F,G,C,MM,ND} <: AbstractSDEProble
   end
 
   function SDEProblem{iip}(f,g,u0,tspan,p=nothing;kwargs...) where {iip}
-    SDEProblem(convert(SDEProblem{iip},f,g),u0,tspan,p;kwargs...)
+    SDEProblem(convert(SDEFunction{iip},f,g),u0,tspan,p;kwargs...)
   end
 end
 
 function SDEProblem(f,g,u0,tspan,p=nothing;kwargs...)
-  SDEProblem(convert(SDEProblem,f,g),u0,tspan,p;kwargs...)
+  SDEProblem(convert(SDEFunction,f,g),u0,tspan,p;kwargs...)
 end
 
 abstract type AbstractSplitSDEProblem end
