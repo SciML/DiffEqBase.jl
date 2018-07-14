@@ -111,7 +111,6 @@ abstract type AbstractSensitivitySolution{T,N} end
 abstract type Tableau end
 abstract type ODERKTableau <: Tableau end
 abstract type DECostFunction end
-abstract type AbstractParameterizedFunction{isinplace} <: Function end
 abstract type AbstractDiffEqOperator{T} end
 abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T} end
 abstract type AbstractDiffEqFunction{iip} <: Function end
@@ -153,6 +152,8 @@ include("internal_euler.jl")
 include("juno_rendering.jl")
 include("tabletraits.jl")
 include("alg_traits.jl")
+
+abstract type AbstractParameterizedFunction{iip} <: AbstractODEFunction{iip} end
 
 struct ConvergenceSetup{P,C}
     probs::P
