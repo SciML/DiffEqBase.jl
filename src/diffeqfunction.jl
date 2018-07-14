@@ -25,6 +25,18 @@ struct DynamicalODEFunction{iip,F1,F2,Ta} <: AbstractODEFunction{iip}
   analytic::Ta
 end
 
+abstract type AbstractDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
+struct DDEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractDDEFunction{iip}
+  f::F
+  analytic::Ta
+  tgrad::Tt
+  jac::TJ
+  invW::TW
+  invW_t::TWt
+  paramjac::TPJ
+  syms::S
+end
+
 abstract type AbstractDiscreteFunction{iip} <: AbstractDiffEqFunction{iip} end
 struct DiscreteFunction{iip,F,Ta} <: AbstractDiscreteFunction{iip}
   f::F
@@ -79,6 +91,9 @@ end
 (f::DAEFunction)(::Type{Val{:invW}},args...) = f.invW(args...)
 (f::DAEFunction)(::Type{Val{:invW_t}},args...) = f.invW_t(args...)
 (f::DAEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
+
+(f::DDEFunction)(args...) = f.f(args...)
+(f::DDEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
 
 ######### Basic Constructor
 
@@ -183,6 +198,35 @@ function DAEFunction{iip,false}(f;
 end
 DAEFunction(f; kwargs...) = DAEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 
+function DDEFunction{iip,true}(f;
+                 analytic=nothing,
+                 tgrad=nothing,
+                 jac=nothing,
+                 invW=nothing,
+                 invW_t=nothing,
+                 paramjac = nothing,
+                 syms = nothing) where iip
+                 DDEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
+                 typeof(jac),typeof(invW),typeof(invW_t),
+                 typeof(paramjac),typeof(syms)}(
+                 f,analytic,tgrad,jac,invW,invW_t,
+                 paramjac,syms)
+end
+function DDEFunction{iip,false}(f;
+                 analytic=nothing,
+                 tgrad=nothing,
+                 jac=nothing,
+                 invW=nothing,
+                 invW_t=nothing,
+                 paramjac = nothing,
+                 syms = nothing) where iip
+                 DDEFunction{iip,Any,Any,Any,
+                 Any,Any,Any,
+                 Any,typeof(syms)}(
+                 f,analytic,tgrad,jac,invW,invW_t,
+                 paramjac,syms)
+end
+DDEFunction(f; kwargs...) = DDEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 
 ########## Existance Functions
 
@@ -388,4 +432,31 @@ function Base.convert(::Type{DAEFunction{iip}},f) where iip
   end
   DAEFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
+end
+
+function Base.convert(::Type{DDEFunction},f)
+  if __has_analytic(f)
+    analytic = (args...) -> f(Val{:analytic},args...)
+  else
+    analytic = nothing
+  end
+  if __has_syms(f)
+    syms = f.syms
+  else
+    syms = nothing
+  end
+  DDEFunction(f,analytic=analytic,syms=syms)
+end
+function Base.convert(::Type{DDEFunction{iip}},f) where iip
+  if __has_analytic(f)
+    analytic = (args...) -> f(Val{:analytic},args...)
+  else
+    analytic = nothing
+  end
+  if __has_syms(f)
+    syms = f.syms
+  else
+    syms = nothing
+  end
+  DDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic,syms=syms)
 end
