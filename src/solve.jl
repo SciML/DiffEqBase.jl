@@ -20,6 +20,18 @@ function solve(prob::DEProblem,args...;kwargs...)
   end
 end
 
+function get_concrete_problem(prob::AbstractSteadyStateProblem,kwargs)
+  if typeof(prob.u0) <: Function
+    _u0 = prob.u0(prob.p,prob.tspan[1])
+  else
+    _u0 = prob.u0
+  end
+
+  __u0 = handle_distribution_u0(_u0)
+
+  remake(prob;u0=__u0)
+end
+
 function get_concrete_problem(prob,kwargs)
   if typeof(prob.tspan) <: Function
     _tspan = prob.tspan(prob.p)
