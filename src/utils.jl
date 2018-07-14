@@ -26,12 +26,6 @@ function isinplace(f,inplace_param_number)
   numargs(f)>=inplace_param_number
 end
 
-function isinplace(f::AbstractParameterizedFunction{iip},inplace_param_number) where iip
-  iip
-end
-function isinplace(f::AbstractParameterizedFunction{iip}) where iip
-  iip
-end
 isinplace(f::AbstractDiffEqFunction{iip}) where {iip} = iip
 isinplace(f::AbstractDiffEqFunction{iip}, inplace_param_number) where {iip} = iip
 
