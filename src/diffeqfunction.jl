@@ -186,38 +186,26 @@ DAEFunction(f; kwargs...) = DAEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f;
 
 ########## Existance Functions
 
-has_jac(f::ODEFunction) = f.jac != nothing
-has_analytic(f::ODEFunction) = f.analytic != nothing
-has_tgrad(f::ODEFunction) = f.tgrad != nothing
-has_invW(f::ODEFunction) = f.invW != nothing
-has_invW_t(f::ODEFunction) = f.invW_t != nothing
-has_paramjac(f::ODEFunction) = f.paramjac != nothing
-has_syms(f::ODEFunction) = f.syms != nothing
+has_analytic(f::AbstractDiffEqFunction) = f.analytic != nothing
+has_jac(f::AbstractDiffEqFunction) = f.jac != nothing
+has_tgrad(f::AbstractDiffEqFunction) = f.tgrad != nothing
+has_invW(f::AbstractDiffEqFunction) = f.invW != nothing
+has_invW_t(f::AbstractDiffEqFunction) = f.invW_t != nothing
+has_paramjac(f::AbstractDiffEqFunction) = f.paramjac != nothing
+has_syms(f::AbstractDiffEqFunction) = f.syms != nothing
 
 # TODO: find an appropriate way to check `has_*`
-has_analytic(f::SplitFunction) = f.analytic != nothing
 has_jac(f::SplitFunction) = f.f1.jac != nothing
 has_tgrad(f::SplitFunction) = f.f1.tgrad != nothing
 has_invW(f::SplitFunction) = f.f1.invW != nothing
 has_invW_t(f::SplitFunction) = f.f1.invW_t != nothing
 has_paramjac(f::SplitFunction) = f.f1.paramjac != nothing
 
-has_analytic(f::DynamicalODEFunction) = f.analytic != nothing
 has_jac(f::DynamicalODEFunction) = f.f1.jac != nothing
 has_tgrad(f::DynamicalODEFunction) = f.f1.tgrad != nothing
 has_invW(f::DynamicalODEFunction) = f.f1.invW != nothing
 has_invW_t(f::DynamicalODEFunction) = f.f1.invW_t != nothing
 has_paramjac(f::DynamicalODEFunction) = f.f1.paramjac != nothing
-
-has_analytic(f::DiscreteFunction) = f.analytic != nothing
-
-has_jac(f::DAEFunction) = f.jac != nothing
-has_analytic(f::DAEFunction) = f.analytic != nothing
-has_tgrad(f::DAEFunction) = f.tgrad != nothing
-has_invW(f::DAEFunction) = f.invW != nothing
-has_invW_t(f::DAEFunction) = f.invW_t != nothing
-has_paramjac(f::DAEFunction) = f.paramjac != nothing
-has_syms(f::DAEFunction) = f.syms != nothing
 
 ######### Compatibility Constructor from Tratis
 
@@ -321,8 +309,6 @@ function Base.convert(::Type{DiscreteFunction{iip}},f) where iip
   DiscreteFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic)
 end
 
-DAEFunction(f::T) where T = return T<:DAEFunction ? f : convert(DAEFunction,f)
-DAEFunction{iip}(f::T) where {iip,T} = return T<:DAEFunction ? f : convert(DAEFunction{iip},f)
 function Base.convert(::Type{DAEFunction},f)
   if __has_analytic(f)
     analytic = (args...) -> f(Val{:analytic},args...)
