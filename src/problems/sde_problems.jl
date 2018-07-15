@@ -12,7 +12,7 @@ struct SDEProblem{uType,tType,isinplace,P,J,NP,F,G,C,MM,ND} <: AbstractSDEProble
   mass_matrix::MM
   noise_rate_prototype::ND
   seed::UInt64
-  @add_kwonly function SDEProblem(f::AbstractSDEFunction,u0,
+  @add_kwonly function SDEProblem(f::AbstractSDEFunction,g,u0,
           tspan,p=nothing,problem_type=StandardSDEProblem();
           jac_prototype = nothing,
           noise_rate_prototype = nothing,
@@ -36,12 +36,12 @@ struct SDEProblem{uType,tType,isinplace,P,J,NP,F,G,C,MM,ND} <: AbstractSDEProble
   end
 
   function SDEProblem{iip}(f,g,u0,tspan,p=nothing;kwargs...) where {iip}
-    SDEProblem(convert(SDEFunction{iip},f,g),u0,tspan,p;kwargs...)
+    SDEProblem(convert(SDEFunction{iip},f,g),g,u0,tspan,p;kwargs...)
   end
 end
 
 function SDEProblem(f,g,u0,tspan,p=nothing;kwargs...)
-  SDEProblem(convert(SDEFunction,f,g),u0,tspan,p;kwargs...)
+  SDEProblem(convert(SDEFunction,f,g),g,u0,tspan,p;kwargs...)
 end
 
 abstract type AbstractSplitSDEProblem end

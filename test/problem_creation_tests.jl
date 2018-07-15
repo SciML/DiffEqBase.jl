@@ -28,6 +28,8 @@ v0 = ones(2)
 tspan = (0,1.0)
 prob = SecondOrderODEProblem(f,u0,v0,tspan)
 
+prob = SDEProblem((u,p,t) -> 1.01u,(u,p,t) -> 0.87u,1/2,(0.0,1.0))
+
 function f(du,u,p,t)
   du[1] = 0.2u[1]
   du[2] = 0.4u[2]
