@@ -40,6 +40,10 @@ struct SDEProblem{uType,tType,isinplace,P,J,NP,F,G,C,MM,ND} <: AbstractSDEProble
   end
 end
 
+function SDEProblem(f::AbstractSDEFunction,u0,tspan,p=nothing;kwargs...)
+  SDEProblem(f,f.g,u0,tspan,p;kwargs...)
+end
+
 function SDEProblem(f,g,u0,tspan,p=nothing;kwargs...)
   SDEProblem(convert(SDEFunction,f,g),g,u0,tspan,p;kwargs...)
 end
