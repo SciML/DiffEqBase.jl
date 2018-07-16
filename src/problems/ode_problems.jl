@@ -42,14 +42,14 @@ abstract type AbstractDynamicalODEProblem end
 struct DynamicalODEProblem{iip} <: AbstractDynamicalODEProblem end
 # u' = f1(v)
 # v' = f2(t,u)
-function DynamicalODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kwargs...)
-  ODEProblem(f,(du0,u0),tspan,p;kwargs...)
+function DynamicalODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;mass_matrix=(I,I),kwargs...)
+  ODEProblem(f,(du0,u0),tspan,p;mass_matrix=mass_matrix,kwargs...)
 end
-function DynamicalODEProblem(f1,f2,du0,u0,tspan,p=nothing;kwargs...)
-  ODEProblem(DynamicalODEFunction(f1,f2),(du0,u0),tspan,p;kwargs...)
+function DynamicalODEProblem(f1,f2,du0,u0,tspan,p=nothing;mass_matrix=(I,I),kwargs...)
+  ODEProblem(DynamicalODEFunction(f1,f2),(du0,u0),tspan,p;mass_matrix=mass_matrix,kwargs...)
 end
-function DynamicalODEProblem{iip}(f1,f2,du0,u0,tspan,p=nothing;kwargs...) where iip
-  ODEProblem(DynamicalODEFunction{iip}(f1,f2),(du0,u0),tspan,p;kwargs...)
+function DynamicalODEProblem{iip}(f1,f2,du0,u0,tspan,p=nothing;mass_matrix=(I,I),kwargs...) where iip
+  ODEProblem(DynamicalODEFunction{iip}(f1,f2),(du0,u0),tspan,p;mass_matrix=mass_matrix,kwargs...)
 end
 
 # u'' = f(t,u,du,ddu)
