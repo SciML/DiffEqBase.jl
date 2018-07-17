@@ -16,7 +16,7 @@ import RecursiveArrayTools: chain
 
 import LinearAlgebra: exp, ldiv!
 
-import Statistics: mean
+import Statistics: mean, median
 
 # Problems
 abstract type DEProblem end
