@@ -16,7 +16,7 @@ mutable struct RODEProblem{uType,tType,isinplace,P,J,NP,F,C,MM,ND} <: AbstractRO
                        callback=nothing,mass_matrix=I)
   _tspan = promote_tspan(tspan)
   new{typeof(u0),typeof(_tspan),
-              iip,typeof(p),typeof(jac_prototype),
+              isinplace(f),typeof(p),typeof(jac_prototype),
               typeof(noise),typeof(f),typeof(callback),
               typeof(mass_matrix),typeof(rand_prototype)}(
               f,u0,_tspan,p,jac_prototype,noise,callback,

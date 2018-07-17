@@ -58,16 +58,14 @@ struct SDEFunction{iip,F,G,Ta,Tt,TJ,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
 end
 
 abstract type AbstractRODEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct RODEFunction{iip,F,G,Ta,Tt,TJ,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
+struct RODEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractRODEFunction{iip}
   f::F
-  g::G
   analytic::Ta
   tgrad::Tt
   jac::TJ
   invW::TW
   invW_t::TWt
   paramjac::TPJ
-  ggprime::GG
   syms::S
 end
 
@@ -240,39 +238,36 @@ function SDEFunction{iip,false}(f,g;
 end
 SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 
-function RODEFunction{iip,true}(f,g;
+function RODEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
                  invW=nothing,
                  invW_t=nothing,
                  paramjac = nothing,
-                 ggprime = nothing,
                  syms = nothing) where iip
-                 RODEFunction{iip,typeof(f),typeof(g),
+                 RODEFunction{iip,typeof(f),
                  typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(invW),typeof(invW_t),
-                 typeof(paramjac),typeof(syms),
-                 typeof(ggprime)}(
-                 f,g,analytic,tgrad,jac,invW,invW_t,
-                 paramjac,ggprime,syms)
+                 typeof(paramjac),typeof(syms)}(
+                 f,analytic,tgrad,jac,invW,invW_t,
+                 paramjac,syms)
 end
-function RODEFunction{iip,false}(f,g;
+function RODEFunction{iip,false}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
                  invW=nothing,
                  invW_t=nothing,
                  paramjac = nothing,
-                 ggprime = nothing,
                  syms = nothing) where iip
-                 RODEFunction{iip,Any,Any,Any,Any,
+                 RODEFunction{iip,Any,Any,Any,
                  Any,Any,Any,
-                 Any,typeof(syms),Any}(
-                 f,g,analytic,tgrad,jac,invW,invW_t,
-                 paramjac,ggprime,syms)
+                 Any,typeof(syms)}(
+                 f,analytic,tgrad,jac,invW,invW_t,
+                 paramjac,syms)
 end
-RODEFunction(f,g; kwargs...) = RODEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
+RODEFunction(f; kwargs...) = RODEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 
 function DAEFunction{iip,true}(f;
                  analytic=nothing,
@@ -652,8 +647,8 @@ function Base.convert(::Type{SDEFunction{iip}},f,g) where iip
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
 
-RODEFunction{iip}(f::T,g::T2) where {iip,T,T2} = return T<:RODEFunction ? f : convert(RODEFunction{iip},f,g)
-function Base.convert(::Type{RODEFunction},f,g)
+RODEFunction{iip}(f::T) where {iip,T,T2} = return T<:RODEFunction ? f : convert(RODEFunction{iip},f)
+function Base.convert(::Type{RODEFunction},f)
   if __has_analytic(f)
     analytic = (args...) -> f(Val{:analytic},args...)
   else
@@ -690,10 +685,10 @@ function Base.convert(::Type{RODEFunction},f,g)
   else
     syms = nothing
   end
-  RODEFunction(f,g,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
+  RODEFunction(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
-function Base.convert(::Type{RODEFunction{iip}},f,g) where iip
+function Base.convert(::Type{RODEFunction{iip}},f) where iip
   if __has_analytic(f)
     analytic = (args...) -> f(Val{:analytic},args...)
   else
@@ -730,7 +725,7 @@ function Base.convert(::Type{RODEFunction{iip}},f,g) where iip
   else
     syms = nothing
   end
-  RODEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g,analytic=analytic,
+  RODEFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic,
               tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
