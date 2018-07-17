@@ -228,7 +228,11 @@ function SDEFunction{iip,true}(f,g;
                  ggprime = nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
-                   jac = update_coefficients!
+                  if iip
+                    jac = update_coefficients! #(J,u,p,t)
+                  else
+                    jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
+                  end
                  end
                  SDEFunction{iip,typeof(f),typeof(g),
                  typeof(analytic),typeof(tgrad),
@@ -249,7 +253,11 @@ function SDEFunction{iip,false}(f,g;
                  ggprime = nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
-                   jac = update_coefficients!
+                  if iip
+                    jac = update_coefficients! #(J,u,p,t)
+                  else
+                    jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
+                  end
                  end
                  SDEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
@@ -269,7 +277,11 @@ function RODEFunction{iip,true}(f;
                  paramjac = nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
-                   jac = update_coefficients!
+                  if iip
+                    jac = update_coefficients! #(J,u,p,t)
+                  else
+                    jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
+                  end
                  end
                  RODEFunction{iip,typeof(f),
                  typeof(analytic),typeof(tgrad),
@@ -287,7 +299,11 @@ function RODEFunction{iip,false}(f;
                  paramjac = nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
-                   jac = update_coefficients!
+                  if iip
+                    jac = update_coefficients! #(J,u,p,t)
+                  else
+                    jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
+                  end
                  end
                  RODEFunction{iip,Any,Any,Any,
                  Any,Any,Any,Any,
@@ -307,7 +323,11 @@ function DAEFunction{iip,true}(f;
                  paramjac = nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
-                   jac = update_coefficients!
+                  if iip
+                    jac = update_coefficients! #(J,u,p,t)
+                  else
+                    jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
+                  end
                  end
                  DAEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
@@ -325,7 +345,11 @@ function DAEFunction{iip,false}(f;
                  paramjac = nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
-                   jac = update_coefficients!
+                  if iip
+                    jac = update_coefficients! #(J,u,p,t)
+                  else
+                    jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
+                  end
                  end
                  DAEFunction{iip,Any,Any,Any,
                  Any,Any,Any,Any,
@@ -345,7 +369,11 @@ function DDEFunction{iip,true}(f;
                  paramjac = nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
-                   jac = update_coefficients!
+                  if iip
+                    jac = update_coefficients! #(J,u,p,t)
+                  else
+                    jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
+                  end
                  end
                  DDEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
@@ -363,7 +391,11 @@ function DDEFunction{iip,false}(f;
                  paramjac = nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
-                   jac = update_coefficients!
+                  if iip
+                    jac = update_coefficients! #(J,u,p,t)
+                  else
+                    jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
+                  end
                  end
                  DDEFunction{iip,Any,Any,Any,
                  Any,Any,Any,Any,
