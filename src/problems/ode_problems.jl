@@ -1,19 +1,17 @@
 struct StandardODEProblem end
 
 # Mu' = f
-struct ODEProblem{uType,tType,isinplace,P,F,J,C,MM,PT} <:
+struct ODEProblem{uType,tType,isinplace,P,F,C,MM,PT} <:
                AbstractODEProblem{uType,tType,isinplace}
   f::F
   u0::uType
   tspan::tType
   p::P
-  jac_prototype::J
   callback::C
   mass_matrix::MM
   problem_type::PT
   @add_kwonly function ODEProblem(f::AbstractODEFunction,u0,tspan,p=nothing,
                       problem_type=StandardODEProblem();
-                      jac_prototype = nothing,
                       callback=nothing,mass_matrix=I)
     _tspan = promote_tspan(tspan)
     if mass_matrix == I && typeof(f) <: Tuple
@@ -22,10 +20,10 @@ struct ODEProblem{uType,tType,isinplace,P,F,J,C,MM,PT} <:
       _mm = mass_matrix
     end
     new{typeof(u0),typeof(_tspan),
-       isinplace(f),typeof(p),typeof(f),typeof(jac_prototype),
+       isinplace(f),typeof(p),typeof(f),
        typeof(callback),typeof(_mm),
        typeof(problem_type)}(
-       f,u0,_tspan,p,jac_prototype,callback,_mm,problem_type)
+       f,u0,_tspan,p,callback,_mm,problem_type)
   end
 
   function ODEProblem{iip}(f,u0,tspan,p=nothing;kwargs...) where {iip}
