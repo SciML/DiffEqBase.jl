@@ -1,11 +1,12 @@
 const RECOMPILE_BY_DEFAULT = true
 
 abstract type AbstractODEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct ODEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
+struct ODEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
   f::F
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jac_prototype::JP
   invW::TW
   invW_t::TWt
   paramjac::TPJ
@@ -26,11 +27,12 @@ struct DynamicalODEFunction{iip,F1,F2,Ta} <: AbstractODEFunction{iip}
 end
 
 abstract type AbstractDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct DDEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractDDEFunction{iip}
+struct DDEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDDEFunction{iip}
   f::F
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jac_prototype::JP
   invW::TW
   invW_t::TWt
   paramjac::TPJ
@@ -44,12 +46,13 @@ struct DiscreteFunction{iip,F,Ta} <: AbstractDiscreteFunction{iip}
 end
 
 abstract type AbstractSDEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct SDEFunction{iip,F,G,Ta,Tt,TJ,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
+struct SDEFunction{iip,F,G,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
   f::F
   g::G
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jac_prototype::JP
   invW::TW
   invW_t::TWt
   paramjac::TPJ
@@ -58,11 +61,12 @@ struct SDEFunction{iip,F,G,Ta,Tt,TJ,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
 end
 
 abstract type AbstractRODEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct RODEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractRODEFunction{iip}
+struct RODEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractRODEFunction{iip}
   f::F
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jac_prototype::JP
   invW::TW
   invW_t::TWt
   paramjac::TPJ
@@ -70,11 +74,12 @@ struct RODEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractRODEFunction{iip}
 end
 
 abstract type AbstractDAEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct DAEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractDAEFunction{iip}
+struct DAEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDAEFunction{iip}
   f::F
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jac_prototype::JP
   invW::TW
   invW_t::TWt
   paramjac::TPJ
@@ -137,28 +142,30 @@ function ODEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
                  paramjac = nothing,
                  syms = nothing) where iip
                  ODEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(invW),typeof(invW_t),
+                 typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
-                 f,analytic,tgrad,jac,invW,invW_t,
+                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 function ODEFunction{iip,false}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
                  paramjac = nothing,
                  syms = nothing) where iip
                  ODEFunction{iip,Any,Any,Any,
-                 Any,Any,Any,
+                 Any,Any,Any,Any,
                  Any,typeof(syms)}(
-                 f,analytic,tgrad,jac,invW,invW_t,
+                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
@@ -208,6 +215,7 @@ function SDEFunction{iip,true}(f,g;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
                  paramjac = nothing,
@@ -215,25 +223,26 @@ function SDEFunction{iip,true}(f,g;
                  syms = nothing) where iip
                  SDEFunction{iip,typeof(f),typeof(g),
                  typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(invW),typeof(invW_t),
+                 typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms),
                  typeof(ggprime)}(
-                 f,g,analytic,tgrad,jac,invW,invW_t,
+                 f,g,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,ggprime,syms)
 end
 function SDEFunction{iip,false}(f,g;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
                  paramjac = nothing,
                  ggprime = nothing,
                  syms = nothing) where iip
                  SDEFunction{iip,Any,Any,Any,Any,
-                 Any,Any,Any,
+                 Any,Any,Any,Any,
                  Any,typeof(syms),Any}(
-                 f,g,analytic,tgrad,jac,invW,invW_t,
+                 f,g,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,ggprime,syms)
 end
 SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
@@ -242,15 +251,16 @@ function RODEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
                  paramjac = nothing,
                  syms = nothing) where iip
                  RODEFunction{iip,typeof(f),
                  typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(invW),typeof(invW_t),
+                 typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
-                 f,analytic,tgrad,jac,invW,invW_t,
+                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 function RODEFunction{iip,false}(f;
@@ -262,9 +272,9 @@ function RODEFunction{iip,false}(f;
                  paramjac = nothing,
                  syms = nothing) where iip
                  RODEFunction{iip,Any,Any,Any,
-                 Any,Any,Any,
+                 Any,Any,Any,Any,
                  Any,typeof(syms)}(
-                 f,analytic,tgrad,jac,invW,invW_t,
+                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 RODEFunction(f; kwargs...) = RODEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
@@ -273,28 +283,30 @@ function DAEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
                  paramjac = nothing,
                  syms = nothing) where iip
                  DAEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(invW),typeof(invW_t),
+                 typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
-                 f,analytic,tgrad,jac,invW,invW_t,
+                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 function DAEFunction{iip,false}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
                  paramjac = nothing,
                  syms = nothing) where iip
                  DAEFunction{iip,Any,Any,Any,
-                 Any,Any,Any,
+                 Any,Any,Any,Any,
                  Any,typeof(syms)}(
-                 f,analytic,tgrad,jac,invW,invW_t,
+                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 DAEFunction(f; kwargs...) = DAEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
@@ -303,28 +315,30 @@ function DDEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
                  paramjac = nothing,
                  syms = nothing) where iip
                  DDEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(invW),typeof(invW_t),
+                 typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
-                 f,analytic,tgrad,jac,invW,invW_t,
+                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 function DDEFunction{iip,false}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
                  paramjac = nothing,
                  syms = nothing) where iip
                  DDEFunction{iip,Any,Any,Any,
-                 Any,Any,Any,
+                 Any,Any,Any,Any,
                  Any,typeof(syms)}(
-                 f,analytic,tgrad,jac,invW,invW_t,
+                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 DDEFunction(f; kwargs...) = DDEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
@@ -392,7 +406,7 @@ function Base.convert(::Type{ODEFunction},f)
   else
     syms = nothing
   end
-  ODEFunction(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
+  ODEFunction(f;analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
 function Base.convert(::Type{ODEFunction{iip}},f) where iip
@@ -432,7 +446,7 @@ function Base.convert(::Type{ODEFunction{iip}},f) where iip
   else
     syms = nothing
   end
-  ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
+  ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
 
@@ -443,7 +457,7 @@ function Base.convert(::Type{DiscreteFunction},f)
   else
     analytic = nothing
   end
-  DiscreteFunction(f,analytic=analytic)
+  DiscreteFunction(f;analytic=analytic)
 end
 function Base.convert(::Type{DiscreteFunction{iip}},f) where iip
   if __has_analytic(f)
@@ -451,7 +465,7 @@ function Base.convert(::Type{DiscreteFunction{iip}},f) where iip
   else
     analytic = nothing
   end
-  DiscreteFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic)
+  DiscreteFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic)
 end
 
 DAEFunction{iip}(f::T) where {iip,T} = return T<:DAEFunction ? f : convert(DAEFunction{iip},f)
@@ -492,7 +506,7 @@ function Base.convert(::Type{DAEFunction},f)
   else
     syms = nothing
   end
-  DAEFunction(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
+  DAEFunction(f;analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
 function Base.convert(::Type{DAEFunction{iip}},f) where iip
@@ -532,7 +546,7 @@ function Base.convert(::Type{DAEFunction{iip}},f) where iip
   else
     syms = nothing
   end
-  DAEFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
+  DAEFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
 
@@ -548,7 +562,7 @@ function Base.convert(::Type{DDEFunction},f)
   else
     syms = nothing
   end
-  DDEFunction(f,analytic=analytic,syms=syms)
+  DDEFunction(f;analytic=analytic,syms=syms)
 end
 function Base.convert(::Type{DDEFunction{iip}},f) where iip
   if __has_analytic(f)
@@ -561,7 +575,7 @@ function Base.convert(::Type{DDEFunction{iip}},f) where iip
   else
     syms = nothing
   end
-  DDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic,syms=syms)
+  DDEFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic,syms=syms)
 end
 
 SDEFunction{iip}(f::T,g::T2) where {iip,T,T2} = return T<:SDEFunction ? f : convert(SDEFunction{iip},f,g)
@@ -602,7 +616,7 @@ function Base.convert(::Type{SDEFunction},f,g)
   else
     syms = nothing
   end
-  SDEFunction(f,g,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
+  SDEFunction(f,g;analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
 function Base.convert(::Type{SDEFunction{iip}},f,g) where iip
@@ -642,7 +656,7 @@ function Base.convert(::Type{SDEFunction{iip}},f,g) where iip
   else
     syms = nothing
   end
-  SDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g,analytic=analytic,
+  SDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g;analytic=analytic,
               tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
@@ -685,7 +699,7 @@ function Base.convert(::Type{RODEFunction},f)
   else
     syms = nothing
   end
-  RODEFunction(f,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
+  RODEFunction(f;analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
 function Base.convert(::Type{RODEFunction{iip}},f) where iip
@@ -725,7 +739,7 @@ function Base.convert(::Type{RODEFunction{iip}},f) where iip
   else
     syms = nothing
   end
-  RODEFunction{iip,RECOMPILE_BY_DEFAULT}(f,analytic=analytic,
+  RODEFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic,
               tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
