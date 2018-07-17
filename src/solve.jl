@@ -4,7 +4,7 @@ function solve! end
 
 function init(prob::DEProblem,args...;kwargs...)
   _prob = get_concrete_problem(prob,kwargs)
-  if haskey(kwargs,:alg)
+  if haskey(kwargs,:alg) && (isempty(args) || args[1] === nothing)
     __init(_prob,kwargs[:alg],args...;kwargs...)
   else
     __init(_prob,args...;kwargs...)
@@ -13,7 +13,7 @@ end
 
 function solve(prob::DEProblem,args...;kwargs...)
   _prob = get_concrete_problem(prob,kwargs)
-  if haskey(kwargs,:alg)
+  if haskey(kwargs,:alg) && (isempty(args) || args[1] === nothing)
     __solve(_prob,kwargs[:alg],args...;kwargs...)
   else
     __solve(_prob,args...;kwargs...)
