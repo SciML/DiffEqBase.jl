@@ -57,6 +57,20 @@ struct SDEFunction{iip,F,G,Ta,Tt,TJ,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
   syms::S
 end
 
+abstract type AbstractRODEFunction{iip} <: AbstractDiffEqFunction{iip} end
+struct RODEFunction{iip,F,G,Ta,Tt,TJ,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
+  f::F
+  g::G
+  analytic::Ta
+  tgrad::Tt
+  jac::TJ
+  invW::TW
+  invW_t::TWt
+  paramjac::TPJ
+  ggprime::GG
+  syms::S
+end
+
 abstract type AbstractDAEFunction{iip} <: AbstractDiffEqFunction{iip} end
 struct DAEFunction{iip,F,Ta,Tt,TJ,TW,TWt,TPJ,S} <: AbstractDAEFunction{iip}
   f::F
@@ -116,6 +130,8 @@ end
 (f::SDEFunction)(::Type{Val{:invW}},args...) = f.invW(args...)
 (f::SDEFunction)(::Type{Val{:invW_t}},args...) = f.invW_t(args...)
 (f::SDEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
+
+(f::RODEFunction)(args...) = f.f(args...)
 
 ######### Basic Constructor
 
@@ -223,6 +239,40 @@ function SDEFunction{iip,false}(f,g;
                  paramjac,ggprime,syms)
 end
 SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
+
+function RODEFunction{iip,true}(f,g;
+                 analytic=nothing,
+                 tgrad=nothing,
+                 jac=nothing,
+                 invW=nothing,
+                 invW_t=nothing,
+                 paramjac = nothing,
+                 ggprime = nothing,
+                 syms = nothing) where iip
+                 RODEFunction{iip,typeof(f),typeof(g),
+                 typeof(analytic),typeof(tgrad),
+                 typeof(jac),typeof(invW),typeof(invW_t),
+                 typeof(paramjac),typeof(syms),
+                 typeof(ggprime)}(
+                 f,g,analytic,tgrad,jac,invW,invW_t,
+                 paramjac,ggprime,syms)
+end
+function RODEFunction{iip,false}(f,g;
+                 analytic=nothing,
+                 tgrad=nothing,
+                 jac=nothing,
+                 invW=nothing,
+                 invW_t=nothing,
+                 paramjac = nothing,
+                 ggprime = nothing,
+                 syms = nothing) where iip
+                 RODEFunction{iip,Any,Any,Any,Any,
+                 Any,Any,Any,
+                 Any,typeof(syms),Any}(
+                 f,g,analytic,tgrad,jac,invW,invW_t,
+                 paramjac,ggprime,syms)
+end
+RODEFunction(f,g; kwargs...) = RODEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 
 function DAEFunction{iip,true}(f;
                  analytic=nothing,
@@ -598,6 +648,89 @@ function Base.convert(::Type{SDEFunction{iip}},f,g) where iip
     syms = nothing
   end
   SDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g,analytic=analytic,
+              tgrad=tgrad,jac=jac,invW=invW,
+              invW_t=invW_t,paramjac=paramjac,syms=syms)
+end
+
+RODEFunction{iip}(f::T,g::T2) where {iip,T,T2} = return T<:RODEFunction ? f : convert(RODEFunction{iip},f,g)
+function Base.convert(::Type{RODEFunction},f,g)
+  if __has_analytic(f)
+    analytic = (args...) -> f(Val{:analytic},args...)
+  else
+    analytic = nothing
+  end
+  if __has_jac(f)
+    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
+    jac = (args...) -> f(Val{:jac},args...)
+  else
+    jac = nothing
+  end
+  if __has_tgrad(f)
+    tgrad = (args...) -> f(Val{:tgrad},args...)
+  else
+    tgrad = nothing
+  end
+  if __has_invW(f)
+    invW = (args...) -> f(Val{:invW},args...)
+  else
+    invW = nothing
+  end
+  if __has_invW_t(f)
+    invW_t = (args...) -> f(Val{:invW_t},args...)
+  else
+    invW_t = nothing
+  end
+  if __has_paramjac(f)
+    paramjac = (args...) -> f(Val{:paramjac},args...)
+  else
+    paramjac = nothing
+  end
+  if __has_syms(f)
+    syms = f.syms
+  else
+    syms = nothing
+  end
+  RODEFunction(f,g,analytic=analytic,tgrad=tgrad,jac=jac,invW=invW,
+              invW_t=invW_t,paramjac=paramjac,syms=syms)
+end
+function Base.convert(::Type{RODEFunction{iip}},f,g) where iip
+  if __has_analytic(f)
+    analytic = (args...) -> f(Val{:analytic},args...)
+  else
+    analytic = nothing
+  end
+  if __has_jac(f)
+    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
+    jac = (args...) -> f(Val{:jac},args...)
+  else
+    jac = nothing
+  end
+  if __has_tgrad(f)
+    tgrad = (args...) -> f(Val{:tgrad},args...)
+  else
+    tgrad = nothing
+  end
+  if __has_invW(f)
+    invW = (args...) -> f(Val{:invW},args...)
+  else
+    invW = nothing
+  end
+  if __has_invW_t(f)
+    invW_t = (args...) -> f(Val{:invW_t},args...)
+  else
+    invW_t = nothing
+  end
+  if __has_paramjac(f)
+    paramjac = (args...) -> f(Val{:paramjac},args...)
+  else
+    paramjac = nothing
+  end
+  if __has_syms(f)
+    syms = f.syms
+  else
+    syms = nothing
+  end
+  RODEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g,analytic=analytic,
               tgrad=tgrad,jac=jac,invW=invW,
               invW_t=invW_t,paramjac=paramjac,syms=syms)
 end
