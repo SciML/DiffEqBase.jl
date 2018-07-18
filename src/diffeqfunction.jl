@@ -148,7 +148,11 @@ function ODEFunction{iip,true}(f;
                  paramjac = nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
-                   jac = update_coefficients!
+                  if iip
+                    jac = update_coefficients! #(J,u,p,t)
+                  else
+                    jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
+                  end
                  end
                  ODEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
@@ -166,7 +170,11 @@ function ODEFunction{iip,false}(f;
                  paramjac = nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
-                   jac = update_coefficients!
+                  if iip
+                    jac = update_coefficients! #(J,u,p,t)
+                  else
+                    jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
+                  end
                  end
                  ODEFunction{iip,Any,Any,Any,
                  Any,Any,Any,Any,
