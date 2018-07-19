@@ -1,24 +1,22 @@
 struct StandardBVProblem end
 
-struct BVProblem{uType,tType,isinplace,P,J,F,bF,PT,CB,MM} <: AbstractBVProblem{uType,tType,isinplace}
+struct BVProblem{uType,tType,isinplace,P,F,bF,PT,CB,MM} <: AbstractBVProblem{uType,tType,isinplace}
     f::F
     bc::bF
     u0::uType
     tspan::tType
     p::P
-    jac_prototype::J
     problem_type::PT
     callback::CB
     mass_matrix::MM
     @add_kwonly function BVProblem{iip}(f,bc,u0,tspan,p=nothing,
                             problem_type=StandardBVProblem();
-                            jac_prototype = nothing,
                             callback=nothing,mass_matrix=I) where {iip}
         _tspan = promote_tspan(tspan)
-        new{typeof(u0),typeof(tspan),iip,typeof(p),typeof(jac_prototype),
+        new{typeof(u0),typeof(tspan),iip,typeof(p),
                   typeof(f),typeof(bc),
                   typeof(problem_type),typeof(callback),typeof(mass_matrix)}(
-                  f,bc,u0,_tspan,p,jac_prototype,
+                  f,bc,u0,_tspan,p,
                   problem_type,callback,mass_matrix)
     end
 end

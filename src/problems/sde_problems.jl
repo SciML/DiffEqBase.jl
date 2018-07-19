@@ -1,12 +1,11 @@
 struct StandardSDEProblem end
 
-struct SDEProblem{uType,tType,isinplace,P,J,NP,F,G,C,MM,ND} <: AbstractSDEProblem{uType,tType,isinplace,ND}
+struct SDEProblem{uType,tType,isinplace,P,NP,F,G,C,MM,ND} <: AbstractSDEProblem{uType,tType,isinplace,ND}
   f::F
   g::G
   u0::uType
   tspan::tType
   p::P
-  jac_prototype::J
   noise::NP
   callback::C
   mass_matrix::MM
@@ -14,7 +13,6 @@ struct SDEProblem{uType,tType,isinplace,P,J,NP,F,G,C,MM,ND} <: AbstractSDEProble
   seed::UInt64
   @add_kwonly function SDEProblem(f::AbstractSDEFunction,g,u0,
           tspan,p=nothing,problem_type=StandardSDEProblem();
-          jac_prototype = nothing,
           noise_rate_prototype = nothing,
           noise= nothing, seed = UInt64(0),
           callback = nothing,mass_matrix=I)
@@ -26,11 +24,11 @@ struct SDEProblem{uType,tType,isinplace,P,J,NP,F,G,C,MM,ND} <: AbstractSDEProble
     end
 
     new{typeof(u0),typeof(_tspan),
-        isinplace(f),typeof(p),typeof(jac_prototype),
+        isinplace(f),typeof(p),
         typeof(noise),typeof(f),typeof(f.g),
         typeof(callback),typeof(_mm),
         typeof(noise_rate_prototype)}(
-        f,f.g,u0,_tspan,p,jac_prototype,
+        f,f.g,u0,_tspan,p,
         noise,callback,_mm,
         noise_rate_prototype,seed)
   end
