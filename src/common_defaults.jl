@@ -10,7 +10,9 @@
            "dt="*string(dt)*"\nt="*string(t)*"\nmax u="*string(maximum(abs.(u)))
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u,p,t) = false
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::AbstractFloat,p,t) = isnan(u)
+@inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::Float64,p,t) =
+                                                any(x->(isnan(x) || x>1e50),u)
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::AbstractArray{T},p,t) where
-                                               {T<:AbstractFloat} = any(isnan,u)
+                                    {T<:AbstractFloat} = any(isnan,u)
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::ArrayPartition,p,t) =
                                                  any(any(isnan,x) for x in u.x)
