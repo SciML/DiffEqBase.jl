@@ -3,7 +3,7 @@ __precompile__()
 module DiffEqBase
 
 using RecipesBase, RecursiveArrayTools, Compat,
-      Requires, TableTraits, IteratorInterfaceExtensions
+      Requires, TableTraits, IteratorInterfaceExtensions, TreeViews
 
 import Base: length, size, getindex, setindex!, show, print,
              next, start, done, eltype, similar, indices
@@ -149,7 +149,6 @@ include("common_defaults.jl")
 include("data_array.jl")
 include("solve.jl")
 include("internal_euler.jl")
-include("juno_rendering.jl")
 include("tabletraits.jl")
 include("alg_traits.jl")
 

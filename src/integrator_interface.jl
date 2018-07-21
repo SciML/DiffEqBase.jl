@@ -75,7 +75,7 @@ has_reinit(i::DEIntegrator) = false
 
 ### Display
 
-Base.summary(I::DEIntegrator) = string("Integrator with uType ",typeof(I.u)," and tType ",typeof(I.t))
+Base.summary(I::DEIntegrator) = string(DiffEqBase.parameterless_type(I)," with uType ",typeof(I.u)," and tType ",typeof(I.t))
 function Base.show(io::IO, A::DEIntegrator)
   println(io,string("t: ",A.t))
   print(io,"u: ")
@@ -85,6 +85,11 @@ function Base.show(io::IO, m::MIME"text/plain", A::DEIntegrator)
   println(io,string("t: ",A.t))
   print(io,"u: ")
   show(io,m,A.u)
+end
+TreeViews.hastreeview(x::DiffEqBase.DEIntegrator) = true
+function TreeViews.treelabel(io::IO,x::DiffEqBase.DEIntegrator,
+                             mime::MIME"text/plain" = MIME"text/plain"())
+  show(io,mime,Base.summary(x))
 end
 
 ### Error check (retcode)

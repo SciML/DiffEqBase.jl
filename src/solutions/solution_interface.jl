@@ -7,13 +7,13 @@ Base.setindex!(A::AbstractNoTimeSolution, v, i::Int) = (A.u[i] = v)
 Base.setindex!(A::AbstractNoTimeSolution, v, I::Vararg{Int, N}) where {N} = (A.u[I] = v)
 size(A::AbstractNoTimeSolution) = size(A.u)
 
-Base.summary(A::AbstractNoTimeSolution) = string("NoTime Solution with uType ",eltype(A.u))
+Base.summary(A::AbstractNoTimeSolution) = string(DiffEqBase.parameterless_type(A)," with uType ",eltype(A.u))
 Base.show(io::IO, A::AbstractNoTimeSolution) = (print(io,"u: ");show(io, A.u))
 Base.show(io::IO, m::MIME"text/plain", A::AbstractNoTimeSolution) = (print(io,"u: ");show(io,m,A.u))
 
 ## AbstractTimeseriesSolution Interface
 
-Base.summary(A::AbstractTimeseriesSolution) = string("Timeseries Solution with uType ",eltype(A.u)," and tType ",eltype(A.t))
+Base.summary(A::AbstractTimeseriesSolution) = string(DiffEqBase.parameterless_type(A)," with uType ",eltype(A.u)," and tType ",eltype(A.t))
 function Base.show(io::IO, A::AbstractTimeseriesSolution)
   println(io,string("retcode: ",A.retcode))
   println(io,string("Interpolation: "),interp_summary(A.interp))
@@ -31,6 +31,11 @@ function Base.show(io::IO, m::MIME"text/plain", A::AbstractTimeseriesSolution)
   println(io)
   print(io,"u: ")
   show(io,m,A.u)
+end
+TreeViews.hastreeview(x::DiffEqBase.DESolution) = true
+function TreeViews.treelabel(io::IO,x::DiffEqBase.DESolution,
+                             mime::MIME"text/plain" = MIME"text/plain"())
+  show(io,mime,Base.summary(x))
 end
 
 tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.u,sol.t)

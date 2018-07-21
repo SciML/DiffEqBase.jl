@@ -44,3 +44,8 @@ end
 
 Base.summary(prob::AbstractMonteCarloProblem) = string(DiffEqBase.parameterless_type(prob)," with problem ",DiffEqBase.parameterless_type(prob.prob))
 Base.show(io::IO, A::AbstractMonteCarloProblem) = print(io,summary(A))
+TreeViews.hastreeview(x::DiffEqBase.DEProblem) = true
+function TreeViews.treelabel(io::IO,x::DiffEqBase.DEProblem,
+                             mime::MIME"text/plain" = MIME"text/plain"())
+  show(io,mime,Base.summary(x))
+end
