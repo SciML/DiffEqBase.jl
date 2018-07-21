@@ -35,7 +35,7 @@ end
 TreeViews.hastreeview(x::DiffEqBase.DESolution) = true
 function TreeViews.treelabel(io::IO,x::DiffEqBase.DESolution,
                              mime::MIME"text/plain" = MIME"text/plain"())
-  show(io,mime,Base.summary(x))
+  show(io,mime,Text(Base.summary(x)))
 end
 
 tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.u,sol.t)
