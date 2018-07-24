@@ -3,7 +3,7 @@ function problem_new_parameters(prob::ODEProblem,p;kwargs...)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
   ODEProblem{isinplace(prob)}(prob.f,u0,tspan,p,prob.problem_type;
-  callback = prob.callback, mass_matrix = prob.mass_matrix,
+  callback = prob.callback,
   kwargs...)
 end
 
