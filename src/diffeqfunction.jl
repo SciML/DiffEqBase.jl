@@ -180,10 +180,6 @@ function ODEFunction{iip,false}(f;
                  invW_t=nothing,
                  paramjac = nothing,
                  syms = nothing) where iip
-                 # Is this still necessary?
-                 if mass_matrix == I && typeof(f) <: Tuple
-                  mass_matrix = ((I for i in 1:length(f))...,)
-                 end
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -251,10 +247,6 @@ function SDEFunction{iip,true}(f,g;
                  paramjac = nothing,
                  ggprime = nothing,
                  syms = nothing) where iip
-                 # Is this still necessary?
-                 if mass_matrix == I && typeof(f) <: Tuple
-                  mass_matrix = ((I for i in 1:length(f))...,)
-                 end
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -281,10 +273,6 @@ function SDEFunction{iip,false}(f,g;
                  paramjac = nothing,
                  ggprime = nothing,
                  syms = nothing) where iip
-                 # Is this still necessary?
-                 if mass_matrix == I && typeof(f) <: Tuple
-                  mass_matrix = ((I for i in 1:length(f))...,)
-                 end
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
