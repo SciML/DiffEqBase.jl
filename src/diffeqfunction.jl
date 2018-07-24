@@ -317,7 +317,7 @@ function RODEFunction{iip,true}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
-                 RODEFunction{iip,typeof(f),typeof(mass_matrix)
+                 RODEFunction{iip,typeof(f),typeof(mass_matrix),
                  typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
