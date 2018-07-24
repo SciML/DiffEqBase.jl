@@ -1,8 +1,9 @@
 const RECOMPILE_BY_DEFAULT = true
 
 abstract type AbstractODEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct ODEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
+struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
   f::F
+  mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
@@ -139,6 +140,7 @@ end
 ######### Basic Constructor
 
 function ODEFunction{iip,true}(f;
+                 mass_matrix=I,
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
@@ -147,6 +149,9 @@ function ODEFunction{iip,true}(f;
                  invW_t=nothing,
                  paramjac = nothing,
                  syms = nothing) where iip
+                 if mass_matrix == I && typeof(f) <: Tuple
+                  mass_matrix = ((I for i in 1:length(f))...,)
+                 end
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -154,13 +159,14 @@ function ODEFunction{iip,true}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
-                 ODEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
+                 ODEFunction{iip,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
-                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
+                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 function ODEFunction{iip,false}(f;
+                 mass_matrix=I,
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
@@ -169,6 +175,9 @@ function ODEFunction{iip,false}(f;
                  invW_t=nothing,
                  paramjac = nothing,
                  syms = nothing) where iip
+                 if mass_matrix == I && typeof(f) <: Tuple
+                  mass_matrix = ((I for i in 1:length(f))...,)
+                 end
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -176,10 +185,10 @@ function ODEFunction{iip,false}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
-                 ODEFunction{iip,Any,Any,Any,
+                 ODEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms)}(
-                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
+                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
