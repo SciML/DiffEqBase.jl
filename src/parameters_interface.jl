@@ -3,7 +3,7 @@ function problem_new_parameters(prob::ODEProblem,p;kwargs...)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
   ODEProblem{isinplace(prob)}(prob.f,u0,tspan,p,prob.problem_type;
-  callback = prob.callback, mass_matrix = prob.mass_matrix,
+  callback = prob.callback,
   kwargs...)
 end
 
@@ -12,7 +12,7 @@ function problem_new_parameters(prob::BVProblem,p;kwargs...)
   u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
   tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
   BVProblem{isinplace(prob)}(prob.f,prob.bc,u0,tspan,p,prob.problem_type;
-  callback = prob.callback, mass_matrix = prob.mass_matrix,
+  callback = prob.callback,
   kwargs...)
 end
 
@@ -34,7 +34,7 @@ function problem_new_parameters(prob::DDEProblem,p;kwargs...)
   DDEProblem{isinplace(prob)}(prob.f,u0,prob.h,tspan,p;
                               constant_lags = prob.constant_lags,
                               dependent_lags = prob.dependent_lags,
-  callback = prob.callback, mass_matrix = prob.mass_matrix,
+  callback = prob.callback,
   neutral = prob.neutral,
   kwargs...)
 end
@@ -46,7 +46,7 @@ function problem_new_parameters(prob::SDEProblem,p;kwargs...)
   SDEProblem{isinplace(prob)}(prob.f,prob.g,u0,tspan,p;
   noise_rate_prototype = prob.noise_rate_prototype,
   noise= prob.noise, seed = prob.seed,
-  callback = prob.callback,mass_matrix=prob.mass_matrix,
+  callback = prob.callback,
   kwargs...)
 end
 
