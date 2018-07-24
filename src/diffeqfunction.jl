@@ -30,8 +30,9 @@ struct DynamicalODEFunction{iip,F1,F2,TMM,Ta} <: AbstractODEFunction{iip}
 end
 
 abstract type AbstractDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct DDEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDDEFunction{iip}
+struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDDEFunction{iip}
   f::F
+  mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
@@ -380,6 +381,7 @@ end
 DAEFunction(f; kwargs...) = DAEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 
 function DDEFunction{iip,true}(f;
+                 mass_matrix=I,
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
@@ -395,13 +397,14 @@ function DDEFunction{iip,true}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
-                 DDEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
+                 DDEFunction{iip,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
-                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
+                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 function DDEFunction{iip,false}(f;
+                 mass_matrix=I,
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
@@ -417,10 +420,10 @@ function DDEFunction{iip,false}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
-                 DDEFunction{iip,Any,Any,Any,
+                 DDEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms)}(
-                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
+                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 DDEFunction(f; kwargs...) = DDEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
