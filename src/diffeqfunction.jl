@@ -14,9 +14,10 @@ struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractODEFunction{ii
   syms::S
 end
 
-struct SplitFunction{iip,F1,F2,C,Ta} <: AbstractODEFunction{iip}
+struct SplitFunction{iip,F1,F2,TMM,C,Ta} <: AbstractODEFunction{iip}
   f1::F1
   f2::F2
+  mass_matrix::TMM
   cache::C
   analytic::Ta
 end
@@ -175,6 +176,7 @@ function ODEFunction{iip,false}(f;
                  invW_t=nothing,
                  paramjac = nothing,
                  syms = nothing) where iip
+                 # Is this still necessary?
                  if mass_matrix == I && typeof(f) <: Tuple
                   mass_matrix = ((I for i in 1:length(f))...,)
                  end
@@ -193,16 +195,16 @@ function ODEFunction{iip,false}(f;
 end
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 
-@add_kwonly function SplitFunction(f1,f2,cache,analytic)
+@add_kwonly function SplitFunction(f1,f2,mass_matrix,cache,analytic)
   f1 = typeof(f1) <: AbstractDiffEqOperator ? f1 : ODEFunction(f1)
   f2 = ODEFunction(f2)
-  SplitFunction{isinplace(f2),typeof(f1),typeof(f2),
-              typeof(cache),typeof(analytic)}(f1,f2,cache,analytic)
+  SplitFunction{isinplace(f2),typeof(f1),typeof(f2),typeof(mass_matrix),
+              typeof(cache),typeof(analytic)}(f1,f2,mass_matrix,cache,analytic)
 end
-SplitFunction{iip,true}(f1,f2; _func_cache=nothing,analytic=nothing) where iip =
-SplitFunction{iip,typeof(f1),typeof(f2),typeof(_func_cache),typeof(analytic)}(f1,f2,_func_cache,analytic)
-SplitFunction{iip,false}(f1,f2; _func_cache=nothing,analytic=nothing) where iip =
-SplitFunction{iip,Any,Any,Any}(f1,f2,_func_cache,analytic)
+SplitFunction{iip,true}(f1,f2; mass_matrix=I,_func_cache=nothing,analytic=nothing) where iip =
+SplitFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(_func_cache),typeof(analytic)}(f1,f2,mass_matrix,_func_cache,analytic)
+SplitFunction{iip,false}(f1,f2; mass_matrix=I,_func_cache=nothing,analytic=nothing) where iip =
+SplitFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,_func_cache,analytic)
 SplitFunction(f1,f2; kwargs...) = SplitFunction{isinplace(f2, 4)}(f1, f2; kwargs...)
 SplitFunction{iip}(f1,f2; kwargs...) where iip =
 SplitFunction{iip,RECOMPILE_BY_DEFAULT}(
