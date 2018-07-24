@@ -22,9 +22,10 @@ struct SplitFunction{iip,F1,F2,TMM,C,Ta} <: AbstractODEFunction{iip}
   analytic::Ta
 end
 
-struct DynamicalODEFunction{iip,F1,F2,Ta} <: AbstractODEFunction{iip}
+struct DynamicalODEFunction{iip,F1,F2,TMM,Ta} <: AbstractODEFunction{iip}
   f1::F1
   f2::F2
+  mass_matrix::TMM
   analytic::Ta
 end
 
@@ -211,15 +212,15 @@ SplitFunction{iip,RECOMPILE_BY_DEFAULT}(
 typeof(f1) <: AbstractDiffEqOperator ? f1 : ODEFunction(f1),
 ODEFunction{iip}(f2); kwargs...)
 
-@add_kwonly function DynamicalODEFunction{iip}(f1,f2,analytic) where iip
+@add_kwonly function DynamicalODEFunction{iip}(f1,f2,mass_matrix,analytic) where iip
   f1 = ODEFunction(f1)
   f2 != nothing && (f2 = ODEFunction(f2))
-  DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(analytic)}(f1,f2,analytic)
+  DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(analytic)}(f1,f2,mass_matrix,analytic)
 end
-DynamicalODEFunction{iip,true}(f1,f2;analytic=nothing) where iip =
-DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(analytic)}(f1,f2,analytic)
-DynamicalODEFunction{iip,false}(f1,f2;analytic=nothing) where iip =
-DynamicalODEFunction{iip,Any,Any,Any}(f1,f2,analytic)
+DynamicalODEFunction{iip,true}(f1,f2;mass_matrix=(I,I),analytic=nothing) where iip =
+DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(analytic)}(f1,f2,mass_matrix,analytic)
+DynamicalODEFunction{iip,false}(f1,f2;mass_matrix=(I,I),analytic=nothing) where iip =
+DynamicalODEFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,analytic)
 DynamicalODEFunction(f1,f2=nothing; kwargs...) = DynamicalODEFunction{isinplace(f1, 5)}(f1, f2; kwargs...)
 DynamicalODEFunction{iip}(f1,f2; kwargs...) where iip =
 DynamicalODEFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction{iip}(f1), ODEFunction{iip}(f2); kwargs...)
