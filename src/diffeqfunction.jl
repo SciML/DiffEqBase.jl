@@ -50,9 +50,10 @@ struct DiscreteFunction{iip,F,Ta} <: AbstractDiscreteFunction{iip}
 end
 
 abstract type AbstractSDEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct SDEFunction{iip,F,G,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
+struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
   f::F
   g::G
+  mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
@@ -65,8 +66,9 @@ struct SDEFunction{iip,F,G,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{i
 end
 
 abstract type AbstractRODEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct RODEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractRODEFunction{iip}
+struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractRODEFunction{iip}
   f::F
+  mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
@@ -239,6 +241,7 @@ end
 DiscreteFunction(f; kwargs...) = DiscreteFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 
 function SDEFunction{iip,true}(f,g;
+                 mass_matrix=I,
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
@@ -248,6 +251,10 @@ function SDEFunction{iip,true}(f,g;
                  paramjac = nothing,
                  ggprime = nothing,
                  syms = nothing) where iip
+                 # Is this still necessary?
+                 if mass_matrix == I && typeof(f) <: Tuple
+                  mass_matrix = ((I for i in 1:length(f))...,)
+                 end
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -256,14 +263,15 @@ function SDEFunction{iip,true}(f,g;
                   end
                  end
                  SDEFunction{iip,typeof(f),typeof(g),
-                 typeof(analytic),typeof(tgrad),
+                 typeof(mass_matrix),typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms),
                  typeof(ggprime)}(
-                 f,g,analytic,tgrad,jac,jac_prototype,invW,invW_t,
+                 f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,ggprime,syms)
 end
 function SDEFunction{iip,false}(f,g;
+                 mass_matrix=I,
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
@@ -273,6 +281,10 @@ function SDEFunction{iip,false}(f,g;
                  paramjac = nothing,
                  ggprime = nothing,
                  syms = nothing) where iip
+                 # Is this still necessary?
+                 if mass_matrix == I && typeof(f) <: Tuple
+                  mass_matrix = ((I for i in 1:length(f))...,)
+                 end
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -280,15 +292,16 @@ function SDEFunction{iip,false}(f,g;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
-                 SDEFunction{iip,Any,Any,Any,Any,
+                 SDEFunction{iip,Any,Any,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms),Any}(
-                 f,g,analytic,tgrad,jac,jac_prototype,invW,invW_t,
+                 f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,ggprime,syms)
 end
 SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 
 function RODEFunction{iip,true}(f;
+                 mass_matrix=I,
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
@@ -304,14 +317,15 @@ function RODEFunction{iip,true}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
-                 RODEFunction{iip,typeof(f),
+                 RODEFunction{iip,typeof(f),typeof(mass_matrix)
                  typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
-                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
+                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 function RODEFunction{iip,false}(f;
+                 mass_matrix=I,
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
@@ -326,10 +340,10 @@ function RODEFunction{iip,false}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
-                 RODEFunction{iip,Any,Any,Any,
+                 RODEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms)}(
-                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
+                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
                  paramjac,syms)
 end
 RODEFunction(f; kwargs...) = RODEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
