@@ -29,6 +29,13 @@ end
 isinplace(f::AbstractDiffEqFunction{iip}) where {iip} = iip
 isinplace(f::AbstractDiffEqFunction{iip}, inplace_param_number) where {iip} = iip
 
+macro CSI_str(str)
+    return :(string("\x1b[", $(esc(str)), "m"))
+end
+
+const TYPE_COLOR = CSI"32"
+const NO_COLOR = CSI"0"
+
 macro def(name, definition)
     return quote
         macro $(esc(name))()

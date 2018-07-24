@@ -8,7 +8,14 @@ promote_tspan(tspan::Nothing) = (nothing,nothing)
 
 ### Displays
 
-Base.summary(prob::DEProblem) = string(parameterless_type(prob)," with uType ",typeof(prob.u0)," and tType ",typeof(prob.tspan[1]),". In-place: ",isinplace(prob))
+Base.summary(prob::DEProblem) = string(TYPE_COLOR, parameterless_type(prob),
+                                       NO_COLOR, " with uType ",
+                                       TYPE_COLOR, typeof(prob.u0),
+                                       NO_COLOR, " and tType ",
+                                       TYPE_COLOR, typeof(prob.tspan[1]),
+                                       NO_COLOR, ". In-place: ",
+                                       TYPE_COLOR, isinplace(prob),
+                                       NO_COLOR)
 Base.summary(prob::AbstractSteadyStateProblem{uType,iip}) where {uType,iip} = string(parameterless_type(prob)," with uType ",uType)
 Base.summary(prob::AbstractNoiseProblem) = string(parameterless_type(prob)," with WType ",typeof(prob.noise.W[1])," and tType ",typeof(prob.tspan[1]),". In-place: ",isinplace(prob))
 function Base.show(io::IO, A::DEProblem)

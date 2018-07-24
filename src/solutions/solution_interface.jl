@@ -13,7 +13,13 @@ Base.show(io::IO, m::MIME"text/plain", A::AbstractNoTimeSolution) = (print(io,"u
 
 ## AbstractTimeseriesSolution Interface
 
-Base.summary(A::AbstractTimeseriesSolution) = string(DiffEqBase.parameterless_type(A)," with uType ",eltype(A.u)," and tType ",eltype(A.t))
+Base.summary(A::AbstractTimeseriesSolution) = string(
+                      TYPE_COLOR, DiffEqBase.parameterless_type(A),
+                      NO_COLOR, " with uType ",
+                      TYPE_COLOR, eltype(A.u),
+                      NO_COLOR, " and tType ",
+                      TYPE_COLOR, eltype(A.t), NO_COLOR)
+
 function Base.show(io::IO, A::AbstractTimeseriesSolution)
   println(io,string("retcode: ",A.retcode))
   println(io,string("Interpolation: "),interp_summary(A.interp))
