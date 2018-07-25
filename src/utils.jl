@@ -46,8 +46,8 @@ end
 
 using Compat.TypeUtils: typename
 
-parameterless_type(T::Type) = (@warn("deprecated, use nameof"); nameof(T))
-parameterless_type(x) = (@warn("deprecated, use nameof"); nameof(typeof(x)))
+parameterless_type(T::Type) = typename(T).wrapper
+parameterless_type(x) = parameterless_type(typeof(x)) 
 
 # support functions
 export check_keywords, warn_compat
@@ -171,7 +171,7 @@ Re-construct `thing` with new field values specified by the keyword
 arguments.
 """
 function remake(thing; kwargs...)
-  T = nameof(typeof(thing))
+  T = parameterless_type(typeof(thing))
   constructor = if hasmethod(T, ())
     # This path is required for, e.g., NoiseProblem
     T
