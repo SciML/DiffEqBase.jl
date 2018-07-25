@@ -171,7 +171,7 @@ Re-construct `thing` with new field values specified by the keyword
 arguments.
 """
 function remake(thing; kwargs...)
-  T = nameof(thing)
+  T = nameof(typeof(thing))
   constructor = if hasmethod(T, ())
     # This path is required for, e.g., NoiseProblem
     T
