@@ -25,7 +25,7 @@ Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
     assignments = [s == :x ? :(similar(A.x, T, dims)) :
                    (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
                    for s in fieldnames(A)]
-    :(parameterless_type(A)($(assignments...)))
+    :(nameof(A)($(assignments...)))
 end
 
 """
@@ -52,7 +52,7 @@ value in `template`.
     assignments = [s == :x ? :(arr) :
                    (sq = Meta.quot(s); :(deepcopy(getfield(template, $sq))))
                    for s in fieldnames(template)]
-    :(parameterless_type(template)($(assignments...)))
+    :(nameof(template)($(assignments...)))
 end
 
 """

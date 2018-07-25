@@ -76,12 +76,12 @@ has_reinit(i::DEIntegrator) = false
 ### Display
 
 Base.summary(I::DEIntegrator) = string(
-                  TYPE_COLOR, DiffEqBase.parameterless_type(I),
+                  TYPE_COLOR, nameof(I),
                   NO_COLOR, " with uType ",
                   TYPE_COLOR, typeof(I.u),
                   NO_COLOR, " and tType ",
                   TYPE_COLOR, typeof(I.t), NO_COLOR)
-                  
+
 function Base.show(io::IO, A::DEIntegrator)
   println(io,string("t: ",A.t))
   print(io,"u: ")

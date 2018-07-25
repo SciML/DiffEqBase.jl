@@ -8,7 +8,7 @@ promote_tspan(tspan::Nothing) = (nothing,nothing)
 
 ### Displays
 
-Base.summary(prob::DEProblem) = string(TYPE_COLOR, parameterless_type(prob),
+Base.summary(prob::DEProblem) = string(TYPE_COLOR, nameof(prob),
                                        NO_COLOR, " with uType ",
                                        TYPE_COLOR, typeof(prob.u0),
                                        NO_COLOR, " and tType ",
@@ -16,8 +16,9 @@ Base.summary(prob::DEProblem) = string(TYPE_COLOR, parameterless_type(prob),
                                        NO_COLOR, ". In-place: ",
                                        TYPE_COLOR, isinplace(prob),
                                        NO_COLOR)
-Base.summary(prob::AbstractSteadyStateProblem{uType,iip}) where {uType,iip} = string(parameterless_type(prob)," with uType ",uType)
-Base.summary(prob::AbstractNoiseProblem) = string(parameterless_type(prob)," with WType ",typeof(prob.noise.W[1])," and tType ",typeof(prob.tspan[1]),". In-place: ",isinplace(prob))
+
+Base.summary(prob::AbstractSteadyStateProblem{uType,iip}) where {uType,iip} = string(nameof(prob)," with uType ",uType)
+Base.summary(prob::AbstractNoiseProblem) = string(nameof(prob)," with WType ",typeof(prob.noise.W[1])," and tType ",typeof(prob.tspan[1]),". In-place: ",isinplace(prob))
 function Base.show(io::IO, A::DEProblem)
   println(io,summary(A))
   print(io,"timespan: ")
@@ -49,7 +50,8 @@ function Base.show(io::IO, A::AbstractSteadyStateProblem)
   show(io, A.u0)
 end
 
-Base.summary(prob::AbstractMonteCarloProblem) = string(DiffEqBase.parameterless_type(prob)," with problem ",DiffEqBase.parameterless_type(prob.prob))
+Base.summary(prob::AbstractMonteCarloProblem) = string(
+nameof(prob)," with problem ",nameof(prob.prob))
 Base.show(io::IO, A::AbstractMonteCarloProblem) = print(io,summary(A))
 TreeViews.hastreeview(x::DiffEqBase.DEProblem) = true
 function TreeViews.treelabel(io::IO,x::DiffEqBase.DEProblem,
