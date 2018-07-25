@@ -76,7 +76,7 @@ has_reinit(i::DEIntegrator) = false
 ### Display
 
 Base.summary(I::DEIntegrator) = string(
-                  TYPE_COLOR, nameof(I),
+                  TYPE_COLOR, nameof(typeof(I)),
                   NO_COLOR, " with uType ",
                   TYPE_COLOR, typeof(I.u),
                   NO_COLOR, " and tType ",

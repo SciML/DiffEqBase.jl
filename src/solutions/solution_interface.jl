@@ -7,14 +7,14 @@ Base.setindex!(A::AbstractNoTimeSolution, v, i::Int) = (A.u[i] = v)
 Base.setindex!(A::AbstractNoTimeSolution, v, I::Vararg{Int, N}) where {N} = (A.u[I] = v)
 size(A::AbstractNoTimeSolution) = size(A.u)
 
-Base.summary(A::AbstractNoTimeSolution) = string(nameof(A)," with uType ",eltype(A.u))
+Base.summary(A::AbstractNoTimeSolution) = string(nameof(typeof(A))," with uType ",eltype(A.u))
 Base.show(io::IO, A::AbstractNoTimeSolution) = (print(io,"u: ");show(io, A.u))
 Base.show(io::IO, m::MIME"text/plain", A::AbstractNoTimeSolution) = (print(io,"u: ");show(io,m,A.u))
 
 ## AbstractTimeseriesSolution Interface
 
 Base.summary(A::AbstractTimeseriesSolution) = string(
-                      TYPE_COLOR, nameof(A),
+                      TYPE_COLOR, nameof(typeof(A)),
                       NO_COLOR, " with uType ",
                       TYPE_COLOR, eltype(A.u),
                       NO_COLOR, " and tType ",
