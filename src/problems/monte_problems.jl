@@ -6,9 +6,16 @@ struct MonteCarloProblem{T,T2,T3,T4,T5} <: AbstractMonteCarloProblem
   u_init::T5
 end
 
-@add_kwonly MonteCarloProblem(prob::DEProblem;
+MonteCarloProblem(prob::DEProblem;
     output_func = (sol,i)-> (sol,false),
     prob_func= (prob,i,repeat)->prob,
     reduction = (u,data,I)->(append!(u,data),false),
     u_init = []) =
+    MonteCarloProblem(prob,prob_func,output_func,reduction,u_init)
+
+MonteCarloProblem(;prob,
+    output_func = (sol,i)-> (sol,false),
+    prob_func= (prob,i,repeat)->prob,
+    reduction = (u,data,I)->(append!(u,data),false),
+    u_init = [], p = nothing) =
     MonteCarloProblem(prob,prob_func,output_func,reduction,u_init)
