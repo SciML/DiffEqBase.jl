@@ -11,7 +11,7 @@ struct SDEProblem{uType,tType,isinplace,P,NP,F,G,C,ND} <: AbstractSDEProblem{uTy
   noise_rate_prototype::ND
   seed::UInt64
   @add_kwonly function SDEProblem(f::AbstractSDEFunction,g,u0,
-          tspan,p=nothing,problem_type=StandardSDEProblem();
+          tspan,p=nothing;
           noise_rate_prototype = nothing,
           noise= nothing, seed = UInt64(0),
           callback = nothing)
@@ -52,5 +52,6 @@ end
 function SplitSDEProblem{iip}(f1,f2,g,u0,tspan,p=nothing;
                                      func_cache=nothing,kwargs...) where iip
   iip ? _func_cache = similar(u0) : _func_cache = nothing
-  SDEProblem{iip}(SplitFunction{iip}(f1,f2;_func_cache=_func_cache),g,u0,tspan,p,SplitSDEProblem{iip}();kwargs...)
+  SDEProblem(SplitSDEFunction{iip}(f1,f2,g;_func_cache=_func_cache),g,u0,
+                                tspan,p;kwargs...)
 end

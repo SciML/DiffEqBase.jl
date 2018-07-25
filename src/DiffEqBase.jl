@@ -192,7 +192,7 @@ export remake
 export DEDataArray, DEDataVector, DEDataMatrix
 
 export ODEFunction, DiscreteFunction, SplitFunction, DAEFunction, DDEFunction,
-       SDEFunction, RODEFunction
+       SDEFunction, SplitSDEFunction, RODEFunction
 
 export ContinuousCallback, DiscreteCallback, CallbackSet
 

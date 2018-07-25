@@ -65,6 +65,15 @@ struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG} <: AbstractSDEFuncti
   syms::S
 end
 
+struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta} <: AbstractSDEFunction{iip}
+  f1::F1
+  f2::F2
+  g::G
+  mass_matrix::TMM
+  cache::C
+  analytic::Ta
+end
+
 abstract type AbstractRODEFunction{iip} <: AbstractDiffEqFunction{iip} end
 struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractRODEFunction{iip}
   f::F
@@ -139,6 +148,14 @@ end
 (f::SDEFunction)(::Type{Val{:invW}},args...) = f.invW(args...)
 (f::SDEFunction)(::Type{Val{:invW_t}},args...) = f.invW_t(args...)
 (f::SDEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
+
+(f::SplitSDEFunction)(u,p,t) = f.f1(u,p,t) + f.f2(u,p,t)
+(f::SplitSDEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
+function (f::SplitSDEFunction)(du,u,p,t)
+  f.f1(f.cache,u,p,t)
+  f.f2(du,u,p,t)
+  du .+= f.cache
+end
 
 (f::RODEFunction)(args...) = f.f(args...)
 
@@ -287,6 +304,20 @@ function SDEFunction{iip,false}(f,g;
                  paramjac,ggprime,syms)
 end
 SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
+
+SplitSDEFunction{iip,true}(f1,f2,g; mass_matrix=I,
+                           _func_cache=nothing,analytic=nothing) where iip =
+SplitSDEFunction{iip,typeof(f1),typeof(f2),typeof(g),
+              typeof(mass_matrix),typeof(_func_cache),
+              typeof(analytic)}(f1,f2,g,mass_matrix,_func_cache,analytic)
+SplitSDEFunction{iip,false}(f1,f2,g; mass_matrix=I,
+                            _func_cache=nothing,analytic=nothing) where iip =
+SplitSDEFunction{iip,Any,Any,Any,Any,Any}(f1,f2,g,mass_matrix,_func_cache,analytic)
+SplitSDEFunction(f1,f2,g; kwargs...) = SplitSDEFunction{isinplace(f2, 4)}(f1, f2, g; kwargs...)
+SplitSDEFunction{iip}(f1,f2, g; kwargs...) where iip =
+SplitSDEFunction{iip,RECOMPILE_BY_DEFAULT}(
+typeof(f1) <: AbstractDiffEqOperator ? f1 : SDEFunction(f1,g),
+SDEFunction{iip}(f2,g), g; kwargs...)
 
 function RODEFunction{iip,true}(f;
                  mass_matrix=I,
