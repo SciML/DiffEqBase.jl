@@ -25,7 +25,7 @@ Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
     assignments = [s == :x ? :(similar(A.x, T, dims)) :
                    (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
                    for s in fieldnames(A)]
-    :(nameof(A)($(assignments...)))
+    :(DiffEqBase.parameterless_type(A)($(assignments...)))
 end
 
 """
