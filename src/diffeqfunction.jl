@@ -472,11 +472,11 @@ has_paramjac(f::AbstractDiffEqFunction) = f.paramjac != nothing
 has_syms(f::AbstractDiffEqFunction) = f.syms != nothing
 
 # TODO: find an appropriate way to check `has_*`
-has_jac(f::SplitFunction) = f.f1.jac != nothing
-has_tgrad(f::SplitFunction) = f.f1.tgrad != nothing
-has_invW(f::SplitFunction) = f.f1.invW != nothing
-has_invW_t(f::SplitFunction) = f.f1.invW_t != nothing
-has_paramjac(f::SplitFunction) = f.f1.paramjac != nothing
+has_jac(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.jac != nothing
+has_tgrad(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.tgrad != nothing
+has_invW(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.invW != nothing
+has_invW_t(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.invW_t != nothing
+has_paramjac(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.paramjac != nothing
 
 has_jac(f::DynamicalODEFunction) = f.f1.jac != nothing
 has_tgrad(f::DynamicalODEFunction) = f.f1.tgrad != nothing
