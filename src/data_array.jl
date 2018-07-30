@@ -52,7 +52,7 @@ value in `template`.
     assignments = [s == :x ? :(arr) :
                    (sq = Meta.quot(s); :(deepcopy(getfield(template, $sq))))
                    for s in fieldnames(template)]
-    :(nameof(template)($(assignments...)))
+    :(parameterless_type(template)($(assignments...)))
 end
 
 """
