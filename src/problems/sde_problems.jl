@@ -46,12 +46,23 @@ abstract type AbstractSplitSDEProblem end
 struct SplitSDEProblem{iip} <: AbstractSplitSDEProblem end
 # u' = Au + f
 function SplitSDEProblem(f1,f2,g,u0,tspan,p=nothing;kwargs...)
-  iip = isinplace(f2,4)
-  SplitSDEProblem{iip}(f1,f2,g,u0,tspan,p;kwargs...)
+  SplitSDEProblem(SplitSDEFunction(f1,f2,g),g,u0,tspan,p;kwargs...)
 end
-function SplitSDEProblem{iip}(f1,f2,g,u0,tspan,p=nothing;
+
+SplitSDEProblem(f::SplitSDEFunction,g,u0,tspan,p=nothing;kwargs...) =
+  SplitSDEProblem{isinplace(f)}(f,g,u0,tspan,p;kwargs...)
+
+function SplitSDEProblem{iip}(f1,f2,g,u0,tspan,p=nothing;kwargs...) where iip
+  SplitSDEProblem(SplitSDEFunction(f1,f2,g),g,u0,tspan,p;kwargs...)
+end
+function SplitSDEProblem{iip}(f::SplitSDEFunction,g,u0,tspan,p=nothing;
                                      func_cache=nothing,kwargs...) where iip
-  iip ? _func_cache = similar(u0) : _func_cache = nothing
-  SDEProblem(SplitSDEFunction{iip}(f1,f2,g;_func_cache=_func_cache),g,u0,
-                                tspan,p;kwargs...)
+  if f.cache == nothing && iip
+    cache = similar(u0)
+    _f = SplitSDEFunction{iip}(f.f1, f.f2, f.g; mass_matrix=f.mass_matrix,
+                              _func_cache=cache, analytic=f.analytic)
+  else
+    _f = f
+  end
+  SDEProblem(_f,g,u0,tspan,p;kwargs...)
 end
