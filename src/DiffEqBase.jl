@@ -1,5 +1,3 @@
-__precompile__()
-
 module DiffEqBase
 
 using RecipesBase, RecursiveArrayTools, Compat,
