@@ -46,17 +46,10 @@ end
 
 tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.u,sol.t)
 
-function start(sol::AbstractTimeseriesSolution)
-  0
-end
-
-function next(sol::AbstractTimeseriesSolution,state)
+function iterate(sol::AbstractTimeseriesSolution,state=0)
+  state >= length(sol) && return nothing
   state += 1
-  (solution_new_tslocation(sol,state),state)
-end
-
-function done(sol::AbstractTimeseriesSolution,state)
-  state >= length(sol)
+  return (solution_new_tslocation(sol,state),state)
 end
 
 DEFAULT_PLOT_FUNC(x...) = (x...,)

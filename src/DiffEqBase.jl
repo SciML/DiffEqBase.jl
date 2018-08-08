@@ -6,7 +6,7 @@ using RecipesBase, RecursiveArrayTools, Compat,
       Requires, TableTraits, IteratorInterfaceExtensions, TreeViews
 
 import Base: length, size, getindex, setindex!, show, print,
-             next, start, done, eltype, similar, indices
+             iterate, eltype, similar, axes
 
 import Base: resize!, deleteat!
 
