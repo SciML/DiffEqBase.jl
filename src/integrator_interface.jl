@@ -216,7 +216,7 @@ struct TimeChoiceIterator{T,T2}
   ts::T2
 end
 
-function iterate(iter,state=1)
+function iterate(iter::TimeChoiceIterator,state=1)
   state > length(iter.ts) && return nothing
   t = iter.ts[state]
   integrator = iter.integrator
