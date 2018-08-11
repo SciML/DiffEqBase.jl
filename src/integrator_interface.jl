@@ -192,7 +192,7 @@ function iterate(tup::IntegratorTuples, state=0)
   step!(tup.integrator) # Iter updated in the step! header
   state += 1
   # Next is callbacks -> iterator  -> top
-  return (tup.integrator.u,tup.integrator.t),cnt
+  return (tup.integrator.u,tup.integrator.t),state
 end
 
 tuples(integrator::DEIntegrator) = IntegratorTuples(integrator)
@@ -206,7 +206,7 @@ function iterate(tup::IntegratorIntervals,state=0)
   state += 1
   step!(tup.integrator) # Iter updated in the step! header
   # Next is callbacks -> iterator  -> top
-  return (tup.integrator.uprev,tup.integrator.tprev,tup.integrator.u,tup.integrator.t),cnt
+  return (tup.integrator.uprev,tup.integrator.tprev,tup.integrator.u,tup.integrator.t),state
 end
 
 intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
