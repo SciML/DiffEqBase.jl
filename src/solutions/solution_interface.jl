@@ -87,7 +87,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
   densetspacer = if tscale in [:ln, :log10, :log2]
     (start, stop, n) -> logspace(log10(start), log10(stop), n)
   else
-    linspace
+    (start, stop, n) -> range(start;stop=stop,length=n)
   end
 
   if denseplot
@@ -383,7 +383,7 @@ function u_n(timeseries::AbstractArray, n::Int,sol,plott,plot_timeseries)
   elseif n == 1 && !(typeof(sol[1]) <: Union{AbstractArray,ArrayPartition})
     return timeseries
   else
-    tmp = Vector{eltype(sol[1])}(length(plot_timeseries))
+    tmp = Vector{eltype(sol[1])}(undef, length(plot_timeseries))
     for j in 1:length(plot_timeseries)
       tmp[j] = plot_timeseries[j][n]
     end
