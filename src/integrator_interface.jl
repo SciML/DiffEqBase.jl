@@ -253,7 +253,7 @@ end
 
   if denseplot
     # Generate the points from the plot from dense function
-    plott = collect(linspace(integrator.tprev,integrator.t,plotdensity))
+    plott = collect(range(integrator.tprev;step=integrator.t,length=plotdensity))
     plot_timeseries = integrator(plott)
     if plot_analytic
       plot_analytic_timeseries = [integrator.sol.prob.f(Val{:analytic},t,integrator.sol.prob.u0) for t in plott]
