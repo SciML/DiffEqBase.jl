@@ -78,8 +78,8 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
     end
     start_idx = 1
   else
-    start_idx = something(findfirst(isequal(sol.t), x -> x>=tspan[end]), 0)
-    end_idx = something(findfirst(isequal(sol.t), x -> x<=tspan[end]), 0)
+    start_idx = something(findfirst(x -> x>=tspan[1], sol.t), 1)
+    end_idx = something(findlast(x -> x<=tspan[end], sol.t), length(sol))
   end
 
   # determine type of spacing for plott

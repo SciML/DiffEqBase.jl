@@ -1,4 +1,4 @@
-julia 1.0-rc1
+julia 1.0
 RecipesBase 0.1.0
 RecursiveArrayTools 0.12.3
 Compat 0.19.0
