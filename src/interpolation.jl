@@ -37,11 +37,11 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
   tdir*tvals[idx[end]] > tdir*t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
   tdir*tvals[idx[1]] < tdir*t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   if typeof(idxs) <: Number
-    vals = Vector{eltype(first(u))}(length(tvals))
+    vals = Vector{eltype(first(u))}(undef, length(tvals))
   elseif typeof(idxs) <: AbstractVector
-     vals = Vector{Vector{eltype(first(u))}}(length(tvals))
+     vals = Vector{Vector{eltype(first(u))}}(undef, length(tvals))
   else
-    vals = Vector{eltype(u)}(length(tvals))
+    vals = Vector{eltype(u)}(undef, length(tvals))
   end
   @inbounds for j in idx
     tval = tvals[j]
