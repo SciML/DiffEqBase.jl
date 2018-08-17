@@ -16,7 +16,7 @@ end
     @boundscheck checkbounds(A.x, I...)
     @inbounds A.x[I...] = x
 end
-indices(A::DEDataArray) = indices(A.x)
+axes(A::DEDataArray) = axes(A.x)
 Base.LinearIndices(A::DEDataArray) = LinearIndices(A.x)
 Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
 

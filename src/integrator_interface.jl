@@ -156,19 +156,7 @@ function check_error!(integrator::DEIntegrator)
 end
 
 ### Default Iterator Interface
-
-function start(integrator::DEIntegrator)
-  0
-end
-
-@inline function next(integrator::DEIntegrator,state)
-  state += 1
-  step!(integrator) # Iter updated in the step! header
-  # Next is callbacks -> iterator  -> top
-  integrator,state
-end
-
-@inline function done(integrator::DEIntegrator, _)
+function done(integrator::DEIntegrator)
   if ! (integrator.sol.retcode in (:Default, :Success))
     return true
   elseif isempty(integrator.opts.tstops)
@@ -183,8 +171,13 @@ end
   end
   false
 end
-
-done(integrator::DEIntegrator) = done(integrator,integrator.iter)
+function iterate(integrator::DEIntegrator,state=0)
+  done(integrator) && return nothing
+  state += 1
+  step!(integrator) # Iter updated in the step! header
+  # Next is callbacks -> iterator  -> top
+  return integrator,state
+end
 
 eltype(integrator::DEIntegrator) = typeof(integrator)
 
@@ -194,16 +187,13 @@ struct IntegratorTuples{I}
  integrator::I
 end
 
-start(tup::IntegratorTuples) = start(tup.integrator)
-
-function next(tup::IntegratorTuples,state)
-  state += 1
+function iterate(tup::IntegratorTuples, state=0)
+  done(tup.integrator) && return nothing
   step!(tup.integrator) # Iter updated in the step! header
+  state += 1
   # Next is callbacks -> iterator  -> top
-  (tup.integrator.u,tup.integrator.t),state
+  return (tup.integrator.u,tup.integrator.t),state
 end
-
-done(tup::IntegratorTuples,state) = done(tup.integrator,state)
 
 tuples(integrator::DEIntegrator) = IntegratorTuples(integrator)
 
@@ -211,16 +201,13 @@ struct IntegratorIntervals{I}
  integrator::I
 end
 
-start(tup::IntegratorIntervals) = start(tup.integrator)
-
-function next(tup::IntegratorIntervals,state)
+function iterate(tup::IntegratorIntervals,state=0)
+  done(tup.integrator) && return nothing
   state += 1
   step!(tup.integrator) # Iter updated in the step! header
   # Next is callbacks -> iterator  -> top
-  (tup.integrator.uprev,tup.integrator.tprev,tup.integrator.u,tup.integrator.t),state
+  return (tup.integrator.uprev,tup.integrator.tprev,tup.integrator.u,tup.integrator.t),state
 end
-
-done(tup::IntegratorIntervals,state) = done(tup.integrator,state)
 
 intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 
@@ -229,8 +216,8 @@ struct TimeChoiceIterator{T,T2}
   ts::T2
 end
 
-Base.start(iter::TimeChoiceIterator) = 1
-function Base.next(iter::TimeChoiceIterator,state)
+function iterate(iter::TimeChoiceIterator,state=1)
+  state > length(iter.ts) && return nothing
   t = iter.ts[state]
   integrator = iter.integrator
   if isinplace(integrator.sol.prob)
@@ -256,7 +243,6 @@ function Base.next(iter::TimeChoiceIterator,state)
     return (tmp,t),state+1
   end
 end
-Base.done(iter::TimeChoiceIterator,state) = state > length(iter.ts)
 
 @recipe function f(integrator::DEIntegrator;
                     denseplot=(integrator.opts.calck || typeof(integrator) <: AbstractSDEIntegrator)  && integrator.iter>0,
@@ -267,7 +253,7 @@ Base.done(iter::TimeChoiceIterator,state) = state > length(iter.ts)
 
   if denseplot
     # Generate the points from the plot from dense function
-    plott = collect(linspace(integrator.tprev,integrator.t,plotdensity))
+    plott = collect(range(integrator.tprev;step=integrator.t,length=plotdensity))
     plot_timeseries = integrator(plott)
     if plot_analytic
       plot_analytic_timeseries = [integrator.sol.prob.f(Val{:analytic},t,integrator.sol.prob.u0) for t in plott]

@@ -37,11 +37,11 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
   tdir*tvals[idx[end]] > tdir*t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
   tdir*tvals[idx[1]] < tdir*t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   if typeof(idxs) <: Number
-    vals = Vector{eltype(first(u))}(length(tvals))
+    vals = Vector{eltype(first(u))}(undef, length(tvals))
   elseif typeof(idxs) <: AbstractVector
-     vals = Vector{Vector{eltype(first(u))}}(length(tvals))
+     vals = Vector{Vector{eltype(first(u))}}(undef, length(tvals))
   else
-    vals = Vector{eltype(u)}(length(tvals))
+    vals = Vector{eltype(u)}(undef, length(tvals))
   end
   @inbounds for j in idx
     tval = tvals[j]
@@ -217,7 +217,7 @@ Hermite Interpolation
   if typeof(idxs) <: Nothing
     out = @. (1-Θ)*y₀+Θ*y₁+Θ*(Θ-1)*((1-2Θ)*(y₁-y₀)+(Θ-1)*dt*dy₀ + Θ*dt*dy₁)
   else
-    out = similar(y₀,indices(idxs))
+    out = similar(y₀,axes(idxs))
     @views @. out = (1-Θ)*y₀[idxs]+Θ*y₁[idxs]+
                     Θ*(Θ-1)*((1-2Θ)*(y₁[idxs]-y₀[idxs])+
                     (Θ-1)*dt*dy₀[idxs] + Θ*dt*dy₁[idxs])
@@ -232,7 +232,7 @@ Hermite Interpolation
   if typeof(idxs) <: Nothing
     out = @. dy₀ + Θ*(-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(3*dt*dy₀ + 3*dt*dy₁ + 6*y₀ - 6*y₁) + 6*y₁)/dt
   else
-    out = similar(y₀,indices(idxs))
+    out = similar(y₀,axes(idxs))
     @views @. out = dy₀[idxs] + Θ*(-4*dt*dy₀[idxs] -
                     2*dt*dy₁[idxs] - 6*y₀[idxs] +
                     Θ*(3*dt*dy₀[idxs] + 3*dt*dy₁[idxs] +
@@ -248,7 +248,7 @@ Hermite Interpolation
   if typeof(idxs) <: Nothing
     out = @. (-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁) + 6*y₁)/(dt*dt)
   else
-    out = similar(y₀,indices(idxs))
+    out = similar(y₀,axes(idxs))
     @views @. out = (-4*dt*dy₀[idxs] - 2*dt*dy₁[idxs] - 6*y₀[idxs] +
                     Θ*(6*dt*dy₀[idxs] + 6*dt*dy₁[idxs] + 12*y₀[idxs] -
                     12*y₁[idxs]) + 6*y₁[idxs])/(dt*dt)
@@ -263,7 +263,7 @@ Hermite Interpolation
   if typeof(idxs) <: Nothing
     out = @. (6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁)/(dt*dt*dt)
   else
-    out = similar(y₀,indices(idxs))
+    out = similar(y₀,axes(idxs))
     @views @. out = (6*dt*dy₀[idxs] + 6*dt*dy₁[idxs] +
                     12*y₀[idxs] - 12*y₁[idxs])/(dt*dt*dt)
   end
@@ -334,7 +334,7 @@ Linear Interpolation
   if typeof(idxs) <: Nothing
     out = @. (1-Θ)*y₀ + Θ*y₁
   else
-    out = similar(y₀,indices(idxs))
+    out = similar(y₀,axes(idxs))
     Θm1 = (1-Θ)
     @views @. out = Θm1*y₀[idxs] + Θ*y₁[idxs]
   end
@@ -345,7 +345,7 @@ end
   if typeof(idxs) <: Nothing
     out = @. (y₁ - y₀)/dt
   else
-    out = similar(y₀,indices(idxs))
+    out = similar(y₀,axes(idxs))
     @views @. out = (y₁[idxs] - y₀[idxs])/dt
   end
   out
@@ -387,7 +387,7 @@ Constant Interpolation
   if typeof(idxs) <: Nothing
     out = @. y₀
   else
-    out = similar(y₀,indices(idxs))
+    out = similar(y₀,axes(idxs))
     @views @. out = y₀[idxs]
   end
   out
@@ -397,7 +397,7 @@ end
   if typeof(idxs) <: Nothing
     out = zeros(eltype(y₀),length(y₀))
   else
-    out = similar(y₀,indices(idxs))
+    out = similar(y₀,axes(idxs))
     @views @. out = 0
   end
   out

@@ -46,17 +46,10 @@ end
 
 tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.u,sol.t)
 
-function start(sol::AbstractTimeseriesSolution)
-  0
-end
-
-function next(sol::AbstractTimeseriesSolution,state)
+function iterate(sol::AbstractTimeseriesSolution,state=0)
+  state >= length(sol) && return nothing
   state += 1
-  (solution_new_tslocation(sol,state),state)
-end
-
-function done(sol::AbstractTimeseriesSolution,state)
-  state >= length(sol)
+  return (solution_new_tslocation(sol,state),state)
 end
 
 DEFAULT_PLOT_FUNC(x...) = (x...,)
@@ -85,8 +78,8 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
     end
     start_idx = 1
   else
-    start_idx = something(findfirst(isequal(sol.t), x -> x>=tspan[end]), 0)
-    end_idx = something(findfirst(isequal(sol.t), x -> x<=tspan[end]), 0)
+    start_idx = something(findfirst(x -> x>=tspan[1], sol.t), 1)
+    end_idx = something(findlast(x -> x<=tspan[end], sol.t), length(sol))
   end
 
   # determine type of spacing for plott
@@ -94,7 +87,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
   densetspacer = if tscale in [:ln, :log10, :log2]
     (start, stop, n) -> logspace(log10(start), log10(stop), n)
   else
-    linspace
+    (start, stop, n) -> range(start;stop=stop,length=n)
   end
 
   if denseplot
@@ -390,7 +383,7 @@ function u_n(timeseries::AbstractArray, n::Int,sol,plott,plot_timeseries)
   elseif n == 1 && !(typeof(sol[1]) <: Union{AbstractArray,ArrayPartition})
     return timeseries
   else
-    tmp = Vector{eltype(sol[1])}(length(plot_timeseries))
+    tmp = Vector{eltype(sol[1])}(undef, length(plot_timeseries))
     for j in 1:length(plot_timeseries)
       tmp[j] = plot_timeseries[j][n]
     end
