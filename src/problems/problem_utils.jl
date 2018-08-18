@@ -5,6 +5,7 @@ function promote_tspan(tspan::Tuple{T1,T2}) where {T1,T2}
 end
 promote_tspan(tspan::Number) = (zero(tspan),tspan)
 promote_tspan(tspan::Nothing) = (nothing,nothing)
+promote_tspan(tspan::Function) = tspan
 
 ### Displays
 
@@ -12,7 +13,9 @@ Base.summary(prob::DEProblem) = string(TYPE_COLOR, nameof(typeof(prob)),
                                        NO_COLOR, " with uType ",
                                        TYPE_COLOR, typeof(prob.u0),
                                        NO_COLOR, " and tType ",
-                                       TYPE_COLOR, typeof(prob.tspan[1]),
+                                       TYPE_COLOR,
+                                       typeof(prob.tspan) <: Function ?
+                                       "Unknown" : typeof(prob.tspan[1]),
                                        NO_COLOR, ". In-place: ",
                                        TYPE_COLOR, isinplace(prob),
                                        NO_COLOR)
