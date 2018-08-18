@@ -1,5 +1,5 @@
 using DiffEqBase: @add_kwonly, add_kwonly
-using LinearAlgebra
+using LinearAlgebra, Test
 
 @add_kwonly function f(a, b; c=3, d=4)
   (a, b, c, d)

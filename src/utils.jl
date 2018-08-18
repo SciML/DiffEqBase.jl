@@ -163,13 +163,8 @@ function add_kwonly(::Type{Val{:call}}, default_call::Expr)
 end
 
 @generated function struct_as_namedtuple(st)
-  ex = :(())
-  for n in fieldnames(st)
-    cur = :($n = getproperty(st,$(n)))
-    cur.args[2].args[3] = QuoteNode(n)
-    push!(ex.args,cur)
-  end
-  ex
+  A = ( Expr(:(=), n, :(st.$n)) for n in fieldnames(st))
+  Expr(:tuple, A...)
 end
 
 """
