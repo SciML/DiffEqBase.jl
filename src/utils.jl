@@ -162,7 +162,15 @@ function add_kwonly(::Type{Val{:call}}, default_call::Expr)
   return kwonly_call
 end
 
-struct_as_dict(st) = [(n => getfield(st, n)) for n in fieldnames(typeof(st))]
+@generated function struct_as_namedtuple(st)
+  ex = :(())
+  for n in fieldnames(st)
+    cur = :($n = getproperty(st,$(n)))
+    cur.args[2].args[3] = QuoteNode(n)
+    push!(ex.args,cur)
+  end
+  ex
+end
 
 """
     remake(thing; <keyword arguments>)
@@ -172,7 +180,7 @@ arguments.
 """
 function remake(thing; kwargs...)
   T = parameterless_type(typeof(thing))
-  T{isinplace(thing)}(; struct_as_dict(thing)..., kwargs...)
+  T{isinplace(thing)}(; struct_as_namedtuple(thing)...)
 end
 
 """
