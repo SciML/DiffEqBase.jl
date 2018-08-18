@@ -47,7 +47,7 @@ end
 using Compat.TypeUtils: typename
 
 parameterless_type(T::Type) = typename(T).wrapper
-parameterless_type(x) = parameterless_type(typeof(x)) 
+parameterless_type(x) = parameterless_type(typeof(x))
 
 # support functions
 export check_keywords, warn_compat
@@ -172,14 +172,7 @@ arguments.
 """
 function remake(thing; kwargs...)
   T = parameterless_type(typeof(thing))
-  constructor = if hasmethod(T, ())
-    # This path is required for, e.g., NoiseProblem
-    T
-  else
-    # Assume that T wants isinplace
-    T{isinplace(thing)}
-  end
-  return constructor(; struct_as_dict(thing)..., kwargs...)
+  T{isinplace(thing)}(; struct_as_dict(thing)..., kwargs...)
 end
 
 """
