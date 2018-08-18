@@ -175,7 +175,7 @@ arguments.
 """
 function remake(thing; kwargs...)
   T = parameterless_type(typeof(thing))
-  T{isinplace(thing)}(; struct_as_namedtuple(thing)...)
+  T{isinplace(thing)}(; struct_as_namedtuple(thing)...,kwargs...)
 end
 
 """
