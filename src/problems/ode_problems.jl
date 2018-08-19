@@ -9,9 +9,10 @@ struct ODEProblem{uType,tType,isinplace,P,F,C,PT} <:
   p::P
   callback::C
   problem_type::PT
-  @add_kwonly function ODEProblem(f::AbstractODEFunction,u0,tspan,p=nothing,
-                      problem_type=StandardODEProblem();
-                      callback=nothing)
+  @add_kwonly function ODEProblem{iip}(f::AbstractODEFunction{iip},
+                                       u0,tspan,p=nothing,
+                                       problem_type=StandardODEProblem();
+                                       callback=nothing) where {iip}
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(_tspan),
        isinplace(f),typeof(p),typeof(f),
@@ -23,6 +24,10 @@ struct ODEProblem{uType,tType,isinplace,P,F,C,PT} <:
   function ODEProblem{iip}(f,u0,tspan,p=nothing;kwargs...) where {iip}
     ODEProblem(convert(ODEFunction{iip},f),u0,tspan,p;kwargs...)
   end
+end
+
+function ODEProblem(f::AbstractODEFunction,u0,tspan,args...;kwargs...)
+  ODEProblem{isinplace(f)}(f,u0,tspan,args...;kwargs...)
 end
 
 function ODEProblem(f,u0,tspan,p=nothing;kwargs...)

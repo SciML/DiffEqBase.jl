@@ -47,7 +47,7 @@ end
 using Compat.TypeUtils: typename
 
 parameterless_type(T::Type) = typename(T).wrapper
-parameterless_type(x) = parameterless_type(typeof(x)) 
+parameterless_type(x) = parameterless_type(typeof(x))
 
 # support functions
 export check_keywords, warn_compat
@@ -160,26 +160,6 @@ function add_kwonly(::Type{Val{:call}}, default_call::Expr)
   # e.g., :(f(; a=error(...), b=error(...), c=1, d=2))
 
   return kwonly_call
-end
-
-struct_as_dict(st) = [(n => getfield(st, n)) for n in fieldnames(typeof(st))]
-
-"""
-    remake(thing; <keyword arguments>)
-
-Re-construct `thing` with new field values specified by the keyword
-arguments.
-"""
-function remake(thing; kwargs...)
-  T = parameterless_type(typeof(thing))
-  constructor = if hasmethod(T, ())
-    # This path is required for, e.g., NoiseProblem
-    T
-  else
-    # Assume that T wants isinplace
-    T{isinplace(thing)}
-  end
-  return constructor(; struct_as_dict(thing)..., kwargs...)
 end
 
 """
