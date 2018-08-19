@@ -9,6 +9,8 @@ remaker_of(prob::T) where {T} = parameterless_type(T){isinplace(prob)}
 # implement `isinplace` trait:
 for T in [
     NoiseProblem,
+    SplitFunction,  # TODO: use isinplace path for type-stability
+    TwoPointBVPFunction,
     ]
   @eval remaker_of(::$T) = $T
 end
