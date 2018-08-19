@@ -149,6 +149,7 @@ include("solve.jl")
 include("internal_euler.jl")
 include("tabletraits.jl")
 include("alg_traits.jl")
+include("remake.jl")
 
 abstract type AbstractParameterizedFunction{iip} <: AbstractODEFunction{iip} end
 
