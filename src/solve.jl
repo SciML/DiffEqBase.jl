@@ -6,11 +6,11 @@ function init(prob::DEProblem,args...;kwargs...)
   _prob = get_concrete_problem(prob,kwargs)
   if haskey(kwargs,:alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
-    isadaptive(alg) && adaptive_warn(u0,tspan)
+    isadaptive(alg) && adaptive_warn(_prob.u0,_prob.tspan)
     __init(_prob,alg,args...;kwargs...)
   elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
     alg = args[1]
-    isadaptive(alg) && adaptive_warn(u0,tspan)
+    isadaptive(alg) && adaptive_warn(_prob.u0,_prob.tspan)
     __init(_prob,args...;kwargs...)
   else
     __init(_prob,args...;kwargs...)
@@ -21,11 +21,11 @@ function solve(prob::DEProblem,args...;kwargs...)
   _prob = get_concrete_problem(prob,kwargs)
   if haskey(kwargs,:alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
-    isadaptive(alg) && adaptive_warn(u0,tspan)
+    isadaptive(alg) && adaptive_warn(_prob.u0,_prob.tspan)
     __solve(_prob,alg,args...;kwargs...)
   elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
     alg = args[1]
-    isadaptive(alg) && adaptive_warn(u0,tspan)
+    isadaptive(alg) && adaptive_warn(_prob.u0,_prob.tspan)
     __solve(_prob,args...;kwargs...)
   else
     __solve(_prob,args...;kwargs...)
