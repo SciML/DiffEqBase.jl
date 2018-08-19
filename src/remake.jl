@@ -3,6 +3,16 @@
   Expr(:tuple, A...)
 end
 
+remaker_of(prob::T) where {T} = parameterless_type(T){isinplace(prob)}
+
+# Define `remaker_of` for the types that does not (make sense to)
+# implement `isinplace` trait:
+for T in [
+    NoiseProblem,
+    ]
+  @eval remaker_of(::$T) = $T
+end
+
 """
     remake(thing; <keyword arguments>)
 
@@ -10,6 +20,6 @@ Re-construct `thing` with new field values specified by the keyword
 arguments.
 """
 function remake(thing; kwargs...)
-  T = parameterless_type(typeof(thing))
-  T{isinplace(thing)}(; struct_as_namedtuple(thing)...,kwargs...)
+  T = remaker_of(thing)
+  T(; struct_as_namedtuple(thing)...,kwargs...)
 end
