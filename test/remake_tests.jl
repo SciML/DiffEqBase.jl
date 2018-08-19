@@ -18,6 +18,25 @@ end
 
 @test_throws ErrorException add_kwonly(:(i(c=3, d=4) = (c, d)))
 
+dprob = DiscreteProblem((u,p,t)->2u,0.5,(0.0,1.0))
+@test remake(dprob) == dprob
+@test_broken remake(dprob; u0 = 1.0).u0 == 1.0
+
+oprob = ODEProblem((u,p,t)->2u,0.5,(0.0,1.0))
+@test remake(oprob) == oprob
+@test_broken remake(oprob; u0 = 1.0).u0 == 1.0
+
+sprob = SDEProblem((u,p,t)->2u,(u,p,t)->2u,0.5,(0.0,1.0))
+@test remake(sprob) == sprob
+@test_broken remake(sprob; u0 = 1.0).u0 == 1.0
+
+daeprob = DAEProblem((du,u,p,t)->du-2u,0.5,0.5,(0.0,1.0))
+@test remake(daeprob) == daeprob
+@test_broken remake(daeprob; u0 = 1.0).u0 == 1.0
+
+ddeprob = DDEProblem((du,u,h,p,t)->-2u,0.5,(p,t)->0.0,(0.0,1.0))
+@test remake(ddeprob) == ddeprob
+@test_broken remake(daeprob; u0 = 1.0).u0 == 1.0
 
 function f(du,u,p,t)
   du[1] = 0.2u[1]
@@ -48,8 +67,8 @@ struct DummyNoiseProcess <: DiffEqBase.AbstractNoiseProcess{Int,1,true}
 end
 tspan1 = (0.0, 1.0)
 tspan2 = (0.0, 2.0)
-noise1 = NoiseProblem(DummyNoiseProcess(Dict()), tspan1)
-noise2 = remake(noise1; tspan=tspan2)
+noise1 = NoiseProblem(DummyNoiseProcess(Dict()), tspan1);
+noise2 = remake(noise1; tspan=tspan2);
 @test noise1.noise === noise2.noise
 @test noise1.tspan == tspan1
 @test noise2.tspan == tspan2

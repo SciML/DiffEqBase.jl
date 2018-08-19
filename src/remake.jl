@@ -25,3 +25,5 @@ function remake(thing; kwargs...)
   T = remaker_of(thing)
   T(; struct_as_namedtuple(thing)...,kwargs...)
 end
+
+remake(thing) = thing
