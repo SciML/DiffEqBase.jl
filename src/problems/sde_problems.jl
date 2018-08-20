@@ -10,11 +10,11 @@ struct SDEProblem{uType,tType,isinplace,P,NP,F,G,C,ND} <: AbstractSDEProblem{uTy
   callback::C
   noise_rate_prototype::ND
   seed::UInt64
-  @add_kwonly function SDEProblem(f::AbstractSDEFunction,g,u0,
+  @add_kwonly function SDEProblem{iip}(f::AbstractSDEFunction{iip},g,u0,
           tspan,p=nothing;
           noise_rate_prototype = nothing,
           noise= nothing, seed = UInt64(0),
-          callback = nothing)
+          callback = nothing) where {iip}
     _tspan = promote_tspan(tspan)
 
     new{typeof(u0),typeof(_tspan),
@@ -37,6 +37,10 @@ function SDEProblem(f::AbstractSDEFunction,u0,tspan,p=nothing;kwargs...)
   SDEProblem(f,f.g,u0,tspan,p;kwargs...)
 end
 =#
+
+function SDEProblem(f::AbstractSDEFunction,g,u0,tspan,p=nothing;kwargs...)
+  SDEProblem{isinplace(f)}(f,g,u0,tspan,p;kwargs...)
+end
 
 function SDEProblem(f,g,u0,tspan,p=nothing;kwargs...)
   SDEProblem(convert(SDEFunction,f,g),g,u0,tspan,p;kwargs...)

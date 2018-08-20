@@ -7,10 +7,10 @@ mutable struct RODEProblem{uType,tType,isinplace,P,NP,F,C,ND} <: AbstractRODEPro
   callback::C
   rand_prototype::ND
   seed::UInt64
-  @add_kwonly function RODEProblem(f::RODEFunction,u0,tspan,p=nothing;
+  @add_kwonly function RODEProblem{iip}(f::RODEFunction{iip},u0,tspan,p=nothing;
                        rand_prototype = nothing,
                        noise= nothing, seed = UInt64(0),
-                       callback=nothing)
+                       callback=nothing) where {iip}
   _tspan = promote_tspan(tspan)
   new{typeof(u0),typeof(_tspan),
               isinplace(f),typeof(p),
@@ -22,6 +22,10 @@ mutable struct RODEProblem{uType,tType,isinplace,P,NP,F,C,ND} <: AbstractRODEPro
   function RODEProblem{iip}(f,u0,tspan,p=nothing;kwargs...) where {iip}
     RODEProblem(convert(RODEFunction{iip},f),u0,tspan,p;kwargs...)
   end
+end
+
+function RODEProblem(f::RODEFunction,u0,tspan,p=nothing;kwargs...)
+  RODEProblem{isinplace(f)}(f,u0,tspan,p;kwargs...)
 end
 
 function RODEProblem(f,u0,tspan,p=nothing;kwargs...)
