@@ -4,12 +4,12 @@ function __init__()
   end
 
   @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
-    function dual_number_warn(u0::AbstractArray{<:ForwardDiff.Dual},tspan::Tuple{T,T}) T<:Number
+    function dual_number_warn(u0::AbstractArray{<:ForwardDiff.Dual},tspan::Tuple{T,T}) where T<:Number
       if !(T<:ForwardDiff.Dual)
         @warn("Both the initial condition and time values must be Dual numbers in order to be compatible with Dual number inputs. Change the element type of tspan to match the element type of u0.")
       end
     end
-    function dual_number_warn(u0::AbstractArray{<:Number},tspan::Tuple{T,T}) T<:ForwardDiff.Dual
+    function dual_number_warn(u0::AbstractArray{<:Number},tspan::Tuple{T,T}) where T<:ForwardDiff.Dual
       if !(eltype(u0)<:ForwardDiff.Dual)
         @warn("Both the initial condition and time values must be Dual numbers in order to be compatible with Dual number inputs. Change the element type of u0 to match the element type of tspan.")
       end
@@ -17,15 +17,16 @@ function __init__()
   end
 
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
-    function measurements_warn(u0::AbstractArray{<:Measurement},tspan::Tuple{T,T}) T<:Number
+    function measurements_warn(u0::AbstractArray{<:Measurement},tspan::Tuple{T,T}) where T<:Number
       if !(T<:Measurement)
         @warn("Both the initial condition and time values must be Dual numbers in order to be compatible with Dual number inputs. Change the element type of tspan to match the element type of u0.")
       end
     end
-    function measurements_warn(u0::AbstractArray{<:Number},tspan::Tuple{T,T}) T<:Measurement
+    function measurements_warn(u0::AbstractArray{<:Number},tspan::Tuple{T,T}) where T<:Measurement
       if !(eltype(u0)<:Measurement)
         @warn("Both the initial condition and time values must be Dual numbers in order to be compatible with Dual number inputs. Change the element type of u0 to match the element type of tspan.")
       end
     end
   end
+
 end
