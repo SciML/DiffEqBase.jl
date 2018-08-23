@@ -1,6 +1,6 @@
 module DiffEqBase
 
-using RecipesBase, RecursiveArrayTools, Compat, StaticArrays,
+using RecipesBase, RecursiveArrayTools, Compat,
       Requires, TableTraits, IteratorInterfaceExtensions, TreeViews
 
 import Base: length, size, getindex, setindex!, show, print,
@@ -14,7 +14,7 @@ import RecursiveArrayTools: chain
 
 import LinearAlgebra: exp, ldiv!
 
-import StaticArrays: SArray
+import StaticArrays: StaticArray, SArray
 
 import Statistics: mean, median
 
