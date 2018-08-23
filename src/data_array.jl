@@ -69,10 +69,10 @@ value in `template`.
 end
 
 """
-    copy_fields!(dest::T, src::T) where {T<:DEDataArray}
+    copy_fields!(dest::T, src::T2) where {T<:DEDataArray,T2<:DEDataArray}
 
-Replace all fields of `dest` except of its wrapped array with a copy of the value in `src`.
-Arrays are recursively copied.
+Replace all fields of `dest` except of its wrapped array with a copy of the
+value in `src`. Arrays are recursively copied.
 """
 @generated function copy_fields!(dest::T, src::T2) where
     {T<:DEDataArray,T2<:DEDataArray}
