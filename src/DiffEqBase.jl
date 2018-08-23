@@ -14,6 +14,8 @@ import RecursiveArrayTools: chain
 
 import LinearAlgebra: exp, ldiv!
 
+import StaticArrays: SArray
+
 import Statistics: mean, median
 
 # Problems
