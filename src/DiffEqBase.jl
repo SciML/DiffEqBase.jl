@@ -1,6 +1,6 @@
 module DiffEqBase
 
-using RecipesBase, RecursiveArrayTools, Compat,
+using RecipesBase, RecursiveArrayTools, Compat, StaticArrays,
       Requires, TableTraits, IteratorInterfaceExtensions, TreeViews
 
 import Base: length, size, getindex, setindex!, show, print,

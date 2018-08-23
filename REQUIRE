@@ -6,3 +6,4 @@ Requires
 IteratorInterfaceExtensions 0.1.0
 TableTraits 0.3.0
 TreeViews
+StaticArrays

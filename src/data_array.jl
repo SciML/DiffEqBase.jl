@@ -22,7 +22,7 @@ Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
 
 # similar data arrays
 @generated function similar(A::DEDataArray, ::Type{T}, dims::NTuple{N,Int}) where {T,N}
-    assignments = [s == :x ? :(similar(A.x, T, dims)) :
+    assignments = [s == :x ? :(typeof(A.x) <: StaticArray ? similar(A.x, T, Size(A.x)) : similar(A.x, T, dims)) :
                    (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
                    for s in fieldnames(A)]
     :(DiffEqBase.parameterless_type(A)($(assignments...)))

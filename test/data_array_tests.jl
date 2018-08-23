@@ -73,3 +73,11 @@ a .= a2 .+ a3
 
 b .= b .^ 2 .+ a3
 @test b == MatrixType{Int,Float64}(-1.0, [2  5; 16  9])
+
+# Test ability to use MVectors in the solvers
+mutable struct SimWorkspace{T} <: DEDataVector{T}
+  x::MVector{2,T}
+  a::T
+end
+s0   = SimWorkspace{Float64}(MVector{2,Float64}(0,0),1.)
+similar(s0,Float64,size(s0))
