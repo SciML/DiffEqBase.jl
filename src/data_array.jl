@@ -60,6 +60,11 @@ end
 
 Create `DEDataArray` that wraps `arr` with all other fields set to a deep copy of the
 value in `template`.
+
+copy_fields!(dest::T, src::T2) where {T<:DEDataArray,T2<:DEDataArray}
+
+Replace all fields of `dest` except of its wrapped array with a copy of the
+value in `src`. Arrays are recursively copied.
 """
 @generated function copy_fields(arr::AbstractArray, template::DEDataArray)
     assignments = [s == :x ? :(arr) :
@@ -68,12 +73,6 @@ value in `template`.
     :(parameterless_type(template)($(assignments...)))
 end
 
-"""
-    copy_fields!(dest::T, src::T2) where {T<:DEDataArray,T2<:DEDataArray}
-
-Replace all fields of `dest` except of its wrapped array with a copy of the
-value in `src`. Arrays are recursively copied.
-"""
 @generated function copy_fields!(dest::T, src::T2) where
     {T<:DEDataArray,T2<:DEDataArray}
 
