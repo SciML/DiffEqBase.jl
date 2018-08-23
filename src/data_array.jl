@@ -76,12 +76,28 @@ Arrays are recursively copied.
 """
 @generated function copy_fields!(dest::T, src::T2) where
     {T<:DEDataArray,T2<:DEDataArray}
-    assignments = [(sq = Meta.quot(s);
-                    :(typeof(getfield(dest, $sq)) <: AbstractArray ?
-                      recursivecopy!(getfield(dest, $sq), getfield(src, $sq)) :
-                      setfield!(dest, $sq, deepcopy(getfield(src, $sq)))))
-                   for s in fieldnames(dest) if s != :x]
-    :($(assignments...); dest)
+
+    fields = fieldnames(src)
+
+    expressions = Vector{Expr}(undef, length(fields))
+
+    @inbounds for i = 1:length(fields)
+        f  = fields[i]
+        Tf = src.types[i]
+        qf = Meta.quot(f)
+
+        if f == :x
+            expressions[i] = :( )
+        elseif Tf <: Union{Number,SArray}
+            expressions[i] = :( dest.$f = getfield( src, $qf ) )
+        elseif Tf <: AbstractArray
+            expressions[i] = :( recursivecopy!(dest.$f, getfield( src, $qf ) ) )
+        else
+            expressions[i] = :( dest.$f = deepcopy( getfield( src, $qf ) ) )
+        end
+    end
+
+    :($(expressions...); dest)
 end
 
 ################# Overloads for stiff solvers ##################################
