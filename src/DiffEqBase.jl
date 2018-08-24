@@ -14,7 +14,7 @@ import RecursiveArrayTools: chain
 
 import LinearAlgebra: exp, ldiv!
 
-import StaticArrays: StaticArray, SArray
+import StaticArrays: StaticArray, SArray, Size
 
 import Statistics: mean, median
 
