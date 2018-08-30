@@ -8,7 +8,7 @@ struct BVProblem{uType,tType,isinplace,P,F,bF,PT,CB} <: AbstractBVProblem{uType,
     p::P
     problem_type::PT
     callback::CB
-    @add_kwonly function BVProblem{iip}(f,bc,u0,tspan,p=nothing,
+    @add_kwonly function BVProblem{iip}(f::AbstractODEFunction,bc,u0,tspan,p=nothing,
                             problem_type=StandardBVProblem();
                             callback=nothing) where {iip}
         _tspan = promote_tspan(tspan)
@@ -18,11 +18,18 @@ struct BVProblem{uType,tType,isinplace,P,F,bF,PT,CB} <: AbstractBVProblem{uType,
                   f,bc,u0,_tspan,p,
                   problem_type,callback)
     end
+
+    function BVProblem{iip}(f,bc,u0,tspan,p=nothing;kwargs...) where {iip}
+        BVProblem(convert(ODEFunction{iip},f),bc,u0,tspan,p;kwargs...)
+      end
 end
 
-function BVProblem(f,bc,u0::AbstractArray,tspan,p=nothing;kwargs...)
-    iip = DiffEqBase.isinplace(f,4)
-    BVProblem{iip}(f,bc,u0,tspan,p;kwargs...)
+function BVProblem(f::AbstractODEFunction,bc,u0,tspan,args...;kwargs...)
+    BVProblem{DiffEqBase.isinplace(f,4)}(f,bc,u0,tspan,args...;kwargs...)
+end
+  
+function BVProblem(f,bc,u0,tspan,p=nothing;kwargs...)
+    BVProblem(convert(ODEFunction,f),bc,u0,tspan,p;kwargs...)
 end
 
 # convenience interfaces:
