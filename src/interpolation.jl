@@ -21,14 +21,14 @@ interp_summary(::ConstantInterpolation) = "Piecewise constant interpolation"
 interp_summary(::Nothing) = "No interpolation"
 interp_summary(sol::DESolution) = interp_summary(sol.interp)
 
-(id::HermiteInterpolation)(tvals,idxs,deriv,p) = interpolation(tvals,id,idxs,deriv,p)
-(id::HermiteInterpolation)(val,tvals,idxs,deriv,p) = interpolation!(val,tvals,id,idxs,deriv,p)
-(id::LinearInterpolation)(tvals,idxs,deriv,p) = interpolation(tvals,id,idxs,deriv,p)
-(id::LinearInterpolation)(val,tvals,idxs,deriv,p) = interpolation!(val,tvals,id,idxs,deriv,p)
-(id::ConstantInterpolation)(tvals,idxs,deriv,p) = interpolation(tvals,id,idxs,deriv,p)
-(id::ConstantInterpolation)(val,tvals,idxs,deriv,p) = interpolation!(val,tvals,id,idxs,deriv,p)
+(id::HermiteInterpolation)(tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation(tvals,id,idxs,deriv,p,continuity)
+(id::HermiteInterpolation)(val,tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation!(val,tvals,id,idxs,deriv,p,continuity)
+(id::LinearInterpolation)(tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation(tvals,id,idxs,deriv,p,continuity)
+(id::LinearInterpolation)(val,tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation!(val,tvals,id,idxs,deriv,p,continuity)
+(id::ConstantInterpolation)(tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation(tvals,id,idxs,deriv,p,continuity)
+(id::ConstantInterpolation)(val,tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation!(val,tvals,id,idxs,deriv,p,continuity)
 
-@inline function interpolation(tvals,id,idxs,deriv,p)
+@inline function interpolation(tvals,id,idxs,deriv,p,continuity::Symbol=:left)
   t = id.t; u = id.u
   typeof(id) <: HermiteInterpolation && (du = id.du)
   tdir = sign(t[end]-t[1])
@@ -49,10 +49,11 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
     avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
     avoid_constant_ends && i==1 && (i+=1)
     if !avoid_constant_ends && t[i] == tval
+      k = continuity == :right && t[i+1] == tval ? i+1 : i
       if idxs == nothing
-        vals[j] = u[i]
+        vals[j] = u[k]
       else
-        vals[j] = u[i][idxs]
+        vals[j] = u[k][idxs]
       end
     elseif !avoid_constant_ends && t[i-1] == tval # Can happen if it's the first value!
       if idxs == nothing
@@ -80,7 +81,7 @@ interpolation(tvals,t,u,ks)
 Get the value at tvals where the solution is known at the
 times t (sorted), with values u and derivatives ks
 """
-@inline function interpolation!(vals,tvals,id,idxs,deriv,p)
+@inline function interpolation!(vals,tvals,id,idxs,deriv,p,continuity::Symbol=:left)
   t = id.t; u = id.u
   typeof(id) <: HermiteInterpolation && (du = id.du)
   tdir = sign(t[end]-t[1])
@@ -94,10 +95,11 @@ times t (sorted), with values u and derivatives ks
     avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
     avoid_constant_ends && i==1 && (i+=1)
     if !avoid_constant_ends && t[i] == tval
+      k = continuity == :right && t[i+1] == tval ? i+1 : i
       if idxs == nothing
-        vals[j] = u[i]
+        vals[j] = u[k]
       else
-        vals[j] = u[i][idxs]
+        vals[j] = u[k][idxs]
       end
     elseif !avoid_constant_ends && t[i-1] == tval # Can happen if it's the first value!
       if idxs == nothing
@@ -132,7 +134,7 @@ interpolation(tval::Number,t,u,ks)
 Get the value at tval where the solution is known at the
 times t (sorted), with values u and derivatives ks
 """
-@inline function interpolation(tval::Number,id,idxs,deriv,p)
+@inline function interpolation(tval::Number,id,idxs,deriv,p,continuity::Symbol=:left)
   t = id.t; u = id.u
   typeof(id) <: HermiteInterpolation && (du = id.du)
   tdir = sign(t[end]-t[1])
@@ -142,10 +144,11 @@ times t (sorted), with values u and derivatives ks
   avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
   avoid_constant_ends && i==1 && (i+=1)
   @inbounds if !avoid_constant_ends && t[i] == tval
+    k = continuity == :right && t[i+1] == tval ? i+1 : i
     if idxs == nothing
-      val = u[i]
+      val = u[k]
     else
-      val = u[i][idxs]
+      val = u[k][idxs]
     end
   elseif !avoid_constant_ends && t[i-1] == tval # Can happen if it's the first value!
     if idxs == nothing
@@ -172,7 +175,7 @@ interpolation!(out,tval::Number,t,u,ks)
 Get the value at tval where the solution is known at the
 times t (sorted), with values u and derivatives ks
 """
-@inline function interpolation!(out,tval::Number,id,idxs,deriv,p)
+@inline function interpolation!(out,tval::Number,id,idxs,deriv,p,continuity::Symbol=:left)
   t = id.t; u = id.u
   typeof(id) <: HermiteInterpolation && (du = id.du)
   tdir = sign(t[end]-t[1])
@@ -182,10 +185,11 @@ times t (sorted), with values u and derivatives ks
   avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
   avoid_constant_ends && i==1 && (i+=1)
   @inbounds if !avoid_constant_ends && t[i] == tval
+    k = continuity == :right && t[i+1] == tval ? i+1 : i
     if idxs == nothing
-      copy!(out,u[i])
+      copy!(out,u[k])
     else
-      copy!(out,u[i][idxs])
+      copy!(out,u[k][idxs])
     end
   elseif !avoid_constant_ends && t[i-1] == tval # Can happen if it's the first value!
     if idxs == nothing
