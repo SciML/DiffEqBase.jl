@@ -469,7 +469,7 @@ has_tgrad(f::AbstractDiffEqFunction) = f.tgrad != nothing
 has_invW(f::AbstractDiffEqFunction) = f.invW != nothing
 has_invW_t(f::AbstractDiffEqFunction) = f.invW_t != nothing
 has_paramjac(f::AbstractDiffEqFunction) = f.paramjac != nothing
-has_syms(f::AbstractDiffEqFunction) = f.syms != nothing
+has_syms(f::AbstractDiffEqFunction) = :syms ∈ fieldnames(typeof(f)) && f.syms != nothing
 
 # TODO: find an appropriate way to check `has_*`
 has_jac(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.jac != nothing
