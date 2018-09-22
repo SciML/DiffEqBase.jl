@@ -72,8 +72,6 @@ handle_distribution_u0(_u0) = _u0
 
 function adaptive_warn(u0,tspan)
   adaptive_integer_warn(tspan)
-  dual_number_warn(u0,tspan)
-  measurements_warn(u0,tspan)
 end
 
 function adaptive_integer_warn(tspan)
