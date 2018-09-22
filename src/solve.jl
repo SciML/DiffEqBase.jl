@@ -72,8 +72,6 @@ handle_distribution_u0(_u0) = _u0
 
 function adaptive_warn(u0,tspan)
   adaptive_integer_warn(tspan)
-  dual_number_warn(u0,tspan)
-  measurements_warn(u0,tspan)
 end
 
 function adaptive_integer_warn(tspan)
@@ -81,6 +79,3 @@ function adaptive_integer_warn(tspan)
     @warn("Integer time values are incompatible with adaptive integrators. Utilize floating point numbers instead of integers in this case, i.e. (0.0,1.0) instead of (0,1).")
   end
 end
-
-dual_number_warn(u0,tspan) = nothing
-measurements_warn(u0,tspan) = nothing

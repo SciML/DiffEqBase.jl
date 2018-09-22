@@ -4,35 +4,17 @@ function __init__()
   end
 
   @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
-    function dual_number_warn(u0::AbstractArray{<:ForwardDiff.Dual},tspan::Tuple{T,T}) where T<:Number
-      if !(T<:ForwardDiff.Dual)
-        @warn("Both the initial condition and time values must be Dual numbers in order to be compatible with Dual number inputs. Change the element type of tspan to match the element type of u0.")
-      end
+    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual,N}) where {N}
+      sqrt(sum(ODE_DEFAULT_NORM,(ForwardDiff.value(x) for x in u)) / length(u))
     end
-    function dual_number_warn(u0::AbstractArray{<:Number},tspan::Tuple{T,T}) where T<:ForwardDiff.Dual
-      if !(eltype(u0)<:ForwardDiff.Dual)
-        @warn("Both the initial condition and time values must be Dual numbers in order to be compatible with Dual number inputs. Change the element type of u0 to match the element type of tspan.")
-      end
-    end
-    function dual_number_warn(u0::AbstractArray{<:ForwardDiff.Dual},tspan::Tuple{T,T}) where T<:ForwardDiff.Dual
-      nothing
-    end
+    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual) = abs(ForwardDiff.value(u))
   end
 
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
-    function measurements_warn(u0::AbstractArray{<:Measurements.Measurement},tspan::Tuple{T,T}) where T<:Number
-      if !(T<:Measurements.Measurement)
-        @warn("Both the initial condition and time values must be Measurements in order to be compatible with Measurement inputs. Change the element type of tspan to match the element type of u0.")
-      end
+    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Measurements.Measurement,N}) where {N}
+      sqrt(sum(ODE_DEFAULT_NORM,(Measurements.value(x) for x in u)) / length(u))
     end
-    function measurements_warn(u0::AbstractArray{<:Number},tspan::Tuple{T,T}) where T<:Measurements.Measurement
-      if !(eltype(u0)<:Measurements.Measurement)
-        @warn("Both the initial condition and time values must be Measurements in order to be compatible with Measurement inputs. Change the element type of u0 to match the element type of tspan.")
-      end
-    end
-    function measurements_warn(u0::AbstractArray{<:Measurements.Measurement},tspan::Tuple{T,T}) where T<:Measurements.Measurement
-      nothing
-    end
+    @inline ODE_DEFAULT_NORM(u::Measurements.Measurement) = abs(Measurements.value(u))
   end
 
 end
