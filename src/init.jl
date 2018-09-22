@@ -7,12 +7,14 @@ function __init__()
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual,N}) where {N}
       sqrt(sum(ODE_DEFAULT_NORM,(ForwardDiff.value(x) for x in u)) / length(u))
     end
+    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual) = abs(ForwardDiff.value(u))
   end
 
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
-    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual,N}) where {N}
-      sqrt(sum(ODE_DEFAULT_NORM,(ForwardDiff.value(x) for x in u)) / length(u))
+    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Measurements.Measurement,N}) where {N}
+      sqrt(sum(ODE_DEFAULT_NORM,(Measurements.value(x) for x in u)) / length(u))
     end
+    @inline ODE_DEFAULT_NORM(u::Measurements.Measurement) = abs(Measurements.value(u))
   end
 
 end
