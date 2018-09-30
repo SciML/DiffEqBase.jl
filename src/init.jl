@@ -23,4 +23,15 @@ function __init__()
     @inline ODE_DEFAULT_NORM(u::Measurements.Measurement) = abs(Measurements.value(u))
   end
 
+  @require Unitful="1986cc42-f94f-5a68-af5c-568840ba703d" begin
+    value(x::Unitful.Quantity) = x.val
+    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Unitful.Quantity,N}) where {N}
+      sqrt(sum(ODE_DEFAULT_NORM,(value(x) for x in u)) / length(u))
+    end
+    @inline function ODE_DEFAULT_NORM(u::Array{<:Unitful.Quantity,N}) where {N}
+      sqrt(sum(ODE_DEFAULT_NORM,(value(x) for x in u)) / length(u))
+    end
+    @inline ODE_DEFAULT_NORM(u::Unitful.Quantity) = abs(value(u))
+  end
+
 end
