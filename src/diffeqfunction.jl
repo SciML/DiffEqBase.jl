@@ -211,6 +211,7 @@ function ODEFunction{iip,false}(f;
                  paramjac,syms)
 end
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
+ODEFunction(f::ODEFunction; kwargs...) = f
 
 @add_kwonly function SplitFunction(f1,f2,mass_matrix,cache,analytic)
   f1 = typeof(f1) <: AbstractDiffEqOperator ? f1 : ODEFunction(f1)
