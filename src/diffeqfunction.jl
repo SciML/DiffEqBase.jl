@@ -226,6 +226,7 @@ SplitFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,_func_cache,analytic)
 SplitFunction(f1,f2; kwargs...) = SplitFunction{isinplace(f2, 4)}(f1, f2; kwargs...)
 SplitFunction{iip}(f1,f2; kwargs...) where iip =
 SplitFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction(f1),ODEFunction{iip}(f2); kwargs...)
+SplitFunction(f::SplitFunction; kwargs...) = f
 
 @add_kwonly function DynamicalODEFunction{iip}(f1,f2,mass_matrix,analytic) where iip
   f1 = ODEFunction(f1)
@@ -239,6 +240,7 @@ DynamicalODEFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,analytic)
 DynamicalODEFunction(f1,f2=nothing; kwargs...) = DynamicalODEFunction{isinplace(f1, 5)}(f1, f2; kwargs...)
 DynamicalODEFunction{iip}(f1,f2; kwargs...) where iip =
 DynamicalODEFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction{iip}(f1), ODEFunction{iip}(f2); kwargs...)
+DynamicalODEFunction(f::DynamicalODEFunction; kwargs...) = f
 
 function DiscreteFunction{iip,true}(f;
                  analytic=nothing) where iip
@@ -251,6 +253,7 @@ function DiscreteFunction{iip,false}(f;
                  f,analytic)
 end
 DiscreteFunction(f; kwargs...) = DiscreteFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
+DiscreteFunction(f::DiscreteFunction; kwargs...) = f
 
 function SDEFunction{iip,true}(f,g;
                  mass_matrix=I,
@@ -303,6 +306,7 @@ function SDEFunction{iip,false}(f,g;
                  paramjac,ggprime,syms)
 end
 SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
+SDEFunction(f::SDEFunction; kwargs...) = f
 
 SplitSDEFunction{iip,true}(f1,f2,g; mass_matrix=I,
                            _func_cache=nothing,analytic=nothing) where iip =
@@ -314,9 +318,8 @@ SplitSDEFunction{iip,false}(f1,f2,g; mass_matrix=I,
 SplitSDEFunction{iip,Any,Any,Any,Any,Any}(f1,f2,g,mass_matrix,_func_cache,analytic)
 SplitSDEFunction(f1,f2,g; kwargs...) = SplitSDEFunction{isinplace(f2, 4)}(f1, f2, g; kwargs...)
 SplitSDEFunction{iip}(f1,f2, g; kwargs...) where iip =
-SplitSDEFunction{iip,RECOMPILE_BY_DEFAULT}(
-typeof(f1) <: AbstractDiffEqOperator ? f1 : SDEFunction(f1,g),
-SDEFunction{iip}(f2,g), g; kwargs...)
+SplitSDEFunction{iip,RECOMPILE_BY_DEFAULT}(SDEFunction(f1,g), SDEFunction{iip}(f2,g), g; kwargs...)
+SplitSDEFunction(f::SplitSDEFunction; kwargs...) = f
 
 function RODEFunction{iip,true}(f;
                  mass_matrix=I,
@@ -365,6 +368,7 @@ function RODEFunction{iip,false}(f;
                  paramjac,syms)
 end
 RODEFunction(f; kwargs...) = RODEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
+RODEFunction(f::RODEFunction; kwargs...) = f
 
 function DAEFunction{iip,true}(f;
                  analytic=nothing,
@@ -411,6 +415,7 @@ function DAEFunction{iip,false}(f;
                  paramjac,syms)
 end
 DAEFunction(f; kwargs...) = DAEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
+DAEFunction(f::DAEFunction; kwargs...) = f
 
 function DDEFunction{iip,true}(f;
                  mass_matrix=I,
@@ -459,6 +464,7 @@ function DDEFunction{iip,false}(f;
                  paramjac,syms)
 end
 DDEFunction(f; kwargs...) = DDEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
+DDEFunction(f::DDEFunction; kwargs...) = f
 
 ########## Existance Functions
 
