@@ -224,9 +224,7 @@ SplitFunction{iip,false}(f1,f2; mass_matrix=I,_func_cache=nothing,analytic=nothi
 SplitFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,_func_cache,analytic)
 SplitFunction(f1,f2; kwargs...) = SplitFunction{isinplace(f2, 4)}(f1, f2; kwargs...)
 SplitFunction{iip}(f1,f2; kwargs...) where iip =
-SplitFunction{iip,RECOMPILE_BY_DEFAULT}(
-typeof(f1) <: AbstractDiffEqOperator ? f1 : ODEFunction(f1),
-ODEFunction{iip}(f2); kwargs...)
+SplitFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction(f1),ODEFunction{iip}(f2); kwargs...)
 
 @add_kwonly function DynamicalODEFunction{iip}(f1,f2,mass_matrix,analytic) where iip
   f1 = ODEFunction(f1)
