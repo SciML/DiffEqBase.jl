@@ -48,6 +48,8 @@ abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractOD
 
 abstract type AbstractBVProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
 
+abstract type AbstractJumpProblem{P,J} <: DiffEqBase.DEProblem end
+
 # Algorithms
 abstract type DEAlgorithm end
 abstract type AbstractSteadyStateAlgorithm <: DEAlgorithm end
