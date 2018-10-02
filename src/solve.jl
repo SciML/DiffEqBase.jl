@@ -2,18 +2,20 @@ function __solve end
 function __init end
 function solve! end
 
+NO_TSPAN_PROBS = Union{AbstractSteadyStateProblem,AbstractJumpProblem}
+
 function init(prob::DEProblem,args...;kwargs...)
   _prob = get_concrete_problem(prob,kwargs)
   if haskey(kwargs,:alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
     isadaptive(alg) &&
-    !(typeof(prob) <: AbstractSteadyStateProblem) &&
+    !(typeof(prob) <: NO_TSPAN_PROBS) &&
     adaptive_warn(_prob.u0,_prob.tspan)
     __init(_prob,alg,args...;kwargs...)
   elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
     alg = args[1]
     isadaptive(alg) &&
-    !(typeof(prob) <: AbstractSteadyStateProblem) &&
+    !(typeof(prob) <: NO_TSPAN_PROBS) &&
     adaptive_warn(_prob.u0,_prob.tspan)
     __init(_prob,args...;kwargs...)
   else
@@ -26,13 +28,13 @@ function solve(prob::DEProblem,args...;kwargs...)
   if haskey(kwargs,:alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
     isadaptive(alg) &&
-    !(typeof(prob) <: AbstractSteadyStateProblem) &&
+    !(typeof(prob) <: NO_TSPAN_PROBS) &&
     adaptive_warn(_prob.u0,_prob.tspan)
     __solve(_prob,alg,args...;kwargs...)
   elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
     alg = args[1]
     isadaptive(alg) &&
-    !(typeof(prob) <: AbstractSteadyStateProblem) &&
+    !(typeof(prob) <: NO_TSPAN_PROBS) &&
     adaptive_warn(_prob.u0,_prob.tspan)
     __solve(_prob,args...;kwargs...)
   else
