@@ -42,6 +42,10 @@ function solve(prob::DEProblem,args...;kwargs...)
   end
 end
 
+function get_concrete_problem(prob::AbstractJumpProblem,kwargs)
+  prob
+end
+
 function get_concrete_problem(prob::AbstractSteadyStateProblem,kwargs)
   if typeof(prob.u0) <: Function
     _u0 = prob.u0(prob.p,Inf)
