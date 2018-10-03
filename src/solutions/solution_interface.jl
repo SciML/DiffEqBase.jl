@@ -85,7 +85,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
   # determine type of spacing for plott
   tscale = get(plotattributes, :xscale, :identity)
   densetspacer = if tscale in [:ln, :log10, :log2]
-    (start, stop, n) -> logspace(log10(start), log10(stop), n)
+    (start, stop, n) -> 10.0.^range(log10(start), stop=log10(stop), length=n)
   else
     (start, stop, n) -> range(start;stop=stop,length=n)
   end
