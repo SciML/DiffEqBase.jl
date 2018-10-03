@@ -10,9 +10,17 @@ struct ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   idxs::I
   rootfind::Bool
   interp_points::Int
-  save_positions::Tuple{Bool,Bool}
+  save_positions::BitArray{1}
   abstol::T
   reltol::T2
+  ContinuousCallback(condition::F1,affect!::F2,affect_neg!::F3,
+                     initialize::F4,idxs::I,rootfind,
+                     interp_points,save_positions,abstol::T,reltol::T2) where {F1,F2,F3,F4,T,T2,I} =
+                       new{F1,F2,F3,F4,T,T2,I}(condition,
+                                               affect!,affect_neg!,
+                                               initialize,idxs,rootfind,interp_points,
+                                               BitArray(collect(save_positions)),
+                                               abstol,reltol)
 end
 
 ContinuousCallback(condition,affect!,affect_neg!;
@@ -39,7 +47,7 @@ function ContinuousCallback(condition,affect!;
  ContinuousCallback(
             condition,affect!,affect_neg!,initialize,idxs,
             rootfind,interp_points,
-            save_positions,abstol,reltol)
+            collect(save_positions),abstol,reltol)
 
 end
 
@@ -47,7 +55,11 @@ struct DiscreteCallback{F1,F2,F3} <: AbstractDiscreteCallback
   condition::F1
   affect!::F2
   initialize::F3
-  save_positions::Tuple{Bool,Bool}
+  save_positions::BitArray{1}
+  DiscreteCallback(condition::F1,affect!::F2,
+                   initialize::F3,save_positions) where {F1,F2,F3} = new{F1,F2,F3}(condition,
+                                                                                   affect!,initialize,
+                                                                                   BitArray(collect(save_positions)))
 end
 DiscreteCallback(condition,affect!;
         initialize = INITIALIZE_DEFAULT,save_positions=(true,true)) = DiscreteCallback(condition,affect!,initialize,save_positions)
