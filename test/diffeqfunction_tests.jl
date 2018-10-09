@@ -16,7 +16,8 @@ DI_f_ip(du,u,p,t)
 
 f(u,p,t) = u
 jac = (u,p,t) -> 1
-@inferred ODEFunction{false}(f_op,jac=jac)
+jacvec = (v,u,p,t) -> 1v
+@inferred ODEFunction{false}(f_op,jac=jac,jacvec=jacvec)
 @inferred DiscreteFunction{false}(f_op,analytic=f)
 
 f(du,u,p,t) = u

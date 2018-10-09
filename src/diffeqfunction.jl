@@ -1,16 +1,18 @@
 const RECOMPILE_BY_DEFAULT = true
 
 abstract type AbstractODEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
+struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,TJv,TPJv,JP,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
   f::F
   mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jacvec::TJv
   jac_prototype::JP
   invW::TW
   invW_t::TWt
   paramjac::TPJ
+  paramjacvec::TPJv
   syms::S
 end
 
@@ -30,16 +32,18 @@ struct DynamicalODEFunction{iip,F1,F2,TMM,Ta} <: AbstractODEFunction{iip}
 end
 
 abstract type AbstractDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDDEFunction{iip}
+struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,TJv,TPJv,JP,TW,TWt,TPJ,S} <: AbstractDDEFunction{iip}
   f::F
   mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jacvec::TJv
   jac_prototype::JP
   invW::TW
   invW_t::TWt
   paramjac::TPJ
+  paramjacvec::TPJv
   syms::S
 end
 
@@ -50,17 +54,19 @@ struct DiscreteFunction{iip,F,Ta} <: AbstractDiscreteFunction{iip}
 end
 
 abstract type AbstractSDEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
+struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,TJv,TPJv,JP,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
   f::F
   g::G
   mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jacvec::TJv
   jac_prototype::JP
   invW::TW
   invW_t::TWt
   paramjac::TPJ
+  paramjacvec::TPJv
   ggprime::GG
   syms::S
 end
@@ -75,29 +81,33 @@ struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta} <: AbstractSDEFunction{iip}
 end
 
 abstract type AbstractRODEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractRODEFunction{iip}
+struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,TJv,TPJv,JP,TW,TWt,TPJ,S} <: AbstractRODEFunction{iip}
   f::F
   mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jacvec::TJv
   jac_prototype::JP
   invW::TW
   invW_t::TWt
   paramjac::TPJ
+  paramjacvec::TPJv
   syms::S
 end
 
 abstract type AbstractDAEFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct DAEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDAEFunction{iip}
+struct DAEFunction{iip,F,Ta,Tt,TJ,TJv,TPJv,JP,TW,TWt,TPJ,S} <: AbstractDAEFunction{iip}
   f::F
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jacvec::TJv
   jac_prototype::JP
   invW::TW
   invW_t::TWt
   paramjac::TPJ
+  paramjacvec::TPJv
   syms::S
 end
 
@@ -166,10 +176,12 @@ function ODEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jacvec=nothing,
                  jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
-                 paramjac = nothing,
+                 paramjac=nothing,
+                 paramjacvec=nothing,
                  syms = nothing) where iip
                  if mass_matrix == I && typeof(f) <: Tuple
                   mass_matrix = ((I for i in 1:length(f))...,)
@@ -182,10 +194,10 @@ function ODEFunction{iip,true}(f;
                   end
                  end
                  ODEFunction{iip,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
+                 typeof(jac),typeof(jacvec),typeof(paramjacvec),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms)
+                 f,mass_matrix,analytic,tgrad,jac,jacvec,jac_prototype,invW,invW_t,
+                 paramjac,paramjacvec,syms)
 end
 function ODEFunction{iip,false}(f;
                  mass_matrix=I,
@@ -195,7 +207,8 @@ function ODEFunction{iip,false}(f;
                  jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
-                 paramjac = nothing,
+                 paramjac=nothing,
+                 paramjacvec=nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
@@ -207,8 +220,8 @@ function ODEFunction{iip,false}(f;
                  ODEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms)
+                 f,mass_matrix,analytic,tgrad,jac,jacvec,jac_prototype,invW,invW_t,
+                 paramjac,paramjacvec,syms)
 end
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 ODEFunction(f::ODEFunction; kwargs...) = f
@@ -260,10 +273,12 @@ function SDEFunction{iip,true}(f,g;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jacvec=nothing,
                  jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
-                 paramjac = nothing,
+                 paramjac=nothing,
+                 paramjacvec=nothing,
                  ggprime = nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
@@ -275,21 +290,23 @@ function SDEFunction{iip,true}(f,g;
                  end
                  SDEFunction{iip,typeof(f),typeof(g),
                  typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
+                 typeof(jac),typeof(jacvec),typeof(paramjacvec),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms),
                  typeof(ggprime)}(
-                 f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,ggprime,syms)
+                 f,g,mass_matrix,analytic,tgrad,jac,jacvec,jac_prototype,invW,invW_t,
+                 paramjac,paramjacvec,ggprime,syms)
 end
 function SDEFunction{iip,false}(f,g;
                  mass_matrix=I,
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jacvec=nothing,
                  jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
-                 paramjac = nothing,
+                 paramjac=nothing,
+                 paramjacvec=nothing,
                  ggprime = nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
@@ -302,8 +319,8 @@ function SDEFunction{iip,false}(f,g;
                  SDEFunction{iip,Any,Any,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms),Any}(
-                 f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,ggprime,syms)
+                 f,g,mass_matrix,analytic,tgrad,jac,jacvec,jac_prototype,invW,invW_t,
+                 paramjac,paramjacvec,ggprime,syms)
 end
 SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 SDEFunction(f::SDEFunction; kwargs...) = f
@@ -326,10 +343,12 @@ function RODEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jacvec=nothing,
                  jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
-                 paramjac = nothing,
+                 paramjac=nothing,
+                 paramjacvec=nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
@@ -340,19 +359,21 @@ function RODEFunction{iip,true}(f;
                  end
                  RODEFunction{iip,typeof(f),typeof(mass_matrix),
                  typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
+                 typeof(jac),typeof(jacvec),typeof(paramjacvec),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms)
+                 f,mass_matrix,analytic,tgrad,jac,jacvec,jac_prototype,invW,invW_t,
+                 paramjac,paramjacvec,syms)
 end
 function RODEFunction{iip,false}(f;
                  mass_matrix=I,
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jacvec=nothing,
                  invW=nothing,
                  invW_t=nothing,
-                 paramjac = nothing,
+                 paramjac=nothing,
+                 paramjacvec=nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
@@ -364,8 +385,8 @@ function RODEFunction{iip,false}(f;
                  RODEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms)
+                 f,mass_matrix,analytic,tgrad,jac,jacvec,jac_prototype,invW,invW_t,
+                 paramjac,paramjacvec,syms)
 end
 RODEFunction(f; kwargs...) = RODEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 RODEFunction(f::RODEFunction; kwargs...) = f
@@ -374,10 +395,12 @@ function DAEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jacvec=nothing,
                  jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
-                 paramjac = nothing,
+                 paramjac=nothing,
+                 paramjacvec=nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
@@ -387,19 +410,21 @@ function DAEFunction{iip,true}(f;
                   end
                  end
                  DAEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
+                 typeof(jac),typeof(jacvec),typeof(paramjacvec),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
-                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms)
+                 f,analytic,tgrad,jac,jacvec,jac_prototype,invW,invW_t,
+                 paramjac,paramjacvec,syms)
 end
 function DAEFunction{iip,false}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jacvec=nothing,
                  jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
-                 paramjac = nothing,
+                 paramjac=nothing,
+                 paramjacvec=nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
@@ -411,8 +436,8 @@ function DAEFunction{iip,false}(f;
                  DAEFunction{iip,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms)}(
-                 f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms)
+                 f,analytic,tgrad,jac,jacvec,jac_prototype,invW,invW_t,
+                 paramjac,paramjacvec,syms)
 end
 DAEFunction(f; kwargs...) = DAEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DAEFunction(f::DAEFunction; kwargs...) = f
@@ -422,10 +447,12 @@ function DDEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jacvec=nothing,
                  jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
-                 paramjac = nothing,
+                 paramjac=nothing,
+                 paramjacvec=nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
@@ -435,20 +462,22 @@ function DDEFunction{iip,true}(f;
                   end
                  end
                  DDEFunction{iip,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
+                 typeof(jac),typeof(jacvec),typeof(paramjacvec),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms)
+                 f,mass_matrix,analytic,tgrad,jac,jacvec,jac_prototype,invW,invW_t,
+                 paramjac,paramjacvec,syms)
 end
 function DDEFunction{iip,false}(f;
                  mass_matrix=I,
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jacvec=nothing,
                  jac_prototype=nothing,
                  invW=nothing,
                  invW_t=nothing,
-                 paramjac = nothing,
+                 paramjac=nothing,
+                 paramjacvec=nothing,
                  syms = nothing) where iip
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
@@ -460,8 +489,8 @@ function DDEFunction{iip,false}(f;
                  DDEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms)
+                 f,mass_matrix,analytic,tgrad,jac,jacvec,jac_prototype,invW,invW_t,
+                 paramjac,paramjacvec,syms)
 end
 DDEFunction(f; kwargs...) = DDEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DDEFunction(f::DDEFunction; kwargs...) = f
@@ -470,20 +499,25 @@ DDEFunction(f::DDEFunction; kwargs...) = f
 
 has_analytic(f::AbstractDiffEqFunction) = f.analytic != nothing
 has_jac(f::AbstractDiffEqFunction) = f.jac != nothing
+has_jacvec(f::AbstractDiffEqFunction) = f.jacvec != nothing
 has_tgrad(f::AbstractDiffEqFunction) = f.tgrad != nothing
 has_invW(f::AbstractDiffEqFunction) = f.invW != nothing
 has_invW_t(f::AbstractDiffEqFunction) = f.invW_t != nothing
 has_paramjac(f::AbstractDiffEqFunction) = f.paramjac != nothing
+has_paramjacvec(f::AbstractDiffEqFunction) = f.paramjacvec != nothing
 has_syms(f::AbstractDiffEqFunction) = :syms ∈ fieldnames(typeof(f)) && f.syms != nothing
 
 # TODO: find an appropriate way to check `has_*`
 has_jac(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.jac != nothing
+has_jacvec(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.jacvec != nothing
 has_tgrad(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.tgrad != nothing
 has_invW(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.invW != nothing
 has_invW_t(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.invW_t != nothing
 has_paramjac(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.paramjac != nothing
+has_paramjacvec(f::Union{SplitFunction,SplitSDEFunction}) = f.f1.paramjacvec != nothing
 
 has_jac(f::DynamicalODEFunction) = f.f1.jac != nothing
+has_jacvec(f::DynamicalODEFunction) = f.f1.jacvec != nothing
 has_tgrad(f::DynamicalODEFunction) = f.f1.tgrad != nothing
 has_invW(f::DynamicalODEFunction) = f.f1.invW != nothing
 has_invW_t(f::DynamicalODEFunction) = f.f1.invW_t != nothing
