@@ -12,6 +12,8 @@ import RecursiveArrayTools: recursivecopy!, tuples
 
 import RecursiveArrayTools: chain
 
+import Roots # callbacks
+
 import LinearAlgebra: exp, ldiv!
 
 import StaticArrays: StaticArray, SArray, Size
@@ -175,7 +177,8 @@ export resize!,deleteat!,addat!,get_tmp_cache,full_cache,user_cache,u_cache,du_c
        add_tstop!,add_saveat!,set_abstol!,
        set_reltol!,get_du, get_du!, get_dt,get_proposed_dt,set_proposed_dt!,
        u_modified!, savevalues!,reinit!, auto_dt_reset!, set_t!,
-       set_u!, check_error
+       set_u!, check_error, change_t_via_interpolation!, ismutablecache, addsteps!,
+       isdiscretealg
 
 export DiscreteProblem
 
