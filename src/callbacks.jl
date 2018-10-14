@@ -115,12 +115,12 @@ Base.isempty(cb::AbstractDiscreteCallback) = false
 # Use Recursion to find the first callback for type-stability
 
 # Base Case: Only one callback
-function find_first_continuous_callback(integrator, callback::DiffEqBase.AbstractContinuousCallback)
+function find_first_continuous_callback(integrator, callback::AbstractContinuousCallback)
   (find_callback_time(integrator,callback,1)...,1,1)
 end
 
 # Starting Case: Compute on the first callback
-function find_first_continuous_callback(integrator, callback::DiffEqBase.AbstractContinuousCallback, args...)
+function find_first_continuous_callback(integrator, callback::AbstractContinuousCallback, args...)
   find_first_continuous_callback(integrator,find_callback_time(integrator,callback,1)...,1,1,args...)
 end
 
@@ -144,7 +144,7 @@ end
 @inline function determine_event_occurance(integrator,callback,counter)
   event_occurred = false
   if callback.interp_points!=0
-    DiffEqBase.addsteps!(integrator)
+    addsteps!(integrator)
   end
   Θs = range(typeof(integrator.t)(0), stop=typeof(integrator.t)(1), length=callback.interp_points)
   interp_index = 0
@@ -169,10 +169,10 @@ end
     # Since near even we use direction instead of location to reset
 
     if callback.interp_points==0
-      DiffEqBase.addsteps!(integrator)
+      addsteps!(integrator)
     end
 
-    if DiffEqBase.ismutablecache(integrator.cache)
+    if ismutablecache(integrator.cache)
       if typeof(callback.idxs) <: Nothing
         tmp = integrator.cache.tmp
       else !(typeof(callback.idxs) <: Number)
@@ -181,7 +181,7 @@ end
     end
 
     abst = integrator.tprev+integrator.dt*100*eps(integrator.tprev)
-    if DiffEqBase.ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
+    if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
       integrator(tmp,abst,Val{0},idxs=callback.idxs)
     else
       tmp = integrator(abst,Val{0},idxs=callback.idxs)
@@ -208,8 +208,8 @@ end
   if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*next_sign<=0
     event_occurred = true
     interp_index = callback.interp_points
-  elseif callback.interp_points!=0  && !DiffEqBase.isdiscretealg(integrator.alg) # Use the interpolants for safety checking
-    if DiffEqBase.ismutablecache(integrator.cache)
+  elseif callback.interp_points!=0  && !isdiscretealg(integrator.alg) # Use the interpolants for safety checking
+    if ismutablecache(integrator.cache)
       if typeof(callback.idxs) <: Nothing
         tmp = integrator.cache.tmp
       else !(typeof(callback.idxs) <: Number)
@@ -218,7 +218,7 @@ end
     end
     for i in 2:length(Θs)
       abst = integrator.tprev+integrator.dt*Θs[i]
-      if DiffEqBase.ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
+      if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
         integrator(tmp,abst,Val{0},idxs=callback.idxs)
       else
         tmp = integrator(abst,Val{0},idxs=callback.idxs)
@@ -250,8 +250,8 @@ function find_callback_time(integrator,callback,counter)
         top_Θ = typeof(integrator.t)(1)
         bottom_θ = typeof(integrator.t)(0)
       end
-      if callback.rootfind && !DiffEqBase.isdiscretealg(integrator.alg)
-        if DiffEqBase.ismutablecache(integrator.cache)
+      if callback.rootfind && !isdiscretealg(integrator.alg)
+        if ismutablecache(integrator.cache)
           _cache = first(get_tmp_cache(integrator))
           if typeof(callback.idxs) <: Nothing
             tmp = _cache
@@ -261,7 +261,7 @@ function find_callback_time(integrator,callback,counter)
         end
         zero_func = (Θ) -> begin
           abst = integrator.tprev+integrator.dt*Θ
-          if DiffEqBase.ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
+          if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
             integrator(tmp,abst,Val{0},idxs=callback.idxs)
           else
             tmp = integrator(abst,Val{0},idxs=callback.idxs)
@@ -298,7 +298,7 @@ function find_callback_time(integrator,callback,counter)
         # a float which is slightly after, making it out of the domain, causing
         # havoc.
         new_t = integrator.dt*Θ
-      elseif interp_index != callback.interp_points && !DiffEqBase.isdiscretealg(integrator.alg)
+      elseif interp_index != callback.interp_points && !isdiscretealg(integrator.alg)
         new_t = integrator.dt*Θs[interp_index]
       else
         # If no solve and no interpolants, just use endpoint
@@ -314,7 +314,7 @@ end
 
 function apply_callback!(integrator,callback::ContinuousCallback,cb_time,prev_sign)
   if cb_time != zero(typeof(integrator.t))
-    DiffEqBase.change_t_via_interpolation!(integrator,integrator.tprev+cb_time)
+    change_t_via_interpolation!(integrator,integrator.tprev+cb_time)
   end
   saved_in_cb = false
 
