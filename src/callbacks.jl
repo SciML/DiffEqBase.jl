@@ -112,6 +112,23 @@ Base.isempty(cb::AbstractDiscreteCallback) = false
 # Callback handling
 #======================================================#
 
+function get_tmp(integrator::DEIntegrator, callback)
+  tmp = nothing
+    if isnative(integrator) # if we have integrator.dt and integrator.cache
+      if ismutablecache(integrator.cache)
+        _cache = first(get_tmp_cache(integrator))
+        if typeof(callback.idxs) <: Nothing
+          tmp = _cache
+        elseif !(typeof(callback.idxs) <: Number)
+          tmp = @view _cache[callback.idxs]
+        end
+      end
+    else
+      tmp = integrator.tmp
+    end
+    return tmp
+end
+
 # Use Recursion to find the first callback for type-stability
 
 # Base Case: Only one callback
@@ -172,26 +189,33 @@ end
       addsteps!(integrator)
     end
 
-    if ismutablecache(integrator.cache)
-      if typeof(callback.idxs) <: Nothing
-        tmp = integrator.cache.tmp
-      else !(typeof(callback.idxs) <: Number)
-        tmp = @view integrator.cache.tmp[callback.idxs]
+    tmp = get_tmp(integrator, callback)
+    if isnative(integrator) # if we have integrator.dt and integrator.cache; TODO: clean up
+      abst = integrator.tprev+integrator.dt*100*eps(integrator.tprev)
+      if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
+        integrator(tmp,abst,Val{0},idxs=callback.idxs)
+      else
+        tmp = integrator(abst,Val{0},idxs=callback.idxs)
       end
-    end
+      tmp_condition = callback.condition(tmp,integrator.tprev +
+                                         100*eps(integrator.tprev),
+                                         integrator)
 
-    abst = integrator.tprev+integrator.dt*100*eps(integrator.tprev)
-    if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
-      integrator(tmp,abst,Val{0},idxs=callback.idxs)
-    else
-      tmp = integrator(abst,Val{0},idxs=callback.idxs)
-    end
+      prev_sign = sign((tmp_condition-previous_condition)/integrator.dt)
+    else # Sundials or ODEInterfaceDiffEq
+      if !(typeof(callback.idxs) <: Number)
+        integrator(tmp,integrator.tprev+100eps(integrator.tprev))
+        callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
+      else
+        _tmp = integrator(integrator.tprev+100eps(integrator.tprev))[callback.idxs]
+      end
 
-    tmp_condition = callback.condition(tmp,integrator.tprev +
-                                       100*eps(integrator.tprev),
-                                       integrator)
+      tmp_condition = callback.condition(_tmp,integrator.tprev +
+                                         100eps(integrator.tprev),
+                                         integrator)
 
-    prev_sign = sign((tmp_condition-previous_condition)/integrator.dt)
+      prev_sign = sign((tmp_condition-previous_condition)/integrator.tdir)
+    end # isnative(integrator)
   else
     prev_sign = sign(previous_condition)
   end
@@ -209,21 +233,16 @@ end
     event_occurred = true
     interp_index = callback.interp_points
   elseif callback.interp_points!=0  && !isdiscrete(integrator.alg) # Use the interpolants for safety checking
-    if ismutablecache(integrator.cache)
-      if typeof(callback.idxs) <: Nothing
-        tmp = integrator.cache.tmp
-      else !(typeof(callback.idxs) <: Number)
-        tmp = @view integrator.cache.tmp[callback.idxs]
-      end
-    end
+    tmp = get_tmp(integrator, callback)
     for i in 2:length(Θs)
-      abst = integrator.tprev+integrator.dt*Θs[i]
+      dt = isnative(integrator) ? integrator.dt : integrator.t-integrator.tprev
+      abst = integrator.tprev+dt*Θs[i]
       if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
         integrator(tmp,abst,Val{0},idxs=callback.idxs)
       else
         tmp = integrator(abst,Val{0},idxs=callback.idxs)
       end
-      new_sign = callback.condition(tmp,integrator.tprev+integrator.dt*Θs[i],integrator)
+      new_sign = callback.condition(tmp,abst,integrator)
       if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*new_sign<0
         event_occurred = true
         interp_index = i
@@ -239,6 +258,7 @@ end
 
 function find_callback_time(integrator,callback,counter)
   event_occurred,interp_index,Θs,prev_sign,prev_sign_index = determine_event_occurance(integrator,callback,counter)
+  dt = isnative(integrator) ? integrator.dt : integrator.t-integrator.tprev
   if event_occurred
     if typeof(callback.condition) <: Nothing
       new_t = zero(typeof(integrator.t))
@@ -251,22 +271,15 @@ function find_callback_time(integrator,callback,counter)
         bottom_θ = typeof(integrator.t)(0)
       end
       if callback.rootfind && !isdiscrete(integrator.alg)
-        if ismutablecache(integrator.cache)
-          _cache = first(get_tmp_cache(integrator))
-          if typeof(callback.idxs) <: Nothing
-            tmp = _cache
-          elseif !(typeof(callback.idxs) <: Number)
-            tmp = @view _cache[callback.idxs]
-          end
-        end
+        tmp = get_tmp(integrator, callback)
         zero_func = (Θ) -> begin
-          abst = integrator.tprev+integrator.dt*Θ
+          abst = integrator.tprev+dt*Θ
           if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
             integrator(tmp,abst,Val{0},idxs=callback.idxs)
           else
             tmp = integrator(abst,Val{0},idxs=callback.idxs)
           end
-          callback.condition(tmp,integrator.tprev+Θ*integrator.dt,integrator)
+          callback.condition(tmp,abst,integrator)
         end
         if zero_func(top_Θ) == 0
           Θ = top_Θ
@@ -297,12 +310,12 @@ function find_callback_time(integrator,callback,counter)
         # The item never leaves the domain. Otherwise Roots.jl can return
         # a float which is slightly after, making it out of the domain, causing
         # havoc.
-        new_t = integrator.dt*Θ
+        new_t = dt*Θ
       elseif interp_index != callback.interp_points && !isdiscrete(integrator.alg)
-        new_t = integrator.dt*Θs[interp_index]
+        new_t = dt*Θs[interp_index]
       else
         # If no solve and no interpolants, just use endpoint
-        new_t = integrator.dt
+        new_t = dt
       end
     end
   else

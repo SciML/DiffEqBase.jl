@@ -35,6 +35,8 @@ reinit!(integrator::DEIntegrator,args...; kwargs...) =
        error("reinit!: method has not been implemented for the integrator")
 auto_dt_reset!(integrator::DEIntegrator) = error("auto_dt_reset!: method has not been implemented for the integrator")
 change_t_via_interpolation!(i::DEIntegrator,args...) = error("change_t_via_interpolation!: method has not been implemented for the integrator")
+# if the integrator is implemented in native Julia, then we have `i.cache` and `i.dt`
+isnative(i::DEIntegrator) = error("isnative: method has not been implemented for the integrator")
 addsteps!(i::DEIntegrator,args...) = nothing
 """
     reeval_internals_due_to_modification!(integrator::DDEIntegrator)
