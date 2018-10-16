@@ -22,4 +22,4 @@ function SteadyStateProblem(f,u0,p=nothing;kwargs...)
 end
 
 SteadyStateProblem(prob::AbstractODEProblem) =
-      SteadyStateProblem{isinplace(prob)}(prob.f,prob.u0)
+      SteadyStateProblem{isinplace(prob)}(prob.f,prob.u0,prob.p)
