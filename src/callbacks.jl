@@ -208,7 +208,7 @@ end
   if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*next_sign<=0
     event_occurred = true
     interp_index = callback.interp_points
-  elseif callback.interp_points!=0  && !isdiscretealg(integrator.alg) # Use the interpolants for safety checking
+  elseif callback.interp_points!=0  && !isdiscrete(integrator.alg) # Use the interpolants for safety checking
     if ismutablecache(integrator.cache)
       if typeof(callback.idxs) <: Nothing
         tmp = integrator.cache.tmp
@@ -250,7 +250,7 @@ function find_callback_time(integrator,callback,counter)
         top_Θ = typeof(integrator.t)(1)
         bottom_θ = typeof(integrator.t)(0)
       end
-      if callback.rootfind && !isdiscretealg(integrator.alg)
+      if callback.rootfind && !isdiscrete(integrator.alg)
         if ismutablecache(integrator.cache)
           _cache = first(get_tmp_cache(integrator))
           if typeof(callback.idxs) <: Nothing
@@ -298,7 +298,7 @@ function find_callback_time(integrator,callback,counter)
         # a float which is slightly after, making it out of the domain, causing
         # havoc.
         new_t = integrator.dt*Θ
-      elseif interp_index != callback.interp_points && !isdiscretealg(integrator.alg)
+      elseif interp_index != callback.interp_points && !isdiscrete(integrator.alg)
         new_t = integrator.dt*Θs[interp_index]
       else
         # If no solve and no interpolants, just use endpoint

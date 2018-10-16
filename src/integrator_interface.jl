@@ -35,9 +35,12 @@ reinit!(integrator::DEIntegrator,args...; kwargs...) =
        error("reinit!: method has not been implemented for the integrator")
 auto_dt_reset!(integrator::DEIntegrator) = error("auto_dt_reset!: method has not been implemented for the integrator")
 change_t_via_interpolation!(i::DEIntegrator,args...) = error("change_t_via_interpolation!: method has not been implemented for the integrator")
-ismutablecache(cache::DECache) = error("ismutablecache method has not been implemented for the cache")
 addsteps!(i::DEIntegrator,args...) = nothing
-isdiscretealg(alg::DEAlgorithm) = false
+"""
+    reeval_internals_due_to_modification!(integrator::DDEIntegrator)
+
+Recalculate interpolation data and update ODE integrator after changes by callbacks.
+"""
 reeval_internals_due_to_modification!(integrator::DEIntegrator) = nothing
 
 """
