@@ -26,6 +26,22 @@ get_dt(i::DEIntegrator) = error("get_dt: method has not been implemented for the
 get_proposed_dt(i::DEIntegrator) = error("get_proposed_dt: method has not been implemented for the integrator")
 set_proposed_dt!(i::DEIntegrator) = error("modify_proposed_dt!: method has not been implemented for the integrator")
 u_modified!(i::DEIntegrator,bool) = error("u_modified!: method has not been implemented for the integrator")
+"""
+    savevalues!(integrator::ODEIntegrator,
+      force_save=false,reduce_size=true) -> Tuple{Bool, Bool}
+
+Try to save the state and time variables at the current time point, or the
+`saveat` point by using interpolation when appropriate. It returns a tuple that
+is `(saved, savedexactly)`. If `savevalues!` saved value, then `saved` is true,
+and if `savevalues!` saved at the current time point, then `savedexactly` is
+true.
+
+The saving priority/order is as follows:
+  - `save_on`
+    - `saveat`
+    - `force_save`
+    - `save_everystep`/`timeseries_steps`
+"""
 savevalues!(i::DEIntegrator) = error("savevalues!: method has not been implemented for the integrator")
 add_tstop!(i::DEIntegrator,t) = error("add_tstop!: method has not been implemented for the integrator")
 add_saveat!(i::DEIntegrator,t) = error("add_saveat!: method has not been implemented for the integrator")
