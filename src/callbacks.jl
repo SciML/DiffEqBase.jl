@@ -237,12 +237,22 @@ end
     for i in 2:length(Θs)
       dt = isnative(integrator) ? integrator.dt : integrator.t-integrator.tprev
       abst = integrator.tprev+dt*Θs[i]
-      if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
-        integrator(tmp,abst,Val{0},idxs=callback.idxs)
+      if isnative(integrator)
+        if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
+          integrator(tmp,abst,Val{0},idxs=callback.idxs)
+        else
+          tmp = integrator(abst,Val{0},idxs=callback.idxs)
+        end
+        new_sign = callback.condition(tmp,abst,integrator)
       else
-        tmp = integrator(abst,Val{0},idxs=callback.idxs)
+        if !(typeof(callback.idxs) <: Number)
+          integrator(tmp,integrator.tprev+dt*Θs[i])
+          callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
+        else
+          _tmp = integrator(integrator.tprev+dt*Θs[i])[callback.idxs]
+        end
+        new_sign = callback.condition(_tmp,integrator.tprev+dt*Θs[i],integrator)
       end
-      new_sign = callback.condition(tmp,abst,integrator)
       if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*new_sign<0
         event_occurred = true
         interp_index = i
@@ -274,12 +284,22 @@ function find_callback_time(integrator,callback,counter)
         tmp = get_tmp(integrator, callback)
         zero_func = (Θ) -> begin
           abst = integrator.tprev+dt*Θ
-          if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
-            integrator(tmp,abst,Val{0},idxs=callback.idxs)
+          if isnative(integrator)
+            if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
+              integrator(tmp,abst,Val{0},idxs=callback.idxs)
+            else
+              tmp = integrator(abst,Val{0},idxs=callback.idxs)
+            end
+            return callback.condition(tmp,abst,integrator)
           else
-            tmp = integrator(abst,Val{0},idxs=callback.idxs)
+            if !(typeof(callback.idxs) <: Number)
+              integrator(tmp,integrator.tprev+Θ*dt)
+              callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
+            else
+              _tmp = integrator(integrator.tprev+Θ*dt)[callback.idxs]
+            end
+            return callback.condition(_tmp,abst,integrator)
           end
-          callback.condition(tmp,abst,integrator)
         end
         if zero_func(top_Θ) == 0
           Θ = top_Θ
