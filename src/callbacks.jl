@@ -129,7 +129,7 @@ end
 function get_condition(integrator::DEIntegrator, callback, abst, evalt=abst)
   tmp = get_tmp(integrator, callback)
   ismutable = !(tmp === nothing)
-  if isnative(integrator) # if we have integrator.cache
+  if isnative(integrator)
     ismutable && !(typeof(callback.idxs) isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
                                                        tmp = integrator(abst,Val{0},idxs=callback.idxs)
     return callback.condition(tmp,evalt,integrator)
@@ -204,8 +204,6 @@ end
       addsteps!(integrator)
     end
 
-    tmp = get_tmp(integrator, callback)
-    ismutable = !(tmp === nothing)
     abst = integrator.tprev+integrator.dt*100*eps(integrator.tprev)
     evalt = integrator.tprev+100*eps(integrator.tprev) # evaluate callback at this time
     tmp_condition = get_condition(integrator, callback, abst, evalt)
@@ -227,9 +225,7 @@ end
   if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*next_sign<=0
     event_occurred = true
     interp_index = callback.interp_points
-  elseif callback.interp_points!=0 && !isnative(integrator) || !isdiscrete(integrator.alg) # Use the interpolants for safety checking
-    tmp = get_tmp(integrator, callback)
-    ismutable = !(tmp === nothing)
+  elseif callback.interp_points!=0 && !isdiscrete(integrator.alg) # Use the interpolants for safety checking
     for i in 2:length(Θs)
       abst = integrator.tprev+integrator.dt*Θs[i]
       new_sign = get_condition(integrator, callback, abst)
@@ -259,9 +255,7 @@ function find_callback_time(integrator,callback,counter)
         top_Θ = typeof(integrator.t)(1)
         bottom_θ = typeof(integrator.t)(0)
       end
-      if callback.rootfind && !isnative(integrator) || !isdiscrete(integrator.alg)
-        tmp = get_tmp(integrator, callback)
-        ismutable = !(tmp === nothing)
+      if callback.rootfind && !isdiscrete(integrator.alg)
         zero_func = (Θ) -> begin
           abst = integrator.tprev+integrator.dt*Θ
           return get_condition(integrator, callback, abst)
@@ -296,7 +290,7 @@ function find_callback_time(integrator,callback,counter)
         # a float which is slightly after, making it out of the domain, causing
         # havoc.
         new_t = integrator.dt*Θ
-      elseif interp_index != callback.interp_points && !isnative(integrator) || !isdiscrete(integrator.alg)
+      elseif interp_index != callback.interp_points && !isdiscrete(integrator.alg)
         new_t = integrator.dt*Θs[interp_index]
       else
         # If no solve and no interpolants, just use endpoint
