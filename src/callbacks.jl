@@ -129,19 +129,9 @@ end
 function get_condition(integrator::DEIntegrator, callback, abst, evalt=abst)
   tmp = get_tmp(integrator, callback)
   ismutable = !(tmp === nothing)
-  if isnative(integrator)
-    ismutable && !(typeof(callback.idxs) isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
-                                                       tmp = integrator(abst,Val{0},idxs=callback.idxs)
-    return callback.condition(tmp,evalt,integrator)
-  else # Sundials or ODEInterfaceDiffEq
-    if !(typeof(callback.idxs) <: Number)
-      ismutable ? integrator(tmp,abst) : tmp = integrator(abst)
-      callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
-    else
-      _tmp = integrator(abst)[callback.idxs]
-    end
-    return callback.condition(_tmp,evalt,integrator)
-  end # isnative(integrator)
+  ismutable && !(typeof(callback.idxs) isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
+                                                     tmp = integrator(abst,Val{0},idxs=callback.idxs)
+  return callback.condition(tmp,evalt,integrator)
 end
 
 # Use Recursion to find the first callback for type-stability
@@ -183,10 +173,8 @@ end
   # Check if the event occured
   if typeof(callback.idxs) <: Nothing
     previous_condition = callback.condition(integrator.uprev,integrator.tprev,integrator)
-  elseif typeof(callback.idxs) <: Number
-    previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
   else
-    previous_condition = callback.condition(@view(integrator.uprev[callback.idxs]),integrator.tprev,integrator)
+    @views previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
   end
 
   if integrator.event_last_time == counter && abs(previous_condition) < 100callback.abstol
@@ -216,10 +204,8 @@ end
   prev_sign_index = 1
   if typeof(callback.idxs) <: Nothing
     next_sign = sign(callback.condition(integrator.u,integrator.t,integrator))
-  elseif typeof(callback.idxs) <: Number
-    next_sign = sign(callback.condition(integrator.u[callback.idxs],integrator.t,integrator))
   else
-    next_sign = sign(callback.condition(@view(integrator.u[callback.idxs]),integrator.t,integrator))
+    @views next_sign = sign(callback.condition(integrator.u[callback.idxs],integrator.t,integrator))
   end
 
   if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*next_sign<=0

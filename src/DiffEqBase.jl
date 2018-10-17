@@ -178,7 +178,7 @@ export resize!,deleteat!,addat!,get_tmp_cache,full_cache,user_cache,u_cache,du_c
        set_reltol!,get_du, get_du!, get_dt,get_proposed_dt,set_proposed_dt!,
        u_modified!, savevalues!,reinit!, auto_dt_reset!, set_t!,
        set_u!, check_error, change_t_via_interpolation!, addsteps!,
-       isdiscrete, reeval_internals_due_to_modification!, isnative
+       isdiscrete, reeval_internals_due_to_modification!
 
 export apply_callback!, apply_discrete_callback!, find_first_continuous_callback,
        determine_event_occurance
