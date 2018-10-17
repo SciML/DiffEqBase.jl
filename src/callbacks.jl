@@ -113,20 +113,15 @@ Base.isempty(cb::AbstractDiscreteCallback) = false
 #======================================================#
 
 function get_tmp(integrator::DEIntegrator, callback)
-  tmp = nothing
-    if isnative(integrator) # if we have integrator.dt and integrator.cache
-      if ismutablecache(integrator.cache)
-        _cache = first(get_tmp_cache(integrator))
-        if typeof(callback.idxs) <: Nothing
-          tmp = _cache
-        elseif !(typeof(callback.idxs) <: Number)
-          tmp = @view _cache[callback.idxs]
-        end
-      end
-    else
-      tmp = integrator.tmp
-    end
-    return tmp
+  _tmp = get_tmp_cache(integrator)
+  _tmp === nothing && return nothing
+  _cache = first(_tmp)
+  if callback.idxs isa Nothing
+    tmp = _cache
+  elseif !(callback.idxs isa Number)
+    tmp = @view _cache[callback.idxs]
+  end
+  return tmp
 end
 
 # Use Recursion to find the first callback for type-stability
@@ -192,7 +187,7 @@ end
     tmp = get_tmp(integrator, callback)
     if isnative(integrator) # if we have integrator.dt and integrator.cache; TODO: clean up
       abst = integrator.tprev+integrator.dt*100*eps(integrator.tprev)
-      if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
+      if !(tmp === nothing) && !(typeof(callback.idxs) <: Number)
         integrator(tmp,abst,Val{0},idxs=callback.idxs)
       else
         tmp = integrator(abst,Val{0},idxs=callback.idxs)
@@ -203,11 +198,20 @@ end
 
       prev_sign = sign((tmp_condition-previous_condition)/integrator.dt)
     else # Sundials or ODEInterfaceDiffEq
-      if !(typeof(callback.idxs) <: Number)
-        integrator(tmp,integrator.tprev+100eps(integrator.tprev))
-        callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
+      if tmp === nothing
+        if !(typeof(callback.idxs) <: Number)
+          tmp = integrator(integrator.tprev+100eps(integrator.tprev))::Vector{Float64}
+          callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
+        else
+          _tmp = integrator((integrator.tprev+100eps(integrator.tprev))::Vector{Float64})[callback.idxs]
+        end
       else
-        _tmp = integrator(integrator.tprev+100eps(integrator.tprev))[callback.idxs]
+        if !(typeof(callback.idxs) <: Number)
+          integrator(tmp,integrator.tprev+100eps(integrator.tprev))
+          callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
+        else
+          _tmp = integrator(integrator.tprev+100eps(integrator.tprev))[callback.idxs]
+        end
       end
 
       tmp_condition = callback.condition(_tmp,integrator.tprev +
@@ -232,24 +236,33 @@ end
   if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*next_sign<=0
     event_occurred = true
     interp_index = callback.interp_points
-  elseif callback.interp_points!=0  && !isdiscrete(integrator.alg) # Use the interpolants for safety checking
+  elseif callback.interp_points!=0 && !isnative(integrator) || !isdiscrete(integrator.alg) # Use the interpolants for safety checking
     tmp = get_tmp(integrator, callback)
     for i in 2:length(Θs)
       dt = isnative(integrator) ? integrator.dt : integrator.t-integrator.tprev
       abst = integrator.tprev+dt*Θs[i]
       if isnative(integrator)
-        if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
+        if !(tmp === nothing) && !(typeof(callback.idxs) <: Number)
           integrator(tmp,abst,Val{0},idxs=callback.idxs)
         else
           tmp = integrator(abst,Val{0},idxs=callback.idxs)
         end
         new_sign = callback.condition(tmp,abst,integrator)
       else
-        if !(typeof(callback.idxs) <: Number)
-          integrator(tmp,integrator.tprev+dt*Θs[i])
-          callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
+        if tmp === nothing
+          if !(typeof(callback.idxs) <: Number)
+            __tmp = integrator(integrator.tprev+dt*Θs[i])::Vector{Float64}
+            callback.idxs == nothing ? _tmp = __tmp : _tmp = @view __tmp[callback.idxs]
+          else
+            _tmp = (integrator(integrator.tprev+dt*Θs[i])::Vector{Float64})[callback.idxs]
+          end
         else
-          _tmp = integrator(integrator.tprev+dt*Θs[i])[callback.idxs]
+          if !(typeof(callback.idxs) <: Number)
+            integrator(tmp,integrator.tprev+dt*Θs[i])
+            callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
+          else
+            _tmp = integrator(integrator.tprev+dt*Θs[i])[callback.idxs]
+          end
         end
         new_sign = callback.condition(_tmp,integrator.tprev+dt*Θs[i],integrator)
       end
@@ -280,23 +293,32 @@ function find_callback_time(integrator,callback,counter)
         top_Θ = typeof(integrator.t)(1)
         bottom_θ = typeof(integrator.t)(0)
       end
-      if callback.rootfind && !isdiscrete(integrator.alg)
+      if callback.rootfind && !isnative(integrator) || !isdiscrete(integrator.alg)
         tmp = get_tmp(integrator, callback)
         zero_func = (Θ) -> begin
           abst = integrator.tprev+dt*Θ
           if isnative(integrator)
-            if ismutablecache(integrator.cache) && !(typeof(callback.idxs) <: Number)
+            if !(tmp === nothing) && !(typeof(callback.idxs) <: Number)
               integrator(tmp,abst,Val{0},idxs=callback.idxs)
             else
               tmp = integrator(abst,Val{0},idxs=callback.idxs)
             end
             return callback.condition(tmp,abst,integrator)
           else
-            if !(typeof(callback.idxs) <: Number)
-              integrator(tmp,integrator.tprev+Θ*dt)
-              callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
+            if tmp === nothing
+              if !(typeof(callback.idxs) <: Number)
+                __tmp = integrator(integrator.tprev+Θ*dt)::Vector{Float64}
+                callback.idxs == nothing ? _tmp = __tmp : _tmp = @view __tmp[callback.idxs]
+              else
+                _tmp = (integrator(integrator.tprev+Θ*dt)::Vector{Float64})[callback.idxs]
+              end
             else
-              _tmp = integrator(integrator.tprev+Θ*dt)[callback.idxs]
+              if !(typeof(callback.idxs) <: Number)
+                integrator(tmp,integrator.tprev+Θ*dt)
+                callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
+              else
+                _tmp = integrator(integrator.tprev+Θ*dt)[callback.idxs]
+              end
             end
             return callback.condition(_tmp,abst,integrator)
           end
@@ -331,7 +353,7 @@ function find_callback_time(integrator,callback,counter)
         # a float which is slightly after, making it out of the domain, causing
         # havoc.
         new_t = dt*Θ
-      elseif interp_index != callback.interp_points && !isdiscrete(integrator.alg)
+      elseif interp_index != callback.interp_points && !isnative(integrator) || !isdiscrete(integrator.alg)
         new_t = dt*Θs[interp_index]
       else
         # If no solve and no interpolants, just use endpoint
