@@ -120,6 +120,8 @@ function get_tmp(integrator::DEIntegrator, callback)
     tmp = _cache
   elseif !(callback.idxs isa Number)
     tmp = @view _cache[callback.idxs]
+  else
+    tmp = nothing
   end
   return tmp
 end
@@ -238,25 +240,26 @@ end
     interp_index = callback.interp_points
   elseif callback.interp_points!=0 && !isnative(integrator) || !isdiscrete(integrator.alg) # Use the interpolants for safety checking
     tmp = get_tmp(integrator, callback)
+    ismutable = !(tmp === nothing)
     for i in 2:length(Θs)
       dt = isnative(integrator) ? integrator.dt : integrator.t-integrator.tprev
       abst = integrator.tprev+dt*Θs[i]
       if isnative(integrator)
-        if !(tmp === nothing) && !(typeof(callback.idxs) <: Number)
+        if ismutable && !(typeof(callback.idxs) <: Number)
           integrator(tmp,abst,Val{0},idxs=callback.idxs)
         else
           tmp = integrator(abst,Val{0},idxs=callback.idxs)
         end
         new_sign = callback.condition(tmp,abst,integrator)
       else
-        if tmp === nothing
+        if !ismutable # ODEInterfaceDiffEq
           if !(typeof(callback.idxs) <: Number)
-            __tmp = integrator(integrator.tprev+dt*Θs[i])::Vector{Float64}
-            callback.idxs == nothing ? _tmp = __tmp : _tmp = @view __tmp[callback.idxs]
+            tmp = integrator(integrator.tprev+dt*Θs[i])::Vector{Float64}
+            callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
           else
             _tmp = (integrator(integrator.tprev+dt*Θs[i])::Vector{Float64})[callback.idxs]
           end
-        else
+        else # Sundials
           if !(typeof(callback.idxs) <: Number)
             integrator(tmp,integrator.tprev+dt*Θs[i])
             callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
@@ -295,24 +298,25 @@ function find_callback_time(integrator,callback,counter)
       end
       if callback.rootfind && !isnative(integrator) || !isdiscrete(integrator.alg)
         tmp = get_tmp(integrator, callback)
+        ismutable = !(tmp === nothing)
         zero_func = (Θ) -> begin
           abst = integrator.tprev+dt*Θ
           if isnative(integrator)
-            if !(tmp === nothing) && !(typeof(callback.idxs) <: Number)
+            if ismutable && !(typeof(callback.idxs) <: Number)
               integrator(tmp,abst,Val{0},idxs=callback.idxs)
             else
               tmp = integrator(abst,Val{0},idxs=callback.idxs)
             end
             return callback.condition(tmp,abst,integrator)
           else
-            if tmp === nothing
+            if !ismutable # ODEInterfaceDiffEq
               if !(typeof(callback.idxs) <: Number)
-                __tmp = integrator(integrator.tprev+Θ*dt)::Vector{Float64}
-                callback.idxs == nothing ? _tmp = __tmp : _tmp = @view __tmp[callback.idxs]
+                tmp = integrator(integrator.tprev+Θ*dt)::Vector{Float64}
+                callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
               else
                 _tmp = (integrator(integrator.tprev+Θ*dt)::Vector{Float64})[callback.idxs]
               end
-            else
+            else # Sundials
               if !(typeof(callback.idxs) <: Number)
                 integrator(tmp,integrator.tprev+Θ*dt)
                 callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
