@@ -177,7 +177,7 @@ end
     @views previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
   end
 
-  if integrator.event_last_time == counter && abs(previous_condition) < 100callback.abstol
+  if integrator.event_last_time == counter && abs(previous_condition) < 100abs(integrator.last_event_error)
 
     # If there was a previous event, utilize the derivative at the start to
     # chose the previous sign. If the derivative is positive at tprev, then
@@ -250,7 +250,7 @@ function find_callback_time(integrator,callback,counter)
           Θ = top_Θ
         else
           if integrator.event_last_time == counter &&
-            abs(zero_func(bottom_θ)) < 100callback.abstol &&
+            abs(zero_func(bottom_θ)) < 100abs(integrator.last_event_error) &&
             prev_sign_index == 1
 
             # Determined that there is an event by derivative
@@ -266,6 +266,7 @@ function find_callback_time(integrator,callback,counter)
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
           Θ = prevfloat(Roots.find_zero(zero_func,(bottom_θ,top_Θ),Roots.AlefeldPotraShi(),atol = callback.abstol/100))
+          integrator.last_event_error = zero_func(Θ)
         end
         #Θ = prevfloat(...)
         # prevfloat guerentees that the new time is either 1 floating point
