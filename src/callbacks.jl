@@ -292,9 +292,10 @@ function find_callback_time(integrator,callback,counter)
 end
 
 function apply_callback!(integrator,callback::ContinuousCallback,cb_time,prev_sign)
-  if cb_time != zero(typeof(integrator.t))
-    change_t_via_interpolation!(integrator,integrator.tprev+cb_time)
+  if cb_time == zero(typeof(integrator.t))
+    error("Event repeated at the same time. Please report this error")
   end
+  change_t_via_interpolation!(integrator,integrator.tprev+cb_time)
   saved_in_cb = false
 
   # handle saveat
