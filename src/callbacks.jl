@@ -146,7 +146,7 @@ function find_first_continuous_callback(integrator, callback::AbstractContinuous
   find_first_continuous_callback(integrator,find_callback_time(integrator,callback,1)...,1,1,args...)
 end
 
-function find_first_continuous_callback(integrator,tmin::Number,upcrossing::Float64,
+function find_first_continuous_callback(integrator,tmin::Number,upcrossing::Number,
                                         event_occured::Bool,idx::Int,counter::Int,
                                         callback2)
   counter += 1 # counter is idx for callback2.
@@ -159,7 +159,7 @@ function find_first_continuous_callback(integrator,tmin::Number,upcrossing::Floa
   end
 end
 
-function find_first_continuous_callback(integrator,tmin::Number,upcrossing::Float64,event_occured::Bool,idx::Int,counter::Int,callback2,args...)
+function find_first_continuous_callback(integrator,tmin::Number,upcrossing::Number,event_occured::Bool,idx::Int,counter::Int,callback2,args...)
   find_first_continuous_callback(integrator,find_first_continuous_callback(integrator,tmin,upcrossing,event_occured,idx,counter,callback2)...,args...)
 end
 
