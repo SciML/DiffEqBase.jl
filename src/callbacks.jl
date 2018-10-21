@@ -296,15 +296,14 @@ function apply_callback!(integrator,callback::ContinuousCallback,cb_time,prev_si
     error("Event repeated at the same time. Please report this error")
   end
   change_t_via_interpolation!(integrator,integrator.tprev+cb_time)
-  saved_in_cb = false
 
   # handle saveat
   savevalues!(integrator)
+  saved_in_cb = true
 
   @inbounds if callback.save_positions[1]
     # if already saved then skip saving
     last(integrator.sol.t) == integrator.t || savevalues!(integrator,true)
-    saved_in_cb = true
   end
 
   integrator.u_modified = true
@@ -340,10 +339,10 @@ end
   if callback.condition(integrator.u,integrator.t,integrator)
     # handle saveat
     savevalues!(integrator)
+    saved_in_cb = true
     @inbounds if callback.save_positions[1]
       # if already saved then skip saving
       last(integrator.sol.t) == integrator.t || savevalues!(integrator,true)
-      saved_in_cb = true
     end
     integrator.u_modified = true
     callback.affect!(integrator)
