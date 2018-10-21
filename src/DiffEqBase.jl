@@ -180,9 +180,6 @@ export resize!,deleteat!,addat!,get_tmp_cache,full_cache,user_cache,u_cache,du_c
        set_u!, check_error, change_t_via_interpolation!, addsteps!,
        isdiscrete, reeval_internals_due_to_modification!
 
-export apply_callback!, apply_discrete_callback!, find_first_continuous_callback,
-       determine_event_occurance
-
 export DiscreteProblem
 
 export SteadyStateProblem, SteadyStateSolution
