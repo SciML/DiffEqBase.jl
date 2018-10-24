@@ -44,6 +44,12 @@ function __init__()
     @inline function ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedArray) where {N}
       sqrt(sum(ODE_DEFAULT_NORM,(value(x) for x in u)) / length(u))
     end
+    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Flux.Tracker.TrackedReal,N}) where {N}
+      sqrt(sum(ODE_DEFAULT_NORM,(value(x) for x in u)) / length(u))
+    end
+    @inline function ODE_DEFAULT_NORM(u::Array{<:Flux.Tracker.TrackedReal,N}) where {N}
+      sqrt(sum(ODE_DEFAULT_NORM,(value(x) for x in u)) / length(u))
+    end
     @inline ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedReal) = abs(value(u))
   end
 
