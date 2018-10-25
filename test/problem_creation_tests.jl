@@ -93,3 +93,4 @@ u0 = zeros(2)
 prob = SteadyStateProblem(f,u0)
 
 @test_broken @inferred SteadyStateProblem(f,u0)
+@test SteadyStateProblem(ODEProblem(f,u0,tspan,:param)).p == :param

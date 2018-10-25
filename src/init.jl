@@ -11,6 +11,10 @@ function __init__()
       sqrt(sum(ODE_DEFAULT_NORM,(ForwardDiff.value(x) for x in u)) / length(u))
     end
     @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual) = abs(ForwardDiff.value(u))
+
+    # Type piracy. Should upstream
+    Base.nextfloat(d::ForwardDiff.Dual{T,V,N}) where {T,V,N} = ForwardDiff.Dual{T}(nextfloat(d.value), d.partials)
+    Base.prevfloat(d::ForwardDiff.Dual{T,V,N}) where {T,V,N} = ForwardDiff.Dual{T}(prevfloat(d.value), d.partials)
   end
 
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
@@ -32,6 +36,21 @@ function __init__()
       sqrt(sum(ODE_DEFAULT_NORM,(value(x) for x in u)) / length(u))
     end
     @inline ODE_DEFAULT_NORM(u::Unitful.Quantity) = abs(value(u))
+  end
+
+  @require Flux="587475ba-b771-5e3f-ad9e-33799f191a9c" begin
+    value(x::Flux.Tracker.TrackedReal)  = x.data
+    value(x::Flux.Tracker.TrackedArray) = x.data
+    @inline function ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedArray) where {N}
+      sqrt(sum(ODE_DEFAULT_NORM,(value(x) for x in u)) / length(u))
+    end
+    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Flux.Tracker.TrackedReal,N}) where {N}
+      sqrt(sum(ODE_DEFAULT_NORM,(value(x) for x in u)) / length(u))
+    end
+    @inline function ODE_DEFAULT_NORM(u::Array{<:Flux.Tracker.TrackedReal,N}) where {N}
+      sqrt(sum(ODE_DEFAULT_NORM,(value(x) for x in u)) / length(u))
+    end
+    @inline ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedReal) = abs(value(u))
   end
 
 end
