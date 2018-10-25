@@ -53,7 +53,7 @@ auto_dt_reset!(integrator::DEIntegrator) = error("auto_dt_reset!: method has not
 change_t_via_interpolation!(i::DEIntegrator,args...) = error("change_t_via_interpolation!: method has not been implemented for the integrator")
 addsteps!(i::DEIntegrator,args...) = nothing
 """
-    reeval_internals_due_to_modification!(integrator::DDEIntegrator)
+    reeval_internals_due_to_modification!(integrator::DEIntegrator)
 
 Recalculate interpolation data and update ODE integrator after changes by callbacks.
 """
