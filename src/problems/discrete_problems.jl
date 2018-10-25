@@ -16,6 +16,17 @@ struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{u
         typeof(f),typeof(callback)}(f,u0,_tspan,p,callback)
   end
 
+  function DiscreteProblem{iip}(u0::Nothing,tspan::Nothing,p=nothing;
+                                callback = nothing) where {iip}
+    if iip
+      f = DISCRETE_INPLACE_DEFAULT
+    else
+      f = DISCRETE_OUTOFPLACE_DEFAULT
+    end
+    new{Nothing,Nothing,iip,typeof(p),
+        typeof(f),typeof(callback)}(f,nothing,nothing,p,callback)
+  end
+
   function DiscreteProblem{iip}(f,u0,tspan,p=nothing;kwargs...) where {iip}
     DiscreteProblem(convert(DiscreteFunction{iip},f),u0,tspan,p;kwargs...)
   end

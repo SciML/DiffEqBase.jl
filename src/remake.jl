@@ -25,3 +25,7 @@ function remake(thing; kwargs...)
   T = remaker_of(thing)
   T(; struct_as_namedtuple(thing)...,kwargs...)
 end
+
+function remake(thing::AbstractJumpProblem; kwargs...)
+  parameterless_type(thing)(remake(thing.prob;kwargs...))
+end
