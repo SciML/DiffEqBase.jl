@@ -298,12 +298,12 @@ function apply_callback!(integrator,callback::ContinuousCallback,cb_time,prev_si
   change_t_via_interpolation!(integrator,integrator.tprev+cb_time)
 
   # handle saveat
-  savevalues!(integrator)
+  _, savedexactly = savevalues!(integrator)
   saved_in_cb = true
 
   @inbounds if callback.save_positions[1]
     # if already saved then skip saving
-    last(integrator.sol.t) == integrator.t || savevalues!(integrator,true)
+    savedexactly || savevalues!(integrator,true)
   end
 
   integrator.u_modified = true
@@ -338,11 +338,11 @@ end
   saved_in_cb = false
   if callback.condition(integrator.u,integrator.t,integrator)
     # handle saveat
-    savevalues!(integrator)
+    _, savedexactly = savevalues!(integrator)
     saved_in_cb = true
     @inbounds if callback.save_positions[1]
       # if already saved then skip saving
-      last(integrator.sol.t) == integrator.t || savevalues!(integrator,true)
+      savedexactly || savevalues!(integrator,true)
     end
     integrator.u_modified = true
     callback.affect!(integrator)
