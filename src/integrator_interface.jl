@@ -103,7 +103,7 @@ end
 TreeViews.hastreeview(x::DiffEqBase.DEIntegrator) = true
 function TreeViews.treelabel(io::IO,x::DiffEqBase.DEIntegrator,
                              mime::MIME"text/plain" = MIME"text/plain"())
-  show(io,mime,Text(Base.summary(x)))
+  show(io,mime,Base.Text(Base.summary(x)))
 end
 
 ### Error check (retcode)
