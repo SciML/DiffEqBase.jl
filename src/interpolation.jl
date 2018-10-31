@@ -49,8 +49,8 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
     avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
     avoid_constant_ends && i==1 && (i+=1)
     if !avoid_constant_ends && t[i] == tval
-      lasti = lastindex(ts)
-      k = continuity == :right && i+1 <= lasti && ts[i+1] == tval ? i+1 : i
+      lasti = lastindex(t)
+      k = continuity == :right && i+1 <= lasti && t[i+1] == tval ? i+1 : i
       if idxs == nothing
         vals[j] = u[k]
       else
@@ -91,13 +91,13 @@ times t (sorted), with values u and derivatives ks
   tdir*tvals[idx[end]] > tdir*t[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Either solve on a longer timespan or use the local extrapolation from the integrator interface.")
   tdir*tvals[idx[1]] < tdir*t[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Either start solving earlier or use the local extrapolation from the integrator interface.")
   @inbounds for j in idx
-    t = tvals[j]
+    tval = tvals[j]
     i = searchsortedfirst(@view(t[i:end]),tval,rev=tdir<0)+i-1 # It's in the interval t[i-1] to t[i]
     avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
     avoid_constant_ends && i==1 && (i+=1)
     if !avoid_constant_ends && t[i] == tval
-      lasti = lastindex(ts)
-      k = continuity == :right && i+1 <= lasti && ts[i+1] == tval ? i+1 : i
+      lasti = lastindex(t)
+      k = continuity == :right && i+1 <= lasti && t[i+1] == tval ? i+1 : i
       if idxs == nothing
         vals[j] = u[k]
       else
@@ -146,8 +146,8 @@ times t (sorted), with values u and derivatives ks
   avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
   avoid_constant_ends && i==1 && (i+=1)
   @inbounds if !avoid_constant_ends && t[i] == tval
-    lasti = lastindex(ts)
-    k = continuity == :right && i+1 <= lasti && ts[i+1] == tval ? i+1 : i
+    lasti = lastindex(t)
+    k = continuity == :right && i+1 <= lasti && t[i+1] == tval ? i+1 : i
     if idxs == nothing
       val = u[k]
     else
@@ -188,8 +188,8 @@ times t (sorted), with values u and derivatives ks
   avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
   avoid_constant_ends && i==1 && (i+=1)
   @inbounds if !avoid_constant_ends && t[i] == tval
-    lasti = lastindex(ts)
-    k = continuity == :right && i+1 <= lasti && ts[i+1] == tval ? i+1 : i
+    lasti = lastindex(t)
+    k = continuity == :right && i+1 <= lasti && t[i+1] == tval ? i+1 : i
     if idxs == nothing
       copy!(out,u[k])
     else
