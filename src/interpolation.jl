@@ -49,7 +49,8 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
     avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
     avoid_constant_ends && i==1 && (i+=1)
     if !avoid_constant_ends && t[i] == tval
-      k = continuity == :right && t[i+1] == tval ? i+1 : i
+      lasti = lastindex(ts)
+      k = continuity == :right && i+1 <= lasti && ts[i+1] == tval ? i+1 : i
       if idxs == nothing
         vals[j] = u[k]
       else
@@ -95,7 +96,8 @@ times t (sorted), with values u and derivatives ks
     avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
     avoid_constant_ends && i==1 && (i+=1)
     if !avoid_constant_ends && t[i] == tval
-      k = continuity == :right && t[i+1] == tval ? i+1 : i
+      lasti = lastindex(ts)
+      k = continuity == :right && i+1 <= lasti && ts[i+1] == tval ? i+1 : i
       if idxs == nothing
         vals[j] = u[k]
       else
@@ -144,7 +146,8 @@ times t (sorted), with values u and derivatives ks
   avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
   avoid_constant_ends && i==1 && (i+=1)
   @inbounds if !avoid_constant_ends && t[i] == tval
-    k = continuity == :right && t[i+1] == tval ? i+1 : i
+    lasti = lastindex(ts)
+    k = continuity == :right && i+1 <= lasti && ts[i+1] == tval ? i+1 : i
     if idxs == nothing
       val = u[k]
     else
@@ -185,7 +188,8 @@ times t (sorted), with values u and derivatives ks
   avoid_constant_ends = deriv != Val{0} #|| typeof(tval) <: ForwardDiff.Dual
   avoid_constant_ends && i==1 && (i+=1)
   @inbounds if !avoid_constant_ends && t[i] == tval
-    k = continuity == :right && t[i+1] == tval ? i+1 : i
+    lasti = lastindex(ts)
+    k = continuity == :right && i+1 <= lasti && ts[i+1] == tval ? i+1 : i
     if idxs == nothing
       copy!(out,u[k])
     else
