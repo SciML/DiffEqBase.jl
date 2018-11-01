@@ -15,6 +15,8 @@ get_tmp_cache(i::DEIntegrator) = error("get_tmp_cache!: method has not been impl
 user_cache(i::DEIntegrator) = error("user_cache: method has not been implemented for the integrator")
 u_cache(i::DEIntegrator) = error("u_cache: method has not been implemented for the integrator")
 du_cache(i::DEIntegrator) = error("du_cache: method has not been implemented for the integrator")
+ratenoise_cache(i::DEIntegrator) = ()
+rand_cache(i::DEIntegrator) = ()
 full_cache(i::DEIntegrator) = error("full_cache: method has not been implemented for the integrator")
 resize_non_user_cache!(i::DEIntegrator,ii::Int) = error("resize_non_user_cache!: method has not been implemented for the integrator")
 deleteat_non_user_cache!(i::DEIntegrator,idxs) = error("deleteat_non_user_cache!: method has not been implemented for the integrator")
@@ -72,9 +74,17 @@ end
 
 ### Addat isn't a real thing. Let's make it a real thing Gretchen
 
-function addat!(a::AbstractArray,idxs,val=zeros(length(idxs)))
-  flip_range = UnitRange(idxs.start,idxs.start-length(idxs))
-  splice!(a,flip_range,val)
+function addat!(a::AbstractArray,idxs,val=nothing)
+  if val === nothing
+    resize!(a,length(a)+length(idxs)+1)
+  else
+    error("real addat! on arrays isn't supported yet")
+    #=
+    flip_range = last(idxs):-1:idxs.start
+    @show idxs,flip_range
+    splice!(a,flip_range,val)
+    =#
+  end
 end
 
 ### Integrator traits

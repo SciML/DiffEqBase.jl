@@ -1,3 +1,4 @@
+is_diagonal_noise(prob::DEProblem) = false 
 is_diagonal_noise(prob::AbstractRODEProblem{uType,tType,isinplace,ND}) where {uType,tType,isinplace,ND} = ND <: Nothing
 
 isinplace(prob::AbstractODEProblem{uType,tType,iip}) where {uType,tType,iip} = iip
