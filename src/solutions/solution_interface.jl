@@ -69,79 +69,10 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
                    vars=nothing)
 
   int_vars = interpret_vars(vars,sol)
-
-  if tspan == nothing
-    if sol.tslocation == 0
-      end_idx = length(sol)
-    else
-      end_idx = sol.tslocation
-    end
-    start_idx = 1
-  else
-    start_idx = something(findfirst(x -> x>=tspan[1], sol.t), 1)
-    end_idx = something(findlast(x -> x<=tspan[end], sol.t), length(sol))
-  end
-
-  # determine type of spacing for plott
   tscale = get(plotattributes, :xscale, :identity)
-  densetspacer = if tscale in [:ln, :log10, :log2]
-    (start, stop, n) -> 10.0.^range(log10(start), stop=log10(stop), length=n)
-  else
-    (start, stop, n) -> range(start;stop=stop,length=n)
-  end
-
-  if denseplot
-    # Generate the points from the plot from dense function
-    if tspan == nothing && !(typeof(sol) <: AbstractAnalyticalSolution)
-      plott = collect(densetspacer(sol.t[start_idx],sol.t[end_idx],plotdensity))
-    elseif typeof(sol) <: AbstractAnalyticalSolution
-      tspan = sol.prob.tspan
-      plott = collect(densetspacer(tspan[1],tspan[end],plotdensity))
-    else
-      plott = collect(densetspacer(tspan[1],tspan[end],plotdensity))
-    end
-    plot_timeseries = sol(plott)
-    if plot_analytic
-      if typeof(sol.prob.f) <: Tuple
-        plot_analytic_timeseries = [sol.prob.f[1](Val{:analytic},t,sol.prob.u0) for t in plott]
-      else
-        plot_analytic_timeseries = [sol.prob.f(Val{:analytic},t,sol.prob.u0) for t in plott]
-      end
-    else
-      plot_analytic_timeseries = nothing
-    end
-  else
-    # Plot for sparse output: use the timeseries itself
-    if sol.tslocation == 0
-      plott = sol.t
-      plot_timeseries = sol.u
-      if plot_analytic
-        plot_analytic_timeseries = sol.u_analytic
-      else
-        plot_analytic_timeseries = nothing
-      end
-    else
-      if tspan == nothing
-        plott = sol.t[start_idx:end_idx]
-      else
-        plott = collect(densetspacer(tspan[1],tspan[2],plotdensity))
-      end
-
-      plot_timeseries = sol.u[start_idx:end_idx]
-      if plot_analytic
-        plot_analytic_timeseries = sol.u_analytic[start_idx:end_idx]
-      else
-        plot_analytic_timeseries = nothing
-      end
-    end
-  end
-
-  dims = length(int_vars[1])
-  for var in int_vars
-    @assert length(var) == dims
-  end
-  # Should check that all have the same dims!
-  plot_vecs,labels = solplot_vecs_and_labels(dims,int_vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries)
+  plot_vecs,labels = diffeq_to_arrays(sol,plot_analytic,denseplot,
+                                      plotdensity,tspan,axis_safety,
+                                      vars,int_vars,tscale)
 
   tdir = sign(sol.t[end]-sol.t[1])
   xflip --> tdir < 0
@@ -213,6 +144,80 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
 
   label --> reshape(labels,1,length(labels))
   (plot_vecs...,)
+end
+
+function diffeq_to_arrays(sol,plot_analytic,denseplot,plotdensity,tspan,axis_safety,vars,int_vars,tscale)
+  if tspan == nothing
+    if sol.tslocation == 0
+      end_idx = length(sol)
+    else
+      end_idx = sol.tslocation
+    end
+    start_idx = 1
+  else
+    start_idx = something(findfirst(x -> x>=tspan[1], sol.t), 1)
+    end_idx = something(findlast(x -> x<=tspan[end], sol.t), length(sol))
+  end
+
+  # determine type of spacing for plott
+  densetspacer = if tscale in [:ln, :log10, :log2]
+    (start, stop, n) -> 10.0.^range(log10(start), stop=log10(stop), length=n)
+  else
+    (start, stop, n) -> range(start;stop=stop,length=n)
+  end
+
+  if denseplot
+    # Generate the points from the plot from dense function
+    if tspan == nothing && !(typeof(sol) <: AbstractAnalyticalSolution)
+      plott = collect(densetspacer(sol.t[start_idx],sol.t[end_idx],plotdensity))
+    elseif typeof(sol) <: AbstractAnalyticalSolution
+      tspan = sol.prob.tspan
+      plott = collect(densetspacer(tspan[1],tspan[end],plotdensity))
+    else
+      plott = collect(densetspacer(tspan[1],tspan[end],plotdensity))
+    end
+    plot_timeseries = sol(plott)
+    if plot_analytic
+      if typeof(sol.prob.f) <: Tuple
+        plot_analytic_timeseries = [sol.prob.f[1](Val{:analytic},t,sol.prob.u0) for t in plott]
+      else
+        plot_analytic_timeseries = [sol.prob.f(Val{:analytic},t,sol.prob.u0) for t in plott]
+      end
+    else
+      plot_analytic_timeseries = nothing
+    end
+  else
+    # Plot for sparse output: use the timeseries itself
+    if sol.tslocation == 0
+      plott = sol.t
+      plot_timeseries = sol.u
+      if plot_analytic
+        plot_analytic_timeseries = sol.u_analytic
+      else
+        plot_analytic_timeseries = nothing
+      end
+    else
+      if tspan == nothing
+        plott = sol.t[start_idx:end_idx]
+      else
+        plott = collect(densetspacer(tspan[1],tspan[2],plotdensity))
+      end
+
+      plot_timeseries = sol.u[start_idx:end_idx]
+      if plot_analytic
+        plot_analytic_timeseries = sol.u_analytic[start_idx:end_idx]
+      else
+        plot_analytic_timeseries = nothing
+      end
+    end
+  end
+
+  dims = length(int_vars[1])
+  for var in int_vars
+    @assert length(var) == dims
+  end
+  # Should check that all have the same dims!
+  plot_vecs,labels = solplot_vecs_and_labels(dims,int_vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries)
 end
 
 function interpret_vars(vars,sol)
