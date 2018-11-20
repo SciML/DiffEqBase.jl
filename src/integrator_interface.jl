@@ -76,7 +76,7 @@ end
 
 function addat!(a::AbstractArray,idxs,val=nothing)
   if val === nothing
-    resize!(a,length(a)+length(idxs)+1)
+    resize!(a,length(a)+length(idxs))
   else
     error("real addat! on arrays isn't supported yet")
     #=
