@@ -327,7 +327,7 @@ function add_labels!(labels,x,dims,sol)
       end
     end
   end
-  lys[end] = lys[end][1:end-1] # Take off the last comma
+  lys[end] = chop(lys[end]) # Take off the last comma
   if x[2] == 0 && dims == 3
     tmp_lab = "$(lys...)(t)"
   else
