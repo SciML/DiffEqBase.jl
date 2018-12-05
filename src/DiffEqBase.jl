@@ -3,22 +3,11 @@ module DiffEqBase
 using RecipesBase, RecursiveArrayTools, Compat,
       Requires, TableTraits, IteratorInterfaceExtensions, TreeViews
 
-import Base: length, size, getindex, setindex!, show, print,
-             iterate, eltype, similar, axes
+using Roots # callbacks
 
-import Base: resize!, deleteat!
+using StaticArrays # data arrays
 
-import RecursiveArrayTools: recursivecopy!, tuples
-
-import RecursiveArrayTools: chain
-
-import Roots # callbacks
-
-import LinearAlgebra: exp, ldiv!
-
-import StaticArrays: StaticArray, SArray, Size
-
-import Statistics: mean, median
+using LinearAlgebra, Statistics
 
 # Problems
 abstract type DEProblem end

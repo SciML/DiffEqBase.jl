@@ -8,8 +8,8 @@ passed to the optional third argument, the integrator advances exactly
 `dt`.
 """
 function step!(d::DEIntegrator) error("Integrator stepping is not implemented") end
-resize!(i::DEIntegrator,ii::Int) = error("resize!: method has not been implemented for the integrator")
-deleteat!(i::DEIntegrator,ii) = error("deleteat!: method has not been implemented for the integrator")
+Base.resize!(i::DEIntegrator,ii::Int) = error("resize!: method has not been implemented for the integrator")
+Base.deleteat!(i::DEIntegrator,ii) = error("deleteat!: method has not been implemented for the integrator")
 addat!(i::DEIntegrator,ii,val=zeros(length(idxs))) = error("addat!: method has not been implemented for the integrator")
 get_tmp_cache(i::DEIntegrator) = error("get_tmp_cache!: method has not been implemented for the integrator")
 user_cache(i::DEIntegrator) = error("user_cache: method has not been implemented for the integrator")
@@ -189,7 +189,7 @@ function done(integrator::DEIntegrator)
   end
   false
 end
-function iterate(integrator::DEIntegrator,state=0)
+function Base.iterate(integrator::DEIntegrator,state=0)
   done(integrator) && return nothing
   state += 1
   step!(integrator) # Iter updated in the step! header
@@ -197,7 +197,7 @@ function iterate(integrator::DEIntegrator,state=0)
   return integrator,state
 end
 
-eltype(integrator::DEIntegrator) = typeof(integrator)
+Base.eltype(integrator::DEIntegrator) = typeof(integrator)
 
 ### Other Iterators
 
@@ -205,7 +205,7 @@ struct IntegratorTuples{I}
  integrator::I
 end
 
-function iterate(tup::IntegratorTuples, state=0)
+function Base.iterate(tup::IntegratorTuples, state=0)
   done(tup.integrator) && return nothing
   step!(tup.integrator) # Iter updated in the step! header
   state += 1
@@ -213,13 +213,13 @@ function iterate(tup::IntegratorTuples, state=0)
   return (tup.integrator.u,tup.integrator.t),state
 end
 
-tuples(integrator::DEIntegrator) = IntegratorTuples(integrator)
+RecursiveArrayTools.tuples(integrator::DEIntegrator) = IntegratorTuples(integrator)
 
 struct IntegratorIntervals{I}
  integrator::I
 end
 
-function iterate(tup::IntegratorIntervals,state=0)
+function Base.iterate(tup::IntegratorIntervals,state=0)
   done(tup.integrator) && return nothing
   state += 1
   step!(tup.integrator) # Iter updated in the step! header
@@ -234,7 +234,7 @@ struct TimeChoiceIterator{T,T2}
   ts::T2
 end
 
-function iterate(iter::TimeChoiceIterator,state=1)
+function Base.iterate(iter::TimeChoiceIterator,state=1)
   state > length(iter.ts) && return nothing
   t = iter.ts[state]
   integrator = iter.integrator
