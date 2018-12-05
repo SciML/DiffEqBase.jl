@@ -26,6 +26,12 @@ b = MatrixType{Int,Float64}(2.0, copy(B))
 # iteration
 @test first(a) == 0.0 && first(b) == 1
 @test last(a) == 1.0 && last(b) == 3
+for (i, (ai, Ai)) in enumerate(zip(a, A))
+    @test ai == Ai
+end
+for (i, (bi, Bi)) in enumerate(zip(b, B))
+    @test bi == Bi
+end
 
 # indexing
 @test eachindex(a) == Base.LinearIndices(A) && eachindex(b) == vec(Base.LinearIndices(B))

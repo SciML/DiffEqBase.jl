@@ -1,7 +1,6 @@
 # iteration
-start(A::DEDataArray) = start(A.x)
-next(A::DEDataArray, i) = next(A.x, i)
-done(A::DEDataArray, i) = done(A.x, i)
+Base.iterate(A::DEDataArray) = iterate(A.x)
+Base.iterate(A::DEDataArray, state) = iterate(A.x, state)
 
 # size
 Base.length(A::DEDataArray) = length(A.x)
