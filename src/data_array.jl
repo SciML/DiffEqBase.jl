@@ -4,24 +4,24 @@ next(A::DEDataArray, i) = next(A.x, i)
 done(A::DEDataArray, i) = done(A.x, i)
 
 # size
-length(A::DEDataArray) = length(A.x)
-size(A::DEDataArray) = size(A.x)
+Base.length(A::DEDataArray) = length(A.x)
+Base.size(A::DEDataArray) = size(A.x)
 
 # indexing
-@inline function getindex(A::DEDataArray, I...)
+@inline function Base.getindex(A::DEDataArray, I...)
     @boundscheck checkbounds(A.x, I...)
     @inbounds return A.x[I...]
 end
-@inline function setindex!(A::DEDataArray, x, I...)
+@inline function Base.setindex!(A::DEDataArray, x, I...)
     @boundscheck checkbounds(A.x, I...)
     @inbounds A.x[I...] = x
 end
-axes(A::DEDataArray) = axes(A.x)
+Base.axes(A::DEDataArray) = axes(A.x)
 Base.LinearIndices(A::DEDataArray) = LinearIndices(A.x)
 Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
 
 # similar data arrays
-@generated function similar(A::DEDataArray, ::Type{T}, dims::NTuple{N,Int}) where {T,N}
+@generated function Base.similar(A::DEDataArray, ::Type{T}, dims::NTuple{N,Int}) where {T,N}
     assignments = [s == :x ? :(typeof(A.x) <: StaticArray ? similar(A.x, T, Size(A.x)) : similar(A.x, T, dims)) :
                    (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
                    for s in fieldnames(A)]
@@ -33,7 +33,7 @@ end
 
 Recursively copy fields of `src` to `dest`.
 """
-@generated function recursivecopy!(dest::T, src::T) where {T<:DEDataArray}
+@generated function RecursiveArrayTools.recursivecopy!(dest::T, src::T) where {T<:DEDataArray}
     fields = fieldnames(src)
 
     expressions = Vector{Expr}(undef, length(fields))

@@ -1,4 +1,4 @@
-using DiffEqBase, Test
+using DiffEqBase, RecursiveArrayTools, Test
 
 mutable struct VectorType{T} <: DEDataVector{T}
     x::Vector{T}
@@ -50,10 +50,10 @@ a2 = similar(a); b2 = similar(b, (1,4)); b3 = similar(b, Float64, (1, 4))
 @test typeof(b3.x) == Matrix{Float64} && b3.f == 2.0
 
 # copy all fields of data arrays
-DiffEqBase.recursivecopy!(a2, a)
-DiffEqBase.recursivecopy!(b2, b)
+recursivecopy!(a2, a)
+recursivecopy!(b2, b)
 @test a2.x == A && vec(b2.x) == vec(B)
-DiffEqBase.recursivecopy!(b3, b)
+recursivecopy!(b3, b)
 
 # copy all fields except of field x
 a2.f = 3.0; b2.f = -1; b3.f == 0

@@ -5,7 +5,7 @@ Base.getindex(A::AbstractNoTimeSolution,i::Int) = A.u[i]
 Base.getindex(A::AbstractNoTimeSolution,I::Vararg{Int, N}) where {N} = A.u[I]
 Base.setindex!(A::AbstractNoTimeSolution, v, i::Int) = (A.u[i] = v)
 Base.setindex!(A::AbstractNoTimeSolution, v, I::Vararg{Int, N}) where {N} = (A.u[I] = v)
-size(A::AbstractNoTimeSolution) = size(A.u)
+Base.size(A::AbstractNoTimeSolution) = size(A.u)
 
 Base.summary(A::AbstractNoTimeSolution) = string(nameof(typeof(A))," with uType ",eltype(A.u))
 Base.show(io::IO, A::AbstractNoTimeSolution) = (print(io,"u: ");show(io, A.u))
@@ -44,9 +44,9 @@ function TreeViews.treelabel(io::IO,x::DiffEqBase.DESolution,
   show(io,mime,Text(Base.summary(x)))
 end
 
-tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.u,sol.t)
+RecursiveArrayTools.tuples(sol::AbstractTimeseriesSolution) = tuple.(sol.u,sol.t)
 
-function iterate(sol::AbstractTimeseriesSolution,state=0)
+function Base.iterate(sol::AbstractTimeseriesSolution,state=0)
   state >= length(sol) && return nothing
   state += 1
   return (solution_new_tslocation(sol,state),state)
