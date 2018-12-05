@@ -17,4 +17,7 @@ prob2 = DiffEqBase.get_concrete_problem(prob,nothing)
 @test typeof(prob2.u0) == Float64
 
 prob = ODEProblem((u,p,t)->u,1.0,(0,1))
-DiffEqBase.adaptive_warn(prob.u0,prob.tspan)
+@test_logs (:warn,
+            "Integer time values are incompatible with adaptive integrators. Utilize " *
+            "floating point numbers instead of integers in this case, i.e. (0.0,1.0) " *
+            "instead of (0,1).") DiffEqBase.adaptive_warn(prob.u0,prob.tspan)
