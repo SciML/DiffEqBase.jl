@@ -265,7 +265,7 @@ function find_callback_time(integrator,callback,counter)
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
-          Θ = prevfloat(find_zero(zero_func,(bottom_θ,top_Θ), AlefeldPotraShi(),atol = callback.abstol/100))
+          Θ = prevfloat(find_zero(zero_func, (bottom_θ,top_Θ), Roots.AlefeldPotraShi(), atol = callback.abstol/100))
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ))
         end
         #Θ = prevfloat(...)
