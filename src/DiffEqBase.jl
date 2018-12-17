@@ -72,7 +72,7 @@ const DEDataMatrix{T} = DEDataArray{T,2}
 # Integrators
 abstract type DEIntegrator end
 abstract type AbstractSteadyStateIntegrator <: DEIntegrator end
-abstract type AbstractODEIntegrator{Alg, S} <: DEIntegrator{Alg,S} end # Alg=algorithm, S=state type
+abstract type AbstractODEIntegrator{Alg, S} <: DEIntegrator end # Alg=algorithm, S=state type
 abstract type AbstractSecondOrderODEIntegrator <: DEIntegrator end
 abstract type AbstractRODEIntegrator <: DEIntegrator end
 abstract type AbstractSDEIntegrator <: DEIntegrator end
