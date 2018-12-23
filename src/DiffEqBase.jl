@@ -70,14 +70,14 @@ const DEDataVector{T} = DEDataArray{T,1}
 const DEDataMatrix{T} = DEDataArray{T,2}
 
 # Integrators
-abstract type DEIntegrator end
-abstract type AbstractSteadyStateIntegrator <: DEIntegrator end
-abstract type AbstractODEIntegrator{Alg, S} <: DEIntegrator end # Alg=algorithm, S=state type
-abstract type AbstractSecondOrderODEIntegrator <: DEIntegrator end
-abstract type AbstractRODEIntegrator <: DEIntegrator end
-abstract type AbstractSDEIntegrator <: DEIntegrator end
-abstract type AbstractDDEIntegrator <: DEIntegrator end
-abstract type AbstractDAEIntegrator <: DEIntegrator end
+abstract type DEIntegrator{Alg, IIP, U, T} end
+abstract type AbstractSteadyStateIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+abstract type AbstractODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+abstract type AbstractSecondOrderODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+abstract type AbstractRODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+abstract type AbstractSDEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+abstract type AbstractDDEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+abstract type AbstractDAEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
 
 # Solutions
 abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N} end
