@@ -377,7 +377,7 @@ function step!(integ::DEIntegrator, dt::Real, stop_at_tdt = false)
     t = integ.t
     next_t = t+dt
     stop_at_tdt && add_tstop!(integ,next_t)
-    while integ.t < next_t
+    while integ.t*integ.tdir < next_t*integ.tdir
         step!(integ)
         integ.sol.retcode in (:Default, :Success) || break
     end
