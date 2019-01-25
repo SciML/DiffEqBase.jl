@@ -117,6 +117,6 @@ function solution_slice(sol::AbstractRODESolution{T,N},I) where {T,N}
                sol.errors,sol.t[I],
                sol.W,sol.prob,
                sol.alg,sol.interp,
-               sol.dense,sol.tslocation,
+               false,sol.tslocation,
                sol.retcode,sol.seed)
 end

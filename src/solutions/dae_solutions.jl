@@ -86,6 +86,6 @@ function solution_slice(sol::AbstractDAESolution{T,N},I) where {T,N}
               sol.u_analytic === nothing ? nothing : sol.u_analytic[I],
               sol.errors,sol.t[I],
               sol.prob,sol.alg,
-              sol.interp,sol.dense,
+              sol.interp,false,
               sol.tslocation,sol.retcode)
 end
