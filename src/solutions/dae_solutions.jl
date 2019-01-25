@@ -77,3 +77,15 @@ function solution_new_tslocation(sol::AbstractDAESolution{T,N},tslocation) where
               sol.u,sol.du,sol.u_analytic,sol.errors,sol.t,
               sol.prob,sol.alg,sol.interp,sol.dense,tslocation,sol.retcode)
 end
+
+function solution_slice(sol::AbstractDAESolution{T,N},I) where {T,N}
+  DAESolution{T,N,typeof(sol.u),typeof(sol.du),typeof(sol.u_analytic),
+              typeof(sol.errors),typeof(sol.t),
+              typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+              sol.u[I],sol.du[I],
+              sol.u_analytic === nothing ? nothing : sol.u_analytic[I],
+              sol.errors,sol.t[I],
+              sol.prob,sol.alg,
+              sol.interp,sol.dense,
+              sol.tslocation,sol.retcode)
+end

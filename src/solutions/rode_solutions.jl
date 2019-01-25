@@ -108,3 +108,15 @@ function solution_new_tslocation(sol::AbstractRODESolution{T,N},tslocation) wher
                sol.u,sol.u_analytic,sol.errors,sol.t,sol.W,sol.prob,sol.alg,sol.interp,
                sol.dense,tslocation,sol.retcode,sol.seed)
 end
+
+function solution_slice(sol::AbstractRODESolution{T,N},I) where {T,N}
+  RODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),typeof(sol.t),
+               typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+               sol.u[I],
+               sol.u_analytic === nothing ? nothing : sol.u_analytic,
+               sol.errors,sol.t[I],
+               sol.W,sol.prob,
+               sol.alg,sol.interp,
+               sol.dense,sol.tslocation,
+               sol.retcode,sol.seed)
+end
