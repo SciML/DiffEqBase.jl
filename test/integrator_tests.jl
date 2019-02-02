@@ -2,14 +2,14 @@ mutable struct DummySolution
   retcode
 end
 
-mutable struct DummyIntegrator <: DiffEqBase.DEIntegrator
+mutable struct DummyIntegrator{Alg, IIP, U, T} <: DiffEqBase.DEIntegrator{Alg, IIP, U, T}
   t
   dt
   tdir
   tstops
   sol
 
-  DummyIntegrator() = new(0,1,1,[],DummySolution(:Default))
+  DummyIntegrator() = new{Bool,Bool,Bool,Bool}(0,1,1,[],DummySolution(:Default))
 end
 
 function DiffEqBase.add_tstop!(integrator::DummyIntegrator,t)
