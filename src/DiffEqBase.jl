@@ -71,7 +71,7 @@ const DEDataMatrix{T} = DEDataArray{T,2}
 
 # Integrators
 abstract type DEIntegrator{Alg, IIP, U, T} end
-abstract type AbstractSteadyStateIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+abstract type AbstractSteadyStateIntegrator{Alg, IIP, U} <: DEIntegrator{Alg, IIP, U, Nothing} end
 abstract type AbstractODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
 abstract type AbstractSecondOrderODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
 abstract type AbstractRODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
