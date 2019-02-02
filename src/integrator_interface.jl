@@ -41,7 +41,7 @@ The saving priority/order is as follows:
   - `save_on`
     - `saveat`
     - `force_save`
-    - `save_everystep`/`timeseries_steps`
+    - `save_everystep`
 """
 u_modified!(i::DEIntegrator,bool) = error("u_modified!: method has not been implemented for the integrator")
 savevalues!(i::DEIntegrator) = error("savevalues!: method has not been implemented for the integrator")
