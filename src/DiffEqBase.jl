@@ -195,8 +195,6 @@ export ContinuousCallback, DiscreteCallback, CallbackSet
 
 export initialize!
 
-export problem_new_parameters
-
 export LinSolveFactorize, DEFAULT_LINSOLVE
 
 export AffineDiffEqOperator, update_coefficients!, update_coefficients, is_constant,
