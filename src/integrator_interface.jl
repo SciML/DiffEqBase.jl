@@ -153,7 +153,7 @@ function check_error(integrator::DEIntegrator)
   end
   if !integrator.opts.force_dtmin && integrator.opts.adaptive && abs(integrator.dt) <= abs(integrator.opts.dtmin)
     if integrator.opts.verbose
-      @warn("dt <= dtmin. Aborting. This is often an indicator that the differential equation is unstable or there is an error in the model specification. If you would like to force continuation with dt=dtmin, set force_dtmin=true")
+      @warn("dt <= dtmin. Aborting. There is either an your model specification or the true solution is unstable.")
     end
     return :DtLessThanMin
   end
