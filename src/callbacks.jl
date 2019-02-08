@@ -177,7 +177,7 @@ end
     @views previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
   end
 
-  if integrator.event_last_time == counter && ODE_DEFAULT_NORM(previous_condition) < 100ODE_DEFAULT_NORM(integrator.last_event_error)
+  if integrator.event_last_time == counter && ODE_DEFAULT_NORM(previous_condition,integrator.t) < 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
 
     # If there was a previous event, utilize the derivative at the start to
     # chose the previous sign. If the derivative is positive at tprev, then
