@@ -44,9 +44,10 @@ struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDDEFunction{ii
 end
 
 abstract type AbstractDiscreteFunction{iip} <: AbstractDiffEqFunction{iip} end
-struct DiscreteFunction{iip,F,Ta} <: AbstractDiscreteFunction{iip}
+struct DiscreteFunction{iip,F,Ta,S} <: AbstractDiscreteFunction{iip}
   f::F
   analytic::Ta
+  syms::S
 end
 
 abstract type AbstractSDEFunction{iip} <: AbstractDiffEqFunction{iip} end
@@ -243,14 +244,14 @@ DynamicalODEFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction{iip}(f1), ODEFunction
 DynamicalODEFunction(f::DynamicalODEFunction; kwargs...) = f
 
 function DiscreteFunction{iip,true}(f;
-                 analytic=nothing) where iip
-                 DiscreteFunction{iip,typeof(f),typeof(analytic)}(
-                 f,analytic)
+                 analytic=nothing, syms=nothing) where iip
+                 DiscreteFunction{iip,typeof(f),typeof(analytic),typeof(syms)}(
+                 f,analytic,syms)
 end
 function DiscreteFunction{iip,false}(f;
-                 analytic=nothing) where iip
-                 DiscreteFunction{iip,Any,Any}(
-                 f,analytic)
+                 analytic=nothing, syms=nothing) where iip
+                 DiscreteFunction{iip,Any,Any,Any}(
+                 f,analytic,syms)
 end
 DiscreteFunction(f; kwargs...) = DiscreteFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DiscreteFunction(f::DiscreteFunction; kwargs...) = f
@@ -580,7 +581,12 @@ function Base.convert(::Type{DiscreteFunction},f)
   else
     analytic = nothing
   end
-  DiscreteFunction(f;analytic=analytic)
+  if __has_syms(f)
+    syms = f.syms
+  else
+    syms = nothing
+  end
+  DiscreteFunction(f;analytic=analytic,syms=syms)
 end
 function Base.convert(::Type{DiscreteFunction{iip}},f) where iip
   if __has_analytic(f)
@@ -588,7 +594,12 @@ function Base.convert(::Type{DiscreteFunction{iip}},f) where iip
   else
     analytic = nothing
   end
-  DiscreteFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic)
+  if __has_syms(f)
+    syms = f.syms
+  else
+    syms = nothing
+  end
+  DiscreteFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic,syms=syms)
 end
 
 DAEFunction{iip}(f::T) where {iip,T} = return T<:DAEFunction ? f : convert(DAEFunction{iip},f)
