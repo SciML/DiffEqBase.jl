@@ -3,7 +3,7 @@
 @inline ODE_DEFAULT_NORM(u::Array{T},t) where T<:Union{AbstractFloat,Complex} =
                                          @fastmath sqrt(sum(abs2,u) / length(u))
 @inline ODE_DEFAULT_NORM(u::AbstractArray,t) = sqrt(sum(UNITLESS_ABS2,u) / length(u))
-@inline ODE_DEFAULT_NORM(u::AbstractArray{T,N},t) where {T<:AbstractArray,N} = sqrt(sum(ODE_DEFAULT_NORM,u) / length(u))
+@inline ODE_DEFAULT_NORM(u::AbstractArray{T,N},t) where {T<:AbstractArray,N} = sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,t)) / length(u))
 @inline ODE_DEFAULT_NORM(u,t) = norm(u)
 @inline ODE_DEFAULT_ISOUTOFDOMAIN(u,p,t) = false
 @inline ODE_DEFAULT_PROG_MESSAGE(dt,u,p,t) =
