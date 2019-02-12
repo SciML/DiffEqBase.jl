@@ -30,7 +30,7 @@ function __init__()
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
     # Support adaptive steps should be errorless
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Measurements.Measurement,N},t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(Measurements.value(x) for x in u)) / length(u))
+      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((Measurements.value(x) for x in u),t)) / length(u))
     end
     @inline function ODE_DEFAULT_NORM(u::Array{<:Measurements.Measurement,N},t) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((Measurements.value(x) for x in u),t)) / length(u))
