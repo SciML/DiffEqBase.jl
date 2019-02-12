@@ -6,10 +6,10 @@ function __init__()
   @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
     # Support adaptive with non-dual time
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual,N},t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,t),zip((ForwardDiff.value(x) for x in u),t)) / length(u))
+      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((ForwardDiff.value(x) for x in u),t)) / length(u))
     end
     @inline function ODE_DEFAULT_NORM(u::Array{<:ForwardDiff.Dual,N},t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,t),zip((ForwardDiff.value(x) for x in u),t)) / length(u))
+      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((ForwardDiff.value(x) for x in u),t)) / length(u))
     end
     @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,t) = abs(ForwardDiff.value(u))
 
