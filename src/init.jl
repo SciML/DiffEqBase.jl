@@ -59,24 +59,24 @@ function __init__()
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),t)) / length(u))
     end
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Flux.Tracker.TrackedReal,N},t) where {N}
-      sqrt(sum(ODE_DEFAULT_NORM,zip((value(x) for x in u),t)) / length(u))
+      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),t)) / length(u))
     end
     @inline function ODE_DEFAULT_NORM(u::Array{<:Flux.Tracker.TrackedReal,N},t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),(value(x) for x in u)) / length(u))
+      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),t)) / length(u))
     end
     @inline ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedReal,t) = abs(value(u))
 
     # Support TrackedReal time, don't drop tracking on the adaptivity there
     @inline function ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedArray,t::Flux.Tracker.TrackedReal) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),t)) / length(u))
+      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,t)) / length(u))
     end
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Flux.Tracker.TrackedReal,N},t::Flux.Tracker.TrackedReal) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),t)) / length(u))
+      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,t)) / length(u))
     end
     @inline function ODE_DEFAULT_NORM(u::Array{<:Flux.Tracker.TrackedReal,N},t::Flux.Tracker.TrackedReal) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),t)) / length(u))
+      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,t)) / length(u))
     end
-    @inline ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedReal,t::Flux.Tracker.TrackedReal) = abs(value(u))
+    @inline ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedReal,t::Flux.Tracker.TrackedReal) = abs(u)
   end
 
 end
