@@ -1,4 +1,4 @@
-mutable struct DEStat{E}
+mutable struct DEStats{E}
   nf::Int
   nw::Int
   nsolve::Int
@@ -7,9 +7,9 @@ mutable struct DEStat{E}
   maxeig::E
 end
 
-DEStat(eig) = DEStat(ntuple(_->0, 5)..., eig)
+DEStats(eig) = DEStats(ntuple(_->0, 5)..., eig)
 
-function Base.show(io::IO, s::DEStat)
+function Base.show(io::IO, s::DEStats)
   println(io, summary(s))
   println(io, "Number of function evaluations: $(s.nf)")
   println(io, "Number of W matrix evaluations: $(s.nw)")
