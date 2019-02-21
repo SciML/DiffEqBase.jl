@@ -230,7 +230,7 @@ end
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 ODEFunction(f::ODEFunction; kwargs...) = f
 
-@add_kwonly function SplitFunction(f1,f2,mass_matrix,cache,analytic)
+@add_kwonly function SplitFunction(f1,f2,mass_matrix,cache,analytic,nf) # for remake
   f1 = typeof(f1) <: AbstractDiffEqOperator ? f1 : ODEFunction(f1)
   f2 = ODEFunction(f2)
   SplitFunction{isinplace(f2),typeof(f1),typeof(f2),typeof(mass_matrix),
@@ -245,7 +245,7 @@ SplitFunction{iip}(f1,f2; kwargs...) where iip =
 SplitFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction(f1),ODEFunction{iip}(f2); kwargs...)
 SplitFunction(f::SplitFunction; kwargs...) = f
 
-@add_kwonly function DynamicalODEFunction{iip}(f1,f2,mass_matrix,analytic) where iip
+@add_kwonly function DynamicalODEFunction{iip}(f1,f2,mass_matrix,analytic,nf) where iip # for remake
   f1 = ODEFunction(f1)
   f2 != nothing && (f2 = ODEFunction(f2))
   DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(analytic)}(f1,f2,mass_matrix,analytic,Ref(0))
