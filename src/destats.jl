@@ -16,5 +16,5 @@ function Base.show(io::IO, s::DEStats)
   println(io, "Number of linear solves:        $(s.nsolve)")
   println(io, "Number of accepted steps:       $(s.naccept)")
   print(io,   "Number of rejected steps:       $(s.nreject)")
-  s.maxeig !== nothing && print(io, "\nMaximum eigenvalue recorded:    $(s.maxeig)")
+  iszero(s.maxeig) || print(io, "\nMaximum eigenvalue recorded:    $(s.maxeig)")
 end
