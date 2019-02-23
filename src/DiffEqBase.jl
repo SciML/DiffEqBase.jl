@@ -109,6 +109,7 @@ abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T} end
 abstract type AbstractDiffEqFunction{iip} <: Function end
 abstract type AbstractReactionNetwork <: Function end
 
+include("destats.jl")
 include("utils.jl")
 include("extended_functions.jl")
 include("solutions/steady_state_solutions.jl")
@@ -117,7 +118,6 @@ include("solutions/rode_solutions.jl")
 include("solutions/dae_solutions.jl")
 include("solutions/monte_solutions.jl")
 include("solutions/solution_interface.jl")
-include("destats.jl")
 include("tableaus.jl")
 include("diffeqfunction.jl")
 include("problems/problem_utils.jl")

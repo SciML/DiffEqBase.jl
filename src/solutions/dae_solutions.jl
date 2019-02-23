@@ -9,6 +9,7 @@ struct DAESolution{T,N,uType,duType,uType2,DType,tType,P,A,ID} <: AbstractDAESol
   interp::ID
   dense::Bool
   tslocation::Int
+  destats::DEStats
   retcode::Symbol
 end
 (sol::DAESolution)(t,deriv::Type=Val{0};idxs=nothing,continuity=:left) = sol.interp(t,idxs,deriv,sol.prob.p,continuity)
@@ -18,7 +19,7 @@ function build_solution(
         prob::AbstractDAEProblem{uType,duType,tType,isinplace},
 alg,t,u;dense=false,du=[],
 interp = !isempty(du) ? HermiteInterpolation(t,u,du) : LinearInterpolation(t,u),
-timeseries_errors=true,dense_errors=true, retcode = :Default, kwargs...) where {uType,duType,tType,isinplace}
+timeseries_errors=true,dense_errors=true, retcode = :Default, destats=DEStats(), kwargs...) where {uType,duType,tType,isinplace}
 
   T = eltype(eltype(u))
   N = length((size(u[1])..., length(u)))
@@ -48,10 +49,10 @@ timeseries_errors=true,dense_errors=true, retcode = :Default, kwargs...) where {
       end
     end
     DAESolution{T,N,typeof(u),typeof(du),typeof(u_analytic),typeof(errors),typeof(t),
-                       typeof(prob),typeof(alg),typeof(interp)}(u,du,u_analytic,errors,t,prob,alg,interp,dense,0,retcode)
+                       typeof(prob),typeof(alg),typeof(interp)}(u,du,u_analytic,errors,t,prob,alg,interp,dense,0,destats,retcode)
   else
     DAESolution{T,N,typeof(u),typeof(du),Nothing,Nothing,typeof(t),
-                       typeof(prob),typeof(alg),typeof(interp)}(u,du,nothing,nothing,t,prob,alg,interp,dense,0,retcode)
+                       typeof(prob),typeof(alg),typeof(interp)}(u,du,nothing,nothing,t,prob,alg,interp,dense,0,destats,retcode)
   end
 end
 
@@ -59,7 +60,7 @@ function build_solution(sol::AbstractDAESolution{T,N},u_analytic,errors) where {
   DAESolution{T,N,typeof(sol.u),typeof(sol.du),typeof(u_analytic),typeof(errors),typeof(sol.t),
                      typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
                      sol.u,sol.du,u_analytic,errors,sol.t,
-              sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation,sol.retcode)
+              sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation,sol.destats,sol.retcode)
 end
 
 function solution_new_retcode(sol::AbstractDAESolution{T,N},retcode) where {T,N}
@@ -67,7 +68,7 @@ function solution_new_retcode(sol::AbstractDAESolution{T,N},retcode) where {T,N}
               typeof(sol.errors),typeof(sol.t),
               typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
               sol.u,sol.du,sol.u_analytic,sol.errors,sol.t,
-              sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation,retcode)
+              sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation,sol.destats,retcode)
 end
 
 function solution_new_tslocation(sol::AbstractDAESolution{T,N},tslocation) where {T,N}
@@ -75,7 +76,7 @@ function solution_new_tslocation(sol::AbstractDAESolution{T,N},tslocation) where
               typeof(sol.errors),typeof(sol.t),
               typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
               sol.u,sol.du,sol.u_analytic,sol.errors,sol.t,
-              sol.prob,sol.alg,sol.interp,sol.dense,tslocation,sol.retcode)
+              sol.prob,sol.alg,sol.interp,sol.dense,tslocation,sol.destats,sol.retcode)
 end
 
 function solution_slice(sol::AbstractDAESolution{T,N},I) where {T,N}
@@ -87,5 +88,5 @@ function solution_slice(sol::AbstractDAESolution{T,N},I) where {T,N}
               sol.errors,sol.t[I],
               sol.prob,sol.alg,
               sol.interp,false,
-              sol.tslocation,sol.retcode)
+              sol.tslocation,sol.destats,sol.retcode)
 end
