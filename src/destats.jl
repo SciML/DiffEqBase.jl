@@ -1,13 +1,13 @@
-mutable struct DEStats{E}
+mutable struct DEStats
   nf::Int
   nw::Int
   nsolve::Int
   naccept::Int
   nreject::Int
-  maxeig::E
+  maxeig::Float64
 end
 
-DEStats(eig) = DEStats(ntuple(_->0, 5)..., eig)
+DEStats() = DEStats(ntuple(_->0, 5)..., 0.0)
 
 function Base.show(io::IO, s::DEStats)
   println(io, summary(s))
