@@ -1,4 +1,4 @@
-using LinearAlgebra, SparseArrays, SuiteSparse
+using SparseArrays, SuiteSparse, RecursiveFactorization
 mutable struct LinSolveFactorize{F}
   factorization::F
   A
@@ -15,7 +15,7 @@ function (p::LinSolveFactorize)(x,A,b,update_matrix=false)
     ldiv!(p.A,x)
   end
 end
-DEFAULT_LINSOLVE = LinSolveFactorize(lu!)
+DEFAULT_LINSOLVE = LinSolveFactorize(RecursiveFactorization.lu!)
 function (p::LinSolveFactorize)(::Type{Val{:init}},f,u0_prototype)
   LinSolveFactorize(p.factorization,nothing)
 end
