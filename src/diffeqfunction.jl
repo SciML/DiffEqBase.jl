@@ -12,7 +12,6 @@ struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractODEFunction{ii
   invW_t::TWt
   paramjac::TPJ
   syms::S
-  nf::Ref{Int} # number of function evals
 end
 
 struct SplitFunction{iip,F1,F2,TMM,C,Ta} <: AbstractODEFunction{iip}
@@ -21,7 +20,6 @@ struct SplitFunction{iip,F1,F2,TMM,C,Ta} <: AbstractODEFunction{iip}
   mass_matrix::TMM
   cache::C
   analytic::Ta
-  nf::Ref{Int} # number of function evals
 end
 
 struct DynamicalODEFunction{iip,F1,F2,TMM,Ta} <: AbstractODEFunction{iip}
@@ -29,7 +27,6 @@ struct DynamicalODEFunction{iip,F1,F2,TMM,Ta} <: AbstractODEFunction{iip}
   f2::F2
   mass_matrix::TMM
   analytic::Ta
-  nf::Ref{Int} # number of function evals
 end
 
 abstract type AbstractDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
@@ -44,7 +41,6 @@ struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDDEFunction{ii
   invW_t::TWt
   paramjac::TPJ
   syms::S
-  nf::Ref{Int} # number of function evals
 end
 
 abstract type AbstractDiscreteFunction{iip} <: AbstractDiffEqFunction{iip} end
@@ -52,7 +48,6 @@ struct DiscreteFunction{iip,F,Ta,S} <: AbstractDiscreteFunction{iip}
   f::F
   analytic::Ta
   syms::S
-  nf::Ref{Int} # number of function evals
 end
 
 abstract type AbstractSDEFunction{iip} <: AbstractDiffEqFunction{iip} end
@@ -69,7 +64,6 @@ struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG} <: AbstractSDEFuncti
   paramjac::TPJ
   ggprime::GG
   syms::S
-  nf::Ref{Int} # number of function evals
 end
 
 struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta} <: AbstractSDEFunction{iip}
@@ -79,7 +73,6 @@ struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta} <: AbstractSDEFunction{iip}
   mass_matrix::TMM
   cache::C
   analytic::Ta
-  nf::Ref{Int} # number of function evals
 end
 
 abstract type AbstractRODEFunction{iip} <: AbstractDiffEqFunction{iip} end
@@ -94,7 +87,6 @@ struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractRODEFunction{
   invW_t::TWt
   paramjac::TPJ
   syms::S
-  nf::Ref{Int} # number of function evals
 end
 
 abstract type AbstractDAEFunction{iip} <: AbstractDiffEqFunction{iip} end
@@ -108,15 +100,11 @@ struct DAEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDAEFunction{iip}
   invW_t::TWt
   paramjac::TPJ
   syms::S
-  nf::Ref{Int} # number of function evals
 end
-
-######### Interface
-nfeval(f::AbstractDiffEqFunction) = f.nf[]
 
 ######### Backwards Compatibility Overloads
 
-(f::ODEFunction)(args...) = (f.nf[] += 1; f.f(args...))
+(f::ODEFunction)(args...) = f.f(args...)
 (f::ODEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
 (f::ODEFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
 (f::ODEFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
@@ -125,28 +113,25 @@ nfeval(f::AbstractDiffEqFunction) = f.nf[]
 (f::ODEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
 
 function (f::DynamicalODEFunction)(u,p,t)
-  f.nf[] += 1
   ArrayPartition(f.f1(u.x[1],u.x[2],p,t),f.f2(u.x[1],u.x[2],p,t))
 end
 function (f::DynamicalODEFunction)(du,u,p,t)
-  f.nf[] += 1
   f.f1(du.x[1],u.x[1],u.x[2],p,t)
   f.f2(du.x[2],u.x[1],u.x[2],p,t)
 end
 
-(f::SplitFunction)(u,p,t) = (f.nf[] += 1; f.f1(u,p,t) + f.f2(u,p,t))
+(f::SplitFunction)(u,p,t) = f.f1(u,p,t) + f.f2(u,p,t)
 (f::SplitFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
 function (f::SplitFunction)(du,u,p,t)
-  f.nf[] += 1
   f.f1(f.cache,u,p,t)
   f.f2(du,u,p,t)
   du .+= f.cache
 end
 
-(f::DiscreteFunction)(args...) = (f.nf[] += 1; f.f(args...))
+(f::DiscreteFunction)(args...) = f.f(args...)
 (f::DiscreteFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
 
-(f::DAEFunction)(args...) = (f.nf[] += 1; f.f(args...))
+(f::DAEFunction)(args...) = f.f(args...)
 (f::DAEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
 (f::DAEFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
 (f::DAEFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
@@ -154,10 +139,10 @@ end
 (f::DAEFunction)(::Type{Val{:invW_t}},args...) = f.invW_t(args...)
 (f::DAEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
 
-(f::DDEFunction)(args...) = (f.nf[] += 1; f.f(args...))
+(f::DDEFunction)(args...) = f.f(args...)
 (f::DDEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
 
-(f::SDEFunction)(args...) = (f.nf[] += 1; f.f(args...))
+(f::SDEFunction)(args...) = f.f(args...)
 (f::SDEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
 (f::SDEFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
 (f::SDEFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
@@ -165,16 +150,15 @@ end
 (f::SDEFunction)(::Type{Val{:invW_t}},args...) = f.invW_t(args...)
 (f::SDEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
 
-(f::SplitSDEFunction)(u,p,t) = (f.nf[] += 1; f.f1(u,p,t) + f.f2(u,p,t))
+(f::SplitSDEFunction)(u,p,t) = f.f1(u,p,t) + f.f2(u,p,t)
 (f::SplitSDEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
 function (f::SplitSDEFunction)(du,u,p,t)
-  f.nf[] += 1
   f.f1(f.cache,u,p,t)
   f.f2(du,u,p,t)
   du .+= f.cache
 end
 
-(f::RODEFunction)(args...) = (f.nf[] += 1; f.f(args...))
+(f::RODEFunction)(args...) = f.f(args...)
 
 ######### Basic Constructor
 
@@ -202,7 +186,7 @@ function ODEFunction{iip,true}(f;
                  typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms,Ref(0))
+                 paramjac,syms)
 end
 function ODEFunction{iip,false}(f;
                  mass_matrix=I,
@@ -225,35 +209,35 @@ function ODEFunction{iip,false}(f;
                  Any,Any,Any,Any,
                  Any,typeof(syms)}(
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms,Ref(0))
+                 paramjac,syms)
 end
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 ODEFunction(f::ODEFunction; kwargs...) = f
 
-@add_kwonly function SplitFunction(f1,f2,mass_matrix,cache,analytic,nf) # for remake
+@add_kwonly function SplitFunction(f1,f2,mass_matrix,cache,analytic)
   f1 = typeof(f1) <: AbstractDiffEqOperator ? f1 : ODEFunction(f1)
   f2 = ODEFunction(f2)
   SplitFunction{isinplace(f2),typeof(f1),typeof(f2),typeof(mass_matrix),
-              typeof(cache),typeof(analytic)}(f1,f2,mass_matrix,cache,analytic,Ref(0))
+              typeof(cache),typeof(analytic)}(f1,f2,mass_matrix,cache,analytic)
 end
 SplitFunction{iip,true}(f1,f2; mass_matrix=I,_func_cache=nothing,analytic=nothing) where iip =
-SplitFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(_func_cache),typeof(analytic)}(f1,f2,mass_matrix,_func_cache,analytic,Ref(0))
+SplitFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(_func_cache),typeof(analytic)}(f1,f2,mass_matrix,_func_cache,analytic)
 SplitFunction{iip,false}(f1,f2; mass_matrix=I,_func_cache=nothing,analytic=nothing) where iip =
-SplitFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,_func_cache,analytic,Ref(0))
+SplitFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,_func_cache,analytic)
 SplitFunction(f1,f2; kwargs...) = SplitFunction{isinplace(f2, 4)}(f1, f2; kwargs...)
 SplitFunction{iip}(f1,f2; kwargs...) where iip =
 SplitFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction(f1),ODEFunction{iip}(f2); kwargs...)
 SplitFunction(f::SplitFunction; kwargs...) = f
 
-@add_kwonly function DynamicalODEFunction{iip}(f1,f2,mass_matrix,analytic,nf) where iip # for remake
+@add_kwonly function DynamicalODEFunction{iip}(f1,f2,mass_matrix,analytic) where iip
   f1 = ODEFunction(f1)
   f2 != nothing && (f2 = ODEFunction(f2))
-  DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(analytic)}(f1,f2,mass_matrix,analytic,Ref(0))
+  DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(analytic)}(f1,f2,mass_matrix,analytic)
 end
 DynamicalODEFunction{iip,true}(f1,f2;mass_matrix=(I,I),analytic=nothing) where iip =
-DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(analytic)}(f1,f2,mass_matrix,analytic,Ref(0))
+DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(analytic)}(f1,f2,mass_matrix,analytic)
 DynamicalODEFunction{iip,false}(f1,f2;mass_matrix=(I,I),analytic=nothing) where iip =
-DynamicalODEFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,analytic,Ref(0))
+DynamicalODEFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,analytic)
 DynamicalODEFunction(f1,f2=nothing; kwargs...) = DynamicalODEFunction{isinplace(f1, 5)}(f1, f2; kwargs...)
 DynamicalODEFunction{iip}(f1,f2; kwargs...) where iip =
 DynamicalODEFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction{iip}(f1), ODEFunction{iip}(f2); kwargs...)
@@ -262,12 +246,12 @@ DynamicalODEFunction(f::DynamicalODEFunction; kwargs...) = f
 function DiscreteFunction{iip,true}(f;
                  analytic=nothing, syms=nothing) where iip
                  DiscreteFunction{iip,typeof(f),typeof(analytic),typeof(syms)}(
-                 f,analytic,syms,Ref(0))
+                 f,analytic,syms)
 end
 function DiscreteFunction{iip,false}(f;
                  analytic=nothing, syms=nothing) where iip
                  DiscreteFunction{iip,Any,Any,Any}(
-                 f,analytic,syms,Ref(0))
+                 f,analytic,syms)
 end
 DiscreteFunction(f; kwargs...) = DiscreteFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DiscreteFunction(f::DiscreteFunction; kwargs...) = f
@@ -296,7 +280,7 @@ function SDEFunction{iip,true}(f,g;
                  typeof(paramjac),typeof(syms),
                  typeof(ggprime)}(
                  f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,ggprime,syms,Ref(0))
+                 paramjac,ggprime,syms)
 end
 function SDEFunction{iip,false}(f,g;
                  mass_matrix=I,
@@ -320,7 +304,7 @@ function SDEFunction{iip,false}(f,g;
                  Any,Any,Any,Any,
                  Any,typeof(syms),Any}(
                  f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,ggprime,syms,Ref(0))
+                 paramjac,ggprime,syms)
 end
 SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 SDEFunction(f::SDEFunction; kwargs...) = f
@@ -329,10 +313,10 @@ SplitSDEFunction{iip,true}(f1,f2,g; mass_matrix=I,
                            _func_cache=nothing,analytic=nothing) where iip =
 SplitSDEFunction{iip,typeof(f1),typeof(f2),typeof(g),
               typeof(mass_matrix),typeof(_func_cache),
-              typeof(analytic)}(f1,f2,g,mass_matrix,_func_cache,analytic,Ref(0))
+              typeof(analytic)}(f1,f2,g,mass_matrix,_func_cache,analytic)
 SplitSDEFunction{iip,false}(f1,f2,g; mass_matrix=I,
                             _func_cache=nothing,analytic=nothing) where iip =
-SplitSDEFunction{iip,Any,Any,Any,Any,Any}(f1,f2,g,mass_matrix,_func_cache,analytic,Ref(0))
+SplitSDEFunction{iip,Any,Any,Any,Any,Any}(f1,f2,g,mass_matrix,_func_cache,analytic)
 SplitSDEFunction(f1,f2,g; kwargs...) = SplitSDEFunction{isinplace(f2, 4)}(f1, f2, g; kwargs...)
 SplitSDEFunction{iip}(f1,f2, g; kwargs...) where iip =
 SplitSDEFunction{iip,RECOMPILE_BY_DEFAULT}(SDEFunction(f1,g), SDEFunction{iip}(f2,g), g; kwargs...)
@@ -360,7 +344,7 @@ function RODEFunction{iip,true}(f;
                  typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms,Ref(0))
+                 paramjac,syms)
 end
 function RODEFunction{iip,false}(f;
                  mass_matrix=I,
@@ -382,7 +366,7 @@ function RODEFunction{iip,false}(f;
                  Any,Any,Any,Any,
                  Any,typeof(syms)}(
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms,Ref(0))
+                 paramjac,syms)
 end
 RODEFunction(f; kwargs...) = RODEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 RODEFunction(f::RODEFunction; kwargs...) = f
@@ -407,7 +391,7 @@ function DAEFunction{iip,true}(f;
                  typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
                  f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms,Ref(0))
+                 paramjac,syms)
 end
 function DAEFunction{iip,false}(f;
                  analytic=nothing,
@@ -429,7 +413,7 @@ function DAEFunction{iip,false}(f;
                  Any,Any,Any,Any,
                  Any,typeof(syms)}(
                  f,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms,Ref(0))
+                 paramjac,syms)
 end
 DAEFunction(f; kwargs...) = DAEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DAEFunction(f::DAEFunction; kwargs...) = f
@@ -455,7 +439,7 @@ function DDEFunction{iip,true}(f;
                  typeof(jac),typeof(jac_prototype),typeof(invW),typeof(invW_t),
                  typeof(paramjac),typeof(syms)}(
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms,Ref(0))
+                 paramjac,syms)
 end
 function DDEFunction{iip,false}(f;
                  mass_matrix=I,
@@ -478,7 +462,7 @@ function DDEFunction{iip,false}(f;
                  Any,Any,Any,Any,
                  Any,typeof(syms)}(
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,invW,invW_t,
-                 paramjac,syms,Ref(0))
+                 paramjac,syms)
 end
 DDEFunction(f; kwargs...) = DDEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DDEFunction(f::DDEFunction; kwargs...) = f
