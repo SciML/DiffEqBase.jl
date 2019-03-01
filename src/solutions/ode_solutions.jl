@@ -21,8 +21,7 @@ function build_solution(
         dense=false,dense_errors=dense,
         calculate_error = true,
         k=[],
-        du=[],
-        interp = !isempty(du) ? HermiteInterpolation(t,u,du) : LinearInterpolation(t,u),
+        interp = LinearInterpolation(t,u),
         retcode = :Default, destats=DEStats(), kwargs...)
 
   T = eltype(eltype(u))
