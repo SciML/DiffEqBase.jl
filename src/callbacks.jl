@@ -126,12 +126,12 @@ function get_tmp(integrator::DEIntegrator, callback)
   return tmp
 end
 
-function get_condition(integrator::DEIntegrator, callback, abst, evalt=abst)
+function get_condition(integrator::DEIntegrator, callback, abst)
   tmp = get_tmp(integrator, callback)
   ismutable = !(tmp === nothing)
   ismutable && !(typeof(callback.idxs) isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
                                                      tmp = integrator(abst,Val{0},idxs=callback.idxs)
-  return callback.condition(tmp,evalt,integrator)
+  return callback.condition(tmp,abst,integrator)
 end
 
 # Use Recursion to find the first callback for type-stability
@@ -192,11 +192,9 @@ end
       addsteps!(integrator)
     end
 
-    abst = integrator.tprev+integrator.dt*100*eps(integrator.tprev)
-    evalt = integrator.tprev+100*eps(integrator.tprev) # evaluate callback at this time
-    tmp_condition = get_condition(integrator, callback, abst, evalt)
-
-    prev_sign = sign((tmp_condition-previous_condition)/integrator.dt)
+    abst = integrator.tprev+100*eps(integrator.tprev) # Evaluate condition slightly in future
+    tmp_condition = get_condition(integrator, callback, abst)
+    prev_sign = tmp_condition >= previous_condition ? 1.0 : -1.0
   else
     prev_sign = sign(previous_condition)
   end
