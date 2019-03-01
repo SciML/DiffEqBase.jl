@@ -192,9 +192,9 @@ end
       addsteps!(integrator)
     end
 
-    abst = integrator.tprev+100*eps(integrator.tprev) # Evaluate condition slightly in future
+    abst = integrator.tprev+sign(integrator.dt)*100*eps(integrator.tprev) # Evaluate condition slightly in future
     tmp_condition = get_condition(integrator, callback, abst)
-    prev_sign = tmp_condition >= previous_condition ? 1.0 : -1.0
+    prev_sign = tmp_condition > previous_condition ? 1.0 : -1.0
   else
     prev_sign = sign(previous_condition)
   end
