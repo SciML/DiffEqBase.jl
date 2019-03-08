@@ -1,5 +1,6 @@
 mutable struct DEStats
   nf::Int
+  nf2::Int
   nw::Int
   nsolve::Int
   njacs::Int
@@ -11,11 +12,12 @@ mutable struct DEStats
   maxeig::Float64
 end
 
-DEStats() = DEStats(ntuple(_->-1, 9)..., 0.0)
+DEStats() = DEStats(ntuple(_->-1, 10)..., 0.0)
 
 function Base.show(io::IO, s::DEStats)
   println(io, summary(s))
-  println(io, "Number of function evaluations: $(s.nf)")
+  println(io, "Number of function 1 evaluations: $(s.nf)")
+  println(io, "Number of function 2 evaluations: $(s.nf2)")
   println(io, "Number of W matrix evaluations: $(s.nw)")
   println(io, "Number of linear solves:        $(s.nsolve)")
   println(io, "Number of Jacobians created:        $(s.njacs)")
