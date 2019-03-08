@@ -2,6 +2,10 @@ mutable struct DEStats
   nf::Int
   nw::Int
   nsolve::Int
+  njacs::Int
+  nnonliniter::Int
+  nnonlinconvfail::Int
+  nrootfind::Int
   naccept::Int
   nreject::Int
   maxeig::Float64
