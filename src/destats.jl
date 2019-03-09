@@ -12,7 +12,7 @@ mutable struct DEStats
   maxeig::Float64
 end
 
-DEStats() = DEStats(ntuple(_->-1, 10)..., 0.0)
+DEStats(x=-1) = DEStats(ntuple(_->x, 10)..., 0.0)
 
 function Base.show(io::IO, s::DEStats)
   println(io, summary(s))
