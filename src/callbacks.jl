@@ -131,6 +131,7 @@ function get_condition(integrator::DEIntegrator, callback, abst)
   ismutable = !(tmp === nothing)
   ismutable && !(typeof(callback.idxs) isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
                                                      tmp = integrator(abst,Val{0},idxs=callback.idxs)
+  integrator.destats.ncondition += 1
   return callback.condition(tmp,abst,integrator)
 end
 
@@ -176,6 +177,7 @@ end
   else
     @views previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
   end
+  integrator.destats.ncondition += 1
 
   if integrator.event_last_time == counter && ODE_DEFAULT_NORM(previous_condition,integrator.t) < 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
 
@@ -205,6 +207,7 @@ end
   else
     @views next_sign = sign(callback.condition(integrator.u[callback.idxs],integrator.t,integrator))
   end
+  integrator.destats.ncondition += 1
 
   if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*next_sign<=0
     event_occurred = true
@@ -264,7 +267,6 @@ function find_callback_time(integrator,callback,counter)
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
           Θ = prevfloat(find_zero(zero_func, (bottom_θ,top_Θ), Roots.AlefeldPotraShi(), atol = callback.abstol/100))
-          integrator.destats.ncondition += 1
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
         end
         #Θ = prevfloat(...)
@@ -350,6 +352,7 @@ end
       saved_in_cb = true
     end
   end
+  integrator.destats.ncondition += 1
   integrator.u_modified,saved_in_cb
 end
 
