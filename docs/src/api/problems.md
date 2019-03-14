@@ -45,28 +45,44 @@ AbstractSteadyStateProblem
 SteadyStateProblem
 ```
 
+### BVP problems
+
+```@docs
+AbstractBVPProblem
+StandardBVProblem
+BVProblem
+TwoPointBVProblem
+```
+
 ### SDE problems
 
 ```@docs
 AbstractSDEProblem
+StandardSDEProblem
+SDEProblem
+AbstractSplitSDEProblem
+SplitSDEProblem
 ```
 
 ### RODE problems
 
 ```@docs
 AbstractRODEProblem
+RODEProblem
 ```
 
 ### DDE problems
 
 ```@docs
 AbstractDDEProblem
+DDEProblem
 ```
 
 ### DAE problems
 
 ```@docs
 AbstractDAEProblem
+DAEProblem
 ```
 
 ### Jump problems
