@@ -42,6 +42,7 @@ SplitODEProblem
 
 ```@docs
 AbstractSteadyStateProblem
+SteadyStateProblem
 ```
 
 ### SDE problems
