@@ -15,6 +15,7 @@ DEProblem
 
 ```@docs
 AbstractDiscreteProblem
+DiscreteProblem
 ```
 
 ### ODE problems
