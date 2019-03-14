@@ -4,7 +4,13 @@ using DiffEqBase
 makedocs(
     sitename = "DiffEqBase",
     format = :html,
-    modules = [DiffEqBase]
+    modules = [DiffEqBase],
+    pages = [
+        "index.md",
+        "API" => [
+            "Overview" => "api/overview.md",
+        ],
+    ],
 )
 
 # Documenter can also automatically deploy documentation to gh-pages.
