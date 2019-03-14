@@ -12,6 +12,10 @@ using LinearAlgebra, Statistics
 # Problems
 """
     abstract type DEProblem
+
+Base type for all DifferentialEquations.jl problems. Concrete subtypes of
+`DEProblem` contain the necessary information to fully define a differential
+equation of the corresponding type.
 """
 abstract type DEProblem end
 
@@ -27,6 +31,8 @@ abstract type DESensitivity end
 
 """
     abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem
+
+Base for types which define steady state problems for ODE systems.
 """
 abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem end
 
@@ -37,12 +43,16 @@ abstract type AbstractNoiseProblem <: DEProblem end
 
 """
     abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem
+
+Base for types which define ODE problems.
 """
 abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem end
 
 """
     abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
                           AbstractODEProblem{uType,tType,isinplace}
+
+Base for types which define discrete problems.
 """
 abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
                       AbstractODEProblem{uType,tType,isinplace} end
@@ -56,23 +66,31 @@ abstract type AbstractAnalyticalProblem{uType,tType,isinplace} <:
 
 """
     abstract type AbstractRODEProblem{uType,tType,isinplace,ND} <: DEProblem
+
+Base for types which define RODE problems.
 """
 abstract type AbstractRODEProblem{uType,tType,isinplace,ND} <: DEProblem end
 
 """
     abstract type AbstractSDEProblem{uType,tType,isinplace,ND} <:
                           AbstractRODEProblem{uType,tType,isinplace,ND}
+
+Base for types which define SDE problems.
 """
 abstract type AbstractSDEProblem{uType,tType,isinplace,ND} <:
                       AbstractRODEProblem{uType,tType,isinplace,ND} end
 
 """
     abstract type AbstractDAEProblem{uType,duType,tType,isinplace} <: DEProblem
+
+Base for types which define DAE problems.
 """
 abstract type AbstractDAEProblem{uType,duType,tType,isinplace} <: DEProblem end
 
 """
     abstract type AbstractDDEProblem{uType,tType,lType,isinplace} <: DEProblem
+
+Base for types which define DDE problems.
 """
 abstract type AbstractDDEProblem{uType,tType,lType,isinplace} <: DEProblem end
 
@@ -90,11 +108,15 @@ abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractOD
 
 """
     abstract type AbstractBVProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace}
+
+Base for types which define BVP problems.
 """
 abstract type AbstractBVProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
 
 """
     abstract type AbstractJumpProblem{P,J} <: DiffEqBase
+
+Base for types which define jump problems.
 """
 abstract type AbstractJumpProblem{P,J} <: DiffEqBase.DEProblem end
 
