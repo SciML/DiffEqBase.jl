@@ -22,6 +22,20 @@ DiscreteProblem
 
 ```@docs
 AbstractODEProblem
+ODEProblem
+```
+
+#### Subtypes
+
+TODO: document `problem_type` field.
+
+```@docs
+StandardODEProblem
+AbstractDynamicalODEProblem
+DynamicalODEProblem
+SecondOrderODEProblem
+AbstractSplitODEProblem
+SplitODEProblem
 ```
 
 ### Steady state problems
