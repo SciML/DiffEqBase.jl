@@ -1,3 +1,9 @@
+"""
+    promote_tspan(tspan)
+
+Convert the `tspan` field of a `DEProblem` to a `(tmin, tmax)` tuple, where both
+elements are of the same type. If `tspan` is a function, returns it as-is.
+"""
 promote_tspan(tspan::Tuple{T,T}) where T = tspan
 function promote_tspan(tspan::Tuple{T1,T2}) where {T1,T2}
   T = promote_type(map(typeof,tspan)...)
