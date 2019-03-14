@@ -10,79 +10,246 @@ using StaticArrays # data arrays
 using LinearAlgebra, Statistics
 
 # Problems
+"""
+    abstract type DEProblem
+"""
 abstract type DEProblem end
+
+"""
+    abstract type DEElement
+"""
 abstract type DEElement end
+
+"""
+    abstract type DESensitivity
+"""
 abstract type DESensitivity end
 
+"""
+    abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem
+"""
 abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem end
 
+"""
+    abstract type AbstractNoiseProblem <: DEProblem
+"""
 abstract type AbstractNoiseProblem <: DEProblem end
 
+"""
+    abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem
+"""
 abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem end
+
+"""
+    abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
+                          AbstractODEProblem{uType,tType,isinplace}
+"""
 abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
                       AbstractODEProblem{uType,tType,isinplace} end
+
+"""
+    abstract type AbstractAnalyticalProblem{uType,tType,isinplace} <:
+                          AbstractODEProblem{uType,tType,isinplace}
+"""
 abstract type AbstractAnalyticalProblem{uType,tType,isinplace} <:
                       AbstractODEProblem{uType,tType,isinplace} end
 
+"""
+    abstract type AbstractRODEProblem{uType,tType,isinplace,ND} <: DEProblem
+"""
 abstract type AbstractRODEProblem{uType,tType,isinplace,ND} <: DEProblem end
 
+"""
+    abstract type AbstractSDEProblem{uType,tType,isinplace,ND} <:
+                          AbstractRODEProblem{uType,tType,isinplace,ND}
+"""
 abstract type AbstractSDEProblem{uType,tType,isinplace,ND} <:
                       AbstractRODEProblem{uType,tType,isinplace,ND} end
 
+"""
+    abstract type AbstractDAEProblem{uType,duType,tType,isinplace} <: DEProblem
+"""
 abstract type AbstractDAEProblem{uType,duType,tType,isinplace} <: DEProblem end
 
+"""
+    abstract type AbstractDDEProblem{uType,tType,lType,isinplace} <: DEProblem
+"""
 abstract type AbstractDDEProblem{uType,tType,lType,isinplace} <: DEProblem end
+
+"""
+    abstract type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace} <:
+                          AbstractDDEProblem{uType,tType,lType,isinplace}
+"""
 abstract type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace} <:
                       AbstractDDEProblem{uType,tType,lType,isinplace} end
 
+"""
+    abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace}
+"""
 abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
 
+"""
+    abstract type AbstractBVProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace}
+"""
 abstract type AbstractBVProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
 
+"""
+    abstract type AbstractJumpProblem{P,J} <: DiffEqBase
+"""
 abstract type AbstractJumpProblem{P,J} <: DiffEqBase.DEProblem end
 
 # Algorithms
+"""
+    abstract type DEAlgorithm
+"""
 abstract type DEAlgorithm end
+
+"""
+    abstract type AbstractSteadyStateAlgorithm <: DEAlgorithm
+"""
 abstract type AbstractSteadyStateAlgorithm <: DEAlgorithm end
+
+"""
+    abstract type AbstractODEAlgorithm <: DEAlgorithm
+"""
 abstract type AbstractODEAlgorithm <: DEAlgorithm end
+
+"""
+    abstract type AbstractSecondOrderODEAlgorithm <: DEAlgorithm
+"""
 abstract type AbstractSecondOrderODEAlgorithm <: DEAlgorithm end
+
+"""
+    abstract type AbstractRODEAlgorithm <: DEAlgorithm
+"""
 abstract type AbstractRODEAlgorithm <: DEAlgorithm end
+
+"""
+    abstract type AbstractSDEAlgorithm <: DEAlgorithm
+"""
 abstract type AbstractSDEAlgorithm <: DEAlgorithm end
+
+"""
+    abstract type AbstractDAEAlgorithm <: DEAlgorithm
+"""
 abstract type AbstractDAEAlgorithm <: DEAlgorithm end
+
+"""
+    abstract type AbstractDDEAlgorithm <: DEAlgorithm
+"""
 abstract type AbstractDDEAlgorithm <: DEAlgorithm end
 
 # Monte Carlo Simulations
+"""
+    abstract type AbstractMonteCarloProblem <: DEProblem
+"""
 abstract type AbstractMonteCarloProblem <: DEProblem end
+
+"""
+    abstract type AbstractMonteCarloEstimator <: DEProblem
+"""
 abstract type AbstractMonteCarloEstimator <: DEProblem end
 
 export MonteCarloProblem
 export MonteCarloSolution, MonteCarloTestSolution, MonteCarloSummary
 
+"""
+    abstract type AbstractDiffEqInterpolation <: Function
+"""
 abstract type AbstractDiffEqInterpolation <: Function end
+
+"""
+    abstract type AbstractDEOptions
+"""
 abstract type AbstractDEOptions end
+
+"""
+    abstract type DECache
+"""
 abstract type DECache end
+
+"""
+    abstract type DECallback
+"""
 abstract type DECallback end
+
+"""
+    abstract type AbstractContinuousCallback <: DECallback
+"""
 abstract type AbstractContinuousCallback <: DECallback end
+
+"""
+    abstract type AbstractDiscreteCallback <: DECallback
+"""
 abstract type AbstractDiscreteCallback <: DECallback end
 
+"""
+    abstract type DEDataArray{T,N} <: AbstractArray{T,N}
+"""
 abstract type DEDataArray{T,N} <: AbstractArray{T,N} end
 const DEDataVector{T} = DEDataArray{T,1}
 const DEDataMatrix{T} = DEDataArray{T,2}
 
 # Integrators
+"""
+    abstract type DEIntegrator{Alg, IIP, U, T}
+"""
 abstract type DEIntegrator{Alg, IIP, U, T} end
+
+"""
+    abstract type AbstractSteadyStateIntegrator{Alg, IIP, U} <: DEIntegrator{Alg, IIP, U, Nothing}
+"""
 abstract type AbstractSteadyStateIntegrator{Alg, IIP, U} <: DEIntegrator{Alg, IIP, U, Nothing} end
+
+"""
+    abstract type AbstractODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T}
+"""
 abstract type AbstractODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+
+"""
+    abstract type AbstractSecondOrderODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T}
+"""
 abstract type AbstractSecondOrderODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+
+"""
+    abstract type AbstractRODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T}
+"""
 abstract type AbstractRODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+
+"""
+    abstract type AbstractSDEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T}
+"""
 abstract type AbstractSDEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+
+"""
+    abstract type AbstractDDEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T}
+"""
 abstract type AbstractDDEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+
+"""
+    abstract type AbstractDAEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T}
+"""
 abstract type AbstractDAEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
 
 # Solutions
+"""
+    abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N}
+"""
 abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N} end
+
+"""
+    abstract type AbstractTimeseriesSolution{T,N} <: AbstractDiffEqArray{T,N}
+"""
 abstract type AbstractTimeseriesSolution{T,N} <: AbstractDiffEqArray{T,N} end
+
+"""
+    abstract type AbstractMonteCarloSolution{T,N} <: AbstractVectorOfArray{T,N}
+"""
 abstract type AbstractMonteCarloSolution{T,N} <: AbstractVectorOfArray{T,N} end
+
+"""
+    abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractDiffEqArray{T,N}
+"""
 abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractDiffEqArray{T,N} end
 
 const DESolution = Union{AbstractTimeseriesSolution,
@@ -90,23 +257,77 @@ const DESolution = Union{AbstractTimeseriesSolution,
                          AbstractMonteCarloSolution,
                          AbstractNoiseProcess}
 export DESolution
+
+"""
+    abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N}
+"""
 abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} end
+
+"""
+    abstract type AbstractAnalyticalSolution{T,N} <: AbstractTimeseriesSolution{T,N}
+"""
 abstract type AbstractAnalyticalSolution{T,N} <: AbstractTimeseriesSolution{T,N} end
+
+"""
+    abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N}
+"""
 abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
 
 # Needed for plot recipes
+"""
+    abstract type AbstractDDESolution{T,N} <: AbstractODESolution{T,N}
+"""
 abstract type AbstractDDESolution{T,N} <: AbstractODESolution{T,N} end
+
+"""
+    abstract type AbstractRODESolution{T,N} <: AbstractODESolution{T,N}
+"""
 abstract type AbstractRODESolution{T,N} <: AbstractODESolution{T,N} end
+
+"""
+    abstract type AbstractDAESolution{T,N} <: AbstractODESolution{T,N}
+"""
 abstract type AbstractDAESolution{T,N} <: AbstractODESolution{T,N} end
+
+"""
+    abstract type AbstractSensitivitySolution{T,N}
+"""
 abstract type AbstractSensitivitySolution{T,N} end
 
 # Misc
+"""
+    abstract type Tableau
+"""
 abstract type Tableau end
+
+"""
+    abstract type ODERKTableau <: Tableau
+"""
 abstract type ODERKTableau <: Tableau end
+
+"""
+    abstract type DECostFunction
+"""
 abstract type DECostFunction end
+
+"""
+    abstract type AbstractDiffEqOperator{T}
+"""
 abstract type AbstractDiffEqOperator{T} end
+
+"""
+    abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T}
+"""
 abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T} end
+
+"""
+    abstract type AbstractDiffEqFunction{iip} <: Function
+"""
 abstract type AbstractDiffEqFunction{iip} <: Function end
+
+"""
+    abstract type AbstractReactionNetwork <: Function
+"""
 abstract type AbstractReactionNetwork <: Function end
 
 include("destats.jl")
@@ -147,8 +368,14 @@ include("alg_traits.jl")
 include("remake.jl")
 include("init.jl")
 
+"""
+    abstract type AbstractParameterizedFunction{iip} <: AbstractODEFunction{iip}
+"""
 abstract type AbstractParameterizedFunction{iip} <: AbstractODEFunction{iip} end
 
+"""
+    struct ConvergenceSetup{P,C}
+"""
 struct ConvergenceSetup{P,C}
     probs::P
     convergence_axis::C
