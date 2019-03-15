@@ -344,6 +344,8 @@ abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T} end
 
 """
     abstract type AbstractDiffEqFunction{iip} <: Function
+
+Base for types defining differential equation functions.
 """
 abstract type AbstractDiffEqFunction{iip} <: Function end
 
