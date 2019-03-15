@@ -1,4 +1,4 @@
-# Functions
+# DE functions
 
 ## Function types
 
@@ -22,4 +22,16 @@ AbstractDDEFunction
 DDEFunction
 AbstractDAEFunction
 DAEFunction
+```
+
+## Utilities
+
+```@doc
+has_analytic
+has_jac
+has_tgrad
+has_invW
+has_invW_t
+has_paramjac
+has_syms
 ```

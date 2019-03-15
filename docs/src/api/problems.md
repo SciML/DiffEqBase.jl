@@ -4,15 +4,6 @@
 TODO:
 * How do optional parameters (`p=nothing`) work?
 
-
-## Functions
-
-```@docs
-isinplace
-is_diagonal_noise
-promote_tspan
-```
-
 ## Problem types
 
 ```@docs
@@ -97,4 +88,13 @@ DAEProblem
 
 ```@docs
 AbstractJumpProblem
+```
+
+
+## Utilities
+
+```@docs
+isinplace
+is_diagonal_noise
+promote_tspan
 ```
