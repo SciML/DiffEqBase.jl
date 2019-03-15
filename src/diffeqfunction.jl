@@ -1,14 +1,14 @@
 const RECOMPILE_BY_DEFAULT = true
 
 """
-    abstract type AbstractODEFunction{iip} <: AbstractDiffEqFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
 abstract type AbstractODEFunction{iip} <: AbstractDiffEqFunction{iip} end
 
 """
-    struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
@@ -26,7 +26,7 @@ struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractODEFunction{ii
 end
 
 """
-    struct SplitFunction{iip,F1,F2,TMM,C,Ta} <: AbstractODEFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
@@ -39,7 +39,7 @@ struct SplitFunction{iip,F1,F2,TMM,C,Ta} <: AbstractODEFunction{iip}
 end
 
 """
-    struct DynamicalODEFunction{iip,F1,F2,TMM,Ta} <: AbstractODEFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
@@ -51,14 +51,14 @@ struct DynamicalODEFunction{iip,F1,F2,TMM,Ta} <: AbstractODEFunction{iip}
 end
 
 """
-    abstract type AbstractDDEFunction{iip} <: AbstractDiffEqFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
 abstract type AbstractDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
 
 """
-    struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDDEFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
@@ -76,14 +76,14 @@ struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDDEFunction{ii
 end
 
 """
-    abstract type AbstractDiscreteFunction{iip} <: AbstractDiffEqFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
 abstract type AbstractDiscreteFunction{iip} <: AbstractDiffEqFunction{iip} end
 
 """
-    struct DiscreteFunction{iip,F,Ta,S} <: AbstractDiscreteFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
@@ -94,14 +94,14 @@ struct DiscreteFunction{iip,F,Ta,S} <: AbstractDiscreteFunction{iip}
 end
 
 """
-    abstract type AbstractSDEFunction{iip} <: AbstractDiffEqFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
 abstract type AbstractSDEFunction{iip} <: AbstractDiffEqFunction{iip} end
 
 """
-    struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
@@ -121,7 +121,7 @@ struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG} <: AbstractSDEFuncti
 end
 
 """
-    struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta} <: AbstractSDEFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
@@ -135,14 +135,14 @@ struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta} <: AbstractSDEFunction{iip}
 end
 
 """
-    abstract type AbstractRODEFunction{iip} <: AbstractDiffEqFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
 abstract type AbstractRODEFunction{iip} <: AbstractDiffEqFunction{iip} end
 
 """
-    struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractRODEFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
@@ -160,14 +160,14 @@ struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractRODEFunction{
 end
 
 """
-    abstract type AbstractDAEFunction{iip} <: AbstractDiffEqFunction{iip}
+$(TYPEDEF)
 
 TODO
 """
 abstract type AbstractDAEFunction{iip} <: AbstractDiffEqFunction{iip} end
 
 """
-    struct DAEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDAEFunction{iip}
+$(TYPEDEF)
 
 TODO
 """

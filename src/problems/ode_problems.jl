@@ -1,5 +1,5 @@
 """
-    struct StandardODEProblem
+$(TYPEDEF)
 
 TODO
 """
@@ -7,10 +7,13 @@ struct StandardODEProblem end
 
 # Mu' = f
 """
-    struct ODEProblem{uType,tType,isinplace,P,F,C,PT} <:
-               AbstractODEProblem{uType,tType,isinplace}
+$(TYPEDEF)
 
 Defines an ODE problem.
+
+# Fields
+
+$(FIELDS)
 """
 struct ODEProblem{uType,tType,isinplace,P,F,C,PT} <:
                AbstractODEProblem{uType,tType,isinplace}
@@ -64,14 +67,14 @@ function ODEProblem(f,u0,tspan,p=nothing;kwargs...)
 end
 
 """
-    abstract type AbstractDynamicalODEProblem
+$(TYPEDEF)
 
 TODO
 """
 abstract type AbstractDynamicalODEProblem end
 
 """
-    struct DynamicalODEProblem{iip} <: AbstractDynamicalODEProblem end
+$(TYPEDEF)
 
 TODO
 """
@@ -111,7 +114,7 @@ end
 
 # u'' = f(t,u,du,ddu)
 """
-    struct SecondOrderODEProblem{iip} <: AbstractDynamicalODEProblem
+$(TYPEDEF)
 
 TODO
 """
@@ -169,14 +172,14 @@ function SecondOrderODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kw
 end
 
 """
-    abstract type AbsstractSplitODEProblem
+$(TYPEDEF)
 
 TODO
 """
 abstract type AbstractSplitODEProblem end
 
 """
-    struct SplitODEProblem{iip} <: AbstractSplitODEProblem
+$(TYPEDEF)
 
 TODO
 """
@@ -209,7 +212,7 @@ function SplitODEProblem{iip}(f1,f2,u0,tspan,p=nothing;kwargs...) where iip
 end
 
 """
-    SplitODEProblem(f::SplitFunction,u0,tspan,p=nothing;kwargs...)
+$(SIGNATURES)
 
 Define a split ODE problem from a [`SplitFunction`](@ref).
 """

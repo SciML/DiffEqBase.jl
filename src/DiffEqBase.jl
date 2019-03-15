@@ -9,9 +9,11 @@ using StaticArrays # data arrays
 
 using LinearAlgebra, Statistics
 
+using DocStringExtensions
+
 # Problems
 """
-    abstract type DEProblem
+$(TYPEDEF)
 
 Base type for all DifferentialEquations.jl problems. Concrete subtypes of
 `DEProblem` contain the necessary information to fully define a differential
@@ -20,37 +22,36 @@ equation of the corresponding type.
 abstract type DEProblem end
 
 """
-    abstract type DEElement
+$(TYPEDEF)
 """
 abstract type DEElement end
 
 """
-    abstract type DESensitivity
+$(TYPEDEF)
 """
 abstract type DESensitivity end
 
 """
-    abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem
+$(TYPEDEF)
 
 Base for types which define steady state problems for ODE systems.
 """
 abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem end
 
 """
-    abstract type AbstractNoiseProblem <: DEProblem
+$(TYPEDEF)
 """
 abstract type AbstractNoiseProblem <: DEProblem end
 
 """
-    abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem
+$(TYPEDEF)
 
 Base for types which define ODE problems.
 """
 abstract type AbstractODEProblem{uType,tType,isinplace} <: DEProblem end
 
 """
-    abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
-                          AbstractODEProblem{uType,tType,isinplace}
+$(TYPEDEF)
 
 Base for types which define discrete problems.
 """
@@ -58,22 +59,20 @@ abstract type AbstractDiscreteProblem{uType,tType,isinplace} <:
                       AbstractODEProblem{uType,tType,isinplace} end
 
 """
-    abstract type AbstractAnalyticalProblem{uType,tType,isinplace} <:
-                          AbstractODEProblem{uType,tType,isinplace}
+$(TYPEDEF)
 """
 abstract type AbstractAnalyticalProblem{uType,tType,isinplace} <:
                       AbstractODEProblem{uType,tType,isinplace} end
 
 """
-    abstract type AbstractRODEProblem{uType,tType,isinplace,ND} <: DEProblem
+$(TYPEDEF)
 
 Base for types which define RODE problems.
 """
 abstract type AbstractRODEProblem{uType,tType,isinplace,ND} <: DEProblem end
 
 """
-    abstract type AbstractSDEProblem{uType,tType,isinplace,ND} <:
-                          AbstractRODEProblem{uType,tType,isinplace,ND}
+$(TYPEDEF)
 
 Base for types which define SDE problems.
 """
@@ -81,40 +80,39 @@ abstract type AbstractSDEProblem{uType,tType,isinplace,ND} <:
                       AbstractRODEProblem{uType,tType,isinplace,ND} end
 
 """
-    abstract type AbstractDAEProblem{uType,duType,tType,isinplace} <: DEProblem
+$(TYPEDEF)
 
 Base for types which define DAE problems.
 """
 abstract type AbstractDAEProblem{uType,duType,tType,isinplace} <: DEProblem end
 
 """
-    abstract type AbstractDDEProblem{uType,tType,lType,isinplace} <: DEProblem
+$(TYPEDEF)
 
 Base for types which define DDE problems.
 """
 abstract type AbstractDDEProblem{uType,tType,lType,isinplace} <: DEProblem end
 
 """
-    abstract type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace} <:
-                          AbstractDDEProblem{uType,tType,lType,isinplace}
+$(TYPEDEF)
 """
 abstract type AbstractConstantLagDDEProblem{uType,tType,lType,isinplace} <:
                       AbstractDDEProblem{uType,tType,lType,isinplace} end
 
 """
-    abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace}
+$(TYPEDEF)
 """
 abstract type AbstractSecondOrderODEProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
 
 """
-    abstract type AbstractBVProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace}
+$(TYPEDEF)
 
 Base for types which define BVP problems.
 """
 abstract type AbstractBVProblem{uType,tType,isinplace} <: AbstractODEProblem{uType,tType,isinplace} end
 
 """
-    abstract type AbstractJumpProblem{P,J} <: DiffEqBase
+$(TYPEDEF)
 
 Base for types which define jump problems.
 """
@@ -122,53 +120,53 @@ abstract type AbstractJumpProblem{P,J} <: DiffEqBase.DEProblem end
 
 # Algorithms
 """
-    abstract type DEAlgorithm
+$(TYPEDEF)
 """
 abstract type DEAlgorithm end
 
 """
-    abstract type AbstractSteadyStateAlgorithm <: DEAlgorithm
+$(TYPEDEF)
 """
 abstract type AbstractSteadyStateAlgorithm <: DEAlgorithm end
 
 """
-    abstract type AbstractODEAlgorithm <: DEAlgorithm
+$(TYPEDEF)
 """
 abstract type AbstractODEAlgorithm <: DEAlgorithm end
 
 """
-    abstract type AbstractSecondOrderODEAlgorithm <: DEAlgorithm
+$(TYPEDEF)
 """
 abstract type AbstractSecondOrderODEAlgorithm <: DEAlgorithm end
 
 """
-    abstract type AbstractRODEAlgorithm <: DEAlgorithm
+$(TYPEDEF)
 """
 abstract type AbstractRODEAlgorithm <: DEAlgorithm end
 
 """
-    abstract type AbstractSDEAlgorithm <: DEAlgorithm
+$(TYPEDEF)
 """
 abstract type AbstractSDEAlgorithm <: DEAlgorithm end
 
 """
-    abstract type AbstractDAEAlgorithm <: DEAlgorithm
+$(TYPEDEF)
 """
 abstract type AbstractDAEAlgorithm <: DEAlgorithm end
 
 """
-    abstract type AbstractDDEAlgorithm <: DEAlgorithm
+$(TYPEDEF)
 """
 abstract type AbstractDDEAlgorithm <: DEAlgorithm end
 
 # Monte Carlo Simulations
 """
-    abstract type AbstractMonteCarloProblem <: DEProblem
+$(TYPEDEF)
 """
 abstract type AbstractMonteCarloProblem <: DEProblem end
 
 """
-    abstract type AbstractMonteCarloEstimator <: DEProblem
+$(TYPEDEF)
 """
 abstract type AbstractMonteCarloEstimator <: DEProblem end
 
@@ -176,37 +174,37 @@ export MonteCarloProblem
 export MonteCarloSolution, MonteCarloTestSolution, MonteCarloSummary
 
 """
-    abstract type AbstractDiffEqInterpolation <: Function
+$(TYPEDEF)
 """
 abstract type AbstractDiffEqInterpolation <: Function end
 
 """
-    abstract type AbstractDEOptions
+$(TYPEDEF)
 """
 abstract type AbstractDEOptions end
 
 """
-    abstract type DECache
+$(TYPEDEF)
 """
 abstract type DECache end
 
 """
-    abstract type DECallback
+$(TYPEDEF)
 """
 abstract type DECallback end
 
 """
-    abstract type AbstractContinuousCallback <: DECallback
+$(TYPEDEF)
 """
 abstract type AbstractContinuousCallback <: DECallback end
 
 """
-    abstract type AbstractDiscreteCallback <: DECallback
+$(TYPEDEF)
 """
 abstract type AbstractDiscreteCallback <: DECallback end
 
 """
-    abstract type DEDataArray{T,N} <: AbstractArray{T,N}
+$(TYPEDEF)
 """
 abstract type DEDataArray{T,N} <: AbstractArray{T,N} end
 const DEDataVector{T} = DEDataArray{T,1}
@@ -214,63 +212,63 @@ const DEDataMatrix{T} = DEDataArray{T,2}
 
 # Integrators
 """
-    abstract type DEIntegrator{Alg, IIP, U, T}
+$(TYPEDEF)
 """
 abstract type DEIntegrator{Alg, IIP, U, T} end
 
 """
-    abstract type AbstractSteadyStateIntegrator{Alg, IIP, U} <: DEIntegrator{Alg, IIP, U, Nothing}
+$(TYPEDEF)
 """
 abstract type AbstractSteadyStateIntegrator{Alg, IIP, U} <: DEIntegrator{Alg, IIP, U, Nothing} end
 
 """
-    abstract type AbstractODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T}
+$(TYPEDEF)
 """
 abstract type AbstractODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
 
 """
-    abstract type AbstractSecondOrderODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T}
+$(TYPEDEF)
 """
 abstract type AbstractSecondOrderODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
 
 """
-    abstract type AbstractRODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T}
+$(TYPEDEF)
 """
 abstract type AbstractRODEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
 
 """
-    abstract type AbstractSDEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T}
+$(TYPEDEF)
 """
 abstract type AbstractSDEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
 
 """
-    abstract type AbstractDDEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T}
+$(TYPEDEF)
 """
 abstract type AbstractDDEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
 
 """
-    abstract type AbstractDAEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T}
+$(TYPEDEF)
 """
 abstract type AbstractDAEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
 
 # Solutions
 """
-    abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N}
+$(TYPEDEF)
 """
 abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N} end
 
 """
-    abstract type AbstractTimeseriesSolution{T,N} <: AbstractDiffEqArray{T,N}
+$(TYPEDEF)
 """
 abstract type AbstractTimeseriesSolution{T,N} <: AbstractDiffEqArray{T,N} end
 
 """
-    abstract type AbstractMonteCarloSolution{T,N} <: AbstractVectorOfArray{T,N}
+$(TYPEDEF)
 """
 abstract type AbstractMonteCarloSolution{T,N} <: AbstractVectorOfArray{T,N} end
 
 """
-    abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractDiffEqArray{T,N}
+$(TYPEDEF)
 """
 abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractDiffEqArray{T,N} end
 
@@ -281,76 +279,76 @@ const DESolution = Union{AbstractTimeseriesSolution,
 export DESolution
 
 """
-    abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N}
+$(TYPEDEF)
 """
 abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} end
 
 """
-    abstract type AbstractAnalyticalSolution{T,N} <: AbstractTimeseriesSolution{T,N}
+$(TYPEDEF)
 """
 abstract type AbstractAnalyticalSolution{T,N} <: AbstractTimeseriesSolution{T,N} end
 
 """
-    abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N}
+$(TYPEDEF)
 """
 abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
 
 # Needed for plot recipes
 """
-    abstract type AbstractDDESolution{T,N} <: AbstractODESolution{T,N}
+$(TYPEDEF)
 """
 abstract type AbstractDDESolution{T,N} <: AbstractODESolution{T,N} end
 
 """
-    abstract type AbstractRODESolution{T,N} <: AbstractODESolution{T,N}
+$(TYPEDEF)
 """
 abstract type AbstractRODESolution{T,N} <: AbstractODESolution{T,N} end
 
 """
-    abstract type AbstractDAESolution{T,N} <: AbstractODESolution{T,N}
+$(TYPEDEF)
 """
 abstract type AbstractDAESolution{T,N} <: AbstractODESolution{T,N} end
 
 """
-    abstract type AbstractSensitivitySolution{T,N}
+$(TYPEDEF)
 """
 abstract type AbstractSensitivitySolution{T,N} end
 
 # Misc
 """
-    abstract type Tableau
+$(TYPEDEF)
 """
 abstract type Tableau end
 
 """
-    abstract type ODERKTableau <: Tableau
+$(TYPEDEF)
 """
 abstract type ODERKTableau <: Tableau end
 
 """
-    abstract type DECostFunction
+$(TYPEDEF)
 """
 abstract type DECostFunction end
 
 """
-    abstract type AbstractDiffEqOperator{T}
+$(TYPEDEF)
 """
 abstract type AbstractDiffEqOperator{T} end
 
 """
-    abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T}
+$(TYPEDEF)
 """
 abstract type AbstractDiffEqLinearOperator{T} <: AbstractDiffEqOperator{T} end
 
 """
-    abstract type AbstractDiffEqFunction{iip} <: Function
+$(TYPEDEF)
 
 Base for types defining differential equation functions.
 """
 abstract type AbstractDiffEqFunction{iip} <: Function end
 
 """
-    abstract type AbstractReactionNetwork <: Function
+$(TYPEDEF)
 """
 abstract type AbstractReactionNetwork <: Function end
 
@@ -393,12 +391,12 @@ include("remake.jl")
 include("init.jl")
 
 """
-    abstract type AbstractParameterizedFunction{iip} <: AbstractODEFunction{iip}
+$(TYPEDEF)
 """
 abstract type AbstractParameterizedFunction{iip} <: AbstractODEFunction{iip} end
 
 """
-    struct ConvergenceSetup{P,C}
+$(TYPEDEF)
 """
 struct ConvergenceSetup{P,C}
     probs::P

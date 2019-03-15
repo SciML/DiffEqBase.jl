@@ -1,8 +1,12 @@
 # Mu' = f
 """
-    struct SteadyStateProblem{uType,isinplace,P,F} <: AbstractSteadyStateProblem{uType,isinplace}
+$(TYPEDEF)
 
 Defines a steady state problem.
+
+# Fields
+
+$(FIELDS)
 """
 struct SteadyStateProblem{uType,isinplace,P,F} <: AbstractSteadyStateProblem{uType,isinplace}
   """f: The function in the ODE."""
@@ -17,7 +21,7 @@ struct SteadyStateProblem{uType,isinplace,P,F} <: AbstractSteadyStateProblem{uTy
   end
 
   """
-      SteadyStateProblem{iip}(f,u0,p=nothing)
+  $(SIGNATURES)
 
   Define a steady state problem using the given function.
   `isinplace` optionally sets whether the function is inplace or not.
@@ -29,7 +33,7 @@ struct SteadyStateProblem{uType,isinplace,P,F} <: AbstractSteadyStateProblem{uTy
 end
 
 """
-    SteadyStateProblem(f::AbstractODEFunction,u0,p=nothing;kwargs...)
+$(SIGNATURES)
 
 Define a steady state problem using an instance of
 [`AbstractODEFunction`](@ref).
@@ -43,7 +47,7 @@ function SteadyStateProblem(f,u0,p=nothing;kwargs...)
 end
 
 """
-    SteadyStateProblem(prob::AbstractODEProblem)
+$(SIGNATURES)
 
 Define a steady state problem from a standard ODE problem.
 """

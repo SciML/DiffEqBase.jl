@@ -2,9 +2,13 @@ const DISCRETE_INPLACE_DEFAULT = convert(DiscreteFunction{true},(du,u,p,t) -> du
 const DISCRETE_OUTOFPLACE_DEFAULT = convert(DiscreteFunction{false},(u,p,t) -> u)
 
 """
-    struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{uType,tType,isinplace}
+$(TYPEDEF)
 
 Defines a discrete problem.
+
+# Fields
+
+$(FIELDS)
 """
 struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{uType,tType,isinplace}
   """The function in the map."""
@@ -57,7 +61,7 @@ function DiscreteProblem(f,u0,tspan::Tuple,p=nothing;kwargs...)
 end
 
 """
-    DiscreteProblem{isinplace}(u0,tspan;kwargs...)
+$(SIGNATURES)
 
 Define a discrete problem with the identity map.
 """
