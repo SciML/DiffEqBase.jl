@@ -1,10 +1,6 @@
 # API Overviews
 
 
-```@index
-```
-
-
 ## Type parameters
 
 The following are common type parameters that appear throughout the package:
@@ -14,3 +10,9 @@ The following are common type parameters that appear throughout the package:
 * `isinplace` - Boolean value which indicates whether a DE function operates in-place (sets values of an array passed as its first argument rather than returning a new array).
   Also appears as `iip`.
 * `ND`  - TODO
+
+
+## Index
+
+```@index
+```

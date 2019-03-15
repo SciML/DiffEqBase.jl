@@ -6,27 +6,27 @@ Functions for the different categories of differential equations are
 defined by subtypes of `AbstractDiffEqFunction`:
 
 ```@docs
-AbstractDiffEqFunction
-AbstractDiscreteFunction
+DiffEqBase.AbstractDiffEqFunction
+DiffEqBase.AbstractDiscreteFunction
 DiscreteFunction
-AbstractODEFunction
+DiffEqBase.AbstractODEFunction
 ODEFunction
 DynamicalODEFunction
 SplitFunction
-AbstractSDEFunction
+DiffEqBase.AbstractSDEFunction
 SDEFunction
 SplitSDEFunction
-AbstractRODEFunction
+DiffEqBase.AbstractRODEFunction
 RODEFunction
-AbstractDDEFunction
+DiffEqBase.AbstractDDEFunction
 DDEFunction
-AbstractDAEFunction
+DiffEqBase.AbstractDAEFunction
 DAEFunction
 ```
 
 ## Utilities
 
-```@doc
+```@docs
 has_analytic
 has_jac
 has_tgrad

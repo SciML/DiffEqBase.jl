@@ -7,20 +7,20 @@ TODO:
 ## Problem types
 
 ```@docs
-DEProblem
+DiffEqBase.DEProblem
 ```
 
 ### Discrete problems
 
 ```@docs
-AbstractDiscreteProblem
+DiffEqBase.AbstractDiscreteProblem
 DiscreteProblem
 ```
 
 ### ODE problems
 
 ```@docs
-AbstractODEProblem
+DiffEqBase.AbstractODEProblem
 ODEProblem
 ```
 
@@ -29,26 +29,26 @@ ODEProblem
 TODO: document `problem_type` field.
 
 ```@docs
-StandardODEProblem
-AbstractDynamicalODEProblem
+DiffEqBase.StandardODEProblem
+DiffEqBase.AbstractDynamicalODEProblem
 DynamicalODEProblem
 SecondOrderODEProblem
-AbstractSplitODEProblem
+DiffEqBase.AbstractSplitODEProblem
 SplitODEProblem
 ```
 
 ### Steady state problems
 
 ```@docs
-AbstractSteadyStateProblem
+DiffEqBase.AbstractSteadyStateProblem
 SteadyStateProblem
 ```
 
-### BVP problems
+### Boundary value problems
 
 ```@docs
-AbstractBVPProblem
-StandardBVProblem
+DiffEqBase.AbstractBVProblem
+DiffEqBase.StandardBVProblem
 BVProblem
 TwoPointBVProblem
 ```
@@ -56,38 +56,38 @@ TwoPointBVProblem
 ### SDE problems
 
 ```@docs
-AbstractSDEProblem
-StandardSDEProblem
+DiffEqBase.AbstractSDEProblem
+DiffEqBase.StandardSDEProblem
 SDEProblem
-AbstractSplitSDEProblem
+DiffEqBase.AbstractSplitSDEProblem
 SplitSDEProblem
 ```
 
 ### RODE problems
 
 ```@docs
-AbstractRODEProblem
+DiffEqBase.AbstractRODEProblem
 RODEProblem
 ```
 
 ### DDE problems
 
 ```@docs
-AbstractDDEProblem
+DiffEqBase.AbstractDDEProblem
 DDEProblem
 ```
 
 ### DAE problems
 
 ```@docs
-AbstractDAEProblem
+DiffEqBase.AbstractDAEProblem
 DAEProblem
 ```
 
 ### Jump problems
 
 ```@docs
-AbstractJumpProblem
+DiffEqBase.AbstractJumpProblem
 ```
 
 
@@ -95,6 +95,6 @@ AbstractJumpProblem
 
 ```@docs
 isinplace
-is_diagonal_noise
-promote_tspan
+DiffEqBase.is_diagonal_noise
+DiffEqBase.promote_tspan
 ```
