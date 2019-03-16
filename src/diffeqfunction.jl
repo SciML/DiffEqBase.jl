@@ -1,6 +1,17 @@
 const RECOMPILE_BY_DEFAULT = true
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 abstract type AbstractODEFunction{iip} <: AbstractDiffEqFunction{iip} end
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractODEFunction{iip}
   f::F
   mass_matrix::TMM
@@ -14,6 +25,11 @@ struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractODEFunction{ii
   syms::S
 end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct SplitFunction{iip,F1,F2,TMM,C,Ta} <: AbstractODEFunction{iip}
   f1::F1
   f2::F2
@@ -22,6 +38,11 @@ struct SplitFunction{iip,F1,F2,TMM,C,Ta} <: AbstractODEFunction{iip}
   analytic::Ta
 end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct DynamicalODEFunction{iip,F1,F2,TMM,Ta} <: AbstractODEFunction{iip}
   f1::F1
   f2::F2
@@ -29,7 +50,18 @@ struct DynamicalODEFunction{iip,F1,F2,TMM,Ta} <: AbstractODEFunction{iip}
   analytic::Ta
 end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 abstract type AbstractDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDDEFunction{iip}
   f::F
   mass_matrix::TMM
@@ -43,14 +75,36 @@ struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDDEFunction{ii
   syms::S
 end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 abstract type AbstractDiscreteFunction{iip} <: AbstractDiffEqFunction{iip} end
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct DiscreteFunction{iip,F,Ta,S} <: AbstractDiscreteFunction{iip}
   f::F
   analytic::Ta
   syms::S
 end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 abstract type AbstractSDEFunction{iip} <: AbstractDiffEqFunction{iip} end
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG} <: AbstractSDEFunction{iip}
   f::F
   g::G
@@ -66,6 +120,11 @@ struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG} <: AbstractSDEFuncti
   syms::S
 end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta} <: AbstractSDEFunction{iip}
   f1::F1
   f2::F2
@@ -75,7 +134,18 @@ struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta} <: AbstractSDEFunction{iip}
   analytic::Ta
 end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 abstract type AbstractRODEFunction{iip} <: AbstractDiffEqFunction{iip} end
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractRODEFunction{iip}
   f::F
   mass_matrix::TMM
@@ -89,7 +159,18 @@ struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractRODEFunction{
   syms::S
 end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 abstract type AbstractDAEFunction{iip} <: AbstractDiffEqFunction{iip} end
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct DAEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S} <: AbstractDAEFunction{iip}
   f::F
   analytic::Ta
