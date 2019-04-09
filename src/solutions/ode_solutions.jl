@@ -117,6 +117,8 @@ function solution_new_retcode(sol::AbstractODESolution{T,N},retcode) where {T,N}
                        typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
                        sol.u[I],
                        sol.u_analytic === nothing ? nothing : sol.u_analytic[I],
-                       sol.errors,sol.t[I],sol.k[I],sol.prob,
+                       sol.errors,sol.t[I],
+                       sol.dense ? sol.k[I] : sol.k,
+                       sol.prob,
                        sol.alg,sol.interp,false,sol.tslocation,sol.destats,sol.retcode)
    end
