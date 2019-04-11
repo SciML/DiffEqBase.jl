@@ -1,3 +1,4 @@
+using DiffEqBase
 mutable struct DummySolution
   retcode
 end
