@@ -1,2 +1,4 @@
 Distributions
 StaticArrays
+MuladdMacro
+SafeTestsets
