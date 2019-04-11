@@ -11,9 +11,9 @@ Base.@propagate_inbounds _broadcast_getindex(b::DiffEqBC{<:AbstractArray}, i) = 
 diffeqbc(x::Array) = DiffEqBC(x)
 diffeqbc(x) = x
 
-@inline combine_axes(A, B, C...) = broadcast_shape(axes(A), combine_axes(B, C...))
+# Ensure inlining
 @inline combine_axes(A, B) = broadcast_shape(axes(A), axes(B))
-@inline check_broadcast_axes(shp, A) = check_broadcast_shape(shp, axes(A))
+@inline check_broadcast_axes(shp, A::Union{Number, Array, Broadcasted}) = check_broadcast_shape(shp, axes(A))
 
 @inline preprocess(f, dest, bc::Broadcasted{Style}) where {Style} = Broadcasted{Style}(bc.f, preprocess_args(f, dest, bc.args), bc.axes)
 preprocess(f, dest, x) = f(broadcast_unalias(dest, x))
@@ -65,4 +65,12 @@ map_nostop(f, t::Tuple)                = (Base.@_inline_meta; (f(t[1]), map_nost
     arg2′ = broadcastable(arg2)
     args′ = map_nostop(broadcastable, args)
     broadcasted(combine_styles(arg1′, arg2′, args′...), f, arg1′, arg2′, args′...)
+end
+
+macro ..(x)
+    expr = Base.Broadcast.__dot__(x)
+    if expr.head == :(.=)
+      expr.args[1] = :(DiffEqBase.diffeqbc($(expr.args[1])))
+    end
+    esc(expr)
 end

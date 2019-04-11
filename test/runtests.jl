@@ -2,6 +2,7 @@ using DiffEqBase
 using Test, LinearAlgebra
 
 @time begin
+@time @testset "Fast Broadcast" begin include("fastbc.jl") end
 @time @testset "Number of Parameters Calculation" begin include("numargs_test.jl") end
 @time @testset "Data Arrays" begin include("data_array_tests.jl") end
 @time @testset "Extended Functions" begin include("extended_function_tests.jl") end
