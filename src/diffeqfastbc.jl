@@ -1,4 +1,4 @@
-import Base.Broadcast: _broadcast_getindex, preprocess, preprocess_args, Broadcasted, broadcast_unalias, combine_axes, broadcast_shape, check_broadcast_axes, check_broadcast_shape
+import Base.Broadcast: _broadcast_getindex, preprocess, preprocess_args, Broadcasted, broadcast_unalias, combine_axes, broadcast_shape, check_broadcast_axes, check_broadcast_shape, throwdm
 import Base: copyto!, tail, axes
 struct DiffEqBC{T}
     x::T
@@ -48,7 +48,13 @@ end
 macro ..(x)
     expr = Base.Broadcast.__dot__(x)
     if expr.head == :(.=)
-      expr.args[1] = :(DiffEqBase.diffeqbc($(expr.args[1])))
+      dest = expr.args[1]
+      expr.args[1] = :(DiffEqBase.diffeqbc($dest))
+      return esc(quote
+              $expr
+              $dest
+          end)
+    else
+      return esc(expr)
     end
-    esc(expr)
 end
