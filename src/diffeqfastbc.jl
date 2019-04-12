@@ -47,7 +47,7 @@ end
             @inbounds dest′[I] = bcs′[I]
         end
     else
-        @simd for I in eachindex(bcs′)
+        @simd ivdep for I in eachindex(bcs′)
             @inbounds dest′[I] = bcs′[I]
         end
     end
