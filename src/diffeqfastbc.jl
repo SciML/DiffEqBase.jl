@@ -29,7 +29,7 @@ preprocess_args(f, dest, args::Tuple{}) = ()
     @simd ivdep for I in eachindex(bcs′)
         @inbounds dest′[I] = bcs′[I]
     end
-    return dest
+    return dest′ # return the original array without the wrapper
 end
 
 import Base.Broadcast: broadcasted, broadcastable, combine_styles
@@ -50,11 +50,6 @@ macro ..(x)
     if expr.head == :(.=)
       dest = expr.args[1]
       expr.args[1] = :(DiffEqBase.diffeqbc($dest))
-      return esc(quote
-              $expr
-              $dest
-          end)
-    else
-      return esc(expr)
     end
+    return esc(expr)
 end
