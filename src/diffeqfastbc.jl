@@ -1,4 +1,4 @@
-import Base.Broadcast: _broadcast_getindex, preprocess, preprocess_args, Broadcasted, broadcast_unalias, combine_axes, broadcast_shape, check_broadcast_axes, check_broadcast_shape
+import Base.Broadcast: _broadcast_getindex, preprocess, preprocess_args, Broadcasted, broadcast_unalias, combine_axes, broadcast_shape, check_broadcast_axes, check_broadcast_shape, throwdm
 import Base: copyto!, tail, axes
 struct DiffEqBC{T}
     x::T
@@ -22,36 +22,14 @@ preprocess(f, dest, x) = f(broadcast_unalias(dest, x))
 @inline preprocess_args(f, dest, args::Tuple{Any}) = (preprocess(f, dest, args[1]),)
 preprocess_args(f, dest, args::Tuple{}) = ()
 
-@static if VERSION >= v"1.2.0"
-@eval Base.getindex(A::DiffEqBC, i1::Int) =
-    (Base.@_inline_meta; Core.const_arrayref($(Expr(:boundscheck)), A.x, i1))
-@eval Base.getindex(A::DiffEqBC, i1::Int, i2::Int, I::Int...) =
-  (Base.@_inline_meta; Core.const_arrayref($(Expr(:boundscheck)), A.x, i1, i2, I...))
-macro aliasscope(body)
-    sym = gensym()
-    quote
-        $(Expr(:aliasscope))
-        $sym = $(esc(body))
-        $(Expr(:popaliasscope))
-        $sym
-    end
-end
-end
-
 @inline function copyto!(dest::DiffEqBC, bc::Broadcasted)
     axes(dest) == axes(bc) || throwdm(axes(dest), axes(bc))
     bcs′ = preprocess(diffeqbc, dest, bc)
     dest′ = dest.x
-    @static if VERSION >= v"1.2.0"
-        @aliasscope @simd for I in eachindex(bcs′)
-            @inbounds dest′[I] = bcs′[I]
-        end
-    else
-        @simd for I in eachindex(bcs′)
-            @inbounds dest′[I] = bcs′[I]
-        end
+    @simd ivdep for I in eachindex(bcs′)
+        @inbounds dest′[I] = bcs′[I]
     end
-    return dest
+    return dest′ # return the original array without the wrapper
 end
 
 import Base.Broadcast: broadcasted, broadcastable, combine_styles
@@ -70,7 +48,8 @@ end
 macro ..(x)
     expr = Base.Broadcast.__dot__(x)
     if expr.head == :(.=)
-      expr.args[1] = :(DiffEqBase.diffeqbc($(expr.args[1])))
+      dest = expr.args[1]
+      expr.args[1] = :(DiffEqBase.diffeqbc($dest))
     end
-    esc(expr)
+    return esc(expr)
 end
