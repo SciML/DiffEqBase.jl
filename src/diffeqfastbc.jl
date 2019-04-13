@@ -1,4 +1,4 @@
-import Base.Broadcast: _broadcast_getindex, preprocess, preprocess_args, Broadcasted, broadcast_unalias, combine_axes, broadcast_shape, check_broadcast_axes, check_broadcast_shape, throwdm
+import Base.Broadcast: _broadcast_getindex, preprocess, preprocess_args, Broadcasted, broadcast_unalias, combine_axes, broadcast_axes, broadcast_shape, check_broadcast_axes, check_broadcast_shape, throwdm
 import Base: copyto!, tail, axes
 struct DiffEqBC{T}
     x::T
@@ -12,7 +12,7 @@ diffeqbc(x::Array) = DiffEqBC(x)
 diffeqbc(x) = x
 
 # Ensure inlining
-@inline combine_axes(A, B) = broadcast_shape(axes(A), axes(B))
+@inline combine_axes(A, B) = broadcast_shape(broadcast_axes(A), broadcast_axes(B)) # Julia 1.0 compatible
 @inline check_broadcast_axes(shp, A::Union{Number, Array, Broadcasted}) = check_broadcast_shape(shp, axes(A))
 
 @inline preprocess(f, dest, bc::Broadcasted{Style}) where {Style} = Broadcasted{Style}(bc.f, preprocess_args(f, dest, bc.args), bc.axes)

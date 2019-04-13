@@ -16,9 +16,9 @@ a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z = [
 io = IOBuffer()
 InteractiveUtils.code_llvm(io, foo9, Base.typesof(a, b, c, d, e, f, g, h, i))
 str = String(take!(io))
+@allocated foo9(a, b, c, d, e, f, g, h, i)
+@allocated foo26(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z)
 if Base.JLOptions().check_bounds != 1
-  @allocated foo9(a, b, c, d, e, f, g, h, i)
-  @allocated foo26(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z)
   @test @allocated(foo9(a, b, c, d, e, f, g, h, i)) == 0
   @test @allocated(foo26(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z)) == 0
   @test occursin("vector.body", str)
