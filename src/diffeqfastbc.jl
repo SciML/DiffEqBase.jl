@@ -1,4 +1,4 @@
-import Base.Broadcast: _broadcast_getindex, preprocess, preprocess_args, Broadcasted, broadcast_unalias, combine_axes, broadcast_axes, broadcast_shape, check_broadcast_axes, check_broadcast_shape, throwdm, broadcastable
+import Base.Broadcast: _broadcast_getindex, preprocess, preprocess_args, Broadcasted, broadcast_unalias, combine_axes, broadcast_axes, broadcast_shape, check_broadcast_axes, check_broadcast_shape, throwdm, broadcastable, AbstractArrayStyle
 import Base: copyto!, tail, axes, length, ndims
 struct DiffEqBC{T}
     x::T
@@ -25,10 +25,19 @@ preprocess(f, dest, x) = f(broadcast_unalias(dest, x))
 @inline preprocess_args(f, dest, args::Tuple{Any}) = (preprocess(f, dest, args[1]),)
 preprocess_args(f, dest, args::Tuple{}) = ()
 
+# Performance optimization for the common identity scalar case: dest .= val
+@inline copyto!(dest::DiffEqBC, bc::Broadcasted{<:AbstractArrayStyle{0}}) = copyto!(dest.x, bc)
 @inline function copyto!(dest::DiffEqBC, bc::Broadcasted)
     axes(dest) == axes(bc) || throwdm(axes(dest), axes(bc))
-    bcs′ = preprocess(diffeqbc, dest, bc)
     dest′ = dest.x
+    # Performance optimization: broadcast!(identity, dest, A) is equivalent to copyto!(dest, A) if indices match
+    if bc.f === identity && bc.args isa Tuple{AbstractArray} # only a single input argument to broadcast!
+        A = bc.args[1]
+        if axes(dest) == axes(A)
+            return copyto!(dest′, A)
+        end
+    end
+    bcs′ = preprocess(diffeqbc, dest, bc)
     @simd ivdep for I in eachindex(bcs′)
         @inbounds dest′[I] = bcs′[I]
     end
