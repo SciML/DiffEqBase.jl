@@ -13,13 +13,31 @@ function foo26(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v,
     nothing
 end
 a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z = [rand(100, 100, 2) for i in 1:26];
-io = IOBuffer()
-InteractiveUtils.code_llvm(io, foo9, Base.typesof(a, b, c, d, e, f, g, h, i))
-str = String(take!(io))
 @allocated foo9(a, b, c, d, e, f, g, h, i)
 @allocated foo26(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z)
 if Base.JLOptions().check_bounds != 1
   @test @allocated(foo9(a, b, c, d, e, f, g, h, i)) == 0
   @test @allocated(foo26(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z)) == 0
+  io = IOBuffer()
+  InteractiveUtils.code_llvm(io, foo9, Base.typesof(a, b, c, d, e, f, g, h, i))
+  str = String(take!(io))
   @test occursin("vector.body", str)
 end
+
+fill!(a, 0.1);
+@test @..(a = b + c ) == @. b + c
+fill!(a, 0.1); a_ = copy(a);
+@test @..(a += b + c) == @. a_ + (b + c)
+fill!(a, 0.1); a_ = copy(a);
+@test @..(a -= b + c) == @. a_ - (b + c)
+fill!(a, 0.1); a_ = copy(a);
+@test @..(a *= b + c) == @. a_ * (b + c)
+fill!(a, 0.1); a_ = copy(a);
+@test @..(a /= b + c) == @. a_ / (b + c)
+fill!(a, 0.1); a_ = copy(a);
+@test @..(a \= b + c) == @. a_ \ (b + c)
+fill!(a, 0.1); a_ = copy(a);
+@test @..(a ^= b + c) == @. a_ ^ (b + c)
+
+a, b, c = [rand(Bool, 10) for i in 1:3]; a_ = copy(a)
+@test @..(a &= b | c) == @. a_ & (b | c)

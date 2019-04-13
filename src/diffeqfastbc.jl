@@ -1,9 +1,12 @@
-import Base.Broadcast: _broadcast_getindex, preprocess, preprocess_args, Broadcasted, broadcast_unalias, combine_axes, broadcast_axes, broadcast_shape, check_broadcast_axes, check_broadcast_shape, throwdm
-import Base: copyto!, tail, axes
+import Base.Broadcast: _broadcast_getindex, preprocess, preprocess_args, Broadcasted, broadcast_unalias, combine_axes, broadcast_axes, broadcast_shape, check_broadcast_axes, check_broadcast_shape, throwdm, broadcastable
+import Base: copyto!, tail, axes, length, ndims
 struct DiffEqBC{T}
     x::T
 end
 @inline axes(b::DiffEqBC) = axes(b.x)
+@inline length(b::DiffEqBC) = length(b.x)
+@inline broadcastable(b::DiffEqBC) = b
+@inline Base.ndims(b::Type{DiffEqBC{T}}) where T = ndims(T)
 Base.@propagate_inbounds _broadcast_getindex(b::DiffEqBC, i) = _broadcast_getindex(b.x, i)
 Base.@propagate_inbounds _broadcast_getindex(b::DiffEqBC{<:AbstractArray{<:Any,0}}, i) = b.x[]
 Base.@propagate_inbounds _broadcast_getindex(b::DiffEqBC{<:AbstractVector}, i) = b.x[i[1]]
@@ -32,7 +35,7 @@ preprocess_args(f, dest, args::Tuple{}) = ()
     return dest′ # return the original array without the wrapper
 end
 
-import Base.Broadcast: broadcasted, broadcastable, combine_styles
+import Base.Broadcast: broadcasted, combine_styles
 map_nostop(f, t::Tuple{})              = ()
 map_nostop(f, t::Tuple{Any,})          = (f(t[1]),)
 map_nostop(f, t::Tuple{Any, Any})      = (f(t[1]), f(t[2]))
@@ -47,9 +50,15 @@ end
 
 macro ..(x)
     expr = Base.Broadcast.__dot__(x)
-    if expr.head == :(.=)
-      dest = expr.args[1]
-      expr.args[1] = :(DiffEqBase.diffeqbc($dest))
+    if expr.head in (:(.=), :(.+=), :(.-=), :(.*=), :(./=), :(.\=), :(.^=)) # we exclude `÷=` `%=` `&=` `|=` `⊻=` `>>>=` `>>=` `<<=` because they are for integers
+      name = gensym()
+      dest = :(DiffEqBase.diffeqbc($(expr.args[1])))
+      expr.args[1] = name
+      return esc(quote
+                  $name = $dest
+                  $expr
+                 end)
+    else
+      return esc(expr)
     end
-    return esc(expr)
 end
