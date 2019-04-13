@@ -41,3 +41,7 @@ fill!(a, 0.1); a_ = copy(a);
 
 a, b, c = [rand(Bool, 10) for i in 1:3]; a_ = copy(a)
 @test @..(a &= b | c) == @. a_ & (b | c)
+
+x = ones(10); y = similar(x)
+@test_nowarn @.. y = 0.1
+@test_nowarn @.. y = x
