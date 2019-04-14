@@ -1,9 +1,14 @@
+value(x) = x
+
 function __init__()
   @require Distributions="31c24e10-a181-5473-b8eb-7969acd0382f" begin
     handle_distribution_u0(_u0::Distributions.Sampleable) = rand(_u0)
   end
 
   @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
+
+    value(x::ForwardDiff.Dual) = ForwardDiff.value(x)
+
     # Support adaptive with non-dual time
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual,N},t) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((ForwardDiff.value(x) for x in u),Iterators.repeated(t))) / length(u))
@@ -28,6 +33,9 @@ function __init__()
   end
 
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
+
+    value(x::Measurements.Measurement) = Measurements.value(x)
+
     # Support adaptive steps should be errorless
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Measurements.Measurement,N},t) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((Measurements.value(x) for x in u),Iterators.repeated(t))) / length(u))
