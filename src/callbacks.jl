@@ -194,9 +194,15 @@ end
       addsteps!(integrator)
     end
 
-    abst = integrator.tprev+sign(integrator.dt)*100*eps(integrator.tprev) # Evaluate condition slightly in future
+    # Evaluate condition slightly in future
+    abst = integrator.tprev+max(integrator.dt/10000,sign(integrator.dt)*100*eps(integrator.t))
     tmp_condition = get_condition(integrator, callback, abst)
     prev_sign = tmp_condition > previous_condition ? 1.0 : -1.0
+
+    # Sometimes users may "switch off" the condition after crossing
+    # This is necessary to ensure proper non-detection of a root
+    # == is for exact floating point equality!
+    tmp_condition == previous_condition && (prev_sign = sign(previous_condition))
   else
     prev_sign = sign(previous_condition)
   end
