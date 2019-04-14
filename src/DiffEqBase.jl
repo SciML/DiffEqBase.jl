@@ -11,6 +11,8 @@ using LinearAlgebra, Statistics
 
 using DocStringExtensions
 
+using FunctionWrappers: FunctionWrapper
+
 # Problems
 """
 $(TYPEDEF)
