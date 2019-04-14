@@ -1,9 +1,12 @@
-import Base.Broadcast: _broadcast_getindex, preprocess, preprocess_args, Broadcasted, broadcast_unalias, combine_axes, broadcast_shape, check_broadcast_axes, check_broadcast_shape, throwdm
-import Base: copyto!, tail, axes
+import Base.Broadcast: _broadcast_getindex, preprocess, preprocess_args, Broadcasted, broadcast_unalias, combine_axes, broadcast_axes, broadcast_shape, check_broadcast_axes, check_broadcast_shape, throwdm, broadcastable, AbstractArrayStyle
+import Base: copyto!, tail, axes, length, ndims
 struct DiffEqBC{T}
     x::T
 end
 @inline axes(b::DiffEqBC) = axes(b.x)
+@inline length(b::DiffEqBC) = length(b.x)
+@inline broadcastable(b::DiffEqBC) = b
+@inline Base.ndims(b::Type{DiffEqBC{T}}) where T = ndims(T)
 Base.@propagate_inbounds _broadcast_getindex(b::DiffEqBC, i) = _broadcast_getindex(b.x, i)
 Base.@propagate_inbounds _broadcast_getindex(b::DiffEqBC{<:AbstractArray{<:Any,0}}, i) = b.x[]
 Base.@propagate_inbounds _broadcast_getindex(b::DiffEqBC{<:AbstractVector}, i) = b.x[i[1]]
@@ -12,7 +15,7 @@ diffeqbc(x::Array) = DiffEqBC(x)
 diffeqbc(x) = x
 
 # Ensure inlining
-@inline combine_axes(A, B) = broadcast_shape(axes(A), axes(B))
+@inline combine_axes(A, B) = broadcast_shape(broadcast_axes(A), broadcast_axes(B)) # Julia 1.0 compatible
 @inline check_broadcast_axes(shp, A::Union{Number, Array, Broadcasted}) = check_broadcast_shape(shp, axes(A))
 
 @inline preprocess(f, dest, bc::Broadcasted{Style}) where {Style} = Broadcasted{Style}(bc.f, preprocess_args(f, dest, bc.args), bc.axes)
@@ -22,17 +25,26 @@ preprocess(f, dest, x) = f(broadcast_unalias(dest, x))
 @inline preprocess_args(f, dest, args::Tuple{Any}) = (preprocess(f, dest, args[1]),)
 preprocess_args(f, dest, args::Tuple{}) = ()
 
+# Performance optimization for the common identity scalar case: dest .= val
+@inline copyto!(dest::DiffEqBC, bc::Broadcasted{<:AbstractArrayStyle{0}}) = copyto!(dest.x, bc)
 @inline function copyto!(dest::DiffEqBC, bc::Broadcasted)
     axes(dest) == axes(bc) || throwdm(axes(dest), axes(bc))
-    bcs′ = preprocess(diffeqbc, dest, bc)
     dest′ = dest.x
+    # Performance optimization: broadcast!(identity, dest, A) is equivalent to copyto!(dest, A) if indices match
+    if bc.f === identity && bc.args isa Tuple{AbstractArray} # only a single input argument to broadcast!
+        A = bc.args[1]
+        if axes(dest) == axes(A)
+            return copyto!(dest′, A)
+        end
+    end
+    bcs′ = preprocess(diffeqbc, dest, bc)
     @simd ivdep for I in eachindex(bcs′)
         @inbounds dest′[I] = bcs′[I]
     end
     return dest′ # return the original array without the wrapper
 end
 
-import Base.Broadcast: broadcasted, broadcastable, combine_styles
+import Base.Broadcast: broadcasted, combine_styles
 map_nostop(f, t::Tuple{})              = ()
 map_nostop(f, t::Tuple{Any,})          = (f(t[1]),)
 map_nostop(f, t::Tuple{Any, Any})      = (f(t[1]), f(t[2]))
@@ -47,9 +59,15 @@ end
 
 macro ..(x)
     expr = Base.Broadcast.__dot__(x)
-    if expr.head == :(.=)
-      dest = expr.args[1]
-      expr.args[1] = :(DiffEqBase.diffeqbc($dest))
+    if expr.head in (:(.=), :(.+=), :(.-=), :(.*=), :(./=), :(.\=), :(.^=)) # we exclude `÷=` `%=` `&=` `|=` `⊻=` `>>>=` `>>=` `<<=` because they are for integers
+      name = gensym()
+      dest = :(DiffEqBase.diffeqbc($(expr.args[1])))
+      expr.args[1] = name
+      return esc(quote
+                  $name = $dest
+                  $expr
+                 end)
+    else
+      return esc(expr)
     end
-    return esc(expr)
 end
