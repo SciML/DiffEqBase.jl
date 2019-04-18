@@ -176,3 +176,14 @@ function undefined_exports(mod)
   end
   return undefined
 end
+
+_vec(v) = vec(v)
+_vec(v::Number) = v
+_vec(v::AbstractVector) = v
+
+_reshape(v, siz) = reshape(v, siz)
+_reshape(v::Number, siz) = v
+
+# Overloaded in other repositories
+function calculate_residuals end
+function calculate_residuals! end
