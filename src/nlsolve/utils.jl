@@ -118,7 +118,7 @@ DiffEqBase.@def iipnlsolve begin
         W = WOperator(f, dt, true)
         J = nothing # is J = W.J better?
       else
-        J = fill(zero(uEltypeNoUnits),length(u),length(u)) # uEltype?
+        J = false .* u .* u'
         W = similar(J)
       end
     end
