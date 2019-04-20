@@ -87,4 +87,12 @@ function __init__()
     @inline ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedReal,t::Flux.Tracker.TrackedReal) = abs(u)
   end
 
+  # Piracy, should get upstreamed
+  @require CuArrays="3a865a2d-5b23-5a0f-bc46-62713ec82fae" begin
+    function ldiv!(x::CuArrays.CuArray,_qr::CuArrays.CuQR,b::CuArrays.CuArray)
+      _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
+      x .= vec(_x)
+    end
+  end
+
 end

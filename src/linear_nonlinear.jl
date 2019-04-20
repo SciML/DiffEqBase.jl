@@ -41,15 +41,20 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false)
       end
     elseif typeof(A) <: SparseMatrixCSC
       p.A = factorize(A)
+    elseif !(typeof(A) <: AbstractDiffEqOperator)
+      # Most likely QR is the one that is overloaded
+      # Works on things like CuArrays
+      p.A = qr(A)
     end
   end
-  if typeof(A) <: SparseMatrixCSC
-    ldiv!(x,p.A,b) # No 2-arg form for SparseArrays!
-  elseif typeof(A) <: Matrix
+
+  if typeof(A) <: Matrix # No 2-arg form for SparseArrays!
     x .= b
     ldiv!(p.A,x)
   elseif typeof(A) <: AbstractDiffEqOperator
     gmres!(x,A,b)
+  else
+    ldiv!(x,p.A,b)
   end
 end
 
