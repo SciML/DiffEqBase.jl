@@ -51,10 +51,13 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false)
   if typeof(A) <: Matrix # No 2-arg form for SparseArrays!
     x .= b
     ldiv!(p.A,x)
-  elseif typeof(A) <: DiffEqArrayOperator
-    ldiv!(x,p.A,b)
+  # Missing a little bit of efficiency in a rare case
+  #elseif typeof(A) <: DiffEqArrayOperator
+  #  ldiv!(x,p.A,b)
   elseif typeof(A) <: AbstractDiffEqOperator
-    IterativeSolvers.gmres!(x,A,b)
+    # No good starting guess, so guess zero
+    x .= false
+    IterativeSolvers.gmres!(x,A,b,initially_zero=true)
   else
     ldiv!(x,p.A,b)
   end
@@ -74,10 +77,11 @@ struct LinSolveGMRES{A}
   kwargs::A
 end
 LinSolveGMRES() = LinSolveGMRES(nothing)
-LinSolveGMRES(kwargs...) = LinSolveGMRES(kwargs)
+LinSolveGMRES(;kwargs...) = LinSolveGMRES(kwargs)
 
-function (f::LinSolveGMRES)(x,A,b,update_matrix)
-  gmres!(x,A,b;f.kwargs...)
+function (f::LinSolveGMRES)(x,A,b,update_matrix=false)
+  x .= false
+  gmres!(x,A,b;initially_zero=true,f.kwargs...)
 end
 
 function (p::LinSolveGMRES)(::Type{Val{:init}},f,u0_prototype)
