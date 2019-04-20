@@ -457,13 +457,6 @@ export LinSolveFactorize, DEFAULT_LINSOLVE
 export AffineDiffEqOperator, update_coefficients!, update_coefficients, is_constant,
        has_expmv!, has_expmv, has_exp, has_mul, has_mul!, has_ldiv, has_ldiv!
 
-export nlsolve!, NLNewton, NLFunctional, NLAnderson, @iipnlsolve, @oopnlsolve, NLStatus,
-       NLSolver, get_status, nlsolvefail, isnewton, set_new_W!, get_W, set_W!,
-       set_W_dt!, get_κ, NLNewtonCache, NLFunctionalCache, NLAndersonCache, NLNewtonConstantCache,
-       NLFunctionalConstantCache, NLAndersonConstantCache, nlsolve_f
-
-export FastConvergence, Convergence, SlowConvergence, VerySlowConvergence, Divergence
-
-export _vec, _reshape, calculate_residuals, calculate_residuals!
+export NLNewton, NLFunctional, NLAnderson
 
 end # module

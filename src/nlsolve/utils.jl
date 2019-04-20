@@ -99,7 +99,7 @@ DiffEqBase.@def iipnlsolve begin
 
   # adapt options of non-linear solver to current integration problem
   uTolType = real(uBottomEltypeNoUnits)
-  κ = get_κ(alg.nlsolve)
+  κ = DiffEqBase.get_κ(alg.nlsolve)
   fast_convergence_cutoff = alg.nlsolve.fast_convergence_cutoff
 
   # create cache of non-linear solver
@@ -123,11 +123,11 @@ DiffEqBase.@def iipnlsolve begin
       end
     end
 
-    nlcache = NLNewtonCache(true,W,dt,alg.nlsolve.new_W_dt_cutoff)
+    nlcache = DiffEqBase.NLNewtonCache(true,W,dt,alg.nlsolve.new_W_dt_cutoff)
   elseif alg.nlsolve isa NLFunctional
     z₊ = similar(z)
 
-    nlcache = NLFunctionalCache(z₊)
+    nlcache = DiffEqBase.NLFunctionalCache(z₊)
   elseif alg.nlsolve isa NLAnderson
     z₊ = similar(z)
 
@@ -139,7 +139,7 @@ DiffEqBase.@def iipnlsolve begin
     dzold = zero(z)
     z₊old = zero(z)
 
-    nlcache = NLAndersonCache(z₊,dzold,z₊old,Δz₊s,Q,R,γs,alg.nlsolve.aa_start,alg.nlsolve.droptol)
+    nlcache = DiffEqBase.NLAndersonCache(z₊,dzold,z₊old,Δz₊s,Q,R,γs,alg.nlsolve.aa_start,alg.nlsolve.droptol)
   end
 
   # create non-linear solver
@@ -176,7 +176,7 @@ DiffEqBase.@def oopnlsolve begin
 
   # define tolerances
   uTolType = real(uBottomEltypeNoUnits)
-  κ = get_κ(alg.nlsolve)
+  κ = DiffEqBase.get_κ(alg.nlsolve)
   fast_convergence_cutoff = alg.nlsolve.fast_convergence_cutoff
 
   # create cache of non-linear solver
@@ -213,11 +213,11 @@ DiffEqBase.@def oopnlsolve begin
       end
     end
 
-    nlcache = NLNewtonConstantCache(W,alg.nlsolve.new_W_dt_cutoff)
+    nlcache = DiffEqBase.NLNewtonConstantCache(W,alg.nlsolve.new_W_dt_cutoff)
   elseif alg.nlsolve isa NLFunctional
     uf = nothing
 
-    nlcache = NLFunctionalConstantCache()
+    nlcache = DiffEqBase.NLFunctionalConstantCache()
   elseif alg.nlsolve isa NLAnderson
     uf = nothing
 
@@ -227,7 +227,7 @@ DiffEqBase.@def oopnlsolve begin
     R = Matrix{uEltypeNoUnits}(undef, max_history, max_history)
     γs = Vector{uEltypeNoUnits}(undef, max_history)
 
-    nlcache = NLAndersonConstantCache(Δz₊s,Q,R,γs,alg.nlsolve.aa_start,alg.nlsolve.droptol)
+    nlcache = DiffEqBase.NLAndersonConstantCache(Δz₊s,Q,R,γs,alg.nlsolve.aa_start,alg.nlsolve.droptol)
   end
 
   # create non-linear solver
