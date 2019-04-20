@@ -31,7 +31,7 @@ mutable struct DefaultLinSolve
 end
 DefaultLinSolve() = DefaultLinSolve(nothing)
 
-function (f::DefaultLinSolve)(x,A,b,update_matrix=false)
+function (p::DefaultLinSolve)(x,A,b,update_matrix=false)
   if update_matrix
     if typeof(A) <: Matrix
       p.A = lu!(A)
