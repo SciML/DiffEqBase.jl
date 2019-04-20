@@ -69,6 +69,6 @@ function (f::LinSolveGMRES)(x,A,b,update_matrix)
   gmres!(x,A,b;f.kwargs...)
 end
 
-function (f::LinSolveGMRES)(::Type{Val{:init}},f,u0_prototype)
-  LinSolveGMRES(f.kwargs)
+function (p::LinSolveGMRES)(::Type{Val{:init}},f,u0_prototype)
+  LinSolveGMRES(p.kwargs)
 end
