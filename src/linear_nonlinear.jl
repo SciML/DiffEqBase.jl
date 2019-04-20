@@ -51,8 +51,10 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false)
   if typeof(A) <: Matrix # No 2-arg form for SparseArrays!
     x .= b
     ldiv!(p.A,x)
+  elseif typeof(A) <: DiffEqArrayOperator
+    ldiv!(x,p.A,b)
   elseif typeof(A) <: AbstractDiffEqOperator
-    gmres!(x,A,b)
+    IterativeSolvers.gmres!(x,A,b)
   else
     ldiv!(x,p.A,b)
   end
