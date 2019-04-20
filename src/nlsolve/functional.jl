@@ -52,7 +52,9 @@ Equations II, Springer Series in Computational Mathematics. ISBN
   iter = 0
   while iter < max_iter
     iter += 1
-    integrator.destats.nnonliniter += 1
+    if has_destats(integrator)
+      integrator.destats.nnonliniter += 1
+    end
 
     # evaluate function
     u = @.. tmp + γ*z
@@ -64,7 +66,9 @@ Equations II, Springer Series in Computational Mathematics. ISBN
       dz = dt .* f(u, p, tstep) .- mz
       z₊ = z .+ dz
     end
-    integrator.destats.nf += 1
+    if has_destats(integrator)
+      integrator.destats.nf += 1
+    end
 
     # compute norm of residuals
     iter > 1 && (ndzprev = ndz)
@@ -142,7 +146,9 @@ Equations II, Springer Series in Computational Mathematics. ISBN
         # solve least squares problem
         γscur = view(γs, 1:history)
         ldiv!(Rcur, mul!(γscur, Qcur', _vec(dz)))
-        integrator.destats.nsolve += 1
+        if has_destats(integrator)
+          integrator.destats.nsolve += 1
+        end
 
         # update next iterate
         for i in 1:history
@@ -154,7 +160,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
       end
     end
   end
-  if fail_convergence
+  if fail_convergence && has_destats(integrator)
     integrator.destats.nnonlinconvfail += 1
   end
   integrator.force_stepfail = fail_convergence
@@ -190,12 +196,16 @@ end
   iter = 0
   while iter < max_iter
     iter += 1
-    integrator.destats.nnonliniter += 1
+    if has_destats(integrator)
+      integrator.destats.nnonliniter += 1
+    end
 
     # evaluate function
     @.. u = tmp + γ*z
     f(k, u, p, tstep)
-    integrator.destats.nf += 1
+    if has_destats(integrator)
+      integrator.destats.nf += 1
+    end
     if mass_matrix == I
       @.. z₊ = dt*k
       @.. dz = z₊ - z
@@ -284,7 +294,9 @@ end
         # solve least squares problem
         γscur = view(γs, 1:history)
         ldiv!(Rcur, mul!(γscur, Qcur', vec(dz)))
-        integrator.destats.nsolve += 1
+        if has_destats(integrator)
+          integrator.destats.nsolve += 1
+        end
 
         # update next iterate
         for i in 1:history
@@ -297,7 +309,7 @@ end
       end
     end
   end
-  if fail_convergence
+  if fail_convergence && has_destats(integrator)
     integrator.destats.nnonlinconvfail += 1
   end
   integrator.force_stepfail = fail_convergence

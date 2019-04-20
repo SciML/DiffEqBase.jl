@@ -49,7 +49,9 @@ Equations II, Springer Series in Computational Mathematics. ISBN
   iter = 0
   while iter < max_iter
     iter += 1
-    integrator.destats.nnonliniter += 1
+    if has_destats(integrator)
+      integrator.destats.nnonliniter += 1
+    end
 
     # evaluate function
     u = @.. tmp + γ * z
@@ -58,13 +60,17 @@ Equations II, Springer Series in Computational Mathematics. ISBN
     else
       ztmp = dt .* f(u, p, tstep) .- mass_matrix * z
     end
-    integrator.destats.nf += 1
+    if has_destats(integrator)
+      integrator.destats.nf += 1
+    end
     if DiffEqBase.has_invW(f)
       dz = _reshape(W * -_vec(ztmp), axes(ztmp)) # Here W is actually invW
     else
       dz = _reshape(W \ _vec(ztmp), axes(ztmp))
     end
-    integrator.destats.nsolve += 1
+    if has_destats(integrator)
+      integrator.destats.nsolve += 1
+    end
 
     # compute norm of residuals
     iter > 1 && (ndzprev = ndz)
@@ -95,7 +101,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
     end
   end
 
-  if fail_convergence
+  if fail_convergence && has_destats(integrator)
     integrator.destats.nnonlinconvfail += 1
   end
   integrator.force_stepfail = fail_convergence
@@ -123,12 +129,16 @@ end
   iter = 0
   while iter < max_iter
     iter += 1
-    integrator.destats.nnonliniter += 1
+    if has_destats(integrator)
+      integrator.destats.nnonliniter += 1
+    end
 
     # evaluate function
     @.. u = tmp + γ*z
     f(k, u, p, tstep)
-    integrator.destats.nf += 1
+    if has_destats(integrator)
+      integrator.destats.nf += 1
+    end
     if mass_matrix === I
       @.. ztmp = dt*k - z
     else
@@ -141,7 +151,9 @@ end
     else
       cache.linsolve(vecdz,W,vecztmp,iter == 1 && new_W)
     end
-    integrator.destats.nsolve += 1
+    if has_destats(integrator)
+      integrator.destats.nsolve += 1
+    end
 
     # compute norm of residuals
     iter > 1 && (ndzprev = ndz)
@@ -172,7 +184,7 @@ end
     end
   end
 
-  if fail_convergence
+  if fail_convergence && has_destats(integrator)
     integrator.destats.nnonlinconvfail += 1
   end
   integrator.force_stepfail = fail_convergence
