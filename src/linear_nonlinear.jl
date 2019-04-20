@@ -76,7 +76,6 @@ const DEFAULT_LINSOLVE = DefaultLinSolve()
 struct LinSolveGMRES{A}
   kwargs::A
 end
-LinSolveGMRES() = LinSolveGMRES(nothing)
 LinSolveGMRES(;kwargs...) = LinSolveGMRES(kwargs)
 
 function (f::LinSolveGMRES)(x,A,b,update_matrix=false)
