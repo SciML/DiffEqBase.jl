@@ -15,7 +15,60 @@ function (p::LinSolveFactorize)(x,A,b,update_matrix=false)
     ldiv!(p.A,x)
   end
 end
-DEFAULT_LINSOLVE = LinSolveFactorize(lu!)
 function (p::LinSolveFactorize)(::Type{Val{:init}},f,u0_prototype)
   LinSolveFactorize(p.factorization,nothing)
+end
+
+### Default Linsolve
+
+# Try to be as smart as possible
+# lu! if Matrix
+# lu if sparse
+# gmres if operator
+
+mutable struct DefaultLinSolve
+  A
+end
+DefaultLinSolve() = DefaultLinSolve(nothing)
+
+function (f::DefaultLinSolve)(x,A,b,update_matrix=false)
+  if update_matrix
+    if typeof(A) <: Matrix
+      p.A = lu!(A)
+    elseif typeof(A) <: SparseMatrixCSC
+      p.A = factorize(A)
+    end
+  end
+  if typeof(p.A) <: SuiteSparse.UMFPACK.UmfpackLU || typeof(p.factorization) <: typeof(lu)
+    ldiv!(x,p.A,b) # No 2-arg form for SparseArrays!
+  elseif typeof(A) <: Matrix
+    x .= b
+    ldiv!(p.A,x)
+  elseif typeof(A) <: AbstractDiffEqOperator
+    gmres!(x,A,b)
+  end
+end
+
+function (p::DefaultLinSolve)(::Type{Val{:init}},f,u0_prototype)
+  DefaultLinSolve()
+end
+
+const DEFAULT_LINSOLVE = DefaultLinSolve()
+
+### Default GMRES
+
+# Easily change to GMRES
+
+struct LinSolveGMRES{A}
+  kwargs::A
+end
+LinSolveGMRES() = LinSolveGMRES(nothing)
+LinSolveGMRES(kwargs...) = LinSolveGMRES(kwargs)
+
+function (f::LinSolveGMRES)(x,A,b,update_matrix)
+  gmres!(x,A,b;f.kwargs...)
+end
+
+function (f::LinSolveGMRES)(::Type{Val{:init}},f,u0_prototype)
+  LinSolveGMRES(f.kwargs)
 end
