@@ -34,12 +34,16 @@ DefaultLinSolve() = DefaultLinSolve(nothing)
 function (p::DefaultLinSolve)(x,A,b,update_matrix=false)
   if update_matrix
     if typeof(A) <: Matrix
-      p.A = lu!(A)
+      if size(A,1) <= 500
+        p.A = RecursiveFactorization.lu!(A)
+      else
+        p.A = lu!(A)
+      end
     elseif typeof(A) <: SparseMatrixCSC
       p.A = factorize(A)
     end
   end
-  if typeof(p.A) <: SuiteSparse.UMFPACK.UmfpackLU || typeof(p.factorization) <: typeof(lu)
+  if typeof(A) <: SparseMatrixCSC
     ldiv!(x,p.A,b) # No 2-arg form for SparseArrays!
   elseif typeof(A) <: Matrix
     x .= b

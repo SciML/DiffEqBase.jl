@@ -1,7 +1,8 @@
 module DiffEqBase
 
 using RecipesBase, RecursiveArrayTools, Compat,
-      Requires, TableTraits, IteratorInterfaceExtensions, TreeViews
+      Requires, TableTraits, IteratorInterfaceExtensions, TreeViews,
+      IterativeSolvers, RecursiveFactorization
 
 using Roots # callbacks
 
