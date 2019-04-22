@@ -187,3 +187,4 @@ _reshape(v::Number, siz) = v
 # Overloaded in other repositories
 function calculate_residuals end
 function calculate_residuals! end
+function unwrap_cache end
