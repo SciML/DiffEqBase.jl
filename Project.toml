@@ -1,0 +1,26 @@
+name = "DiffEqBase"
+uuid = "2b5f629d-d688-5b77-993f-72d75c75574e"
+authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
+version = "v5.7.0"
+
+[deps]
+RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
+RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+IteratorInterfaceExtensions = "734a6de2-fc01-5556-a45c-05e7c87503cc"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+TableTraits = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
+TreeViews = "a2a6695c-b41b-5b7d-aed9-dbfdeacea5d7"
+Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
+
+[compat]
+julia = ">= 1.0"
+RecipesBase = ">= 0.1.0"
+RecursiveArrayTools = ">= 0.12.3"
+IteratorInterfaceExtensions = ">= 0.1.0"
+StaticArrays = ">= 0.8.3"
+TableTraits = ">= 0.3.0"
