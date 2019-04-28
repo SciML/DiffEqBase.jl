@@ -31,4 +31,4 @@ MuladdMacro = "46d2c3a1-f734-5fdb-9937-b9b9aeba4221"
 SafeTestsets = "dbe5cfd0-7f72-50a2-888c-e84223c5cac5"
 
 [targets]
-test = [Distributions, MuladdMacro, SafeTestsets]
+test = ["Distributions", "MuladdMacro", "SafeTestsets"]
