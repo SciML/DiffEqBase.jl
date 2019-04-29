@@ -45,6 +45,20 @@ function __init__()
     end
     @inline ODE_DEFAULT_NORM(u::Measurements.Measurement,t) = abs(Measurements.value(u))
   end
+  
+  @require MonteCarloMeasurements="0987c9cc-fe09-11e8-30f0-b96dd679fdca" begin
+
+    value(x::MonteCarloMeasurements.AbstractParticles) = mean(x)
+
+    # Support adaptive steps should be errorless
+    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:MonteCarloMeasurements.AbstractParticles,N},t) where {N}
+      sqrt(mean(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))))
+    end
+    @inline function ODE_DEFAULT_NORM(u::Array{<:MonteCarloMeasurements.AbstractParticles,N},t) where {N}
+      sqrt(mean(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))))
+    end
+    @inline ODE_DEFAULT_NORM(u::MonteCarloMeasurements.AbstractParticles,t) = abs(value(u))
+  end
 
   @require Unitful="1986cc42-f94f-5a68-af5c-568840ba703d" begin
     # Support adaptive errors should be errorless for exponentiation
