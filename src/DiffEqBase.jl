@@ -358,6 +358,7 @@ abstract type AbstractReactionNetwork <: Function end
 include("diffeqfastbc.jl")
 include("destats.jl")
 include("utils.jl")
+include("calculate_residuals.jl")
 include("extended_functions.jl")
 include("solutions/steady_state_solutions.jl")
 include("solutions/ode_solutions.jl")
