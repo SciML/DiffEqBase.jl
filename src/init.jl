@@ -45,7 +45,7 @@ function __init__()
     end
     @inline ODE_DEFAULT_NORM(u::Measurements.Measurement,t) = abs(Measurements.value(u))
   end
-  
+
   @require MonteCarloMeasurements="0987c9cc-fe09-11e8-30f0-b96dd679fdca" begin
 
     value(x::MonteCarloMeasurements.AbstractParticles) = mean(x)
@@ -103,7 +103,7 @@ function __init__()
 
   # Piracy, should get upstreamed
   @require CuArrays="3a865a2d-5b23-5a0f-bc46-62713ec82fae" begin
-    function ldiv!(x::CuArrays.CuArray,_qr::CuArrays.CuQR,b::CuArrays.CuArray)
+    function ldiv!(x::CuArrays.CuArray,_qr::CuArrays.CUSOLVER.CuQR,b::CuArrays.CuArray)
       _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
       x .= vec(_x)
     end
