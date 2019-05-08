@@ -86,15 +86,6 @@ Save element-wise residuals
 ```
 in `out`.
 """
-@inline function calculate_residuals!(out::Array{T}, ũ::Array{T}, u₀::Array{T},
-                                              u₁::Array{T}, α::T2, ρ::Real,
-                                              internalnorm,t) where {T<:Number,T2<:Number}
-  @tight_loop_macros for i in eachindex(out)
-    @inbounds out[i] = calculate_residuals(ũ[i], u₀[i], u₁[i], α, ρ, internalnorm,t)
-  end
-  nothing
-end
-
 @inline function calculate_residuals!(out, ũ, u₀, u₁, α, ρ, internalnorm,t)
   @.. out = calculate_residuals(ũ, u₀, u₁, α, ρ, internalnorm,t)
   nothing
@@ -110,14 +101,6 @@ Save element-wise residuals
 ```
 in `out`.
 """
-@inline function calculate_residuals!(out::Array{T}, u₀::Array{T},
-                                              u₁::Array{T}, α::T2, ρ::Real,
-                                              internalnorm,t) where {T<:Number,T2<:Number} 
-  @tight_loop_macros for i in eachindex(out)
-    @inbounds out[i] = calculate_residuals(u₀[i], u₁[i], α, ρ, internalnorm,t)
-  end
-end
-
 @inline function calculate_residuals!(out, u₀, u₁, α, ρ, internalnorm,t)
   @.. out = calculate_residuals(u₀, u₁, α, ρ, internalnorm,t)
 end
@@ -130,16 +113,6 @@ Calculate element-wise residuals
 \\frac{δ E₁ + E₂}{α+\\max{scalarnorm(u₀),scalarnorm(u₁)}*ρ}.
 ```
 """
-@inline function calculate_residuals!(out::Array{<:Number}, E₁::Array{<:Number},
-                                      E₂::Array{<:Number}, u₀::Array{<:Number},
-                                      u₁::Array{<:Number}, α::Real, ρ::Real, δ::Number,
-                                      scalarnorm, t)
-  @tight_loop_macros @inbounds for i in eachindex(out)
-      out[i] = calculate_residuals(E₁[i], E₂[i], u₀[i], u₁[i], α, ρ, δ, scalarnorm, t)
-  end
-  out
-end
-
 @inline function calculate_residuals!(out, E₁, E₂, u₀, u₁, α, ρ, δ, scalarnorm, t)
   @.. out = calculate_residuals(E₁, E₂, u₀, u₁, α, ρ, δ, scalarnorm, t)
   out
