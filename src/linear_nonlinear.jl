@@ -35,7 +35,7 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false)
   if update_matrix
     if typeof(A) <: Matrix
       blasvendor = BLAS.vendor()
-      if (blasvendor === :openblas || blasvendor === :openblas64) && size(A,1) <= 500 # if the user doesn't use OpenBLAS, we assume that is a much better BLAS implementation like MKL
+      if (blasvendor === :openblas || blasvendor === :openblas64) && size(A,1) >= 500 # if the user doesn't use OpenBLAS, we assume that is a much better BLAS implementation like MKL
         p.A = RecursiveFactorization.lu!(A)
       else
         p.A = lu!(A)
