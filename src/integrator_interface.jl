@@ -382,3 +382,5 @@ function step!(integ::DEIntegrator, dt::Real, stop_at_tdt = false)
         integ.sol.retcode in (:Default, :Success) || break
     end
 end
+
+has_destats(i::DEIntegrator) = false
