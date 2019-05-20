@@ -51,6 +51,57 @@ function ContinuousCallback(condition,affect!;
 
 end
 
+struct VectorContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
+  condition::F1
+  affect!::F2
+  affect_neg!::F3
+  len::Int
+  initialize::F4
+  idxs::I
+  rootfind::Bool
+  interp_points::Int
+  save_positions::BitArray{1}
+  abstol::T
+  reltol::T2
+  VectorContinuousCallback(condition::F1,affect!::F2,affect_neg!::F3,len::Int,
+                           initialize::F4,idxs::I,rootfind,
+                           interp_points,save_positions,
+                           abstol::T,reltol::T2) where {F1,F2,F3,F4,T,T2,I} =
+                       new{F1,F2,F3,F4,T,T2,I}(condition,
+                                               affect!,affect_neg!,len,
+                                               initialize,idxs,rootfind,interp_points,
+                                               BitArray(collect(save_positions)),
+                                               abstol,reltol)
+end
+
+VectorContinuousCallback(condition,affect!,affect_neg!,len;
+                         initialize = INITIALIZE_DEFAULT,
+                         idxs = nothing,
+                         rootfind=true,
+                         save_positions=(true,true),
+                         interp_points=10,
+                         abstol=10eps(),reltol=0) = ContinuousCallback(
+                              condition,affect!,affect_neg!,initialize,
+                              idxs,
+                              rootfind,interp_points,
+                              save_positions,abstol,reltol)
+
+function VectorContinuousCallback(condition,affect!,len;
+                   initialize = INITIALIZE_DEFAULT,
+                   idxs = nothing,
+                   rootfind=true,
+                   save_positions=(true,true),
+                   affect_neg! = affect!,
+                   interp_points=10,
+                   abstol=10eps(),reltol=0)
+
+ VectorContinuousCallback(
+            condition,affect!,affect_neg!,len,initialize,idxs,
+            rootfind,interp_points,
+            collect(save_positions),abstol,reltol)
+
+end
+
 struct DiscreteCallback{F1,F2,F3} <: AbstractDiscreteCallback
   condition::F1
   affect!::F2
@@ -126,13 +177,22 @@ function get_tmp(integrator::DEIntegrator, callback)
   return tmp
 end
 
-function get_condition(integrator::DEIntegrator, callback, abst)
+function get_condition(integrator::DEIntegrator, callback, abst, out = nothing)
   tmp = get_tmp(integrator, callback)
   ismutable = !(tmp === nothing)
-  ismutable && !(typeof(callback.idxs) isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
+  if abst == integrator.t
+    tmp = !(typeof(callback.idxs) isa Number) ? integrator.u : @view integrator.u[callback.idxs]
+  else
+    ismutable && !(typeof(callback.idxs) isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
                                                      tmp = integrator(abst,Val{0},idxs=callback.idxs)
+  end
   integrator.sol.destats.ncondition += 1
-  return callback.condition(tmp,abst,integrator)
+  if callback isa VectorContinuousCallback
+    callback.condition(integrator.callback_cache,tmp,abst,integrator)
+    return integrator.callback_cache
+  else
+    return callback.condition(tmp,abst,integrator)
+  end
 end
 
 # Use Recursion to find the first callback for type-stability
@@ -172,14 +232,25 @@ end
   Θs = range(typeof(integrator.t)(0), stop=typeof(integrator.t)(1), length=callback.interp_points)
   interp_index = 0
   # Check if the event occured
-  if typeof(callback.idxs) <: Nothing
-    previous_condition = callback.condition(integrator.uprev,integrator.tprev,integrator)
+  if callback isa VectorContinuousCallback
+    previous_condition = integrator.previous_condition
+
+    if typeof(callback.idxs) <: Nothing
+      callback.condition(previous_condition,integrator.uprev,integrator.tprev,integrator)
+    else
+      callback.condition(previous_condition,integrator.uprev[callback.idxs],integrator.tprev,integrator)
+    end
+
   else
-    @views previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
+    if typeof(callback.idxs) <: Nothing
+      previous_condition = callback.condition(integrator.uprev,integrator.tprev,integrator)
+    else
+      @views previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
+    end
   end
   integrator.sol.destats.ncondition += 1
 
-  if integrator.event_last_time == counter && ODE_DEFAULT_NORM(previous_condition,integrator.t) < 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
+  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition,integrator.t)) < 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
 
     # If there was a previous event, utilize the derivative at the start to
     # chose the previous sign. If the derivative is positive at tprev, then
@@ -195,35 +266,36 @@ end
     end
 
     # Evaluate condition slightly in future
-    abst = integrator.tprev+max(integrator.dt/10000,sign(integrator.dt)*100*eps(integrator.t))
+    abst = integrator.tprev+max(integrator.dt/1000,sign(integrator.dt)*100*eps(integrator.t))
     tmp_condition = get_condition(integrator, callback, abst)
-    prev_sign = tmp_condition > previous_condition ? 1.0 : -1.0
 
     # Sometimes users may "switch off" the condition after crossing
     # This is necessary to ensure proper non-detection of a root
     # == is for exact floating point equality!
-    tmp_condition == previous_condition && (prev_sign = sign(previous_condition))
+    prev_sign = @. tmp_condition > previous_condition ? 1.0 :
+                  (tmp_condition == previous_condition ?
+                  (prev_sign = sign(previous_condition)) : -1.0)
   else
-    prev_sign = sign(previous_condition)
+    prev_sign = @. sign(previous_condition)
   end
 
   prev_sign_index = 1
-  if typeof(callback.idxs) <: Nothing
-    next_sign = sign(callback.condition(integrator.u,integrator.t,integrator))
-  else
-    @views next_sign = sign(callback.condition(integrator.u[callback.idxs],integrator.t,integrator))
-  end
-  integrator.sol.destats.ncondition += 1
+  abst = integrator.t
+  next_sign = sign(get_condition(integrator, callback, abst))
 
-  if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*next_sign<=0
+  integrator.sol.destats.ncondition += 1
+  event_idx = findfirst(x-> ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*x<=0, next_sign)
+  if event_idx != nothing
     event_occurred = true
     interp_index = callback.interp_points
   elseif callback.interp_points!=0 && !isdiscrete(integrator.alg) # Use the interpolants for safety checking
     for i in 2:length(Θs)
       abst = integrator.tprev+integrator.dt*Θs[i]
       new_sign = get_condition(integrator, callback, abst)
-      if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*new_sign<0
+      _event_idx = findfirst(x -> ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*x<0, next_sign)
+      if _event_idx != nothing
         event_occurred = true
+        event_idx = _event_idx
         interp_index = i
         break
       else
@@ -232,11 +304,11 @@ end
     end
   end
 
-  event_occurred,interp_index,Θs,prev_sign,prev_sign_index
+  event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx
 end
 
 function find_callback_time(integrator,callback,counter)
-  event_occurred,interp_index,Θs,prev_sign,prev_sign_index = determine_event_occurance(integrator,callback,counter)
+  event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx = determine_event_occurance(integrator,callback,counter)
   if event_occurred
     if typeof(callback.condition) <: Nothing
       new_t = zero(typeof(integrator.t))
@@ -251,7 +323,7 @@ function find_callback_time(integrator,callback,counter)
       if callback.rootfind && !isdiscrete(integrator.alg)
         zero_func = (Θ) -> begin
           abst = integrator.tprev+integrator.dt*Θ
-          return get_condition(integrator, callback, abst)
+          return get_condition(integrator, callback, abst)[event_idx]
         end
         if zero_func(top_Θ) == 0
           Θ = top_Θ
@@ -295,10 +367,10 @@ function find_callback_time(integrator,callback,counter)
     new_t = zero(typeof(integrator.t))
   end
 
-  new_t,prev_sign,event_occurred
+  new_t,prev_sign,event_occurred,event_idx
 end
 
-function apply_callback!(integrator,callback::ContinuousCallback,cb_time,prev_sign)
+function apply_callback!(integrator,callback::ContinuousCallback,cb_time,prev_sign,event_idx)
   if cb_time == zero(typeof(integrator.t))
     error("Event repeated at the same time. Please report this error")
   end
@@ -319,13 +391,13 @@ function apply_callback!(integrator,callback::ContinuousCallback,cb_time,prev_si
     if typeof(callback.affect!) <: Nothing
       integrator.u_modified = false
     else
-      callback.affect!(integrator)
+      callback isa VectorContinuousCallback ? callback.affect!(integrator,event_idx) : callback.affect!(integrator)
     end
   elseif prev_sign > 0
     if typeof(callback.affect_neg!) <: Nothing
       integrator.u_modified = false
     else
-      callback.affect_neg!(integrator)
+      callback isa VectorContinuousCallback ? callback.affect_neg!(integrator,event_idx) : callback.affect_neg!(integrator)
     end
   end
 
