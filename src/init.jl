@@ -7,16 +7,16 @@ function __init__()
 
   @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
 
-    value(x::ForwardDiff.Dual) = ForwardDiff.value(x)
+    value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
 
     # Support adaptive with non-dual time
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual,N},t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((ForwardDiff.value(x) for x in u),Iterators.repeated(t))) / length(u))
+      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
     end
     @inline function ODE_DEFAULT_NORM(u::Array{<:ForwardDiff.Dual,N},t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((ForwardDiff.value(x) for x in u),Iterators.repeated(t))) / length(u))
+      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
     end
-    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,t) = abs(ForwardDiff.value(u))
+    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,t) = abs(value(u))
 
     # When time is dual, it shouldn't drop the duals for adaptivity
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual,N},t::ForwardDiff.Dual) where {N}
@@ -38,10 +38,10 @@ function __init__()
 
     # Support adaptive steps should be errorless
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Measurements.Measurement,N},t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((Measurements.value(x) for x in u),Iterators.repeated(t))) / length(u))
+      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
     end
     @inline function ODE_DEFAULT_NORM(u::Array{<:Measurements.Measurement,N},t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((Measurements.value(x) for x in u),Iterators.repeated(t))) / length(u))
+      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
     end
     @inline ODE_DEFAULT_NORM(u::Measurements.Measurement,t) = abs(Measurements.value(u))
   end
