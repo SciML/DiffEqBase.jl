@@ -26,6 +26,18 @@ function remake(thing; kwargs...)
   T(; struct_as_namedtuple(thing)...,kwargs...)
 end
 
+isrecompile(prob::ODEProblem{iip}) where {iip} = !(typeof(prob.f) <: FunctionWrapper)
+
+function remake(thing::ODEProblem; kwargs...)
+  T = remaker_of(thing)
+  tup = (struct_as_namedtuple(thing)...,kwargs...)
+  if !isrecompile(thing)
+    ODEProblem{isinplace(thing),false}(; tup...)
+  else
+    T(; struct_as_namedtuple(thing)...,kwargs...)
+  end
+end
+
 function remake(thing::AbstractJumpProblem; kwargs...)
   parameterless_type(thing)(remake(thing.prob;kwargs...))
 end
