@@ -3,7 +3,7 @@
   Expr(:tuple, A...)
 end
 
-@pure remaker_of(prob::T) where {T} = parameterless_type(T){isinplace(prob)}
+Base.@pure remaker_of(prob::T) where {T} = parameterless_type(T){isinplace(prob)}
 
 # Define `remaker_of` for the types that does not (make sense to)
 # implement `isinplace` trait:
