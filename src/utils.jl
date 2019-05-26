@@ -186,3 +186,19 @@ function wrapfun_iip(ff, inputs::Tuple)
   IT = map(typeof, inputs)
   FunctionWrapper{Nothing, Tuple{IT...}}((args...)->(ff(args...); nothing))
 end
+
+_vec(v) = vec(v)
+_vec(v::Number) = v
+_vec(v::AbstractVector) = v
+
+_reshape(v, siz) = reshape(v, siz)
+_reshape(v::Number, siz) = v
+
+islinear(f) = f isa AbstractDiffEqLinearOperator && is_constant(f)
+
+macro tight_loop_macros(ex)
+   :($(esc(ex)))
+end
+
+# Overloaded in other repositories
+function unwrap_cache end

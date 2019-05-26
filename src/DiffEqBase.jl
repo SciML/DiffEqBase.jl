@@ -1,7 +1,8 @@
 module DiffEqBase
 
 using RecipesBase, RecursiveArrayTools, Compat,
-      Requires, TableTraits, IteratorInterfaceExtensions, TreeViews
+      Requires, TableTraits, IteratorInterfaceExtensions, TreeViews,
+      IterativeSolvers, RecursiveFactorization
 
 using Roots # callbacks
 
@@ -12,6 +13,9 @@ using LinearAlgebra, Statistics
 using DocStringExtensions
 
 using FunctionWrappers: FunctionWrapper
+
+using MuladdMacro, Parameters
+
 
 # Problems
 """
@@ -357,6 +361,7 @@ abstract type AbstractReactionNetwork <: Function end
 include("diffeqfastbc.jl")
 include("destats.jl")
 include("utils.jl")
+include("calculate_residuals.jl")
 include("extended_functions.jl")
 include("solutions/steady_state_solutions.jl")
 include("solutions/ode_solutions.jl")
@@ -379,6 +384,10 @@ include("problems/dae_problems.jl")
 include("problems/dde_problems.jl")
 include("problems/monte_problems.jl")
 include("problems/problem_traits.jl")
+include("nlsolve/type.jl")
+include("nlsolve/newton.jl")
+include("nlsolve/functional.jl")
+include("nlsolve/utils.jl")
 include("interpolation.jl")
 include("callbacks.jl")
 include("integrator_interface.jl")
@@ -448,9 +457,11 @@ export ContinuousCallback, DiscreteCallback, CallbackSet
 
 export initialize!
 
-export LinSolveFactorize, DEFAULT_LINSOLVE
+export LinSolveFactorize, DEFAULT_LINSOLVE, LinSolveGMRES
 
 export AffineDiffEqOperator, update_coefficients!, update_coefficients, is_constant,
        has_expmv!, has_expmv, has_exp, has_mul, has_mul!, has_ldiv, has_ldiv!
+
+export NLNewton, NLFunctional, NLAnderson
 
 end # module
