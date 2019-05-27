@@ -12,7 +12,10 @@ using LinearAlgebra, Statistics
 
 using DocStringExtensions
 
+using FunctionWrappers: FunctionWrapper
+
 using MuladdMacro, Parameters
+
 
 # Problems
 """

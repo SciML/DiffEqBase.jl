@@ -79,3 +79,12 @@ f1 = DiffEqBase.TwoPointBVPFunction(() -> 1)
 f2 = remake(f1; bc = () -> 2)
 @test f1.bc() == 1
 @test f2.bc() == 2
+
+# Testing remake for no recompile
+u0 = [0;2.]
+tspan = (0.0,6.3)
+prob = ODEProblem{true,false}((du,u,p,t) -> 2u,u0,tspan)
+
+@test remake(prob) == prob
+@test remake(prob; u0 = [1;2]).u0 == [1;2]
+@test remake(prob; p = (1,2)).p == (1,2)
