@@ -187,6 +187,9 @@ function wrapfun_iip(ff, inputs::Tuple)
   FunctionWrapper{Nothing, Tuple{IT...}}((args...)->(ff(args...); nothing))
 end
 
+function unwrap_fw(fw::FunctionWrapper)
+  fw.obj[]
+end
 _vec(v) = vec(v)
 _vec(v::Number) = v
 _vec(v::AbstractVector) = v
