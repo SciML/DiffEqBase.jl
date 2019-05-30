@@ -188,8 +188,8 @@ function get_condition(integrator::DEIntegrator, callback, abst, out = nothing)
   end
   integrator.sol.destats.ncondition += 1
   if callback isa VectorContinuousCallback
-    callback.condition(integrator.callback_cache,tmp,abst,integrator)
-    return integrator.callback_cache
+    callback.condition(@view(integrator.callback_cache[1:callback.len]),tmp,abst,integrator)
+    return @view(integrator.callback_cache[1:callback.len])
   else
     return callback.condition(tmp,abst,integrator)
   end
@@ -208,15 +208,15 @@ function find_first_continuous_callback(integrator, callback::AbstractContinuous
 end
 
 function find_first_continuous_callback(integrator,tmin::Number,upcrossing::Number,
-                                        event_occured::Bool,idx::Int,counter::Int,
+                                        event_occured::Bool,event_idx::Int,idx::Int,counter::Int,
                                         callback2)
   counter += 1 # counter is idx for callback2.
-  tmin2,upcrossing2,event_occurred2 = find_callback_time(integrator,callback2,counter)
+  tmin2,upcrossing2,event_occurred2,event_idx2 = find_callback_time(integrator,callback2,counter)
 
   if event_occurred2 && (tmin2 < tmin || !event_occured)
-    return tmin2,upcrossing2,true,counter,counter
+    return tmin2,upcrossing2,true,event_idx2,counter,counter
   else
-    return tmin,upcrossing,event_occured,idx,counter
+    return tmin,upcrossing,event_occured,event_idx,idx,counter
   end
 end
 
@@ -233,7 +233,7 @@ end
   interp_index = 0
   # Check if the event occured
   if callback isa VectorContinuousCallback
-    previous_condition = integrator.previous_condition
+    previous_condition = @views(integrator.previous_condition[1:callback.len])
 
     if typeof(callback.idxs) <: Nothing
       callback.condition(previous_condition,integrator.uprev,integrator.tprev,integrator)
@@ -281,10 +281,10 @@ end
 
   prev_sign_index = 1
   abst = integrator.t
-  next_sign = sign(get_condition(integrator, callback, abst))
+  next_sign = sign.(get_condition(integrator, callback, abst))
 
   integrator.sol.destats.ncondition += 1
-  event_idx = findfirst(x-> ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*x<=0, next_sign)
+  event_idx = findfirst(x-> ((x[1]<0 && !(typeof(callback.affect!)<:Nothing)) || (x[1]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && x[1]*x[2]<=0, collect(zip(prev_sign,next_sign)))
   if event_idx != nothing
     event_occurred = true
     interp_index = callback.interp_points
@@ -292,7 +292,7 @@ end
     for i in 2:length(Θs)
       abst = integrator.tprev+integrator.dt*Θs[i]
       new_sign = get_condition(integrator, callback, abst)
-      _event_idx = findfirst(x -> ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*x<0, next_sign)
+      _event_idx = findfirst(x -> ((x[1]<0 && !(typeof(callback.affect!)<:Nothing)) || (x[1]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && x[1]*x[2]<0, collect(zip(prev_sign,next_sign)))
       if _event_idx != nothing
         event_occurred = true
         event_idx = _event_idx
@@ -304,7 +304,8 @@ end
     end
   end
 
-  event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx
+  prev_sign_of_event_idx = event_idx != nothing ? prev_sign[event_idx] : nothing
+  event_occurred,interp_index,Θs,prev_sign_of_event_idx,prev_sign_index,event_idx
 end
 
 function find_callback_time(integrator,callback,counter)
@@ -370,7 +371,7 @@ function find_callback_time(integrator,callback,counter)
   new_t,prev_sign,event_occurred,event_idx
 end
 
-function apply_callback!(integrator,callback::ContinuousCallback,cb_time,prev_sign,event_idx)
+function apply_callback!(integrator,callback::Union{ContinuousCallback,VectorContinuousCallback},cb_time,prev_sign,event_idx)
   if cb_time == zero(typeof(integrator.t))
     error("Event repeated at the same time. Please report this error")
   end
@@ -447,4 +448,15 @@ end
 @inline function apply_discrete_callback!(integrator,discrete_modified::Bool,saved_in_cb::Bool,callback::DiscreteCallback)
   bool,saved_in_cb2 = apply_discrete_callback!(integrator,callback)
   discrete_modified || bool, saved_in_cb || saved_in_cb2
+end
+
+function max_vector_callback_length(cs::CallbackSet)
+  continuous_callbacks = cs.continuous_callbacks
+  maxlen = -1
+  for cb in continuous_callbacks
+    if cb isa VectorContinuousCallback
+      maxlen = max(maxlen,cb.len)
+    end
+  end
+  maxlen
 end
