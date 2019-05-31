@@ -7,7 +7,7 @@ function __init__()
 
   @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
 
-    value(x::Type{ForwardDiff.Dual{T,V,N}}) where {T,V,N} = T
+    value(x::Type{ForwardDiff.Dual{T,V,N}}) where {T,V,N} = V
     value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
 
     # Support adaptive with non-dual time
