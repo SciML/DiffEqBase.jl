@@ -7,6 +7,7 @@ function __init__()
 
   @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
 
+    value(x::Type{ForwardDiff.Dual{T,V,N}}) where {T,V,N} = T
     value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
 
     # Support adaptive with non-dual time
@@ -34,6 +35,7 @@ function __init__()
 
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
 
+    value(x::Type{Measurements.Measurement{T}}) where {T} = T
     value(x::Measurements.Measurement) = Measurements.value(x)
 
     # Support adaptive steps should be errorless
@@ -48,6 +50,7 @@ function __init__()
 
   @require MonteCarloMeasurements="0987c9cc-fe09-11e8-30f0-b96dd679fdca" begin
 
+    value(x::Type{MonteCarloMeasurements.AbstractParticles{T,N}}) where {T,N} = T
     value(x::MonteCarloMeasurements.AbstractParticles) = mean(x)
 
     # Support adaptive steps should be errorless
@@ -62,17 +65,21 @@ function __init__()
 
   @require Unitful="1986cc42-f94f-5a68-af5c-568840ba703d" begin
     # Support adaptive errors should be errorless for exponentiation
-    value(x::Unitful.Quantity) = x.val
-    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Unitful.Quantity,N},t) where {N}
+    value(x::Type{Unitful.AbstractQuantity{T,D,U}}) where {T,D,U} = T
+    value(x::Unitful.AbstractQuantity) = x.val
+    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Unitful.AbstractQuantity,N},t) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
     end
-    @inline function ODE_DEFAULT_NORM(u::Array{<:Unitful.Quantity,N},t) where {N}
+    @inline function ODE_DEFAULT_NORM(u::Array{<:Unitful.AbstractQuantity,N},t) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
     end
-    @inline ODE_DEFAULT_NORM(u::Unitful.Quantity,t) = abs(value(u))
+    @inline ODE_DEFAULT_NORM(u::Unitful.AbstractQuantity,t) = abs(value(u))
   end
 
   @require Flux="587475ba-b771-5e3f-ad9e-33799f191a9c" begin
+
+    value(x::Type{Flux.Tracker.TrackedReal{T}}) where T = T
+    value(x::Type{Flux.Tracker.TrackedArray{T,N,A<:AbstractArray{T,N}}}) where {T,N,A} = Array{T,N}
     value(x::Flux.Tracker.TrackedReal)  = x.data
     value(x::Flux.Tracker.TrackedArray) = x.data
 
