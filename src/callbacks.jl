@@ -284,16 +284,17 @@ end
   next_sign = sign.(get_condition(integrator, callback, abst))
 
   integrator.sol.destats.ncondition += 1
-  event_idx = findfirst(x-> ((x[1]<0 && !(typeof(callback.affect!)<:Nothing)) || (x[1]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && x[1]*x[2]<=0, collect(zip(prev_sign,next_sign)))
-  if event_idx != nothing
+  event_idx = findall(x-> ((x[1]<0 && !(typeof(callback.affect!)<:Nothing)) || (x[1]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && x[1]*x[2]<=0, collect(zip(prev_sign,next_sign)))
+  if length(event_idx) != 0
     event_occurred = true
     interp_index = callback.interp_points
-  elseif callback.interp_points!=0 && !isdiscrete(integrator.alg) # Use the interpolants for safety checking
+  end
+  if callback.interp_points!=0 && !isdiscrete(integrator.alg) && length(prev_sign) != length(event_idx) # Use the interpolants for safety checking
     for i in 2:length(Θs)
       abst = integrator.tprev+integrator.dt*Θs[i]
       new_sign = get_condition(integrator, callback, abst)
-      _event_idx = findfirst(x -> ((x[1]<0 && !(typeof(callback.affect!)<:Nothing)) || (x[1]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && x[1]*x[2]<0, collect(zip(prev_sign,next_sign)))
-      if _event_idx != nothing
+      _event_idx = findall(x -> ((x[1]<0 && !(typeof(callback.affect!)<:Nothing)) || (x[1]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && x[1]*x[2]<0, collect(zip(prev_sign,new_sign)))
+      if length(_event_idx) != 0
         event_occurred = true
         event_idx = _event_idx
         interp_index = i
@@ -304,8 +305,8 @@ end
     end
   end
 
-  prev_sign_of_event_idx = event_idx != nothing ? prev_sign[event_idx] : nothing
-  event_occurred,interp_index,Θs,prev_sign_of_event_idx,prev_sign_index,event_idx
+  # prev_sign_of_event_idx = event_idx != nothing ? prev_sign[event_idx] : nothing
+  event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx
 end
 
 function find_callback_time(integrator,callback,counter)
@@ -313,6 +314,7 @@ function find_callback_time(integrator,callback,counter)
   if event_occurred
     if typeof(callback.condition) <: Nothing
       new_t = zero(typeof(integrator.t))
+      min_event_idx = event_idx[1]
     else
       if callback.interp_points!=0
         top_Θ = Θs[interp_index] # Top at the smallest
@@ -322,31 +324,41 @@ function find_callback_time(integrator,callback,counter)
         bottom_θ = typeof(integrator.t)(0)
       end
       if callback.rootfind && !isdiscrete(integrator.alg)
-        zero_func = (Θ) -> begin
-          abst = integrator.tprev+integrator.dt*Θ
-          return get_condition(integrator, callback, abst)[event_idx]
-        end
-        if zero_func(top_Θ) == 0
-          Θ = top_Θ
-        else
-          if integrator.event_last_time == counter &&
-            abs(zero_func(bottom_θ)) < 100abs(integrator.last_event_error) &&
-            prev_sign_index == 1
-
-            # Determined that there is an event by derivative
-            # But floating point error may make the end point negative
-
-            sign_top = sign(zero_func(top_Θ))
-            bottom_θ += 2eps(typeof(bottom_θ))
-            iter = 1
-            while sign(zero_func(bottom_θ)) == sign_top && iter < 12
-              bottom_θ *= 5
-              iter += 1
-            end
-            iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
+        minΘ = 1.0
+        min_event_idx = -1
+        for idx in event_idx
+          zero_func = (Θ) -> begin
+            abst = integrator.tprev+integrator.dt*Θ
+            return get_condition(integrator, callback, abst)[idx]
           end
-          Θ = prevfloat(find_zero(zero_func, (bottom_θ,top_Θ), Roots.AlefeldPotraShi(), atol = callback.abstol/100))
-          integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
+          if zero_func(top_Θ) == 0
+            Θ = top_Θ
+          else
+            if integrator.event_last_time == counter &&
+              abs(zero_func(bottom_θ)) < 100abs(integrator.last_event_error) &&
+              prev_sign_index == 1
+
+              # Determined that there is an event by derivative
+              # But floating point error may make the end point negative
+
+              sign_top = sign(zero_func(top_Θ))
+              bottom_θ += 2eps(typeof(bottom_θ))
+              iter = 1
+              while sign(zero_func(bottom_θ)) == sign_top && iter < 12
+                bottom_θ *= 5
+                iter += 1
+              end
+              iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
+            end
+            Θ = prevfloat(find_zero(zero_func, (bottom_θ,top_Θ), Roots.AlefeldPotraShi(), atol = callback.abstol/100))
+            if Θ < minΘ
+              integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
+            end
+          end
+          if Θ < minΘ
+            min_event_idx = idx
+            minΘ = Θ
+          end
         end
         #Θ = prevfloat(...)
         # prevfloat guerentees that the new time is either 1 floating point
@@ -356,19 +368,22 @@ function find_callback_time(integrator,callback,counter)
         # The item never leaves the domain. Otherwise Roots.jl can return
         # a float which is slightly after, making it out of the domain, causing
         # havoc.
-        new_t = integrator.dt*Θ
+        new_t = integrator.dt*minΘ
       elseif interp_index != callback.interp_points && !isdiscrete(integrator.alg)
         new_t = integrator.dt*Θs[interp_index]
+        min_event_idx = event_idx[1]
       else
         # If no solve and no interpolants, just use endpoint
         new_t = integrator.dt
+        min_event_idx = event_idx[1]
       end
     end
   else
     new_t = zero(typeof(integrator.t))
+    min_event_idx = 1
   end
 
-  new_t,prev_sign,event_occurred,event_idx
+  new_t,prev_sign[min_event_idx],event_occurred,min_event_idx
 end
 
 function apply_callback!(integrator,callback::Union{ContinuousCallback,VectorContinuousCallback},cb_time,prev_sign,event_idx)
