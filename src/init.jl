@@ -79,7 +79,7 @@ function __init__()
   @require Flux="587475ba-b771-5e3f-ad9e-33799f191a9c" begin
 
     value(x::Type{Flux.Tracker.TrackedReal{T}}) where T = T
-    value(x::Type{Flux.Tracker.TrackedArray{T,N,A<:AbstractArray{T,N}}}) where {T,N,A} = Array{T,N}
+    value(x::Type{Flux.Tracker.TrackedArray{T,N,A}}) where {T,N,A} = Array{T,N}
     value(x::Flux.Tracker.TrackedReal)  = x.data
     value(x::Flux.Tracker.TrackedArray) = x.data
 
