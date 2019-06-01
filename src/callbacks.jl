@@ -249,8 +249,8 @@ end
     end
   end
   integrator.sol.destats.ncondition += 1
-
-  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition,integrator.t)) < 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
+  ivec = integrator.vector_event_last_time
+  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition[ivec],integrator.t)) < 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
 
     # If there was a previous event, utilize the derivative at the start to
     # chose the previous sign. If the derivative is positive at tprev, then
@@ -272,9 +272,16 @@ end
     # Sometimes users may "switch off" the condition after crossing
     # This is necessary to ensure proper non-detection of a root
     # == is for exact floating point equality!
-    prev_sign = @. tmp_condition > previous_condition ? 1.0 :
-                  (tmp_condition == previous_condition ?
-                  (prev_sign = sign(previous_condition)) : -1.0)
+    if callback isa VectorContinuousCallback
+      prev_sign = @. sign(previous_condition)
+      prev_sign[ivec] = tmp_condition[ivec] > previous_condition[ivec] ? 1.0 :
+                    (tmp_condition[ivec] == previous_condition[ivec] ?
+                    (prev_sign[ivec] = sign(previous_condition[ivec])) : -1.0)
+    else
+      prev_sign =    tmp_condition > previous_condition ? 1.0 :
+                    (tmp_condition == previous_condition ?
+                    (prev_sign = sign(previous_condition)) : -1.0)
+    end
   else
     prev_sign = @. sign(previous_condition)
   end
@@ -335,6 +342,7 @@ function find_callback_time(integrator,callback,counter)
             Θ = top_Θ
           else
             if integrator.event_last_time == counter &&
+              (callback isa VectorContinuousCallback ? integrator.vector_event_last_time == event_idx : true) &&
               abs(zero_func(bottom_θ)) < 100abs(integrator.last_event_error) &&
               prev_sign_index == 1
 
