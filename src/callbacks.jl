@@ -177,7 +177,7 @@ function get_tmp(integrator::DEIntegrator, callback)
   return tmp
 end
 
-function get_condition(integrator::DEIntegrator, callback, abst, out = nothing)
+function get_condition(integrator::DEIntegrator, callback, abst)
   tmp = get_tmp(integrator, callback)
   ismutable = !(tmp === nothing)
   if abst == integrator.t
