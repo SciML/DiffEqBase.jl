@@ -181,10 +181,29 @@ function get_condition(integrator::DEIntegrator, callback, abst)
   tmp = get_tmp(integrator, callback)
   ismutable = !(tmp === nothing)
   if abst == integrator.t
-    tmp = !(typeof(callback.idxs) isa Number) ? integrator.u : @view integrator.u[callback.idxs]
+    if typeof(callback.idxs) <: Nothing
+      tmp = integrator.u
+    elseif callback.idxs isa Number
+      tmp = integrator.u[callback.idxs]
+    else
+      tmp = @view integrator.u[callback.idxs]
+    end
   else
-    ismutable && !(typeof(callback.idxs) isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
-                                                     tmp = integrator(abst,Val{0},idxs=callback.idxs)
+    if ismutable
+      if typeof(callback.idxs) <: Nothing
+        integrator(tmp,abst,Val{0})
+      else
+        integrator(tmp,abst,Val{0},idxs=callback.idxs)
+      end
+    else
+      if typeof(callback.idxs) <: Nothing
+        tmp = integrator(abst,Val{0})
+      else
+        tmp = integrator(abst,Val{0},idxs=callback.idxs)
+      end
+    end
+    # ismutable && !(callback.idxs isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
+    #                                                 tmp = integrator(abst,Val{0},idxs=callback.idxs)
   end
   integrator.sol.destats.ncondition += 1
   if callback isa VectorContinuousCallback
