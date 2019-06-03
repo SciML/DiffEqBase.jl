@@ -224,7 +224,7 @@ function find_first_continuous_callback(integrator,tmin::Number,upcrossing::Numb
   find_first_continuous_callback(integrator,find_first_continuous_callback(integrator,tmin,upcrossing,event_occured,idx,counter,callback2)...,args...)
 end
 
-@inline function determine_event_occurance(integrator,callback,counter)
+@inline function determine_event_occurance(integrator,callback::VectorContinuousCallback,counter)
   event_occurred = false
   if callback.interp_points!=0
     addsteps!(integrator)
@@ -232,31 +232,19 @@ end
   Θs = range(typeof(integrator.t)(0), stop=typeof(integrator.t)(1), length=callback.interp_points)
   interp_index = 0
   # Check if the event occured
-  if callback isa VectorContinuousCallback
-    previous_condition = @views(integrator.previous_condition[1:callback.len])
+  previous_condition = @views(integrator.previous_condition[1:callback.len])
 
-    if typeof(callback.idxs) <: Nothing
-      callback.condition(previous_condition,integrator.uprev,integrator.tprev,integrator)
-    else
-      callback.condition(previous_condition,integrator.uprev[callback.idxs],integrator.tprev,integrator)
-    end
-
+  if typeof(callback.idxs) <: Nothing
+    callback.condition(previous_condition,integrator.uprev,integrator.tprev,integrator)
   else
-    if typeof(callback.idxs) <: Nothing
-      previous_condition = callback.condition(integrator.uprev,integrator.tprev,integrator)
-    else
-      @views previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
-    end
+    callback.condition(previous_condition,integrator.uprev[callback.idxs],integrator.tprev,integrator)
   end
+
   integrator.sol.destats.ncondition += 1
   ivec = integrator.vector_event_last_time
-  if callback isa VectorContinuousCallback
-    prev_sign = @view(integrator.callback_prev_sign[1:callback.len])
-    next_sign = @view(integrator.callback_next_sign[1:callback.len])
-  else
-    prev_sign = 0.0
-    next_sign = 0.0
-  end
+  prev_sign = @view(integrator.callback_prev_sign[1:callback.len])
+  next_sign = @view(integrator.callback_next_sign[1:callback.len])
+
 
   if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition[ivec],integrator.t)) < 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
 
@@ -280,74 +268,115 @@ end
     # Sometimes users may "switch off" the condition after crossing
     # This is necessary to ensure proper non-detection of a root
     # == is for exact floating point equality!
-    if callback isa VectorContinuousCallback
-      @. prev_sign = sign(previous_condition)
-      prev_sign[ivec] = tmp_condition[ivec] > previous_condition[ivec] ? 1.0 :
-                    (tmp_condition[ivec] == previous_condition[ivec] ?
-                    (prev_sign[ivec] = sign(previous_condition[ivec])) : -1.0)
-    else
-      prev_sign =    tmp_condition > previous_condition ? 1.0 :
-                    (tmp_condition == previous_condition ?
-                    (prev_sign = sign(previous_condition)) : -1.0)
-    end
+    @. prev_sign = sign(previous_condition)
+    prev_sign[ivec] = tmp_condition[ivec] > previous_condition[ivec] ? 1.0 :
+                  (tmp_condition[ivec] == previous_condition[ivec] ?
+                  (prev_sign[ivec] = sign(previous_condition[ivec])) : -1.0)
   else
-    if callback isa VectorContinuousCallback
       @. prev_sign = sign(previous_condition)
-    else
-      prev_sign = sign(previous_condition)
-    end
   end
 
   prev_sign_index = 1
   abst = integrator.t
   next_condition = get_condition(integrator, callback, abst)
-  if callback isa VectorContinuousCallback
-    @. next_sign = sign(next_condition)
+  @. next_sign = sign(next_condition)
+
+  integrator.sol.destats.ncondition += 1
+  event_idx = findall(x-> ((prev_sign[x]<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign[x]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign[x]*next_sign[x]<=0, keys(prev_sign))
+  if length(event_idx) != 0
+    event_occurred = true
+    interp_index = callback.interp_points
+  end
+  if callback.interp_points!=0 && !isdiscrete(integrator.alg) && length(prev_sign) != length(event_idx) # Use the interpolants for safety checking
+    for i in 2:length(Θs)
+      abst = integrator.tprev+integrator.dt*Θs[i]
+      new_sign = get_condition(integrator, callback, abst)
+      _event_idx = findall(x -> ((prev_sign[x]<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign[x]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign[x]*new_sign[x]<0, keys(prev_sign))
+      if length(_event_idx) != 0
+        event_occurred = true
+        event_idx = _event_idx
+        interp_index = i
+        break
+      else
+        prev_sign_index = i
+      end
+    end
+  end
+
+  event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx
+end
+
+@inline function determine_event_occurance(integrator,callback::ContinuousCallback,counter)
+  event_occurred = false
+  if callback.interp_points!=0
+    addsteps!(integrator)
+  end
+  Θs = range(typeof(integrator.t)(0), stop=typeof(integrator.t)(1), length=callback.interp_points)
+  interp_index = 0
+  # Check if the event occured
+  if typeof(callback.idxs) <: Nothing
+    previous_condition = callback.condition(integrator.uprev,integrator.tprev,integrator)
   else
-    next_sign = sign(next_condition)
+    @views previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
   end
 
   integrator.sol.destats.ncondition += 1
-  if callback isa VectorContinuousCallback
-    event_idx = findall(x-> ((prev_sign[x]<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign[x]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign[x]*next_sign[x]<=0, keys(prev_sign))
-    if length(event_idx) != 0
-      event_occurred = true
-      interp_index = callback.interp_points
+  prev_sign = 0.0
+  next_sign = 0.0
+
+  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition,integrator.t)) < 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
+
+    # If there was a previous event, utilize the derivative at the start to
+    # chose the previous sign. If the derivative is positive at tprev, then
+    # we treat the value as positive, and derivative is negative then we
+    # treat the value as negative, reguardless of the postiivity/negativity
+    # of the true value due to it being =0 sans floating point issues.
+
+    # Only due this if the discontinuity did not move it far away from an event
+    # Since near even we use direction instead of location to reset
+
+    if callback.interp_points==0
+      addsteps!(integrator)
     end
-    if callback.interp_points!=0 && !isdiscrete(integrator.alg) && length(prev_sign) != length(event_idx) # Use the interpolants for safety checking
-      for i in 2:length(Θs)
-        abst = integrator.tprev+integrator.dt*Θs[i]
-        new_sign = get_condition(integrator, callback, abst)
-        _event_idx = findall(x -> ((prev_sign[x]<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign[x]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign[x]*new_sign[x]<0, keys(prev_sign))
-        if length(_event_idx) != 0
-          event_occurred = true
-          event_idx = _event_idx
-          interp_index = i
-          break
-        else
-          prev_sign_index = i
-        end
-      end
-    end
+
+    # Evaluate condition slightly in future
+    abst = integrator.tprev+max(integrator.dt/1000,sign(integrator.dt)*100*eps(integrator.t))
+    tmp_condition = get_condition(integrator, callback, abst)
+
+    # Sometimes users may "switch off" the condition after crossing
+    # This is necessary to ensure proper non-detection of a root
+    # == is for exact floating point equality!
+    prev_sign =    tmp_condition > previous_condition ? 1.0 :
+                  (tmp_condition == previous_condition ?
+                  (prev_sign = sign(previous_condition)) : -1.0)
   else
-     if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*next_sign<=0
-      event_occurred = true
-      interp_index = callback.interp_points
-    elseif callback.interp_points!=0 && !isdiscrete(integrator.alg) # Use the interpolants for safety checking
-      for i in 2:length(Θs)
-        abst = integrator.tprev+integrator.dt*Θs[i]
-        new_sign = get_condition(integrator, callback, abst)
-        if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*new_sign<0
-          event_occurred = true
-          interp_index = i
-          break
-        else
-          prev_sign_index = i
-        end
+    prev_sign = sign(previous_condition)
+  end
+
+  prev_sign_index = 1
+  abst = integrator.t
+  next_condition = get_condition(integrator, callback, abst)
+  next_sign = sign(next_condition)
+
+  integrator.sol.destats.ncondition += 1
+
+  if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*next_sign<=0
+    event_occurred = true
+    interp_index = callback.interp_points
+  elseif callback.interp_points!=0 && !isdiscrete(integrator.alg) # Use the interpolants for safety checking
+    for i in 2:length(Θs)
+      abst = integrator.tprev+integrator.dt*Θs[i]
+      new_sign = get_condition(integrator, callback, abst)
+      if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*new_sign<0
+        event_occurred = true
+        interp_index = i
+        break
+      else
+        prev_sign_index = i
       end
     end
-    event_idx = 1
   end
+  event_idx = 1
 
   event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx
 end
