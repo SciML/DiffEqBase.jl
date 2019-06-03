@@ -309,7 +309,7 @@ end
 
   integrator.sol.destats.ncondition += 1
   if callback isa VectorContinuousCallback
-    event_idx = findall(x-> ((x[1]<0 && !(typeof(callback.affect!)<:Nothing)) || (x[1]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && x[1]*x[2]<=0, collect(zip(prev_sign,next_sign)))
+    event_idx = findall(x-> ((prev_sign[x]<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign[x]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign[x]*next_sign[x]<=0, keys(prev_sign))
     if length(event_idx) != 0
       event_occurred = true
       interp_index = callback.interp_points
@@ -318,7 +318,7 @@ end
       for i in 2:length(Θs)
         abst = integrator.tprev+integrator.dt*Θs[i]
         new_sign = get_condition(integrator, callback, abst)
-        _event_idx = findall(x -> ((x[1]<0 && !(typeof(callback.affect!)<:Nothing)) || (x[1]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && x[1]*x[2]<0, collect(zip(prev_sign,new_sign)))
+        _event_idx = findall(x -> ((prev_sign[x]<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign[x]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign[x]*new_sign[x]<0, keys(prev_sign))
         if length(_event_idx) != 0
           event_occurred = true
           event_idx = _event_idx
