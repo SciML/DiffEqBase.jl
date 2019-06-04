@@ -453,7 +453,7 @@ export DEDataArray, DEDataVector, DEDataMatrix
 export ODEFunction, DiscreteFunction, SplitFunction, DAEFunction, DDEFunction,
        SDEFunction, SplitSDEFunction, RODEFunction
 
-export ContinuousCallback, DiscreteCallback, CallbackSet
+export ContinuousCallback, DiscreteCallback, CallbackSet, VectorContinuousCallback
 
 export initialize!
 
