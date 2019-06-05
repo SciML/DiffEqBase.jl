@@ -64,7 +64,7 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=0.8, kwargs...)
     end
     x .= false
     iter = p.iterable
-    purge_history!(iter, x, b, tol)
+    purge_history!(iter, x, b)
 
     for residual in iter
     end
@@ -101,7 +101,7 @@ function (f::LinSolveGMRES)(x,A,b,update_matrix=false; Pl=nothing, Pr=nothing, t
   end
   x .= false
   iter = f.iterable
-  purge_history!(iter, x, b, tol)
+  purge_history!(iter, x, b)
 
   for residual in iter
   end
@@ -164,7 +164,7 @@ function LinearAlgebra.ldiv!(y, v::ComposePreconditioner, x)
   return y
 end
 
-function purge_history!(iter::IterativeSolvers.GMRESIterable, x, b, tol)
+function purge_history!(iter::IterativeSolvers.GMRESIterable, x, b)
   iter.k = 1
   iter.x  = x
   iter.b  = b
