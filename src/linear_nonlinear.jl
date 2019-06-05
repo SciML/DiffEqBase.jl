@@ -32,7 +32,7 @@ mutable struct DefaultLinSolve
 end
 DefaultLinSolve() = DefaultLinSolve(nothing, nothing)
 
-function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=0.8, kwargs...)
+function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
   if update_matrix
     if typeof(A) <: Matrix
       blasvendor = BLAS.vendor()
@@ -92,11 +92,13 @@ mutable struct LinSolveGMRES{PL,PR,A}
 end
 LinSolveGMRES(;Pl=IterativeSolvers.Identity(), Pr=IterativeSolvers.Identity(), kwargs...) = LinSolveGMRES(nothing, Pl, Pr, kwargs)
 
-function (f::LinSolveGMRES)(x,A,b,update_matrix=false; Pl=nothing, Pr=nothing, tol=0.8, kwargs...)
+function (f::LinSolveGMRES)(x,A,b,update_matrix=false; Pl=nothing, Pr=nothing, tol=nothing, kwargs...)
   if f.iterable === nothing
     Pl = ComposePreconditioner(f.Pl, Pl, true)
     Pr = ComposePreconditioner(f.Pr, Pr, false)
     f.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,tol=1e-16,Pl=Pl,Pr=Pr,f.kwargs...,kwargs...)
+    tol′ = get(f.kwargs, :tol, nothing)
+    tol′ !== nothing && (tol = tol′)
     f.iterable.reltol = tol
   end
   x .= false

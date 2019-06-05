@@ -116,7 +116,7 @@ end
   @unpack W, new_W, W_dt = nlcache
   cache = unwrap_cache(integrator, true)
   calculate_residuals!(weight, fill!(weight, one(eltype(u))), uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
-  lintol = 0.8
+  lintol = integrator.opts.reltol
 
   # precalculations
   mass_matrix = integrator.f.mass_matrix
