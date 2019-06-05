@@ -2,6 +2,7 @@ using SafeTestsets
 
 @time begin
 @time @safetestset "Fast Broadcast" begin include("fastbc.jl") end
+@time @safetestset "Linear Nonlinear Solvers" begin include("linear_nonlinear_tests.jl") end
 @time @safetestset "Number of Parameters Calculation" begin include("numargs_test.jl") end
 @time @safetestset "Data Arrays" begin include("data_array_tests.jl") end
 @time @safetestset "Extended Functions" begin include("extended_function_tests.jl") end
