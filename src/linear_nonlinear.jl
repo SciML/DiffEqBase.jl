@@ -4,7 +4,7 @@ mutable struct LinSolveFactorize{F}
   A
 end
 LinSolveFactorize(factorization) = LinSolveFactorize(factorization,nothing)
-function (p::LinSolveFactorize)(x,A,b,update_matrix=false)
+function (p::LinSolveFactorize)(x,A,b,update_matrix=false;kwargs...)
   if update_matrix
     p.A = p.factorization(A)
   end
@@ -32,7 +32,7 @@ mutable struct DefaultLinSolve
 end
 DefaultLinSolve() = DefaultLinSolve(nothing, nothing)
 
-function (p::DefaultLinSolve)(x,A,b,update_matrix=false;kwargs...)
+function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol, kwargs...)
   if update_matrix
     if typeof(A) <: Matrix
       blasvendor = BLAS.vendor()
@@ -58,11 +58,26 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;kwargs...)
   #  ldiv!(x,p.A,b)
   elseif typeof(A) <: AbstractDiffEqOperator
     # No good starting guess, so guess zero
+    if p.iterable === nothing
+      p.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,tol=1e-16,kwargs...)
+    end
     x .= false
-    IterativeSolvers.gmres!(x,A,b,initially_zero=true)
+    iter = p.iterable
+    iter.k = 1
+    iter.x  = x
+    iter.b  = b
+    iter.reltol = tol
+
+    iter.residual.current = IterativeSolvers.init!(iter.arnoldi, iter.x, iter.b, iter.Pl, iter.Ax, initially_zero = true)
+    IterativeSolvers.init_residual!(iter.residual, iter.residual.current)
+    iter.β = iter.residual.current
+
+    for residual in iter
+    end
   else
     ldiv!(x,p.A,b)
   end
+  return nothing
 end
 
 function (p::DefaultLinSolve)(::Type{Val{:init}},f,u0_prototype)
