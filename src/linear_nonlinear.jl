@@ -32,7 +32,7 @@ mutable struct DefaultLinSolve
 end
 DefaultLinSolve() = DefaultLinSolve(nothing, nothing)
 
-function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol, kwargs...)
+function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=0.8, kwargs...)
   if update_matrix
     if typeof(A) <: Matrix
       blasvendor = BLAS.vendor()
@@ -96,15 +96,11 @@ mutable struct LinSolveGMRES{PL,PR,A}
   Pr::PR
   kwargs::A
 end
-LinSolveGMRES(;Pl=nothing, Pr=nothing, kwargs...) = LinSolveGMRES(nothing, Pl, Pr, kwargs)
+LinSolveGMRES(;Pl=IterativeSolvers.Identity(), Pr=IterativeSolvers.Identity(), kwargs...) = LinSolveGMRES(nothing, Pl, Pr, kwargs)
 
-function (f::LinSolveGMRES)(x,A,b,update_matrix=false; Pl, Pr, tol, kwargs...)
-  if f.Pl !== nothing
-    Pl = ComposePreconditioner(f.Pl, Pl, true)
-  end
-  if f.Pr !== nothing
-    Pr = ComposePreconditioner(f.Pr, Pr, false)
-  end
+function (f::LinSolveGMRES)(x,A,b,update_matrix=false; Pl=nothing, Pr=nothing, tol=0.8, kwargs...)
+  Pl = ComposePreconditioner(f.Pl, Pl, true)
+  Pr = ComposePreconditioner(f.Pr, Pr, false)
   if f.iterable === nothing
     f.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,tol=1e-16,Pl=Pl,Pr=Pr,f.kwargs...,kwargs...)
   end
@@ -148,7 +144,7 @@ function LinearAlgebra.ldiv!(y, v::ScaleVector, x)
   end
 end
 
-struct ComposePreconditioner{P, S<:ScaleVector}
+struct ComposePreconditioner{P, S<:Union{ScaleVector,Nothing}}
   P::P
   scale::S
   isleft::Bool
@@ -158,6 +154,7 @@ function LinearAlgebra.ldiv!(v::ComposePreconditioner, x)
   isid = v.P isa IterativeSolvers.Identity
   isid || ldiv!(v.P, x)
   s = v.scale
+  s === nothing && return x
   if v.isleft
     @..(x = x * s.x)
   else
@@ -170,6 +167,7 @@ function LinearAlgebra.ldiv!(y, v::ComposePreconditioner, x)
   isid = v.P isa IterativeSolvers.Identity
   isid || ldiv!(y, v.P, x)
   s = v.scale
+  s === nothing && return x
   if v.isleft
     if isid
       @..(y = x * s.x)
