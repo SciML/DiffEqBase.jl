@@ -7,9 +7,18 @@ DE_f_ip = ODEFunction{true}(f_ip)
 DI_f = DiscreteFunction{false}(f_op)
 DI_f_ip = DiscreteFunction{true}(f_ip)
 du = zeros(3); u = [1.0,2.0,3.0]; p = nothing; t = 0.0
+
 @test DE_f(u,p,t) == u
+@test DE_f_ip(u,p,t) == u
+
+du .= NaN
+DE_f(du,u,p,t)
+@test du == u
+
+du .= NaN
 DE_f_ip(du,u,p,t)
 @test du == u
+
 @test DI_f(u,p,t) == u
 DI_f_ip(du,u,p,t)
 @test du == u
