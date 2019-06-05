@@ -28,8 +28,9 @@ end
 
 mutable struct DefaultLinSolve
   A
+  iterable
 end
-DefaultLinSolve() = DefaultLinSolve(nothing)
+DefaultLinSolve() = DefaultLinSolve(nothing, nothing)
 
 function (p::DefaultLinSolve)(x,A,b,update_matrix=false;kwargs...)
   if update_matrix
@@ -86,8 +87,16 @@ function (f::LinSolveGMRES)(x,A,b,update_matrix=false; tol, kwargs...)
   end
   x .= false
   iter = f.iterable
+  iter.k = 1
+  iter.x  = x
+  iter.b  = b
+  iter.reltol = tol
+
+  iter.residual.current = IterativeSolvers.init!(iter.arnoldi, iter.x, iter.b, iter.Pl, iter.Ax, initially_zero = true)
+  IterativeSolvers.init_residual!(iter.residual, iter.residual.current)
+  iter.β = iter.residual.current
+
   for residual in iter
-    residual ≤ tol && break # only use absolute tolerance
   end
   return nothing
 end
