@@ -74,18 +74,26 @@ const DEFAULT_LINSOLVE = DefaultLinSolve()
 
 # Easily change to GMRES
 
-struct LinSolveGMRES{A}
+mutable struct LinSolveGMRES{A}
+  iterable
   kwargs::A
 end
-LinSolveGMRES(;kwargs...) = LinSolveGMRES(kwargs)
+LinSolveGMRES(;kwargs...) = LinSolveGMRES(nothing, kwargs)
 
-function (f::LinSolveGMRES)(x,A,b,update_matrix=false;kwargs...)
+function (f::LinSolveGMRES)(x,A,b,update_matrix=false; tol, kwargs...)
+  if f.iterable === nothing
+    f.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,tol=1e-16,f.kwargs...,kwargs...)
+  end
   x .= false
-  gmres!(x,A,b;initially_zero=true,restart=5,maxiter=5,f.kwargs...,kwargs...)
+  iter = f.iterable
+  for residual in iter
+    residual ≤ tol && break # only use absolute tolerance
+  end
+  return nothing
 end
 
 function (p::LinSolveGMRES)(::Type{Val{:init}},f,u0_prototype)
-  LinSolveGMRES(p.kwargs)
+  LinSolveGMRES(nothing, p.kwargs)
 end
 
 # scaling for iterative solvers
