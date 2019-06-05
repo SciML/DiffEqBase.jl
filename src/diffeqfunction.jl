@@ -185,30 +185,7 @@ end
 
 ######### Backwards Compatibility Overloads
 
-# Out-of-place function, out-of-place signature
-function (f::ODEFunction{false})(u, p, t)
-  f.f(u, p, t)
-end
-
-# Out-of-place function, in-place signature
-function (f::ODEFunction{false})(du, u, p, t)
-  du[:] = f.f(u, p, t)
-  nothing
-end
-
-# In-place function, in-place signature
-function (f::ODEFunction{true})(u, p, t)
-  du = similar(u)
-  f.f(du, u, p, t)
-  return du
-end
-
-# In-place function, out-of-place signature
-function (f::ODEFunction{true})(du, u, p, t)
-  f.f(du, u, p, t)
-  nothing
-end
-
+(f::ODEFunction)(args...) = f.f(args...)
 (f::ODEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
 (f::ODEFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
 (f::ODEFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
