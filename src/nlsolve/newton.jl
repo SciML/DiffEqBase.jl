@@ -42,7 +42,6 @@ Equations II, Springer Series in Computational Mathematics. ISBN
   f = nlsolve_f(integrator)
   tstep = t + c*dt
   η = max(nlsolver.ηold,eps(eltype(integrator.opts.reltol)))^(0.8)
-  weight = calculate_residuals(fill(one(eltype(u)), size(u)), uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
 
   # Newton iteration
   local ndz
@@ -116,9 +115,7 @@ end
   @unpack z,dz,tmp,ztmp,k,κ,c,γ,max_iter,weight = nlsolver
   @unpack W, new_W, W_dt = nlcache
   cache = unwrap_cache(integrator, true)
-  if W isa AbstractDiffEqLinearOperator
-    calculate_residuals!(weight, fill!(weight, one(eltype(u))), uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
-  end
+  calculate_residuals!(weight, fill!(weight, one(eltype(u))), uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
   lintol = 0.8
 
   # precalculations
