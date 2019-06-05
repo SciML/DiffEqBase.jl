@@ -621,13 +621,15 @@ end
 
 function max_vector_callback_length(cs::CallbackSet)
   continuous_callbacks = cs.continuous_callbacks
+  maxlen_cb = nothing
   maxlen = -1
   for cb in continuous_callbacks
-    if cb isa VectorContinuousCallback
-      maxlen = max(maxlen,cb.len)
+    if cb isa VectorContinuousCallback && cb.len > maxlen
+      maxlen = cb.len
+      maxlen_cb = cb
     end
   end
-  maxlen
+  maxlen_cb
 end
 
 mutable struct CallbackCache{conditionType,signType}
