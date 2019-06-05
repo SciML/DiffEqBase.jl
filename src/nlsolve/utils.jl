@@ -166,7 +166,7 @@ DiffEqBase.@def iipnlsolve begin
     uf = nothing
     jac_config = nothing
     linsolve = nothing
-    weight = nothing
+    weight = z
   end
 
   # create non-linear solver
@@ -234,5 +234,5 @@ DiffEqBase.@def oopnlsolve begin
   end
 
   # create non-linear solver
-  nlsolver = NLSolver{false,typeof(z),typeof(k),uTolType,typeof(κ),typeof(γ),typeof(c),typeof(fast_convergence_cutoff),typeof(nlcache)}(z,dz,tmp,b,k,one(uTolType),κ,γ,c,alg.nlsolve.max_iter,10000,Convergence,fast_convergence_cutoff,nothing,nlcache)
+  nlsolver = NLSolver{false,typeof(z),typeof(k),uTolType,typeof(κ),typeof(γ),typeof(c),typeof(fast_convergence_cutoff),typeof(nlcache)}(z,dz,tmp,b,k,one(uTolType),κ,γ,c,alg.nlsolve.max_iter,10000,Convergence,fast_convergence_cutoff,z,nlcache)
 end
