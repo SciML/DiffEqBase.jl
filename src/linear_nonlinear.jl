@@ -60,17 +60,11 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=0.8, kwargs...)
     # No good starting guess, so guess zero
     if p.iterable === nothing
       p.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,tol=1e-16,kwargs...)
+      p.iterable.reltol = tol
     end
     x .= false
     iter = p.iterable
-    iter.k = 1
-    iter.x  = x
-    iter.b  = b
-    iter.reltol = tol
-
-    iter.residual.current = IterativeSolvers.init!(iter.arnoldi, iter.x, iter.b, iter.Pl, iter.Ax, initially_zero = true)
-    IterativeSolvers.init_residual!(iter.residual, iter.residual.current)
-    iter.β = iter.residual.current
+    purge_history!(iter, x, b, tol)
 
     for residual in iter
     end
@@ -99,21 +93,15 @@ end
 LinSolveGMRES(;Pl=IterativeSolvers.Identity(), Pr=IterativeSolvers.Identity(), kwargs...) = LinSolveGMRES(nothing, Pl, Pr, kwargs)
 
 function (f::LinSolveGMRES)(x,A,b,update_matrix=false; Pl=nothing, Pr=nothing, tol=0.8, kwargs...)
-  Pl = ComposePreconditioner(f.Pl, Pl, true)
-  Pr = ComposePreconditioner(f.Pr, Pr, false)
   if f.iterable === nothing
+    Pl = ComposePreconditioner(f.Pl, Pl, true)
+    Pr = ComposePreconditioner(f.Pr, Pr, false)
     f.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,tol=1e-16,Pl=Pl,Pr=Pr,f.kwargs...,kwargs...)
+    f.iterable.reltol = tol
   end
   x .= false
   iter = f.iterable
-  iter.k = 1
-  iter.x  = x
-  iter.b  = b
-  iter.reltol = tol
-
-  iter.residual.current = IterativeSolvers.init!(iter.arnoldi, iter.x, iter.b, Pl, iter.Ax, initially_zero = true)
-  IterativeSolvers.init_residual!(iter.residual, iter.residual.current)
-  iter.β = iter.residual.current
+  purge_history!(iter, x, b, tol)
 
   for residual in iter
   end
@@ -155,11 +143,7 @@ function LinearAlgebra.ldiv!(v::ComposePreconditioner, x)
   isid || ldiv!(v.P, x)
   s = v.scale
   s === nothing && return x
-  if v.isleft
-    @..(x = x * s.x)
-  else
-    @..(x = x / s.x)
-  end
+  ldiv!(s, x)
   return x
 end
 
@@ -168,18 +152,25 @@ function LinearAlgebra.ldiv!(y, v::ComposePreconditioner, x)
   isid || ldiv!(y, v.P, x)
   s = v.scale
   s === nothing && return x
-  if v.isleft
-    if isid
-      @..(y = x * s.x)
-    else
-      @..(y = y * s.x)
-    end
+  if isid
+    ldiv!(y, s, x)
   else
-    if isid
-      @..(y = x / s.x)
+    if v.isleft
+      @.. y = y * s.x
     else
-      @..(y = y / s.x)
+      @.. y = y / s.x
     end
   end
   return y
+end
+
+function purge_history!(iter::IterativeSolvers.GMRESIterable, x, b, tol)
+  iter.k = 1
+  iter.x  = x
+  iter.b  = b
+
+  iter.residual.current = IterativeSolvers.init!(iter.arnoldi, iter.x, iter.b, iter.Pl, iter.Ax, initially_zero = true)
+  IterativeSolvers.init_residual!(iter.residual, iter.residual.current)
+  iter.β = iter.residual.current
+  nothing
 end
