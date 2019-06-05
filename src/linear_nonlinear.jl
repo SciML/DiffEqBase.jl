@@ -90,15 +90,23 @@ const DEFAULT_LINSOLVE = DefaultLinSolve()
 
 # Easily change to GMRES
 
-mutable struct LinSolveGMRES{A}
+mutable struct LinSolveGMRES{PL,PR,A}
   iterable
+  Pl::PL
+  Pr::PR
   kwargs::A
 end
-LinSolveGMRES(;kwargs...) = LinSolveGMRES(nothing, kwargs)
+LinSolveGMRES(;Pl=nothing, Pr=nothing, kwargs...) = LinSolveGMRES(nothing, Pl, Pr, kwargs)
 
-function (f::LinSolveGMRES)(x,A,b,update_matrix=false; tol, kwargs...)
+function (f::LinSolveGMRES)(x,A,b,update_matrix=false; Pl, Pr, tol, kwargs...)
+  if f.Pl !== nothing
+    Pl = ComposePreconditioner(f.Pl, Pl, true)
+  end
+  if f.Pr !== nothing
+    Pr = ComposePreconditioner(f.Pr, Pr, false)
+  end
   if f.iterable === nothing
-    f.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,tol=1e-16,f.kwargs...,kwargs...)
+    f.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,tol=1e-16,Pl=Pl,Pr=Pr,f.kwargs...,kwargs...)
   end
   x .= false
   iter = f.iterable
@@ -107,7 +115,7 @@ function (f::LinSolveGMRES)(x,A,b,update_matrix=false; tol, kwargs...)
   iter.b  = b
   iter.reltol = tol
 
-  iter.residual.current = IterativeSolvers.init!(iter.arnoldi, iter.x, iter.b, iter.Pl, iter.Ax, initially_zero = true)
+  iter.residual.current = IterativeSolvers.init!(iter.arnoldi, iter.x, iter.b, Pl, iter.Ax, initially_zero = true)
   IterativeSolvers.init_residual!(iter.residual, iter.residual.current)
   iter.β = iter.residual.current
 
@@ -117,7 +125,7 @@ function (f::LinSolveGMRES)(x,A,b,update_matrix=false; tol, kwargs...)
 end
 
 function (p::LinSolveGMRES)(::Type{Val{:init}},f,u0_prototype)
-  LinSolveGMRES(nothing, p.kwargs)
+  LinSolveGMRES(nothing, p.Pl, p.Pr, p.kwargs)
 end
 
 # scaling for iterative solvers
@@ -138,4 +146,42 @@ function LinearAlgebra.ldiv!(y, v::ScaleVector, x)
   else
     return @.. y = x / v.x
   end
+end
+
+struct ComposePreconditioner{P, S<:ScaleVector}
+  P::P
+  scale::S
+  isleft::Bool
+end
+
+function LinearAlgebra.ldiv!(v::ComposePreconditioner, x)
+  isid = v.P isa IterativeSolvers.Identity
+  isid || ldiv!(v.P, x)
+  s = v.scale
+  if v.isleft
+    @..(x = x * s.x)
+  else
+    @..(x = x / s.x)
+  end
+  return x
+end
+
+function LinearAlgebra.ldiv!(y, v::ComposePreconditioner, x)
+  isid = v.P isa IterativeSolvers.Identity
+  isid || ldiv!(y, v.P, x)
+  s = v.scale
+  if v.isleft
+    if isid
+      @..(y = x * s.x)
+    else
+      @..(y = y * s.x)
+    end
+  else
+    if isid
+      @..(y = x / s.x)
+    else
+      @..(y = y / s.x)
+    end
+  end
+  return y
 end
