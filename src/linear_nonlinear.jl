@@ -31,7 +31,7 @@ mutable struct DefaultLinSolve
 end
 DefaultLinSolve() = DefaultLinSolve(nothing)
 
-function (p::DefaultLinSolve)(x,A,b,update_matrix=false)
+function (p::DefaultLinSolve)(x,A,b,update_matrix=false;kwargs...)
   if update_matrix
     if typeof(A) <: Matrix
       blasvendor = BLAS.vendor()
@@ -79,11 +79,31 @@ struct LinSolveGMRES{A}
 end
 LinSolveGMRES(;kwargs...) = LinSolveGMRES(kwargs)
 
-function (f::LinSolveGMRES)(x,A,b,update_matrix=false)
+function (f::LinSolveGMRES)(x,A,b,update_matrix=false;kwargs...)
   x .= false
-  gmres!(x,A,b;initially_zero=true,f.kwargs...)
+  gmres!(x,A,b;initially_zero=true,restart=5,maxiter=5,f.kwargs...,kwargs...)
 end
 
 function (p::LinSolveGMRES)(::Type{Val{:init}},f,u0_prototype)
   LinSolveGMRES(p.kwargs)
+end
+
+# scaling for iterative solvers
+struct ScaleVector{T}
+  x::T
+  isleft::Bool
+end
+function LinearAlgebra.ldiv!(v::ScaleVector, x)
+  if v.isleft
+    return @.. x = x * v.x
+  else
+    return @.. x = x / v.x
+  end
+end
+function LinearAlgebra.ldiv!(y, v::ScaleVector, x)
+  if v.isleft
+    return @.. y = x * v.x
+  else
+    return @.. y = x / v.x
+  end
 end

@@ -42,6 +42,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
   f = nlsolve_f(integrator)
   tstep = t + c*dt
   η = max(nlsolver.ηold,eps(eltype(integrator.opts.reltol)))^(0.8)
+  weight = calculate_residuals(fill(one(eltype(u)), size(u)), uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
 
   # Newton iteration
   local ndz
@@ -112,9 +113,13 @@ end
 
 @muladd function nlsolve!(nlsolver::NLSolver, nlcache::NLNewtonCache, integrator)
   @unpack t,dt,uprev,u,p,cache = integrator
-  @unpack z,dz,tmp,ztmp,k,κ,c,γ,max_iter = nlsolver
+  @unpack z,dz,tmp,ztmp,k,κ,c,γ,max_iter,weight = nlsolver
   @unpack W, new_W, W_dt = nlcache
   cache = unwrap_cache(integrator, true)
+  if W isa AbstractDiffEqLinearOperator
+    calculate_residuals!(weight, fill!(weight, one(eltype(u))), uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
+  end
+  lintol = 0.8
 
   # precalculations
   mass_matrix = integrator.f.mass_matrix
@@ -149,7 +154,11 @@ end
       mul!(vecdz,W,vecztmp) # Here W is actually invW
       @.. vecdz = -vecdz
     else
-      cache.linsolve(vecdz,W,vecztmp,iter == 1 && new_W)
+      if W isa AbstractDiffEqLinearOperator
+        @.. u = uprev+z
+        update_coefficients!(W,u,p,tstep)
+      end
+      cache.linsolve(vecdz,W,vecztmp,iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=lintol)
     end
     if has_destats(integrator)
       integrator.destats.nsolve += 1
