@@ -142,9 +142,6 @@ DiffEqBase.@def iipnlsolve begin
     nlcache = DiffEqBase.NLAndersonCache(z₊,dzold,z₊old,Δz₊s,Q,R,γs,alg.nlsolve.aa_start,alg.nlsolve.droptol)
   end
 
-  # create non-linear solver
-  nlsolver = NLSolver{true,typeof(z),typeof(k),uTolType,typeof(κ),typeof(γ),typeof(c),typeof(fast_convergence_cutoff),typeof(nlcache)}(z,dz,tmp,b,k,one(uTolType),κ,γ,c,alg.nlsolve.max_iter,10000,Convergence,fast_convergence_cutoff,nlcache)
-
   # define additional fields of cache
   fsalfirst = zero(rate_prototype)
   if alg.nlsolve isa NLNewton
@@ -160,6 +157,8 @@ DiffEqBase.@def iipnlsolve begin
       jac_config = build_jac_config(alg,nf,uf,du1,uprev,u,tmp,dz)
       linsolve = alg.linsolve(Val{:init},uf,u)
     end
+    # TODO: check if the solver is iterative
+    weight = similar(u)
   else
     J = nothing
     W = nothing
@@ -167,7 +166,11 @@ DiffEqBase.@def iipnlsolve begin
     uf = nothing
     jac_config = nothing
     linsolve = nothing
+    weight = z
   end
+
+  # create non-linear solver
+  nlsolver = NLSolver{true,typeof(z),typeof(k),uTolType,typeof(κ),typeof(γ),typeof(c),typeof(fast_convergence_cutoff),typeof(nlcache)}(z,dz,tmp,b,k,one(uTolType),κ,γ,c,alg.nlsolve.max_iter,10000,Convergence,fast_convergence_cutoff,weight,nlcache)
 end
 
 DiffEqBase.@def oopnlsolve begin
@@ -231,5 +234,5 @@ DiffEqBase.@def oopnlsolve begin
   end
 
   # create non-linear solver
-  nlsolver = NLSolver{false,typeof(z),typeof(k),uTolType,typeof(κ),typeof(γ),typeof(c),typeof(fast_convergence_cutoff),typeof(nlcache)}(z,dz,tmp,b,k,one(uTolType),κ,γ,c,alg.nlsolve.max_iter,10000,Convergence,fast_convergence_cutoff,nlcache)
+  nlsolver = NLSolver{false,typeof(z),typeof(k),uTolType,typeof(κ),typeof(γ),typeof(c),typeof(fast_convergence_cutoff),typeof(nlcache)}(z,dz,tmp,b,k,one(uTolType),κ,γ,c,alg.nlsolve.max_iter,10000,Convergence,fast_convergence_cutoff,z,nlcache)
 end

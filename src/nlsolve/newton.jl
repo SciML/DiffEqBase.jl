@@ -112,9 +112,11 @@ end
 
 @muladd function nlsolve!(nlsolver::NLSolver, nlcache::NLNewtonCache, integrator)
   @unpack t,dt,uprev,u,p,cache = integrator
-  @unpack z,dz,tmp,ztmp,k,κ,c,γ,max_iter = nlsolver
+  @unpack z,dz,tmp,ztmp,k,κ,c,γ,max_iter,weight = nlsolver
   @unpack W, new_W, W_dt = nlcache
   cache = unwrap_cache(integrator, true)
+  calculate_residuals!(weight, fill!(weight, one(eltype(u))), uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
+  lintol = integrator.opts.reltol
 
   # precalculations
   mass_matrix = integrator.f.mass_matrix
@@ -149,7 +151,11 @@ end
       mul!(vecdz,W,vecztmp) # Here W is actually invW
       @.. vecdz = -vecdz
     else
-      cache.linsolve(vecdz,W,vecztmp,iter == 1 && new_W)
+      if W isa AbstractDiffEqLinearOperator
+        @.. u = uprev+z
+        update_coefficients!(W,u,p,tstep)
+      end
+      cache.linsolve(vecdz,W,vecztmp,iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=lintol)
     end
     if has_destats(integrator)
       integrator.destats.nsolve += 1

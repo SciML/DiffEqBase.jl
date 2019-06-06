@@ -25,6 +25,7 @@ mutable struct NLSolver{iip,uType,rateType,uTolType,kType,gType,cType,C1,C<:Abst
   nl_iters::Int
   status::NLStatus
   fast_convergence_cutoff::C1
+  weight::uType
   cache::C
 end
 
