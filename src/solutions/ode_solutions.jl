@@ -1,4 +1,4 @@
-struct ODESolution{T,N,uType,uType2,DType,tType,rateType,P,A,IType} <: AbstractODESolution{T,N}
+struct ODESolution{T,N,uType,uType2,DType,tType,rateType,P,A,IType,DE} <: AbstractODESolution{T,N}
   u::uType
   u_analytic::uType2
   errors::DType
@@ -9,7 +9,7 @@ struct ODESolution{T,N,uType,uType2,DType,tType,rateType,P,A,IType} <: AbstractO
   interp::IType
   dense::Bool
   tslocation::Int
-  destats::DEStats
+  destats::DE
   retcode::Symbol
 end
 (sol::ODESolution)(t,deriv::Type=Val{0};idxs=nothing,continuity=:left) = sol.interp(t,idxs,deriv,sol.prob.p,continuity)
@@ -20,9 +20,9 @@ function build_solution(
         alg,t,u;timeseries_errors=length(u)>2,
         dense=false,dense_errors=dense,
         calculate_error = true,
-        k=[],
+        k=nothing,
         interp = LinearInterpolation(t,u),
-        retcode = :Default, destats=DEStats(), kwargs...)
+        retcode = :Default, destats=nothing, kwargs...)
 
   T = eltype(eltype(u))
   if typeof(prob.u0) <: Tuple
@@ -47,7 +47,7 @@ function build_solution(
     end
 
     sol = ODESolution{T,N,typeof(u),typeof(u_analytic),typeof(errors),typeof(t),typeof(k),
-                      typeof(prob),typeof(alg),typeof(interp)}(u,u_analytic,
+                      typeof(prob),typeof(alg),typeof(interp),typeof(destats)}(u,u_analytic,
                        errors,t,k,prob,alg,interp,dense,0,destats,retcode)
     if calculate_error
       calculate_solution_errors!(sol;timeseries_errors=timeseries_errors,dense_errors=dense_errors)
@@ -55,7 +55,7 @@ function build_solution(
     return sol
   else
     return ODESolution{T,N,typeof(u),Nothing,Nothing,typeof(t),typeof(k),
-                       typeof(prob),typeof(alg),typeof(interp)}(u,nothing,nothing,
+                       typeof(prob),typeof(alg),typeof(interp),typeof(destats)}(u,nothing,nothing,
                        t,k,prob,alg,interp,dense,0,destats,retcode)
   end
 end
