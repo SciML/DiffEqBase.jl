@@ -281,7 +281,7 @@ end
     end
 
     # Evaluate condition slightly in future
-    abst = integrator.tprev+max(integrator.dt/1000,sign(integrator.dt)*100*eps(integrator.t))
+    abst = integrator.tprev+max(integrator.dt/10000,sign(integrator.dt)*100*eps(integrator.t))
     tmp_condition = get_condition(integrator, callback, abst)
 
     # Sometimes users may "switch off" the condition after crossing
@@ -359,7 +359,7 @@ end
     end
 
     # Evaluate condition slightly in future
-    abst = integrator.tprev+max(integrator.dt/1000,sign(integrator.dt)*100*eps(integrator.t))
+    abst = integrator.tprev+max(integrator.dt/10000,sign(integrator.dt)*100*eps(integrator.t))
     tmp_condition = get_condition(integrator, callback, abst)
 
     # Sometimes users may "switch off" the condition after crossing
