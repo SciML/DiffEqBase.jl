@@ -40,7 +40,7 @@ __has_paramderiv(f) = check_first_arg(f, Val{:deriv})
 __has_paramjac(f) = check_first_arg(f, Val{:paramjac})
 
 ## Parameter Names Check
-__has_syms(f) = :syms ∈ fieldnames(typeof(f))
+__has_syms(f) = isdefined(f, :syms)
 
 ## Analytical Solution Check
 __has_analytic(f) = check_first_arg(f, Val{:analytic})
