@@ -76,7 +76,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
     # compute norm of residuals
     iter > 1 && (ndzprev = ndz)
     atmp = calculate_residuals(dz, uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
-    ndz = integrator.opts.internalnorm(atmp, t)
+    ndz = integrator.opts.internalnorm(atmp, t) * invγdt
 
     # check divergence (not in initial step)
     if iter > 1
@@ -167,7 +167,7 @@ end
     iter > 1 && (ndzprev = ndz)
     #W_dt != dt && (rmul!(dz, 2/(1 + dt / W_dt))) # relaxation
     calculate_residuals!(ztmp, dz, uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
-    ndz = integrator.opts.internalnorm(ztmp, t)
+    ndz = integrator.opts.internalnorm(ztmp, t) * invγdt
 
     # check divergence (not in initial step)
     if iter > 1
