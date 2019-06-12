@@ -13,12 +13,12 @@ G(z) = dt⋅f(tmp + γ⋅z, p, t + c⋅h) - z = 0
 by iterating
 
 ```math
-W Δᵏ = dt⋅f(tmp + γ⋅zᵏ, p, t + c⋅h) - zᵏ
-zᵏ⁺¹ = zᵏ + Δᵏ
+W Δᵏ = f(tmp + γ⋅zᵏ, p, t + c⋅h) - zᵏ
+zᵏ⁺¹ = zᵏ + Δᵏ/(dt⋅γ)
 ```
 
-where `W = M - dt⋅γJ`, `M` is the mass matrix, `dt` is the step size, `γ` is a
-constant, `J` is the Jacobian matrix.
+where `W = M/(dt⋅γ) - J`, `M` is the mass matrix, `dt` is the step size, `γ` is
+a constant, `J` is the Jacobian matrix.
 
 It returns the tuple `z`, where `z` is the solution.
 
@@ -40,6 +40,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
   # precalculations
   mass_matrix = integrator.f.mass_matrix
   f = nlsolve_f(integrator)
+  invγdt = inv(dt*γ)
   tstep = t + c*dt
   η = max(nlsolver.ηold,eps(eltype(integrator.opts.reltol)))^(0.8)
 
@@ -89,7 +90,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
     end
 
     # update solution
-    z = z .- dz
+    z = @.. z - invγdt*dz
 
     # check stopping criterion
     iter > 1 && (η = θ / (1 - θ))
@@ -121,6 +122,7 @@ end
   # precalculations
   mass_matrix = integrator.f.mass_matrix
   f = nlsolve_f(integrator)
+  invγdt = inv(dt*γ)
   vecztmp = vec(ztmp); vecz = vec(z); vecdz = vec(dz)
   tstep = t + c*dt
   η = max(nlsolver.ηold,eps(eltype(integrator.opts.reltol)))^(0.8)
@@ -178,7 +180,7 @@ end
     end
 
     # update solution
-    @.. z = z - dz
+    @.. z = z - invγdt*dz
 
     # check stopping criterion
     iter > 1 && (η = θ / (1 - θ))
