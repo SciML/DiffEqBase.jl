@@ -90,7 +90,7 @@ end
 
 function build_solution(sol::AbstractODESolution{T,N},u_analytic,errors) where {T,N}
   ODESolution{T,N,typeof(sol.u),typeof(u_analytic),typeof(errors),typeof(sol.t),typeof(sol.k),
-                     typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+                     typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
                      sol.u,u_analytic,errors,sol.t,sol.k,sol.prob,
                      sol.alg,sol.interp,sol.dense,sol.tslocation,sol.destats,sol.retcode)
 end
@@ -98,7 +98,7 @@ end
 function solution_new_retcode(sol::AbstractODESolution{T,N},retcode) where {T,N}
   ODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),
                      typeof(sol.t),typeof(sol.k),
-                     typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+                     typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
                      sol.u,sol.u_analytic,sol.errors,sol.t,sol.k,sol.prob,
                      sol.alg,sol.interp,sol.dense,sol.tslocation,sol.destats,retcode)
  end
@@ -106,7 +106,7 @@ function solution_new_retcode(sol::AbstractODESolution{T,N},retcode) where {T,N}
  function solution_new_tslocation(sol::AbstractODESolution{T,N},tslocation) where {T,N}
    ODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),
                       typeof(sol.t),typeof(sol.k),
-                      typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+                      typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
                       sol.u,sol.u_analytic,sol.errors,sol.t,sol.k,sol.prob,
                       sol.alg,sol.interp,sol.dense,tslocation,sol.destats,sol.retcode)
   end
@@ -114,7 +114,7 @@ function solution_new_retcode(sol::AbstractODESolution{T,N},retcode) where {T,N}
   function solution_slice(sol::AbstractODESolution{T,N},I) where {T,N}
     ODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),
                        typeof(sol.t),typeof(sol.k),
-                       typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+                       typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
                        sol.u[I],
                        sol.u_analytic === nothing ? nothing : sol.u_analytic[I],
                        sol.errors,sol.t[I],

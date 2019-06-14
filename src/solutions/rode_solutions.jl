@@ -1,6 +1,6 @@
 ### Concrete Types
 
-struct RODESolution{T,N,uType,uType2,DType,tType,randType,P,A,IType} <: AbstractRODESolution{T,N}
+struct RODESolution{T,N,uType,uType2,DType,tType,randType,P,A,IType,DE} <: AbstractRODESolution{T,N}
   u::uType
   u_analytic::uType2
   errors::DType
@@ -11,7 +11,7 @@ struct RODESolution{T,N,uType,uType2,DType,tType,randType,P,A,IType} <: Abstract
   interp::IType
   dense::Bool
   tslocation::Int
-  destats::DEStats
+  destats::DE
   retcode::Symbol
   seed::UInt64
 end
@@ -20,11 +20,11 @@ end
 
 function build_solution(
         prob::AbstractRODEProblem,
-        alg,t,u;W=[],timeseries_errors = length(u) > 2,
+        alg,t,u;W=nothing,timeseries_errors = length(u) > 2,
         dense = false,dense_errors=dense,calculate_error=true,
         interp = LinearInterpolation(t,u),
         retcode = :Default,
-        seed = UInt64(0), destats=DEStats(), kwargs...)
+        seed = UInt64(0), destats=nothing, kwargs...)
 
   T = eltype(eltype(u))
   if typeof(prob.u0) <: Tuple
@@ -43,7 +43,7 @@ function build_solution(
     u_analytic = Vector{typeof(prob.u0)}()
     errors = Dict{Symbol,real(eltype(prob.u0))}()
     sol = RODESolution{T,N,typeof(u),typeof(u_analytic),typeof(errors),typeof(t),typeof(W),
-                       typeof(prob),typeof(alg),typeof(interp)}(
+                       typeof(prob),typeof(alg),typeof(interp),typeof(destats)}(
                        u,u_analytic,errors,t,W,prob,alg,interp,dense,0,destats,retcode,seed)
 
     if calculate_error
@@ -53,7 +53,7 @@ function build_solution(
     return sol
   else
     return RODESolution{T,N,typeof(u),Nothing,Nothing,typeof(t),
-                        typeof(W),typeof(prob),typeof(alg),typeof(interp)}(
+                        typeof(W),typeof(prob),typeof(alg),typeof(interp),typeof(destats)}(
                         u,nothing,nothing,t,W,prob,alg,interp,dense,0,destats,retcode,seed)
   end
 end
@@ -91,28 +91,28 @@ end
 
 function build_solution(sol::AbstractRODESolution{T,N},u_analytic,errors) where {T,N}
   RODESolution{T,N,typeof(sol.u),typeof(u_analytic),typeof(errors),typeof(sol.t),
-               typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+               typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
                sol.u,u_analytic,errors,sol.t,sol.W,sol.prob,sol.alg,sol.interp,
                sol.dense,sol.tslocation,sol.destats,sol.retcode,sol.seed)
 end
 
 function solution_new_retcode(sol::AbstractRODESolution{T,N},retcode) where {T,N}
   RODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),typeof(sol.t),
-               typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+               typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
                sol.u,sol.u_analytic,sol.errors,sol.t,sol.W,sol.prob,sol.alg,sol.interp,
                sol.dense,sol.tslocation,sol.destats,retcode,sol.seed)
 end
 
 function solution_new_tslocation(sol::AbstractRODESolution{T,N},tslocation) where {T,N}
   RODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),typeof(sol.t),
-               typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+               typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
                sol.u,sol.u_analytic,sol.errors,sol.t,sol.W,sol.prob,sol.alg,sol.interp,
                sol.dense,tslocation,sol.destats,sol.retcode,sol.seed)
 end
 
 function solution_slice(sol::AbstractRODESolution{T,N},I) where {T,N}
   RODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),typeof(sol.t),
-               typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+               typeof(sol.W),typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
                sol.u[I],
                sol.u_analytic === nothing ? nothing : sol.u_analytic,
                sol.errors,sol.t[I],
