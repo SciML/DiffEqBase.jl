@@ -82,7 +82,7 @@ function calculate_solution_errors!(sol::AbstractRODESolution;fill_uanalytic=tru
     if dense_errors
       densetimes = collect(range(sol.t[1], stop=sol.t[end], length=100))
       interp_u = sol(densetimes)
-      interp_analytic = [f(Val{:analytic},t,sol.u[1],sol.W(t)[1]) for t in densetimes]
+      interp_analytic = [f.analytic(sol.u[1],sol.prob.p,t,sol.W(t)[1]) for t in densetimes]
       sol.errors[:L∞] = norm(maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic)))
       sol.errors[:L2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,interp_u-interp_analytic))))
     end
