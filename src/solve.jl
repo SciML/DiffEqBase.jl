@@ -46,40 +46,58 @@ function get_concrete_problem(prob::AbstractJumpProblem,kwargs)
   prob
 end
 
-function get_concrete_problem(prob::AbstractSteadyStateProblem,kwargs)
-  if typeof(prob.u0) <: Function
-    _u0 = prob.u0(prob.p,Inf)
-  else
-    _u0 = prob.u0
-  end
+function get_concrete_problem(prob::AbstractSteadyStateProblem, kwargs)
+  u0 = get_concrete_u0(prob, Inf)
 
-  __u0 = handle_distribution_u0(_u0)
-
-  remake(prob;u0=__u0)
+  remake(prob; u0 = u0)
 end
 
-function get_concrete_problem(prob,kwargs)
-  if typeof(prob.tspan) <: Function
-    _tspan = prob.tspan(prob.p)
-  elseif prob.tspan == (nothing,nothing)
-    if haskey(kwargs,:tspan)
-      _tspan = kwargs.tspan
+function get_concrete_problem(prob, kwargs)
+  tspan = get_concrete_tspan(prob, kwargs)
+
+  u0 = get_concrete_u0(prob, tspan[1])
+
+  remake(prob; u0 = u0, tspan = tspan)
+end
+
+function get_concrete_problem(prob::DDEProblem, kwargs)
+  tspan = get_concrete_tspan(prob, kwargs)
+
+  u0 = get_concrete_u0(prob, tspan[1])
+
+  if prob.constant_lags isa Function
+    constant_lags = prob.constant_lags(prob.p)
+  else
+    constant_lags = prob.constant_lags
+  end
+
+  remake(prob; u0 = u0, tspan = tspan, constant_lags = constant_lags)
+end
+
+function get_concrete_tspan(prob, kwargs)
+  if prob.tspan isa Function
+    tspan = prob.tspan(prob.p)
+  elseif prob.tspan == (nothing, nothing)
+    if haskey(kwargs, :tspan)
+      tspan = kwargs.tspan
     else
       error("No tspan is set in the problem or chosen in the init/solve call")
     end
   else
-    _tspan = prob.tspan
+    tspan = prob.tspan
   end
 
-  if typeof(prob.u0) <: Function
-    _u0 = prob.u0(prob.p,_tspan[1])
+  tspan
+end
+
+function get_concrete_u0(prob, t0)
+  if prob.u0 isa Function
+    u0 = prob.u0(prob.p, t0)
   else
-    _u0 = prob.u0
+    u0 = prob.u0
   end
 
-  __u0 = handle_distribution_u0(_u0)
-
-  remake(prob;u0=__u0,tspan=_tspan)
+  handle_distribution_u0(u0)
 end
 
 handle_distribution_u0(_u0) = _u0
