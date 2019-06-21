@@ -117,7 +117,7 @@ end
   end
   if ci_type == :SEM
     if typeof(sim.u[1])<:AbstractArray
-      ci_low = vecarr_to_vectors(VectorOfArray([sqrt(sim.v[i]/sim.num_monte).*1.96 for i in 1:length(sim.v)]))
+      ci_low = vecarr_to_vectors(VectorOfArray([sqrt.(sim.v[i]/sim.num_monte).*1.96 for i in 1:length(sim.v)]))
       ci_high = ci_low
     else
       ci_low = [[sqrt(sim.v[i]/length(sim.num_monte)).*1.96 for i in 1:length(sim.v)]]
