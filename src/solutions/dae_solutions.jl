@@ -1,4 +1,4 @@
-struct DAESolution{T,N,uType,duType,uType2,DType,tType,P,A,ID} <: AbstractDAESolution{T,N}
+struct DAESolution{T,N,uType,duType,uType2,DType,tType,P,A,ID,DE} <: AbstractDAESolution{T,N}
   u::uType
   du::duType
   u_analytic::uType2
@@ -9,7 +9,7 @@ struct DAESolution{T,N,uType,duType,uType2,DType,tType,P,A,ID} <: AbstractDAESol
   interp::ID
   dense::Bool
   tslocation::Int
-  destats::DEStats
+  destats::DE
   retcode::Symbol
 end
 (sol::DAESolution)(t,deriv::Type=Val{0};idxs=nothing,continuity=:left) = sol.interp(t,idxs,deriv,sol.prob.p,continuity)
@@ -17,9 +17,9 @@ end
 
 function build_solution(
         prob::AbstractDAEProblem{uType,duType,tType,isinplace},
-alg,t,u;dense=false,du=[],
-interp = !isempty(du) ? HermiteInterpolation(t,u,du) : LinearInterpolation(t,u),
-timeseries_errors=true,dense_errors=true, retcode = :Default, destats=DEStats(), kwargs...) where {uType,duType,tType,isinplace}
+        alg,t,u;dense=false,du=nothing,
+        interp = !isempty(du) ? HermiteInterpolation(t,u,du) : LinearInterpolation(t,u),
+        timeseries_errors=true,dense_errors=true, retcode = :Default, destats=nothing, kwargs...) where {uType,duType,tType,isinplace}
 
   T = eltype(eltype(u))
   N = length((size(u[1])..., length(u)))
@@ -49,16 +49,16 @@ timeseries_errors=true,dense_errors=true, retcode = :Default, destats=DEStats(),
       end
     end
     DAESolution{T,N,typeof(u),typeof(du),typeof(u_analytic),typeof(errors),typeof(t),
-                       typeof(prob),typeof(alg),typeof(interp)}(u,du,u_analytic,errors,t,prob,alg,interp,dense,0,destats,retcode)
+                       typeof(prob),typeof(alg),typeof(interp),typeof(destats)}(u,du,u_analytic,errors,t,prob,alg,interp,dense,0,destats,retcode)
   else
     DAESolution{T,N,typeof(u),typeof(du),Nothing,Nothing,typeof(t),
-                       typeof(prob),typeof(alg),typeof(interp)}(u,du,nothing,nothing,t,prob,alg,interp,dense,0,destats,retcode)
+                       typeof(prob),typeof(alg),typeof(interp),typeof(destats)}(u,du,nothing,nothing,t,prob,alg,interp,dense,0,destats,retcode)
   end
 end
 
 function build_solution(sol::AbstractDAESolution{T,N},u_analytic,errors) where {T,N}
   DAESolution{T,N,typeof(sol.u),typeof(sol.du),typeof(u_analytic),typeof(errors),typeof(sol.t),
-                     typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+                     typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
                      sol.u,sol.du,u_analytic,errors,sol.t,
               sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation,sol.destats,sol.retcode)
 end
@@ -66,7 +66,7 @@ end
 function solution_new_retcode(sol::AbstractDAESolution{T,N},retcode) where {T,N}
   DAESolution{T,N,typeof(sol.u),typeof(sol.du),typeof(sol.u_analytic),
               typeof(sol.errors),typeof(sol.t),
-              typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+              typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
               sol.u,sol.du,sol.u_analytic,sol.errors,sol.t,
               sol.prob,sol.alg,sol.interp,sol.dense,sol.tslocation,sol.destats,retcode)
 end
@@ -74,7 +74,7 @@ end
 function solution_new_tslocation(sol::AbstractDAESolution{T,N},tslocation) where {T,N}
   DAESolution{T,N,typeof(sol.u),typeof(sol.du),typeof(sol.u_analytic),
               typeof(sol.errors),typeof(sol.t),
-              typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+              typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
               sol.u,sol.du,sol.u_analytic,sol.errors,sol.t,
               sol.prob,sol.alg,sol.interp,sol.dense,tslocation,sol.destats,sol.retcode)
 end
@@ -82,7 +82,7 @@ end
 function solution_slice(sol::AbstractDAESolution{T,N},I) where {T,N}
   DAESolution{T,N,typeof(sol.u),typeof(sol.du),typeof(sol.u_analytic),
               typeof(sol.errors),typeof(sol.t),
-              typeof(sol.prob),typeof(sol.alg),typeof(sol.interp)}(
+              typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
               sol.u[I],sol.du[I],
               sol.u_analytic === nothing ? nothing : sol.u_analytic[I],
               sol.errors,sol.t[I],

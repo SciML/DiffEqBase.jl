@@ -89,18 +89,16 @@ set_W_dt!(nlsolver::NLSolver, W_dt) = set_W_dt!(nlsolver.cache, W_dt)
 set_W_dt!(nlcache::NLNewtonCache, W_dt) = (nlcache.W_dt = W_dt; W_dt)
 set_W_dt!(nlcache::NLNewtonConstantCache, W_dt) = W_dt
 
-get_κ(nlalg::Union{NLAnderson,NLFunctional,NLNewton}) = nlalg.κ === nothing ? 1//100 : nlalg.κ
 function nlsolve_f end
 
 DiffEqBase.@def iipnlsolve begin
+  @unpack κ, fast_convergence_cutoff = alg.nlsolve
+
   # define additional fields of cache of non-linear solver
   z = similar(u); dz = similar(u); tmp = similar(u); b = similar(u)
   k = zero(rate_prototype)
 
-  # adapt options of non-linear solver to current integration problem
   uTolType = real(uBottomEltypeNoUnits)
-  κ = DiffEqBase.get_κ(alg.nlsolve)
-  fast_convergence_cutoff = alg.nlsolve.fast_convergence_cutoff
 
   # create cache of non-linear solver
   if alg.nlsolve isa NLNewton
@@ -174,13 +172,12 @@ DiffEqBase.@def iipnlsolve begin
 end
 
 DiffEqBase.@def oopnlsolve begin
+  @unpack κ, fast_convergence_cutoff = alg.nlsolve
+
   # define additional fields of cache of non-linear solver (all aliased)
   z = uprev; dz = z; tmp = z; b = z; k = rate_prototype
 
-  # define tolerances
   uTolType = real(uBottomEltypeNoUnits)
-  κ = DiffEqBase.get_κ(alg.nlsolve)
-  fast_convergence_cutoff = alg.nlsolve.fast_convergence_cutoff
 
   # create cache of non-linear solver
   if alg.nlsolve isa NLNewton
