@@ -48,15 +48,16 @@ end
 
 function get_concrete_problem(prob::AbstractSteadyStateProblem, kwargs)
   u0 = get_concrete_u0(prob, Inf)
-
   remake(prob; u0 = u0)
+end
+
+function get_concrete_problem(prob::AbstractMonteCarloProblem, kwargs)
+  prob
 end
 
 function get_concrete_problem(prob, kwargs)
   tspan = get_concrete_tspan(prob, kwargs)
-
   u0 = get_concrete_u0(prob, tspan[1])
-
   remake(prob; u0 = u0, tspan = tspan)
 end
 
