@@ -576,33 +576,32 @@ has_paramjac(f::DynamicalODEFunction) = f.f1.paramjac != nothing
 ODEFunction{iip}(f::T) where {iip,T} = return T<:ODEFunction ? f : convert(ODEFunction{iip},f)
 function Base.convert(::Type{ODEFunction},f)
   if __has_analytic(f)
-    analytic = (args...) -> f(Val{:analytic},args...)
+    analytic = (args...) -> f.analytic(args...)
   else
     analytic = nothing
   end
   if __has_jac(f)
-    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
-    jac = (args...) -> f(Val{:jac},args...)
+    jac = (args...) -> f.jac(args...)
   else
     jac = nothing
   end
   if __has_tgrad(f)
-    tgrad = (args...) -> f(Val{:tgrad},args...)
+    tgrad = (args...) -> f.tgrad(args...)
   else
     tgrad = nothing
   end
   if __has_invW(f)
-    invW = (args...) -> f(Val{:invW},args...)
+    invW = (args...) -> f.invW(args...)
   else
     invW = nothing
   end
   if __has_invW_t(f)
-    invW_t = (args...) -> f(Val{:invW_t},args...)
+    invW_t = (args...) -> f.invW_t(args...)
   else
     invW_t = nothing
   end
   if __has_paramjac(f)
-    paramjac = (args...) -> f(Val{:paramjac},args...)
+    paramjac = (args...) -> f.paramjac(args...)
   else
     paramjac = nothing
   end
