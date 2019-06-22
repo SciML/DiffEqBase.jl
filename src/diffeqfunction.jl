@@ -574,34 +574,34 @@ has_paramjac(f::DynamicalODEFunction) = f.f1.paramjac != nothing
 ######### Compatibility Constructor from Tratis
 
 ODEFunction{iip}(f::T) where {iip,T} = return T<:ODEFunction ? f : convert(ODEFunction{iip},f)
-function Base.convert(::Type{ODEFunction},f)
+function Base.convert(::Type{ODEFunction}, f)
   if __has_analytic(f)
-    analytic = (args...) -> f.analytic(args...)
+    analytic = f.analytic
   else
     analytic = nothing
   end
   if __has_jac(f)
-    jac = (args...) -> f.jac(args...)
+    jac = f.jac
   else
     jac = nothing
   end
   if __has_tgrad(f)
-    tgrad = (args...) -> f.tgrad(args...)
+    tgrad = f.tgrad
   else
     tgrad = nothing
   end
   if __has_invW(f)
-    invW = (args...) -> f.invW(args...)
+    invW = f.invW
   else
     invW = nothing
   end
   if __has_invW_t(f)
-    invW_t = (args...) -> f.invW_t(args...)
+    invW_t = f.invW_t
   else
     invW_t = nothing
   end
   if __has_paramjac(f)
-    paramjac = (args...) -> f.paramjac(args...)
+    paramjac = f.paramjac
   else
     paramjac = nothing
   end
@@ -615,33 +615,32 @@ function Base.convert(::Type{ODEFunction},f)
 end
 function Base.convert(::Type{ODEFunction{iip}},f) where iip
   if __has_analytic(f)
-    analytic = (args...) -> f(Val{:analytic},args...)
+    analytic = f(Val{:analytic},args...)
   else
     analytic = nothing
   end
   if __has_jac(f)
-    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
-    jac = (args...) -> f(Val{:jac},args...)
+    jac = f.jac
   else
     jac = nothing
   end
   if __has_tgrad(f)
-    tgrad = (args...) -> f(Val{:tgrad},args...)
+    tgrad = f.tgrad
   else
     tgrad = nothing
   end
   if __has_invW(f)
-    invW = (args...) -> f(Val{:invW},args...)
+    invW = f.invW
   else
     invW = nothing
   end
   if __has_invW_t(f)
-    invW_t = (args...) -> f(Val{:invW_t},args...)
+    invW_t = f.invW_t
   else
     invW_t = nothing
   end
   if __has_paramjac(f)
-    paramjac = (args...) -> f(Val{:paramjac},args...)
+    paramjac = f.paramjac
   else
     paramjac = nothing
   end
@@ -657,7 +656,7 @@ end
 DiscreteFunction{iip}(f::T) where {iip,T} = return T<:DiscreteFunction ? f : convert(DiscreteFunction{iip},f)
 function Base.convert(::Type{DiscreteFunction},f)
   if __has_analytic(f)
-    analytic = (args...) -> f(Val{:analytic},args...)
+    analytic = f.analytic
   else
     analytic = nothing
   end
@@ -670,7 +669,7 @@ function Base.convert(::Type{DiscreteFunction},f)
 end
 function Base.convert(::Type{DiscreteFunction{iip}},f) where iip
   if __has_analytic(f)
-    analytic = (args...) -> f(Val{:analytic},args...)
+    analytic = f.analytic
   else
     analytic = nothing
   end
@@ -685,33 +684,32 @@ end
 DAEFunction{iip}(f::T) where {iip,T} = return T<:DAEFunction ? f : convert(DAEFunction{iip},f)
 function Base.convert(::Type{DAEFunction},f)
   if __has_analytic(f)
-    analytic = (args...) -> f(Val{:analytic},args...)
+    analytic = f.analytic
   else
     analytic = nothing
   end
   if __has_jac(f)
-    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
-    jac = (args...) -> f(Val{:jac},args...)
+    jac = f.jac
   else
     jac = nothing
   end
   if __has_tgrad(f)
-    tgrad = (args...) -> f(Val{:tgrad},args...)
+    tgrad = f.tgrad
   else
     tgrad = nothing
   end
   if __has_invW(f)
-    invW = (args...) -> f(Val{:invW},args...)
+    invW = f.invW
   else
     invW = nothing
   end
   if __has_invW_t(f)
-    invW_t = (args...) -> f(Val{:invW_t},args...)
+    invW_t = f.invW_t
   else
     invW_t = nothing
   end
   if __has_paramjac(f)
-    paramjac = (args...) -> f(Val{:paramjac},args...)
+    paramjac = f.paramjac
   else
     paramjac = nothing
   end
@@ -725,33 +723,32 @@ function Base.convert(::Type{DAEFunction},f)
 end
 function Base.convert(::Type{DAEFunction{iip}},f) where iip
   if __has_analytic(f)
-    analytic = (args...) -> f(Val{:analytic},args...)
+    analytic = f.analytic
   else
     analytic = nothing
   end
   if __has_jac(f)
-    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
-    jac = (args...) -> f(Val{:jac},args...)
+    jac = f.jac
   else
     jac = nothing
   end
   if __has_tgrad(f)
-    tgrad = (args...) -> f(Val{:tgrad},args...)
+    tgrad = f.tgrad
   else
     tgrad = nothing
   end
   if __has_invW(f)
-    invW = (args...) -> f(Val{:invW},args...)
+    invW = f.invW
   else
     invW = nothing
   end
   if __has_invW_t(f)
-    invW_t = (args...) -> f(Val{:invW_t},args...)
+    invW_t = f.invW_t
   else
     invW_t = nothing
   end
   if __has_paramjac(f)
-    paramjac = (args...) -> f(Val{:paramjac},args...)
+    paramjac = f.paramjac
   else
     paramjac = nothing
   end
@@ -767,7 +764,7 @@ end
 DDEFunction{iip}(f::T) where {iip,T} = return T<:DDEFunction ? f : convert(DDEFunction{iip},f)
 function Base.convert(::Type{DDEFunction},f)
   if __has_analytic(f)
-    analytic = (args...) -> f(Val{:analytic},args...)
+    analytic = f.analytic
   else
     analytic = nothing
   end
@@ -780,7 +777,7 @@ function Base.convert(::Type{DDEFunction},f)
 end
 function Base.convert(::Type{DDEFunction{iip}},f) where iip
   if __has_analytic(f)
-    analytic = (args...) -> f(Val{:analytic},args...)
+    analytic = f.analytic
   else
     analytic = nothing
   end
@@ -795,33 +792,32 @@ end
 SDEFunction{iip}(f::T,g::T2) where {iip,T,T2} = return T<:SDEFunction ? f : convert(SDEFunction{iip},f,g)
 function Base.convert(::Type{SDEFunction},f,g)
   if __has_analytic(f)
-    analytic = (args...) -> f(Val{:analytic},args...)
+    analytic = f.analytic
   else
     analytic = nothing
   end
   if __has_jac(f)
-    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
-    jac = (args...) -> f(Val{:jac},args...)
+    jac = f.jac
   else
     jac = nothing
   end
   if __has_tgrad(f)
-    tgrad = (args...) -> f(Val{:tgrad},args...)
+    tgrad = f.tgrad
   else
     tgrad = nothing
   end
   if __has_invW(f)
-    invW = (args...) -> f(Val{:invW},args...)
+    invW = f.invW
   else
     invW = nothing
   end
   if __has_invW_t(f)
-    invW_t = (args...) -> f(Val{:invW_t},args...)
+    invW_t = f.invW_t
   else
     invW_t = nothing
   end
   if __has_paramjac(f)
-    paramjac = (args...) -> f(Val{:paramjac},args...)
+    paramjac = f.paramjac
   else
     paramjac = nothing
   end
@@ -835,33 +831,32 @@ function Base.convert(::Type{SDEFunction},f,g)
 end
 function Base.convert(::Type{SDEFunction{iip}},f,g) where iip
   if __has_analytic(f)
-    analytic = (args...) -> f(Val{:analytic},args...)
+    analytic = f.analytic
   else
     analytic = nothing
   end
   if __has_jac(f)
-    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
-    jac = (args...) -> f(Val{:jac},args...)
+    jac = f.jac
   else
     jac = nothing
   end
   if __has_tgrad(f)
-    tgrad = (args...) -> f(Val{:tgrad},args...)
+    tgrad = f.tgrad
   else
     tgrad = nothing
   end
   if __has_invW(f)
-    invW = (args...) -> f(Val{:invW},args...)
+    invW = f.invW
   else
     invW = nothing
   end
   if __has_invW_t(f)
-    invW_t = (args...) -> f(Val{:invW_t},args...)
+    invW_t = f.invW_t
   else
     invW_t = nothing
   end
   if __has_paramjac(f)
-    paramjac = (args...) -> f(Val{:paramjac},args...)
+    paramjac = f.paramjac
   else
     paramjac = nothing
   end
@@ -878,33 +873,32 @@ end
 RODEFunction{iip}(f::T) where {iip,T,T2} = return T<:RODEFunction ? f : convert(RODEFunction{iip},f)
 function Base.convert(::Type{RODEFunction},f)
   if __has_analytic(f)
-    analytic = (args...) -> f(Val{:analytic},args...)
+    analytic = f.analytic
   else
     analytic = nothing
   end
   if __has_jac(f)
-    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
-    jac = (args...) -> f(Val{:jac},args...)
+    jac = f.jac
   else
     jac = nothing
   end
   if __has_tgrad(f)
-    tgrad = (args...) -> f(Val{:tgrad},args...)
+    tgrad = f.tgrad
   else
     tgrad = nothing
   end
   if __has_invW(f)
-    invW = (args...) -> f(Val{:invW},args...)
+    invW = f.invW
   else
     invW = nothing
   end
   if __has_invW_t(f)
-    invW_t = (args...) -> f(Val{:invW_t},args...)
+    invW_t = f.invW_t
   else
     invW_t = nothing
   end
   if __has_paramjac(f)
-    paramjac = (args...) -> f(Val{:paramjac},args...)
+    paramjac = f.paramjac
   else
     paramjac = nothing
   end
@@ -918,33 +912,32 @@ function Base.convert(::Type{RODEFunction},f)
 end
 function Base.convert(::Type{RODEFunction{iip}},f) where iip
   if __has_analytic(f)
-    analytic = (args...) -> f(Val{:analytic},args...)
+    analytic = f.analytic
   else
     analytic = nothing
   end
   if __has_jac(f)
-    @warn("The overloading form for Jacobians is deprecated. Use the DiffEqFunction")
-    jac = (args...) -> f(Val{:jac},args...)
+    jac = f.jac
   else
     jac = nothing
   end
   if __has_tgrad(f)
-    tgrad = (args...) -> f(Val{:tgrad},args...)
+    tgrad = f.tgrad
   else
     tgrad = nothing
   end
   if __has_invW(f)
-    invW = (args...) -> f(Val{:invW},args...)
+    invW = f.invW
   else
     invW = nothing
   end
   if __has_invW_t(f)
-    invW_t = (args...) -> f(Val{:invW_t},args...)
+    invW_t = f.invW_t
   else
     invW_t = nothing
   end
   if __has_paramjac(f)
-    paramjac = (args...) -> f(Val{:paramjac},args...)
+    paramjac = f.paramjac
   else
     paramjac = nothing
   end
