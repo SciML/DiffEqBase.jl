@@ -42,6 +42,10 @@ function solve(prob::DEProblem,args...;kwargs...)
   end
 end
 
+function solve(prob::MonteCarloProblem,args...;kwargs...)
+  __solve(prob,args...;kwargs...)
+end
+
 function get_concrete_problem(prob::AbstractJumpProblem,kwargs)
   prob
 end
