@@ -165,6 +165,11 @@ $(TYPEDEF)
 """
 abstract type AbstractDDEAlgorithm <: DEAlgorithm end
 
+"""
+$(TYPEDEF)
+"""
+abstract type MonteCarloAlgorithm <: DiffEqBase.DEAlgorithm end
+
 # Monte Carlo Simulations
 """
 $(TYPEDEF)
