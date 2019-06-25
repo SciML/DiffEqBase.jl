@@ -25,7 +25,6 @@ TableTraits = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
 TreeViews = "a2a6695c-b41b-5b7d-aed9-dbfdeacea5d7"
 
 [compat]
-DiffEqBase = ">= 5"
 IteratorInterfaceExtensions = "^0.1, ^1"
 MuladdMacro = ">= 0.2.1"
 Parameters = ">= 0.10.0"
