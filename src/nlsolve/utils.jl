@@ -90,8 +90,11 @@ set_W_dt!(nlcache::NLNewtonCache, W_dt) = (nlcache.W_dt = W_dt; W_dt)
 set_W_dt!(nlcache::NLNewtonConstantCache, W_dt) = W_dt
 
 function nlsolve_f end
+# Generates J and W for iip
+function iip_generate_W end
+function oop_generate_W end
 
-DiffEqBase.@def iipnlsolve begin
+function iipnlsolve(alg,u,uprev,p,t,dt,f,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
   @unpack κ, fast_convergence_cutoff = alg.nlsolve
 
   # define additional fields of cache of non-linear solver
@@ -102,25 +105,7 @@ DiffEqBase.@def iipnlsolve begin
 
   # create cache of non-linear solver
   if alg.nlsolve isa NLNewton
-    nf = nlsolve_f(f, alg)
-
-    # check if `nf` is linear
-    islin = f isa Union{ODEFunction,SplitFunction} && islinear(nf.f)
-
-    if islin
-      # get the operator
-      J = nf.f
-      W = WOperator(f.mass_matrix, dt, J, true)
-    else
-      if DiffEqBase.has_jac(f) && !DiffEqBase.has_invW(f) && f.jac_prototype !== nothing
-        W = WOperator(f, dt, true)
-        J = nothing # is J = W.J better?
-      else
-        J = false .* vec(u) .* vec(u)'
-        W = similar(J)
-      end
-    end
-
+    W = iip_generate_W(alg,u,uprev,p,t,dt,f,uEltypeNoUnits)
     nlcache = DiffEqBase.NLNewtonCache(true,W,dt,alg.nlsolve.new_W_dt_cutoff)
   elseif alg.nlsolve isa NLFunctional
     z₊ = similar(z)
@@ -141,29 +126,10 @@ DiffEqBase.@def iipnlsolve begin
   end
 
   # define additional fields of cache
-  fsalfirst = zero(rate_prototype)
   if alg.nlsolve isa NLNewton
-    if islin
-      du1 = rate_prototype
-      uf = nothing
-      jac_config = nothing
-      linsolve = alg.linsolve(Val{:init},nf,u)
-    else
-      du1 = zero(rate_prototype)
-      # if the algorithm specializes on split problems the use `nf`
-      uf = DiffEqDiffTools.UJacobianWrapper(nf,t,p)
-      jac_config = build_jac_config(alg,nf,uf,du1,uprev,u,tmp,dz)
-      linsolve = alg.linsolve(Val{:init},uf,u)
-    end
     # TODO: check if the solver is iterative
     weight = similar(u)
   else
-    J = nothing
-    W = nothing
-    du1 = rate_prototype
-    uf = nothing
-    jac_config = nothing
-    linsolve = nothing
     weight = z
   end
 
@@ -171,7 +137,44 @@ DiffEqBase.@def iipnlsolve begin
   nlsolver = NLSolver{true,typeof(z),typeof(k),uTolType,typeof(κ),typeof(γ),typeof(c),typeof(fast_convergence_cutoff),typeof(nlcache)}(z,dz,tmp,b,k,one(uTolType),κ,γ,c,alg.nlsolve.max_iter,10000,Convergence,fast_convergence_cutoff,weight,nlcache)
 end
 
-DiffEqBase.@def oopnlsolve begin
+DiffEqBase.@def getiipnlsolvefields begin
+  @unpack z,dz,tmp,k = nlsolver
+  b = nlsolver.ztmp
+  fsalfirst = zero(rate_prototype)
+
+  if alg.nlsolve isa NLNewton
+    nf = nlsolve_f(f, alg)
+    W = nlsolver.cache.W
+    islin = f isa Union{ODEFunction,SplitFunction} && islinear(nf.f)
+    if islin
+      J = nf.f
+      du1 = rate_prototype
+      uf = nothing
+      jac_config = nothing
+      linsolve = alg.linsolve(Val{:init},nf,u)
+    else
+      if DiffEqBase.has_jac(f) && !DiffEqBase.has_invW(f) && f.jac_prototype !== nothing
+        J = nothing
+      else
+        J = false .* vec(u) .* vec(u)'
+      end
+      du1 = zero(rate_prototype)
+      # if the algorithm specializes on split problems the use `nf`
+      uf = DiffEqDiffTools.UJacobianWrapper(nf,t,p)
+      jac_config = build_jac_config(alg,nf,uf,du1,uprev,u,tmp,dz)
+      linsolve = alg.linsolve(Val{:init},uf,u)
+    end
+  else
+    W = nothing
+    J = nothing
+    du1 = rate_prototype
+    uf = nothing
+    jac_config = nothing
+    linsolve = nothing
+  end
+end
+
+function oopnlsolve(alg,u,uprev,p,t,dt,f,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
   @unpack κ, fast_convergence_cutoff = alg.nlsolve
 
   # define additional fields of cache of non-linear solver (all aliased)
@@ -181,46 +184,11 @@ DiffEqBase.@def oopnlsolve begin
 
   # create cache of non-linear solver
   if alg.nlsolve isa NLNewton
-    nf = nlsolve_f(f, alg)
-
-    # only use `nf` if the algorithm specializes on split eqs
-    uf = DiffEqDiffTools.UDerivativeWrapper(nf,t,p)
-
-    islin = f isa Union{ODEFunction,SplitFunction} && islinear(nf.f)
-    if islin || DiffEqBase.has_jac(f)
-      # get the operator
-      J = islin ? nf.f : f.jac(uprev, p, t)
-      if !isa(J, DiffEqBase.AbstractDiffEqLinearOperator)
-        J = DiffEqArrayOperator(J)
-      end
-      W = WOperator(f.mass_matrix, dt, J, false)
-    else
-      # https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl/pull/672
-      if u isa StaticArray
-        # get a "fake" `J`
-        J = if u isa AbstractMatrix && size(u, 1) > 1 # `u` is already a matrix
-          u
-        elseif size(u, 1) == 1 # `u` is a row vector
-          vcat(u, u)
-        else # `u` is a column vector
-          hcat(u, u)
-        end
-        W = lu(J)
-      else
-        W = u isa Number ? u : LU{LinearAlgebra.lutype(uEltypeNoUnits)}(Matrix{uEltypeNoUnits}(undef, 0, 0),
-                                                                        Vector{LinearAlgebra.BlasInt}(undef, 0),
-                                                                        zero(LinearAlgebra.BlasInt))
-      end
-    end
-
+    W = oop_generate_W(alg,u,uprev,p,t,dt,f,uEltypeNoUnits)
     nlcache = DiffEqBase.NLNewtonConstantCache(W,alg.nlsolve.new_W_dt_cutoff)
   elseif alg.nlsolve isa NLFunctional
-    uf = nothing
-
     nlcache = DiffEqBase.NLFunctionalConstantCache()
   elseif alg.nlsolve isa NLAnderson
-    uf = nothing
-
     max_history = min(alg.nlsolve.max_history, alg.nlsolve.max_iter, length(z))
     Δz₊s = Vector{typeof(z)}(undef, max_history)
     Q = Matrix{uEltypeNoUnits}(undef, length(z), max_history)
@@ -232,4 +200,14 @@ DiffEqBase.@def oopnlsolve begin
 
   # create non-linear solver
   nlsolver = NLSolver{false,typeof(z),typeof(k),uTolType,typeof(κ),typeof(γ),typeof(c),typeof(fast_convergence_cutoff),typeof(nlcache)}(z,dz,tmp,b,k,one(uTolType),κ,γ,c,alg.nlsolve.max_iter,10000,Convergence,fast_convergence_cutoff,z,nlcache)
+end
+
+DiffEqBase.@def getoopnlsolvefields begin
+    if alg.nlsolve isa NLNewton
+      nf = nlsolve_f(f, alg)
+      # only use `nf` if the algorithm specializes on split eqs
+      uf = DiffEqDiffTools.UDerivativeWrapper(nf,t,p)
+    else
+      uf = nothing
+    end
 end
