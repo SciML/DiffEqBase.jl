@@ -638,7 +638,7 @@ function Base.convert(::Type{ODEFunction}, f)
 end
 function Base.convert(::Type{ODEFunction{iip}},f) where iip
   if __has_analytic(f)
-    analytic = f(Val{:analytic},args...)
+    analytic = f.analytic
   else
     analytic = nothing
   end
