@@ -420,6 +420,9 @@ struct ConvergenceSetup{P,C}
     convergence_axis::C
 end
 
+const MonteCarloProblem = EnsembleProblem
+const MonteCarloSolution = EnsembleSolution
+const MonteCarloSummary = EnsembleSummary
 @deprecate MonteCarloProblem(args...) EnsembleProblem(args...)
 @deprecate MonteCarloSolution(args...) EnsembleSolution(args...)
 @deprecate MonteCarloSummary(args...) EnsembleSummary(args...)
