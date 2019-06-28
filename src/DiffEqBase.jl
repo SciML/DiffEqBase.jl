@@ -420,12 +420,16 @@ struct ConvergenceSetup{P,C}
     convergence_axis::C
 end
 
+const AbstractMonteCarloProblem = AbstractEnsembleProblem
+const AbstractMonteCarloSolution = AbstractEnsembleSolution
+const MonteCarloAlgorithm = EnsembleAlgorithm
 const MonteCarloProblem = EnsembleProblem
 const MonteCarloSolution = EnsembleSolution
 const MonteCarloSummary = EnsembleSummary
 @deprecate MonteCarloProblem(args...) EnsembleProblem(args...)
 @deprecate MonteCarloSolution(args...) EnsembleSolution(args...)
 @deprecate MonteCarloSummary(args...) EnsembleSummary(args...)
+@deprecate calculate_monte_errors(args...;kwargs...) calculate_ensemble_errors(args...;kwargs...)
 
 export isinplace
 
