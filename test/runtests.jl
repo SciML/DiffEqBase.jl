@@ -30,7 +30,7 @@ if !is_APPVEYOR && group == "Downstream"
       using Pkg
       Pkg.add("OrdinaryDiffEq")
       Pkg.add("StochasticDiffEq")
-      Pkg.add9("DiffEqProblemLibrary")
+      Pkg.add("DiffEqProblemLibrary")
     end
     @time @safetestset "Ensemble Simulations" begin include("ensemble.jl") end
     @time @safetestset "Ensemble Analysis" begin include("ensemble_analysis.jl") end
