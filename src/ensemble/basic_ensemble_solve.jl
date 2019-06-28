@@ -42,6 +42,7 @@ function __solve(prob::AbstractEnsembleProblem,
       trajectories = kwargs[:num_monte]
     else
       @assert :trajectories ∈ keys(kwargs)
+      trajectories = kwargs[:trajectories]
     end
     if :parallel_type ∈ keys(kwargs)
       @warn "parallel_type has been deprecated. Please refer to the docs for the new dispatch-based system."
