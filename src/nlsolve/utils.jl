@@ -90,11 +90,8 @@ set_W_dt!(nlcache::NLNewtonCache, W_dt) = (nlcache.W_dt = W_dt; W_dt)
 set_W_dt!(nlcache::NLNewtonConstantCache, W_dt) = W_dt
 
 function nlsolve_f end
-# Generates J and W for iip
-function iip_generate_W end
-function oop_generate_W end
 
-function iipnlsolve(alg,u,uprev,p,t,dt,f,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
+function iipnlsolve(alg,u,uprev,p,t,dt,f,W,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
   @unpack κ, fast_convergence_cutoff = alg.nlsolve
 
   # define additional fields of cache of non-linear solver
@@ -105,7 +102,6 @@ function iipnlsolve(alg,u,uprev,p,t,dt,f,rate_prototype,uEltypeNoUnits,uBottomEl
 
   # create cache of non-linear solver
   if alg.nlsolve isa NLNewton
-    W = iip_generate_W(alg,u,uprev,p,t,dt,f,uEltypeNoUnits)
     nlcache = DiffEqBase.NLNewtonCache(true,W,dt,alg.nlsolve.new_W_dt_cutoff)
   elseif alg.nlsolve isa NLFunctional
     z₊ = similar(z)
@@ -144,20 +140,13 @@ DiffEqBase.@def getiipnlsolvefields begin
 
   if alg.nlsolve isa NLNewton
     nf = nlsolve_f(f, alg)
-    W = nlsolver.cache.W
     islin = f isa Union{ODEFunction,SplitFunction} && islinear(nf.f)
     if islin
-      J = nf.f
       du1 = rate_prototype
       uf = nothing
       jac_config = nothing
       linsolve = alg.linsolve(Val{:init},nf,u)
     else
-      if DiffEqBase.has_jac(f) && !DiffEqBase.has_invW(f) && f.jac_prototype !== nothing
-        J = nothing
-      else
-        J = false .* vec(u) .* vec(u)'
-      end
       du1 = zero(rate_prototype)
       # if the algorithm specializes on split problems the use `nf`
       uf = DiffEqDiffTools.UJacobianWrapper(nf,t,p)
@@ -165,8 +154,6 @@ DiffEqBase.@def getiipnlsolvefields begin
       linsolve = alg.linsolve(Val{:init},uf,u)
     end
   else
-    W = nothing
-    J = nothing
     du1 = rate_prototype
     uf = nothing
     jac_config = nothing
@@ -174,7 +161,7 @@ DiffEqBase.@def getiipnlsolvefields begin
   end
 end
 
-function oopnlsolve(alg,u,uprev,p,t,dt,f,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
+function oopnlsolve(alg,u,uprev,p,t,dt,f,W,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
   @unpack κ, fast_convergence_cutoff = alg.nlsolve
 
   # define additional fields of cache of non-linear solver (all aliased)
@@ -184,7 +171,6 @@ function oopnlsolve(alg,u,uprev,p,t,dt,f,rate_prototype,uEltypeNoUnits,uBottomEl
 
   # create cache of non-linear solver
   if alg.nlsolve isa NLNewton
-    W = oop_generate_W(alg,u,uprev,p,t,dt,f,uEltypeNoUnits)
     nlcache = DiffEqBase.NLNewtonConstantCache(W,alg.nlsolve.new_W_dt_cutoff)
   elseif alg.nlsolve isa NLFunctional
     nlcache = DiffEqBase.NLFunctionalConstantCache()
