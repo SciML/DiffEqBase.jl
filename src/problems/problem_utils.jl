@@ -60,9 +60,9 @@ function Base.show(io::IO, A::AbstractSteadyStateProblem)
   show(io, A.u0)
 end
 
-Base.summary(prob::AbstractMonteCarloProblem) = string(
+Base.summary(prob::AbstractEnsembleProblem) = string(
 nameof(typeof(prob))," with problem ",nameof(typeof(prob.prob)))
-Base.show(io::IO, A::AbstractMonteCarloProblem) = print(io,summary(A))
+Base.show(io::IO, A::AbstractEnsembleProblem) = print(io,summary(A))
 TreeViews.hastreeview(x::DiffEqBase.DEProblem) = true
 function TreeViews.treelabel(io::IO,x::DiffEqBase.DEProblem,
                              mime::MIME"text/plain" = MIME"text/plain"())

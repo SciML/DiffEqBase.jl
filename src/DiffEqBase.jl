@@ -168,21 +168,21 @@ abstract type AbstractDDEAlgorithm <: DEAlgorithm end
 """
 $(TYPEDEF)
 """
-abstract type MonteCarloAlgorithm <: DiffEqBase.DEAlgorithm end
+abstract type EnsembleAlgorithm <: DiffEqBase.DEAlgorithm end
 
 # Monte Carlo Simulations
 """
 $(TYPEDEF)
 """
-abstract type AbstractMonteCarloProblem <: DEProblem end
+abstract type AbstractEnsembleProblem <: DEProblem end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractMonteCarloEstimator <: DEProblem end
+abstract type AbstractEnsembleEstimator <: DEProblem end
 
-export MonteCarloProblem
-export MonteCarloSolution, MonteCarloTestSolution, MonteCarloSummary
+export EnsembleProblem
+export EnsembleSolution, EnsembleTestSolution, EnsembleSummary
 
 """
 $(TYPEDEF)
@@ -276,7 +276,7 @@ abstract type AbstractTimeseriesSolution{T,N} <: AbstractDiffEqArray{T,N} end
 """
 $(TYPEDEF)
 """
-abstract type AbstractMonteCarloSolution{T,N} <: AbstractVectorOfArray{T,N} end
+abstract type AbstractEnsembleSolution{T,N} <: AbstractVectorOfArray{T,N} end
 
 """
 $(TYPEDEF)
@@ -285,7 +285,7 @@ abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractDiffEqArray{T,N} en
 
 const DESolution = Union{AbstractTimeseriesSolution,
                          AbstractNoTimeSolution,
-                         AbstractMonteCarloSolution,
+                         AbstractEnsembleSolution,
                          AbstractNoiseProcess}
 export DESolution
 
@@ -419,6 +419,10 @@ struct ConvergenceSetup{P,C}
     probs::P
     convergence_axis::C
 end
+
+@deprecate MonteCarloProblem(args...) EnsembleProblem(args...)
+@deprecate MonteCarloSolution(args...) EnsembleSolution(args...)
+@deprecate MonteCarloSummary(args...) EnsembleSummary(args...)
 
 export isinplace
 
