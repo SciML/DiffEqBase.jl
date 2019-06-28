@@ -5,6 +5,7 @@ version = "5.11.0"
 
 [deps]
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 FunctionWrappers = "069b7b12-0de2-55c6-9aab-29f3d0a68a2e"
 IterativeSolvers = "42fd0dbc-a981-5370-80f2-aaf504508153"
@@ -35,8 +36,8 @@ TableTraits = "^0.3, ^0.4, ^1"
 julia = "1"
 
 [extras]
-InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 

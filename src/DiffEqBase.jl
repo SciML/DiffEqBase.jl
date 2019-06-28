@@ -2,7 +2,7 @@ module DiffEqBase
 
 using RecipesBase, RecursiveArrayTools, Compat,
       Requires, TableTraits, IteratorInterfaceExtensions, TreeViews,
-      IterativeSolvers, RecursiveFactorization
+      IterativeSolvers, RecursiveFactorization, Distributed
 
 using Roots # callbacks
 
@@ -372,7 +372,6 @@ include("solutions/steady_state_solutions.jl")
 include("solutions/ode_solutions.jl")
 include("solutions/rode_solutions.jl")
 include("solutions/dae_solutions.jl")
-include("solutions/monte_solutions.jl")
 include("solutions/solution_interface.jl")
 include("tableaus.jl")
 include("diffeqfunction.jl")
@@ -387,8 +386,11 @@ include("problems/noise_problems.jl")
 include("problems/bvp_problems.jl")
 include("problems/dae_problems.jl")
 include("problems/dde_problems.jl")
-include("problems/monte_problems.jl")
 include("problems/problem_traits.jl")
+include("ensemble/ensemble_solutions.jl")
+include("ensemble/ensemble_problems.jl")
+include("ensemble/basic_ensemble_solve.jl")
+include("ensemble/ensemble_analysis.jl")
 include("nlsolve/type.jl")
 include("nlsolve/newton.jl")
 include("nlsolve/functional.jl")
@@ -479,5 +481,9 @@ export AffineDiffEqOperator, update_coefficients!, update_coefficients, is_const
        has_expmv!, has_expmv, has_exp, has_mul, has_mul!, has_ldiv, has_ldiv!
 
 export NLNewton, NLFunctional, NLAnderson
+
+export EnsembleThreads, EnsembleDistributed, EnsembleSplitThreads, EnsembleSerial
+
+export EnsembleAnalysis
 
 end # module

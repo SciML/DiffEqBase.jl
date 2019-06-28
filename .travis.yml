@@ -9,6 +9,9 @@ julia:
 matrix:
   allow_failures:
     - julia: nightly
+env:
+  - GROUP=Core
+  - GROUP=Downstream
 notifications:
   email: false
 # uncomment the following lines to override the default test script
