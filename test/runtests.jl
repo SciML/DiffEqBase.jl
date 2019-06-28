@@ -25,7 +25,7 @@ if group == "All" || group == "Core"
     @time @safetestset "Export tests" begin include("export_tests.jl") end
     @time @safetestset "High Level solve Interface" begin include("high_level_solve.jl") end
 end
-if group == "Downstream"
+if !is_APPVEYOR && group == "Downstream"
     if is_TRAVIS
       using Pkg
       Pkg.add("OrdinaryDiffEq")
