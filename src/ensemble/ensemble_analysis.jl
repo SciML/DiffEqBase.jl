@@ -1,6 +1,6 @@
 module EnsembleAnalysis
 
-using DiffEqBase, StaticArrays, Statistics
+using DiffEqBase, StaticArrays, Statistics, RecursiveArrayTools
 
 # Getters
 get_timestep(sim,i) = (getindex(sol,i) for sol in sim)

@@ -1,6 +1,5 @@
 using StochasticDiffEq, DiffEqBase,
-      DiffEqProblemLibrary, OrdinaryDiffEq, DiffEqBase.EnsembleAnalysis,
-      RecursiveArrayTools
+      DiffEqProblemLibrary, OrdinaryDiffEq, DiffEqBase.EnsembleAnalysis
 using Test
 
 using DiffEqProblemLibrary.SDEProblemLibrary: importsdeproblems; importsdeproblems()
