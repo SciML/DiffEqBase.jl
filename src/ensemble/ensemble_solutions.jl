@@ -1,4 +1,4 @@
-struct MonteCarloTestSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
+struct EnsembleTestSolution{T,N,S} <: AbstractEnsembleSolution{T,N}
   u::S
   errors::Dict{Symbol,Vector{T}}
   weak_errors::Dict{Symbol,T}
@@ -7,26 +7,26 @@ struct MonteCarloTestSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
   elapsedTime::Float64
   converged::Bool
 end
-function MonteCarloTestSolution(sim::AbstractMonteCarloSolution{T,N},errors,weak_errors,error_means,error_medians,elapsedTime,converged) where {T,N}
-  MonteCarloTestSolution{T,N,typeof(sim.u)}(sim.u,errors,weak_errors,error_means,error_medians,sim.elapsedTime,sim.converged)
+function EnsembleTestSolution(sim::AbstractEnsembleSolution{T,N},errors,weak_errors,error_means,error_medians,elapsedTime,converged) where {T,N}
+  EnsembleTestSolution{T,N,typeof(sim.u)}(sim.u,errors,weak_errors,error_means,error_medians,sim.elapsedTime,sim.converged)
 end
-function MonteCarloTestSolution(u,errors,weak_errors,error_means,error_medians,elapsedTime,converged)
-  MonteCarloTestSolution(MonteCarloSolution(u,elapsedTime,converged),errors,weak_errors,error_means,error_medians,elapsedTime,converged)
+function EnsembleTestSolution(u,errors,weak_errors,error_means,error_medians,elapsedTime,converged)
+  EnsembleTestSolution(EnsembleSolution(u,elapsedTime,converged),errors,weak_errors,error_means,error_medians,elapsedTime,converged)
 end
 
-struct MonteCarloSolution{T,N,S} <: AbstractMonteCarloSolution{T,N}
+struct EnsembleSolution{T,N,S} <: AbstractEnsembleSolution{T,N}
   u::S
   elapsedTime::Float64
   converged::Bool
 end
-MonteCarloSolution(sim, dims::NTuple{N},elapsedTime,converged) where {N} =
-                  MonteCarloSolution{eltype(eltype(sim)), N, typeof(sim)}(sim,elapsedTime,converged)
-MonteCarloSolution(sim,elapsedTime,converged) =
-             MonteCarloSolution(sim, (length(sim),),elapsedTime,converged) # Vector of some type which is not an array
-MonteCarloSolution(sim::T,elapsedTime,converged) where T <: AbstractVector{T2} where T2 <: AbstractArray =
-             MonteCarloSolution(sim, (size(sim[1])..., length(sim)),elapsedTime,converged) # Requires `size` defined on `sim`
+EnsembleSolution(sim, dims::NTuple{N},elapsedTime,converged) where {N} =
+                  EnsembleSolution{eltype(eltype(sim)), N, typeof(sim)}(sim,elapsedTime,converged)
+EnsembleSolution(sim,elapsedTime,converged) =
+             EnsembleSolution(sim, (length(sim),),elapsedTime,converged) # Vector of some type which is not an array
+EnsembleSolution(sim::T,elapsedTime,converged) where T <: AbstractVector{T2} where T2 <: AbstractArray =
+             EnsembleSolution(sim, (size(sim[1])..., length(sim)),elapsedTime,converged) # Requires `size` defined on `sim`
 
-struct MonteCarloSummary{T,N,Tt,S,S2,S3,S4} <: AbstractMonteCarloSolution{T,N}
+struct EnsembleSummary{T,N,Tt,S,S2,S3,S4} <: AbstractEnsembleSolution{T,N}
   t::Tt
   u::S
   v::S2
@@ -37,11 +37,11 @@ struct MonteCarloSummary{T,N,Tt,S,S2,S3,S4} <: AbstractMonteCarloSolution{T,N}
   converged::Bool
 end
 
-function calculate_monte_errors(sim::AbstractMonteCarloSolution;kwargs...)
-  calculate_monte_errors(sim.u;elapsedTime=sim.elapsedTime,converged=sim.converged,kwargs...)
+function calculate_ensemble_errors(sim::AbstractEnsembleSolution;kwargs...)
+  calculate_ensemble_errors(sim.u;elapsedTime=sim.elapsedTime,converged=sim.converged,kwargs...)
 end
 
-function calculate_monte_errors(u;elapsedTime=0.0,converged=false,
+function calculate_ensemble_errors(u;elapsedTime=0.0,converged=false,
                                 weak_timeseries_errors=false,weak_dense_errors=false)
   errors = Dict{Symbol,Vector{eltype(u[1].u[1])}}() #Should add type information
   error_means  = Dict{Symbol,eltype(u[1].u[1])}()
@@ -76,22 +76,22 @@ function calculate_monte_errors(u;elapsedTime=0.0,converged=false,
     weak_errors[:weak_L2] = L2_tmp
     weak_errors[:weak_L∞] = max_tmp
   end
-  return MonteCarloTestSolution(u,errors,weak_errors,error_means,error_medians,elapsedTime,converged)
+  return EnsembleTestSolution(u,errors,weak_errors,error_means,error_medians,elapsedTime,converged)
 end
 
 ### Displays
 
-Base.summary(A::AbstractMonteCarloSolution) = string("MonteCarloSolution Solution of length ",length(A.u)," with uType:\n",eltype(A.u))
-function Base.show(io::IO, A::AbstractMonteCarloSolution)
+Base.summary(A::AbstractEnsembleSolution) = string("EnsembleSolution Solution of length ",length(A.u)," with uType:\n",eltype(A.u))
+function Base.show(io::IO, A::AbstractEnsembleSolution)
   print(io,summary(A))
 end
-function Base.show(io::IO, m::MIME"text/plain", A::AbstractMonteCarloSolution)
+function Base.show(io::IO, m::MIME"text/plain", A::AbstractEnsembleSolution)
   print(io,summary(A))
 end
 
 ### Plot Recipes
 
-@recipe function f(sim::AbstractMonteCarloSolution;
+@recipe function f(sim::AbstractEnsembleSolution;
                    zcolors = typeof(sim.u)<:AbstractArray ? fill(nothing, length(sim.u)) : nothing,
                    idxs = typeof(sim.u)<:AbstractArray ? eachindex(sim.u) : 1)
   for i in idxs
@@ -107,7 +107,7 @@ end
   end
 end
 
-@recipe function f(sim::MonteCarloSummary;
+@recipe function f(sim::EnsembleSummary;
                    idxs= typeof(sim.u[1])<:AbstractArray ? eachindex(sim.u[1]) : 1,
                    error_style=:ribbon,ci_type=:quantile)
   if typeof(sim.u[1])<:AbstractArray

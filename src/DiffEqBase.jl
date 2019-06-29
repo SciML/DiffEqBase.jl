@@ -2,7 +2,7 @@ module DiffEqBase
 
 using RecipesBase, RecursiveArrayTools, Compat,
       Requires, TableTraits, IteratorInterfaceExtensions, TreeViews,
-      IterativeSolvers, RecursiveFactorization
+      IterativeSolvers, RecursiveFactorization, Distributed
 
 using Roots # callbacks
 
@@ -168,21 +168,21 @@ abstract type AbstractDDEAlgorithm <: DEAlgorithm end
 """
 $(TYPEDEF)
 """
-abstract type MonteCarloAlgorithm <: DiffEqBase.DEAlgorithm end
+abstract type EnsembleAlgorithm <: DiffEqBase.DEAlgorithm end
 
 # Monte Carlo Simulations
 """
 $(TYPEDEF)
 """
-abstract type AbstractMonteCarloProblem <: DEProblem end
+abstract type AbstractEnsembleProblem <: DEProblem end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractMonteCarloEstimator <: DEProblem end
+abstract type AbstractEnsembleEstimator <: DEProblem end
 
-export MonteCarloProblem
-export MonteCarloSolution, MonteCarloTestSolution, MonteCarloSummary
+export EnsembleProblem
+export EnsembleSolution, EnsembleTestSolution, EnsembleSummary
 
 """
 $(TYPEDEF)
@@ -276,7 +276,7 @@ abstract type AbstractTimeseriesSolution{T,N} <: AbstractDiffEqArray{T,N} end
 """
 $(TYPEDEF)
 """
-abstract type AbstractMonteCarloSolution{T,N} <: AbstractVectorOfArray{T,N} end
+abstract type AbstractEnsembleSolution{T,N} <: AbstractVectorOfArray{T,N} end
 
 """
 $(TYPEDEF)
@@ -285,7 +285,7 @@ abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractDiffEqArray{T,N} en
 
 const DESolution = Union{AbstractTimeseriesSolution,
                          AbstractNoTimeSolution,
-                         AbstractMonteCarloSolution,
+                         AbstractEnsembleSolution,
                          AbstractNoiseProcess}
 export DESolution
 
@@ -372,7 +372,6 @@ include("solutions/steady_state_solutions.jl")
 include("solutions/ode_solutions.jl")
 include("solutions/rode_solutions.jl")
 include("solutions/dae_solutions.jl")
-include("solutions/monte_solutions.jl")
 include("solutions/solution_interface.jl")
 include("tableaus.jl")
 include("diffeqfunction.jl")
@@ -387,8 +386,11 @@ include("problems/noise_problems.jl")
 include("problems/bvp_problems.jl")
 include("problems/dae_problems.jl")
 include("problems/dde_problems.jl")
-include("problems/monte_problems.jl")
 include("problems/problem_traits.jl")
+include("ensemble/ensemble_solutions.jl")
+include("ensemble/ensemble_problems.jl")
+include("ensemble/basic_ensemble_solve.jl")
+include("ensemble/ensemble_analysis.jl")
 include("nlsolve/type.jl")
 include("nlsolve/newton.jl")
 include("nlsolve/functional.jl")
@@ -419,6 +421,17 @@ struct ConvergenceSetup{P,C}
     probs::P
     convergence_axis::C
 end
+
+const AbstractMonteCarloProblem = AbstractEnsembleProblem
+const AbstractMonteCarloSolution = AbstractEnsembleSolution
+const MonteCarloAlgorithm = EnsembleAlgorithm
+const MonteCarloProblem = EnsembleProblem
+const MonteCarloSolution = EnsembleSolution
+const MonteCarloSummary = EnsembleSummary
+@deprecate MonteCarloProblem(args...) EnsembleProblem(args...)
+@deprecate MonteCarloSolution(args...) EnsembleSolution(args...)
+@deprecate MonteCarloSummary(args...) EnsembleSummary(args...)
+@deprecate calculate_monte_errors(args...;kwargs...) calculate_ensemble_errors(args...;kwargs...)
 
 export isinplace
 
@@ -468,5 +481,9 @@ export AffineDiffEqOperator, update_coefficients!, update_coefficients, is_const
        has_expmv!, has_expmv, has_exp, has_mul, has_mul!, has_ldiv, has_ldiv!
 
 export NLNewton, NLFunctional, NLAnderson
+
+export EnsembleThreads, EnsembleDistributed, EnsembleSplitThreads, EnsembleSerial
+
+export EnsembleAnalysis
 
 end # module

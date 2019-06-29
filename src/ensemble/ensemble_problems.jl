@@ -1,4 +1,4 @@
-struct MonteCarloProblem{T,T2,T3,T4,T5} <: AbstractMonteCarloProblem
+struct EnsembleProblem{T,T2,T3,T4,T5} <: AbstractEnsembleProblem
   prob::T
   prob_func::T2
   output_func::T3
@@ -6,16 +6,16 @@ struct MonteCarloProblem{T,T2,T3,T4,T5} <: AbstractMonteCarloProblem
   u_init::T5
 end
 
-MonteCarloProblem(prob::DEProblem;
+EnsembleProblem(prob::DEProblem;
     output_func = (sol,i)-> (sol,false),
     prob_func= (prob,i,repeat)->prob,
     reduction = (u,data,I)->(append!(u,data),false),
     u_init = []) =
-    MonteCarloProblem(prob,prob_func,output_func,reduction,u_init)
+    EnsembleProblem(prob,prob_func,output_func,reduction,u_init)
 
-MonteCarloProblem(;prob,
+EnsembleProblem(;prob,
     output_func = (sol,i)-> (sol,false),
     prob_func= (prob,i,repeat)->prob,
     reduction = (u,data,I)->(append!(u,data),false),
     u_init = [], p = nothing) =
-    MonteCarloProblem(prob,prob_func,output_func,reduction,u_init)
+    EnsembleProblem(prob,prob_func,output_func,reduction,u_init)
