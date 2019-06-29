@@ -11,7 +11,7 @@ end
 
 # solver
 
-mutable struct NLSolver{iip,uType,rateType,uTolType,kType,gType,cType,C1,C<:AbstractNLSolverCache}
+mutable struct NLSolver{iip,uType,rateType,uTolType,kType,gType,cType,du1Type,ufType,jcType,lsType,C1,C<:AbstractNLSolverCache}
   z::uType
   dz::uType
   tmp::uType
@@ -25,6 +25,10 @@ mutable struct NLSolver{iip,uType,rateType,uTolType,kType,gType,cType,C1,C<:Abst
   nl_iters::Int
   status::NLStatus
   fast_convergence_cutoff::C1
+  du1::du1Type
+  uf::ufType
+  jac_config::jcType
+  linsolve::lsType
   weight::uType
   cache::C
 end
