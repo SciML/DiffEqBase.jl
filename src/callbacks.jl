@@ -239,8 +239,8 @@ function find_first_continuous_callback(integrator,tmin::Number,upcrossing::Numb
   end
 end
 
-function find_first_continuous_callback(integrator,tmin::Number,upcrossing::Number,event_occured::Bool,idx::Int,counter::Int,callback2,args...)
-  find_first_continuous_callback(integrator,find_first_continuous_callback(integrator,tmin,upcrossing,event_occured,idx,counter,callback2)...,args...)
+function find_first_continuous_callback(integrator,tmin::Number,upcrossing::Number,event_occured::Bool,event_idx::Int,idx::Int,counter::Int,callback2,args...)
+  find_first_continuous_callback(integrator,find_first_continuous_callback(integrator,tmin,upcrossing,event_occured,event_idx,idx,counter,callback2)...,args...)
 end
 
 @inline function determine_event_occurance(integrator,callback::VectorContinuousCallback,counter)
