@@ -158,13 +158,13 @@ function SecondOrderODEProblem{iip}(f,du0,u0,tspan,p=nothing;kwargs...) where ii
       v
     end
   end
-  _u0 = (du0,u0)
+  _u0 = ArrayPartition((du0,u0))
   ODEProblem(DynamicalODEFunction{iip}(f,f2),_u0,tspan,p,
                   SecondOrderODEProblem{iip}();kwargs...)
 end
 function SecondOrderODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kwargs...)
   iip = isinplace(f.f1, 5)
-  _u0 = (du0,u0)
+  _u0 = ArrayPartition((du0,u0))
   if f.f2.f == nothing
     if iip
       f2 = function (du,v,u,p,t)
