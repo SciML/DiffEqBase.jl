@@ -282,6 +282,7 @@ end
 
     # Evaluate condition slightly in future
     abst = integrator.tprev+max(integrator.dt/10000,sign(integrator.dt)*100*eps(integrator.t))
+    abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(integrator.t))
     tmp_condition = get_condition(integrator, callback, abst)
 
     # Sometimes users may "switch off" the condition after crossing
@@ -360,6 +361,7 @@ end
 
     # Evaluate condition slightly in future
     abst = integrator.tprev+max(integrator.dt/10000,sign(integrator.dt)*100*eps(integrator.t))
+    abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(integrator.t))
     tmp_condition = get_condition(integrator, callback, abst)
 
     # Sometimes users may "switch off" the condition after crossing
@@ -429,10 +431,13 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             # But floating point error may make the end point negative
 
             sign_top = sign(zero_func(top_Θ))
-            bottom_θ += 2eps(typeof(bottom_θ))
+            offset = 2eps(typeof(bottom_θ))
+            bottom_θ += offset
             iter = 1
             while sign(zero_func(bottom_θ)) == sign_top && iter < 12
-              bottom_θ *= 5
+              bottom_θ -= offset
+              offset *= 5
+              bottom_θ += offset
               iter += 1
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
