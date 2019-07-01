@@ -66,7 +66,11 @@ function calculate_solution_errors!(sol::AbstractODESolution;fill_uanalytic=true
 
   if fill_uanalytic
     for i in 1:size(sol.u,1)
-      push!(sol.u_analytic,f.analytic(sol.prob.u0,sol.prob.p,sol.t[i]))
+      if sol.prob isa AbstractDDEProblem
+        push!(sol.u_analytic, f.analytic(sol.prob.u0, sol.prob.h, sol.prob.p, sol.t[i]))
+      else
+        push!(sol.u_analytic, f.analytic(sol.prob.u0, sol.prob.p, sol.t[i]))
+      end
     end
   end
 
