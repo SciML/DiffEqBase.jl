@@ -21,7 +21,7 @@ Base.summary(prob::DEProblem) = string(TYPE_COLOR, nameof(typeof(prob)),
                                        NO_COLOR, " and tType ",
                                        TYPE_COLOR,
                                        typeof(prob.tspan) <: Function ?
-                                       "Unknown" : (typeof(prob.tspan) <: Nothing ?
+                                       "Unknown" : (prob.tspan === nothing ?
                                        "Nothing" : typeof(prob.tspan[1])),
                                        NO_COLOR, ". In-place: ",
                                        TYPE_COLOR, isinplace(prob),
