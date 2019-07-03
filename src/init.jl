@@ -1,6 +1,10 @@
 value(x) = x
 
 function __init__()
+  @require ApproxFun="28f2ccd6-bb30-5033-b560-165f7b14dc2f" begin
+    eval_u0(u0::ApproxFun.Fun) = false
+  end
+
   @require Distributions="31c24e10-a181-5473-b8eb-7969acd0382f" begin
     handle_distribution_u0(_u0::Distributions.Sampleable) = rand(_u0)
   end

@@ -96,7 +96,7 @@ function get_concrete_tspan(prob, kwargs)
 end
 
 function get_concrete_u0(prob, t0)
-  if prob.u0 isa Function
+  if eval_u0(prob.u0)
     u0 = prob.u0(prob.p, t0)
   else
     u0 = prob.u0
@@ -106,6 +106,8 @@ function get_concrete_u0(prob, t0)
 end
 
 handle_distribution_u0(_u0) = _u0
+eval_u0(u0::Function) = true
+eval_u0(u0) = false
 
 function adaptive_warn(u0,tspan)
   adaptive_integer_warn(tspan)
