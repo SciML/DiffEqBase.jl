@@ -477,7 +477,7 @@ export initialize!
 
 export LinSolveFactorize, DEFAULT_LINSOLVE, LinSolveGMRES
 
-export AffineDiffEqOperator, update_coefficients!, update_coefficients, is_constant,
+export AffineDiffEqOperator, update_coefficients!, update_coefficients, isconstant,
        has_expmv!, has_expmv, has_exp, has_mul, has_mul!, has_ldiv, has_ldiv!
 
 export NLNewton, NLFunctional, NLAnderson

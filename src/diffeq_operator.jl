@@ -7,7 +7,7 @@ using LinearAlgebra
 2. If the operator is not a constant, update it with (u,p,t). A mutating form, i.e.
    update_coefficients!(A,u,p,t) that changes the internal coefficients, and a
    out-of-place form B = update_coefficients(A,u,p,t).
-3. is_constant(A) trait for whether the operator is constant or not.
+3. isconstant(A) trait for whether the operator is constant or not.
 4. islinear(A) trait for whether the operator is linear or not.
 =#
 
@@ -16,7 +16,7 @@ update_coefficients!(L,u,p,t) = nothing
 update_coefficients(L,u,p,t) = L
 
 # Traits
-is_constant(L::AbstractDiffEqOperator) = false
+isconstant(::AbstractDiffEqOperator) = false
 islinear(::AbstractDiffEqOperator) = false
 has_expmv!(L::AbstractDiffEqOperator) = false # expmv!(v, L, t, u)
 has_expmv(L::AbstractDiffEqOperator) = false # v = exp(L, t, u)
@@ -44,7 +44,7 @@ has_ldiv!(L::AbstractDiffEqOperator) = false # ldiv!(du, L, u)
 =#
 
 # Extra standard assumptions
-is_constant(L::AbstractDiffEqLinearOperator) = true
+isconstant(::AbstractDiffEqLinearOperator) = true
 islinear(::AbstractDiffEqLinearOperator) = true
 
 # Other ones from LinearMaps.jl
@@ -74,7 +74,7 @@ Takes in two tuples for split Affine DiffEqs
    Otherwise they are interpreted they are functions v=B(t) and B(v,t)
 
 Solvers will see this operator from integrator.f and can interpret it by
-checking the internals of As and Bs. For example, it can check is_constant(As[1])
+checking the internals of As and Bs. For example, it can check isconstant(As[1])
 etc.
 """
 struct AffineDiffEqOperator{T,T1,T2,U} <: AbstractDiffEqOperator{T}
@@ -122,3 +122,5 @@ function update_coefficients!(L::AffineDiffEqOperator,u,p,t)
     for A in L.As; update_coefficients!(A,u,p,t); end
     for B in L.Bs; update_coefficients!(B,u,p,t); end
 end
+
+@deprecate is_constant(L::AbstractDiffEqOperator) isconstant(L)
