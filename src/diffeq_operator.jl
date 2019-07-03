@@ -60,7 +60,7 @@ AffineDiffEqOperator{T} <: AbstractDiffEqOperator{T}
 
 `Ex: (A₁(t) + ... + Aₙ(t))*u + B₁(t) + ... + Bₙ(t)`
 
-AffineDiffEqOperator{T}(As,Bs,u_cache=nothing)
+AffineDiffEqOperator{T}(As,Bs,du_cache=nothing)
 
 Takes in two tuples for split Affine DiffEqs
 
@@ -69,7 +69,7 @@ Takes in two tuples for split Affine DiffEqs
 2. Function calls L(u, p, t) and L(du, u, p, t) are fallbacks interpretted in this form.
    This will allow them to work directly in the nonlinear ODE solvers without
    modification.
-3. f(du, u, p, t) is only allowed if a u_cache is given
+3. f(du, u, p, t) is only allowed if a du_cache is given
 4. B(t) can be Union{Number,AbstractArray}, in which case they are constants.
    Otherwise they are interpreted they are functions v=B(t) and B(v,t)
 
@@ -80,11 +80,11 @@ etc.
 struct AffineDiffEqOperator{T,T1,T2,U} <: AbstractDiffEqOperator{T}
     As::T1
     Bs::T2
-    u_cache::U
-    function AffineDiffEqOperator{T}(As,Bs,u_cache=nothing) where T
+    du_cache::U
+    function AffineDiffEqOperator{T}(As,Bs,du_cache=nothing) where T
         all([size(a) == size(As[1])
              for a in As]) || error("Operator sizes do not agree")
-        new{T,typeof(As),typeof(Bs),typeof(u_cache)}(As,Bs,u_cache)
+        new{T,typeof(As),typeof(Bs),typeof(du_cache)}(As,Bs,du_cache)
     end
 end
 
@@ -99,20 +99,20 @@ end
 
 function (L::AffineDiffEqOperator)(du,u,p,t::Number)
     update_coefficients!(L,u,p,t)
-    L.u_cache == nothing && error("Can only use inplace AffineDiffEqOperator if u_cache is given.")
-    u_cache = L.u_cache
+    L.du_cache == nothing && error("Can only use inplace AffineDiffEqOperator if du_cache is given.")
+    du_cache = L.du_cache
     fill!(du,zero(first(du)))
     # TODO: Make type-stable via recursion
     for A in L.As
-        du .+= u_cache
         mul!(du_cache,A,u)
+        du .+= du_cache
     end
     for B in L.Bs
         if typeof(B) <: Union{Number,AbstractArray}
             du .+= B
         else
-            B(u_cache,t)
-            du .+= u_cache
+            B(du_cache,t)
+            du .+= du_cache
         end
     end
 end
