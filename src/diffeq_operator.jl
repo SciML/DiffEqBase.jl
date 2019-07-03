@@ -8,6 +8,7 @@ using LinearAlgebra
    update_coefficients!(A,u,p,t) that changes the internal coefficients, and a
    out-of-place form B = update_coefficients(A,u,p,t).
 3. is_constant(A) trait for whether the operator is constant or not.
+4. islinear(A) trait for whether the operator is linear or not.
 =#
 
 Base.eltype(L::AbstractDiffEqOperator{T}) where T = T
@@ -16,6 +17,7 @@ update_coefficients(L,u,p,t) = L
 
 # Traits
 is_constant(L::AbstractDiffEqOperator) = false
+islinear(::AbstractDiffEqOperator) = false
 has_expmv!(L::AbstractDiffEqOperator) = false # expmv!(v, L, t, u)
 has_expmv(L::AbstractDiffEqOperator) = false # v = exp(L, t, u)
 has_exp(L::AbstractDiffEqOperator) = false # v = exp(L, t)*u
@@ -43,6 +45,8 @@ has_ldiv!(L::AbstractDiffEqOperator) = false # ldiv!(du, L, u)
 
 # Extra standard assumptions
 is_constant(L::AbstractDiffEqLinearOperator) = true
+islinear(::AbstractDiffEqLinearOperator) = true
+
 # Other ones from LinearMaps.jl
 # Generic fallbacks
 LinearAlgebra.exp(L::AbstractDiffEqLinearOperator,t) = exp(t*L)

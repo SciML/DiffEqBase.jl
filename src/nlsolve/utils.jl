@@ -107,10 +107,7 @@ DiffEqBase.@def iipnlsolve begin
   if alg.nlsolve isa NLNewton
     nf = nlsolve_f(f, alg)
 
-    # check if `nf` is linear
-    islin = f isa Union{ODEFunction,SplitFunction} && islinear(nf.f)
-
-    if islin
+    if islinear(f)
       # get the operator
       J = nf.f
       W = WOperator(f.mass_matrix, dt, J, true)
@@ -146,7 +143,7 @@ DiffEqBase.@def iipnlsolve begin
   # define additional fields of cache
   fsalfirst = zero(rate_prototype)
   if alg.nlsolve isa NLNewton
-    if islin
+    if islinear(nf)
       du1 = rate_prototype
       uf = nothing
       jac_config = nothing
@@ -189,10 +186,9 @@ DiffEqBase.@def oopnlsolve begin
     # only use `nf` if the algorithm specializes on split eqs
     uf = DiffEqDiffTools.UDerivativeWrapper(nf,t,p)
 
-    islin = f isa Union{ODEFunction,SplitFunction} && islinear(nf.f)
-    if islin || DiffEqBase.has_jac(f)
+    if islinear(f) || DiffEqBase.has_jac(f)
       # get the operator
-      J = islin ? nf.f : f.jac(uprev, p, t)
+      J = islinear(f) ? nf.f : f.jac(uprev, p, t)
       if !isa(J, DiffEqBase.AbstractDiffEqLinearOperator)
         J = DiffEqArrayOperator(J)
       end
@@ -270,8 +266,8 @@ function iipnlsolve(alg,u,uprev,p,t,dt,f,W,rate_prototype,uEltypeNoUnits,uBottom
   # define additional fields of cache
   if alg.nlsolve isa NLNewton
     nf = nlsolve_f(f, alg)
-    islin = f isa Union{ODEFunction,SplitFunction} && islinear(nf.f)
-    if islin
+
+    if islinear(f)
       du1 = rate_prototype
       uf = nothing
       jac_config = nothing
