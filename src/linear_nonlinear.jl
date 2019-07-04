@@ -52,11 +52,15 @@ DefaultLinSolve() = DefaultLinSolve(nothing, nothing)
 function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
   if update_matrix
     if typeof(A) <: Matrix
-      blasvendor = BLAS.vendor()
-      if (blasvendor === :openblas || blasvendor === :openblas64) && size(A,1) <= 500 # if the user doesn't use OpenBLAS, we assume that is a much better BLAS implementation like MKL
-        p.A = RecursiveFactorization.lu!(A)
+      if GPU_SUPPORTED && size(A,1) > AUTO_GPU_SIZE
+        p.A = qr(CuMatrix(A))
       else
-        p.A = lu!(A)
+        blasvendor = BLAS.vendor()
+        if (blasvendor === :openblas || blasvendor === :openblas64) && size(A,1) <= 500 # if the user doesn't use OpenBLAS, we assume that is a much better BLAS implementation like MKL
+          p.A = RecursiveFactorization.lu!(A)
+        else
+          p.A = lu!(A)
+        end
       end
     elseif typeof(A) <: SparseMatrixCSC
       p.A = factorize(A)
@@ -67,12 +71,12 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
     end
   end
 
-  if typeof(A) <: Matrix # No 2-arg form for SparseArrays!
+  if typeof(p.A) <: Matrix # No 2-arg form for SparseArrays!
     x .= b
     ldiv!(p.A,x)
   # Missing a little bit of efficiency in a rare case
   #elseif typeof(A) <: DiffEqArrayOperator
-  #  ldiv!(x,p.A,b)
+    #  ldiv!(x,p.A,b)
   elseif typeof(A) <: AbstractDiffEqOperator
     # No good starting guess, so guess zero
     if p.iterable === nothing
@@ -86,6 +90,7 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
     for residual in iter
     end
   else
+    # Fallback for things like GPUs
     ldiv!(x,p.A,b)
   end
   return nothing
