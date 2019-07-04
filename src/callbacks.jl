@@ -265,7 +265,7 @@ end
   next_sign = @view(integrator.callback_cache.next_sign[1:callback.len])
 
 
-  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition[ivec],integrator.t)) < 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
+  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition[ivec],integrator.t)) <= 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
 
     # If there was a previous event, utilize the derivative at the start to
     # chose the previous sign. If the derivative is positive at tprev, then
@@ -343,7 +343,7 @@ end
   prev_sign = 0.0
   next_sign = 0.0
 
-  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition,integrator.t)) < 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
+  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition,integrator.t)) <= 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
 
     # If there was a previous event, utilize the derivative at the start to
     # chose the previous sign. If the derivative is positive at tprev, then
