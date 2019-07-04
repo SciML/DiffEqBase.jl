@@ -591,6 +591,7 @@ has_colorvec(f::DynamicalODEFunction) = has_colorvec(f.f1)
 
 ######### Additional traits
 
+islinear(f) = false # fallback
 islinear(::AbstractDiffEqFunction) = false
 islinear(f::ODEFunction) = islinear(f.f)
 islinear(f::SplitFunction) = islinear(f.f1)

@@ -144,7 +144,7 @@ DiffEqBase.@def iipnlsolve begin
   # define additional fields of cache
   fsalfirst = zero(rate_prototype)
   if alg.nlsolve isa NLNewton
-    if islinear(nf)
+    if islinear(f)
       du1 = rate_prototype
       uf = nothing
       jac_config = nothing
