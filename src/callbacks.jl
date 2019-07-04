@@ -265,12 +265,12 @@ end
   next_sign = @view(integrator.callback_cache.next_sign[1:callback.len])
 
 
-  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition[ivec],integrator.t)) < 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
+  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition[ivec],integrator.t)) <= 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
 
     # If there was a previous event, utilize the derivative at the start to
     # chose the previous sign. If the derivative is positive at tprev, then
-    # we treat the value as positive, and derivative is negative then we
-    # treat the value as negative, reguardless of the postiivity/negativity
+    # we treat `prev_sign` as negetive, and if the derivative is negative then we
+    # treat `prev_sign` as positive, regardless of the postiivity/negativity
     # of the true value due to it being =0 sans floating point issues.
 
     # Only due this if the discontinuity did not move it far away from an event
@@ -343,12 +343,12 @@ end
   prev_sign = 0.0
   next_sign = 0.0
 
-  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition,integrator.t)) < 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
+  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition,integrator.t)) <= 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
 
     # If there was a previous event, utilize the derivative at the start to
     # chose the previous sign. If the derivative is positive at tprev, then
-    # we treat the value as positive, and derivative is negative then we
-    # treat the value as negative, reguardless of the postiivity/negativity
+    # we treat `prev_sign` as negetive, and if the derivative is negative then we
+    # treat `prev_sign` as positive, regardless of the postiivity/negativity
     # of the true value due to it being =0 sans floating point issues.
 
     # Only due this if the discontinuity did not move it far away from an event
