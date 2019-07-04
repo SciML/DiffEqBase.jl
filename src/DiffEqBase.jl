@@ -22,18 +22,18 @@ using MuladdMacro, Parameters
         @info("CUDA support found, automatic GPU acceleration will be enabled.")
         const GPU_SUPPORTED = true
         const AUTO_GPU_SIZE = 100
-        cuify(x::CuArray) = CuArrays.CuArray(x)
+        cuify(x) = CuArrays.CuArray(x)
     else
         @info("CUDA support not found, GPU acceleration will not be available.")
         const GPU_SUPPORTED = false
         const AUTO_GPU_SIZE = 100
-        cuify(x::CuArray) = x
+        cuify(x) = x
     end
 else
     @info("CUDA support not found, GPU acceleration will not be available.")
     const GPU_SUPPORTED = false
     const AUTO_GPU_SIZE = 100
-    cuify(x::CuArray) = x
+    cuify(x) = x
 end
 
 # Problems
