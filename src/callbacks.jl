@@ -347,8 +347,8 @@ end
 
     # If there was a previous event, utilize the derivative at the start to
     # chose the previous sign. If the derivative is positive at tprev, then
-    # we treat the value as positive, and derivative is negative then we
-    # treat the value as negative, reguardless of the postiivity/negativity
+    # we treat `prev_sign` as negetive, and if the derivative is negative then we
+    # treat `prev_sign` as positive, regardless of the postiivity/negativity
     # of the true value due to it being =0 sans floating point issues.
 
     # Only due this if the discontinuity did not move it far away from an event
