@@ -99,7 +99,7 @@ end
 
 function (L::AffineDiffEqOperator)(du,u,p,t::Number)
     update_coefficients!(L,u,p,t)
-    L.du_cache == nothing && error("Can only use inplace AffineDiffEqOperator if du_cache is given.")
+    L.du_cache === nothing && error("Can only use inplace AffineDiffEqOperator if du_cache is given.")
     du_cache = L.du_cache
     fill!(du,zero(first(du)))
     # TODO: Make type-stable via recursion

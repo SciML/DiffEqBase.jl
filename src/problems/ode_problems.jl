@@ -165,7 +165,7 @@ end
 function SecondOrderODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kwargs...)
   iip = isinplace(f.f1, 5)
   _u0 = ArrayPartition((du0,u0))
-  if f.f2.f == nothing
+  if f.f2.f === nothing
     if iip
       f2 = function (du,v,u,p,t)
         du .= v
@@ -231,7 +231,7 @@ Define a split ODE problem from a [`SplitFunction`](@ref).
 SplitODEProblem(f::SplitFunction,u0,tspan,p=nothing;kwargs...) =
   SplitODEProblem{isinplace(f)}(f,u0,tspan,p;kwargs...)
 function SplitODEProblem{iip}(f::SplitFunction,u0,tspan,p=nothing;kwargs...) where iip
-  if f.cache == nothing && iip
+  if f.cache === nothing && iip
     cache = similar(u0)
     f = SplitFunction{iip}(f.f1, f.f2; mass_matrix=f.mass_matrix,
                      _func_cache=cache, analytic=f.analytic)

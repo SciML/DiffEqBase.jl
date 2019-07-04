@@ -99,7 +99,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
   end
 
   if getindex.(int_vars,2) == zeros(length(int_vars))
-    if tspan == nothing
+    if tspan === nothing
       if tdir > 0
         xlims --> (sol.t[1],sol.t[end])
       else
@@ -148,7 +148,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
 end
 
 function diffeq_to_arrays(sol,plot_analytic,denseplot,plotdensity,tspan,axis_safety,vars,int_vars,tscale)
-  if tspan == nothing
+  if tspan === nothing
     if sol.tslocation == 0
       end_idx = length(sol)
     else
@@ -169,7 +169,7 @@ function diffeq_to_arrays(sol,plot_analytic,denseplot,plotdensity,tspan,axis_saf
 
   if denseplot
     # Generate the points from the plot from dense function
-    if tspan == nothing && !(typeof(sol) <: AbstractAnalyticalSolution)
+    if tspan === nothing && !(typeof(sol) <: AbstractAnalyticalSolution)
       plott = collect(densetspacer(sol.t[start_idx],sol.t[end_idx],plotdensity))
     elseif typeof(sol) <: AbstractAnalyticalSolution
       tspan = sol.prob.tspan
@@ -198,7 +198,7 @@ function diffeq_to_arrays(sol,plot_analytic,denseplot,plotdensity,tspan,axis_saf
         plot_analytic_timeseries = nothing
       end
     else
-      if tspan == nothing
+      if tspan === nothing
         plott = sol.t[start_idx:end_idx]
       else
         plott = collect(densetspacer(tspan[1],tspan[2],plotdensity))
@@ -222,7 +222,7 @@ function diffeq_to_arrays(sol,plot_analytic,denseplot,plotdensity,tspan,axis_saf
 end
 
 function interpret_vars(vars,sol)
-  if vars != nothing && has_syms(sol.prob.f)
+  if vars !== nothing && has_syms(sol.prob.f)
     # Do syms conversion
     tmp_vars = []
     for var in vars
@@ -254,7 +254,7 @@ function interpret_vars(vars,sol)
     end
   end
 
-  if vars == nothing
+  if vars === nothing
     # Default: plot all timeseries
     if typeof(sol[1]) <: Union{Tuple,AbstractArray}
       vars = collect((DEFAULT_PLOT_FUNC,0, i) for i in plot_indices(sol[1]))
