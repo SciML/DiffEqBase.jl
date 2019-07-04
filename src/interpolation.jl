@@ -51,13 +51,13 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
     if !avoid_constant_ends && t[i] == tval
       lasti = lastindex(t)
       k = continuity == :right && i+1 <= lasti && t[i+1] == tval ? i+1 : i
-      if idxs == nothing
+      if idxs === nothing
         vals[j] = u[k]
       else
         vals[j] = u[k][idxs]
       end
     elseif !avoid_constant_ends && t[i-1] == tval # Can happen if it's the first value!
-      if idxs == nothing
+      if idxs === nothing
         vals[j] = u[i-1]
       else
         vals[j] = u[i-1][idxs]
@@ -98,13 +98,13 @@ times t (sorted), with values u and derivatives ks
     if !avoid_constant_ends && t[i] == tval
       lasti = lastindex(t)
       k = continuity == :right && i+1 <= lasti && t[i+1] == tval ? i+1 : i
-      if idxs == nothing
+      if idxs === nothing
         vals[j] = u[k]
       else
         vals[j] = u[k][idxs]
       end
     elseif !avoid_constant_ends && t[i-1] == tval # Can happen if it's the first value!
-      if idxs == nothing
+      if idxs === nothing
         vals[j] = u[i-1]
       else
         vals[j] = u[i-1][idxs]
@@ -148,13 +148,13 @@ times t (sorted), with values u and derivatives ks
   @inbounds if !avoid_constant_ends && t[i] == tval
     lasti = lastindex(t)
     k = continuity == :right && i+1 <= lasti && t[i+1] == tval ? i+1 : i
-    if idxs == nothing
+    if idxs === nothing
       val = u[k]
     else
       val = u[k][idxs]
     end
   elseif !avoid_constant_ends && t[i-1] == tval # Can happen if it's the first value!
-    if idxs == nothing
+    if idxs === nothing
       val = u[i-1]
     else
       val = u[i-1][idxs]
@@ -190,13 +190,13 @@ times t (sorted), with values u and derivatives ks
   @inbounds if !avoid_constant_ends && t[i] == tval
     lasti = lastindex(t)
     k = continuity == :right && i+1 <= lasti && t[i+1] == tval ? i+1 : i
-    if idxs == nothing
+    if idxs === nothing
       copy!(out,u[k])
     else
       copy!(out,u[k][idxs])
     end
   elseif !avoid_constant_ends && t[i-1] == tval # Can happen if it's the first value!
-    if idxs == nothing
+    if idxs === nothing
       copy!(out,u[i-1])
     else
       copy!(out,u[i-1][idxs])
@@ -222,7 +222,7 @@ Hairer Norsett Wanner Solving Ordinary Differential Equations I - Nonstiff Probl
 Hermite Interpolation
 """
 @inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{0}})
-  if typeof(idxs) <: Nothing
+  if idxs === nothing
     out = @. (1-Θ)*y₀+Θ*y₁+Θ*(Θ-1)*((1-2Θ)*(y₁-y₀)+(Θ-1)*dt*dy₀ + Θ*dt*dy₁)
   else
     out = similar(y₀,axes(idxs))
@@ -237,7 +237,7 @@ end
 Hermite Interpolation
 """
 @inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{1}})
-  if typeof(idxs) <: Nothing
+  if idxs === nothing
     out = @. dy₀ + Θ*(-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(3*dt*dy₀ + 3*dt*dy₁ + 6*y₀ - 6*y₁) + 6*y₁)/dt
   else
     out = similar(y₀,axes(idxs))
@@ -253,7 +253,7 @@ end
 Hermite Interpolation
 """
 @inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{2}})
-  if typeof(idxs) <: Nothing
+  if idxs === nothing
     out = @. (-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁) + 6*y₁)/(dt*dt)
   else
     out = similar(y₀,axes(idxs))
@@ -268,7 +268,7 @@ end
 Hermite Interpolation
 """
 @inline function interpolant(Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{3}})
-  if typeof(idxs) <: Nothing
+  if idxs === nothing
     out = @. (6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁)/(dt*dt*dt)
   else
     out = similar(y₀,axes(idxs))
@@ -284,9 +284,9 @@ Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Proble
 Hermite Interpolation
 """
 @inline function interpolant!(out,Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{0}})
-  if out == nothing
+  if out === nothing
     return (1-Θ)*y₀[idxs]+Θ*y₁[idxs]+Θ*(Θ-1)*((1-2Θ)*(y₁[idxs]-y₀[idxs])+(Θ-1)*dt*dy₀[idxs] + Θ*dt*dy₁[idxs])
-  elseif idxs == nothing
+  elseif idxs === nothing
     @. out = (1-Θ)*y₀+Θ*y₁+Θ*(Θ-1)*((1-2Θ)*(y₁-y₀)+(Θ-1)*dt*dy₀ + Θ*dt*dy₁)
   else
     @views @. out = (1-Θ)*y₀[idxs]+Θ*y₁[idxs]+Θ*(Θ-1)*((1-2Θ)*(y₁[idxs]-y₀[idxs])+(Θ-1)*dt*dy₀[idxs] + Θ*dt*dy₁[idxs])
@@ -298,9 +298,9 @@ end
 Hermite Interpolation
 """
 @inline function interpolant!(out,Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{1}})
-  if out == nothing
+  if out === nothing
     return dy₀[idxs] + Θ*(-4*dt*dy₀[idxs] - 2*dt*dy₁[idxs] - 6*y₀[idxs] + Θ*(3*dt*dy₀[idxs] + 3*dt*dy₁[idxs] + 6*y₀[idxs] - 6*y₁[idxs]) + 6*y₁[idxs])/dt
-  elseif idxs == nothing
+  elseif idxs === nothing
     @. out = dy₀ + Θ*(-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(3*dt*dy₀ + 3*dt*dy₁ + 6*y₀ - 6*y₁) + 6*y₁)/dt
   else
     @views @. out = dy₀[idxs] + Θ*(-4*dt*dy₀[idxs] - 2*dt*dy₁[idxs] - 6*y₀[idxs] + Θ*(3*dt*dy₀[idxs] + 3*dt*dy₁[idxs] + 6*y₀[idxs] - 6*y₁[idxs]) + 6*y₁[idxs])/dt
@@ -311,9 +311,9 @@ end
 Hermite Interpolation
 """
 @inline function interpolant!(out,Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{2}})
-  if out == nothing
+  if out === nothing
     return (-4*dt*dy₀[idxs] - 2*dt*dy₁[idxs] - 6*y₀[idxs] + Θ*(6*dt*dy₀[idxs] + 6*dt*dy₁[idxs] + 12*y₀[idxs] - 12*y₁[idxs]) + 6*y₁[idxs])/(dt*dt)
-  elseif idxs == nothing
+  elseif idxs === nothing
     @. out = (-4*dt*dy₀ - 2*dt*dy₁ - 6*y₀ + Θ*(6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁) + 6*y₁)/(dt*dt)
   else
     @views @. out = (-4*dt*dy₀[idxs] - 2*dt*dy₁[idxs] - 6*y₀[idxs] + Θ*(6*dt*dy₀[idxs] + 6*dt*dy₁[idxs] + 12*y₀[idxs] - 12*y₁[idxs]) + 6*y₁[idxs])/(dt*dt)
@@ -324,9 +324,9 @@ end
 Hermite Interpolation
 """
 @inline function interpolant!(out,Θ,id::HermiteInterpolation,dt,y₀,y₁,dy₀,dy₁,idxs,T::Type{Val{3}})
-  if out == nothing
+  if out === nothing
     return (6*dt*dy₀[idxs] + 6*dt*dy₁[idxs] + 12*y₀[idxs] - 12*y₁[idxs])/(dt*dt*dt)
-  elseif idxs == nothing
+  elseif idxs === nothing
     @. out = (6*dt*dy₀ + 6*dt*dy₁ + 12*y₀ - 12*y₁)/(dt*dt*dt)
   else
     @views @. out = (6*dt*dy₀[idxs] + 6*dt*dy₁[idxs] + 12*y₀[idxs] - 12*y₁[idxs])/(dt*dt*dt)
@@ -339,7 +339,7 @@ end
 Linear Interpolation
 """
 @inline function interpolant(Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}})
-  if typeof(idxs) <: Nothing
+  if idxs === nothing
     out = @. (1-Θ)*y₀ + Θ*y₁
   else
     out = similar(y₀,axes(idxs))
@@ -350,7 +350,7 @@ Linear Interpolation
 end
 
 @inline function interpolant(Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{1}})
-  if typeof(idxs) <: Nothing
+  if idxs === nothing
     out = @. (y₁ - y₀)/dt
   else
     out = similar(y₀,axes(idxs))
@@ -364,9 +364,9 @@ Linear Interpolation
 """
 @inline function interpolant!(out,Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}})
   Θm1 = (1-Θ)
-  if out == nothing
+  if out === nothing
     return Θm1*y₀[idxs] + Θ*y₁[idxs]
-  elseif idxs == nothing
+  elseif idxs === nothing
     @. out = Θm1*y₀ + Θ*y₁
   else
     @views @. out = Θm1*y₀[idxs] + Θ*y₁[idxs]
@@ -377,9 +377,9 @@ end
 Linear Interpolation
 """
 @inline function interpolant!(out,Θ,id::LinearInterpolation,dt,y₀,y₁,idxs,T::Type{Val{1}})
-  if out == nothing
+  if out === nothing
     return (y₁[idxs] - y₀[idxs])/dt
-  elseif idxs == nothing
+  elseif idxs === nothing
     @. out = (y₁ - y₀)/dt
   else
     @views @. out = (y₁[idxs] - y₀[idxs])/dt
@@ -392,7 +392,7 @@ end
 Constant Interpolation
 """
 @inline function interpolant(Θ,id::ConstantInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}})
-  if typeof(idxs) <: Nothing
+  if idxs === nothing
     out = @. y₀
   else
     out = similar(y₀,axes(idxs))
@@ -402,7 +402,7 @@ Constant Interpolation
 end
 
 @inline function interpolant(Θ,id::ConstantInterpolation,dt,y₀,y₁,idxs,T::Type{Val{1}})
-  if typeof(idxs) <: Nothing
+  if idxs === nothing
     out = zeros(eltype(y₀),length(y₀))
   else
     out = similar(y₀,axes(idxs))
@@ -415,9 +415,9 @@ end
 Constant Interpolation
 """
 @inline function interpolant!(out,Θ,id::ConstantInterpolation,dt,y₀,y₁,idxs,T::Type{Val{0}})
-  if out == nothing
+  if out === nothing
     return y₀[idxs]
-  elseif idxs == nothing
+  elseif idxs === nothing
     @. out = y₀
   else
     @views @. out = y₀[idxs]
@@ -428,7 +428,7 @@ end
 Constant Interpolation
 """
 @inline function interpolant!(out,Θ,id::ConstantInterpolation,dt,y₀,y₁,idxs,T::Type{Val{1}})
-  if out == nothing
+  if out === nothing
     return zeros(eltype(y₀),length(idxs))
   else
     @. out = 0

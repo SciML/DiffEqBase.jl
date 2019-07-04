@@ -4,7 +4,7 @@
 TODO
 """
 is_diagonal_noise(prob::DEProblem) = false
-is_diagonal_noise(prob::AbstractRODEProblem{uType,tType,isinplace,ND}) where {uType,tType,isinplace,ND} = ND <: Nothing
+is_diagonal_noise(prob::AbstractRODEProblem{uType,tType,iip,Nothing}) where {uType,tType,iip} = true
 
 """
     isinplace(prob::DEProblem)

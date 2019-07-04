@@ -167,7 +167,7 @@ function get_tmp(integrator::DEIntegrator, callback)
   _tmp = get_tmp_cache(integrator)
   _tmp === nothing && return nothing
   _cache = first(_tmp)
-  if callback.idxs isa Nothing
+  if callback.idxs === nothing
     tmp = _cache
   elseif !(callback.idxs isa Number)
     tmp = @view _cache[callback.idxs]
@@ -181,7 +181,7 @@ function get_condition(integrator::DEIntegrator, callback, abst)
   tmp = get_tmp(integrator, callback)
   ismutable = !(tmp === nothing)
   if abst == integrator.t
-    if typeof(callback.idxs) <: Nothing
+    if callback.idxs === nothing
       tmp = integrator.u
     elseif callback.idxs isa Number
       tmp = integrator.u[callback.idxs]
@@ -190,13 +190,13 @@ function get_condition(integrator::DEIntegrator, callback, abst)
     end
   else
     if ismutable
-      if typeof(callback.idxs) <: Nothing
+      if callback.idxs === nothing
         integrator(tmp,abst,Val{0})
       else
         integrator(tmp,abst,Val{0},idxs=callback.idxs)
       end
     else
-      if typeof(callback.idxs) <: Nothing
+      if callback.idxs === nothing
         tmp = integrator(abst,Val{0})
       else
         tmp = integrator(abst,Val{0},idxs=callback.idxs)
@@ -253,7 +253,7 @@ end
   # Check if the event occured
   previous_condition = @views(integrator.callback_cache.previous_condition[1:callback.len])
 
-  if typeof(callback.idxs) <: Nothing
+  if callback.idxs === nothing
     callback.condition(previous_condition,integrator.uprev,integrator.tprev,integrator)
   else
     callback.condition(previous_condition,integrator.uprev[callback.idxs],integrator.tprev,integrator)
@@ -301,7 +301,7 @@ end
   @. next_sign = sign(next_condition)
 
   integrator.sol.destats.ncondition += 1
-  event_idx = findall(x-> ((prev_sign[x]<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign[x]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign[x]*next_sign[x]<=0, keys(prev_sign))
+  event_idx = findall(x-> ((prev_sign[x] < 0 && callback.affect! !== nothing) || (prev_sign[x] > 0 && callback.affect_neg! !== nothing)) && prev_sign[x]*next_sign[x]<=0, keys(prev_sign))
   if length(event_idx) != 0
     event_occurred = true
     interp_index = callback.interp_points
@@ -310,7 +310,7 @@ end
     for i in 2:length(Θs)
       abst = integrator.tprev+integrator.dt*Θs[i]
       new_sign = get_condition(integrator, callback, abst)
-      _event_idx = findall(x -> ((prev_sign[x]<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign[x]>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign[x]*new_sign[x]<0, keys(prev_sign))
+      _event_idx = findall(x -> ((prev_sign[x] < 0 && callback.affect! !== nothing) || (prev_sign[x] > 0 && callback.affect_neg! !== nothing)) && prev_sign[x]*new_sign[x]<0, keys(prev_sign))
       if length(_event_idx) != 0
         event_occurred = true
         event_idx = _event_idx
@@ -333,7 +333,7 @@ end
   Θs = range(typeof(integrator.t)(0), stop=typeof(integrator.t)(1), length=callback.interp_points)
   interp_index = 0
   # Check if the event occured
-  if typeof(callback.idxs) <: Nothing
+  if callback.idxs === nothing
     previous_condition = callback.condition(integrator.uprev,integrator.tprev,integrator)
   else
     @views previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
@@ -379,14 +379,14 @@ end
 
   integrator.sol.destats.ncondition += 1
 
-  if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*next_sign<=0
+  if ((prev_sign < 0 && callback.affect! !== nothing) || (prev_sign > 0 && callback.affect_neg! !== nothing)) && prev_sign*next_sign<=0
     event_occurred = true
     interp_index = callback.interp_points
   elseif callback.interp_points!=0 && !isdiscrete(integrator.alg) # Use the interpolants for safety checking
     for i in 2:length(Θs)
       abst = integrator.tprev+integrator.dt*Θs[i]
       new_sign = get_condition(integrator, callback, abst)
-      if ((prev_sign<0 && !(typeof(callback.affect!)<:Nothing)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Nothing))) && prev_sign*new_sign<0
+      if ((prev_sign < 0 && callback.affect! !== nothing) || (prev_sign > 0 && callback.affect_neg! !== nothing)) && prev_sign*new_sign<0
         event_occurred = true
         interp_index = i
         break
@@ -403,7 +403,7 @@ end
 function find_callback_time(integrator,callback::ContinuousCallback,counter)
   event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx = determine_event_occurance(integrator,callback,counter)
   if event_occurred
-    if typeof(callback.condition) <: Nothing
+    if callback.condition === nothing
       new_t = zero(typeof(integrator.t))
     else
       if callback.interp_points!=0
@@ -465,7 +465,7 @@ end
 function find_callback_time(integrator,callback::VectorContinuousCallback,counter)
   event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx = determine_event_occurance(integrator,callback,counter)
   if event_occurred
-    if typeof(callback.condition) <: Nothing
+    if callback.condition === nothing
       new_t = zero(typeof(integrator.t))
       min_event_idx = event_idx[1]
     else
@@ -558,13 +558,13 @@ function apply_callback!(integrator,callback::Union{ContinuousCallback,VectorCon
   integrator.u_modified = true
 
   if prev_sign < 0
-    if typeof(callback.affect!) <: Nothing
+    if callback.affect! === nothing
       integrator.u_modified = false
     else
       callback isa VectorContinuousCallback ? callback.affect!(integrator,event_idx) : callback.affect!(integrator)
     end
   elseif prev_sign > 0
-    if typeof(callback.affect_neg!) <: Nothing
+    if callback.affect_neg! === nothing
       integrator.u_modified = false
     else
       callback isa VectorContinuousCallback ? callback.affect_neg!(integrator,event_idx) : callback.affect_neg!(integrator)
