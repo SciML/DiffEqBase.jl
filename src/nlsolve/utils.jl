@@ -93,6 +93,7 @@ function nlsolve_f end
 function iip_get_uf end
 function oop_get_uf end
 function build_jac_config end
+function resize_jac_config! end
 
 DiffEqBase.@def iipnlsolve begin
   @unpack κ, fast_convergence_cutoff = alg.nlsolve
@@ -338,4 +339,96 @@ end
 
 DiffEqBase.@def getoopnlsolvefields begin
   uf = nlsolver.uf
+end
+
+function nlsolve_resize!(integrator::DEIntegrator, i::Int)
+  if !isdefined(integrator.cache, :nlsolver)
+    return nothing
+  end
+  alg = integrator.alg; nlsolver = integrator.cache.nlsolver
+  if nlsolver isa AbstractArray
+    for idx in eachindex(nlsolver) # looping because we may have multiple nlsolver for threaded case
+      _nlsolver = nlsolver[idx]
+      @unpack z,dz,tmp,ztmp,k,du1,uf,jac_config,linsolve,weight,cache = _nlsolver
+      # doubt: if these fields are always going to be in alg cache too, then we shouldnt do this here.
+      # double resize doesn't do any bad I think though
+      resize!(z,i)
+      resize!(dz,i)
+      resize!(tmp,i)
+      resize!(ztmp,i)
+      resize!(k,i)
+      resize!(du1,i)
+      if jac_config != nothing
+        _nlsolver.jac_config = resize_jac_config!(jac_config, uf, du1, z, alg, i)
+        integrator.cache.jac_config[idx] = _nlsolver.jac_config
+      end
+      if _nlsolver.cache isa Union{NLNewtonCache, NLNewtonConstantCache}
+        _nlsolver.cache.W = integrator.cache.W[idx]
+      end
+      resize!(weight, i)
+      nlsolve_cache_resize!(cache,alg,i)
+    end
+  else
+    @unpack z,dz,tmp,ztmp,k,du1,uf,jac_config,linsolve,weight,cache = nlsolver
+    resize!(z,i)
+    resize!(dz,i)
+    resize!(tmp,i)
+    resize!(ztmp,i)
+    resize!(k,i)
+    resize!(du1,i)
+    if jac_config != nothing
+      nlsolver.jac_config = resize_jac_config!(jac_config, uf, du1, z, alg, i)
+      integrator.cache.jac_config = nlsolver.jac_config
+    end
+    if nlsolver.cache isa Union{NLNewtonCache, NLNewtonConstantCache}
+      nlsolver.cache.W = integrator.cache.W
+    end
+    resize!(weight, i)
+    nlsolve_cache_resize!(cache,alg,i)
+  end
+  nothing
+end
+
+function nlsolve_cache_resize!(cache::NLNewtonCache, alg, i::Int)
+  nothing
+end
+
+function nlsolve_cache_resize!(cache::NLNewtonConstantCache, alg, i::Int)
+  nothing
+end
+
+function nlsolve_cache_resize!(cache::NLAndersonCache, alg, i::Int)
+  resize!(cache.z₊, i)
+  resize!(cache.dzold, i)
+  resize!(cache.z₊old, i)
+  max_history = min(alg.nlsolve.max_history, alg.nlsolve.max_iter, i)
+  prev_max_history = length(cache.Δz₊s)
+  resize!(cache.γs, max_history)
+  resize!(cache.Δz₊s, max_history)
+  if max_history > prev_max_history
+    for i in (max_history - prev_max_history):max_history
+      cache.Δz₊s[i] = zero(z₊)
+    end
+  end
+  cache.Q = typeof(cache.Q)(undef, i, max_history)
+  cache.R = typeof(cache.R)(undef, max_history, max_history)
+  nothing
+end
+
+function nlsolve_cache_resize!(cache::NLAndersonConstantCache, alg, i::Int)
+  max_history = min(alg.nlsolve.max_history, alg.nlsolve.max_iter, i)
+  resize!(cache.Δz₊s, max_history)
+  cache.Q = typeof(cache.Q)(undef, i, max_history)
+  cache.R = typeof(cache.R)(undef, max_history, max_history)
+  resize!(cache.γs, max_history)
+  nothing
+end
+
+function nlsolve_cache_resize!(cache::NLFunctionalCache, alg, i::Int)
+  resize!(cache.z₊, i)
+  nothing
+end
+
+function nlsolve_cache_resize!(cache::NLFunctionalConstantCache, alg, i::Int)
+  nothing
 end
