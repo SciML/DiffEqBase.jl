@@ -1,7 +1,7 @@
 name = "DiffEqBase"
 uuid = "2b5f629d-d688-5b77-993f-72d75c75574e"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "5.14.0"
+version = "5.13.0"
 
 [deps]
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
