@@ -19,6 +19,23 @@ function (p::LinSolveFactorize)(::Type{Val{:init}},f,u0_prototype)
   LinSolveFactorize(p.factorization,nothing)
 end
 
+mutable struct LinSolveGPUFactorize{F,T}
+  factorization::F
+  A
+  x_cache::T
+end
+LinSolveGPUFactorize(factorization=qr) = LinSolveGPUFactorize(factorization,nothing,nothing)
+function (p::LinSolveGPUFactorize)(x,A,b,update_matrix=false;kwargs...)
+  if update_matrix
+    p.A = p.factorization(cuify(A))
+  end
+  ldiv!(p.x_cache,p.A,cuify(b))
+  x .= Array(p.x_cache)
+end
+function (p::LinSolveGPUFactorize)(::Type{Val{:init}},f,u0_prototype)
+  LinSolveGPUFactorize(p.factorization,nothing,cuify(u0_prototype))
+end
+
 ### Default Linsolve
 
 # Try to be as smart as possible
