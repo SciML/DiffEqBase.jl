@@ -9,22 +9,19 @@ struct DDEProblem{uType,tType,lType,lType2,isinplace,P,F,H,C} <:
   dependent_lags::lType2
   callback::C
   neutral::Bool
-  @add_kwonly function DDEProblem{iip}(f::AbstractDDEFunction{iip},
-                                 u0,h,tspan,p=nothing;
-                                 constant_lags=[],
-                                 dependent_lags=[],
-                                 neutral = f.mass_matrix == I ?
-                                           false : det(f.mass_matrix)!=1,
-                                 callback = nothing) where {iip}
+  order_discontinuity_t0::Int
+
+  @add_kwonly function DDEProblem{iip}(f::AbstractDDEFunction{iip}, u0, h, tspan, p=nothing;
+                                       constant_lags=[],
+                                       dependent_lags=[],
+                                       neutral = f.mass_matrix !== I && det(f.mass_matrix) != 1,
+                                       order_discontinuity_t0 = 0,
+                                       callback = nothing) where {iip}
     _tspan = promote_tspan(tspan)
-    new{typeof(u0),typeof(_tspan),
-               typeof(constant_lags),typeof(dependent_lags),
-               isinplace(f),typeof(p),
-               typeof(f),typeof(h),typeof(callback)
-               }(f,u0,h,_tspan,p,
-                 constant_lags,
-                 dependent_lags,callback,
-                 neutral)
+    new{typeof(u0),typeof(_tspan),typeof(constant_lags),typeof(dependent_lags),isinplace(f),
+        typeof(p),typeof(f),typeof(h),typeof(callback)}(
+          f, u0, h, _tspan, p, constant_lags, dependent_lags, callback, neutral,
+          order_discontinuity_t0)
   end
 
   function DDEProblem{iip}(f,u0,h,tspan,p=nothing;kwargs...) where {iip}
