@@ -52,7 +52,7 @@ DefaultLinSolve() = DefaultLinSolve(nothing, nothing)
 function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
   if update_matrix
     if typeof(A) <: Matrix
-      if GPU_SUPPORTED && size(A,1) > AUTO_GPU_SIZE
+      if GPU_SUPPORTED && size(A,1) > AUTO_GPU_SIZE && b isa Array
         p.A = qr(CuMatrix(A))
       else
         blasvendor = BLAS.vendor()
@@ -89,6 +89,10 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
 
     for residual in iter
     end
+  elseif GPU_SUPPORTED && size(A,1) > AUTO_GPU_SIZE && b isa Array
+    _x = cuify(x)
+    ldiv!(_x,p.A,cuify(b))
+    x .= Array(_x)
   else
     # Fallback for things like GPUs
     ldiv!(x,p.A,b)
