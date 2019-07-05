@@ -116,7 +116,7 @@ function __init__()
   # Piracy, should get upstreamed
   @require CuArrays="3a865a2d-5b23-5a0f-bc46-62713ec82fae" begin
     cuify(x::AbstractArray) = CuArrays.CuArray(x)
-    function ldiv!(x::CuArrays.CuArray,_qr::CuArrays.CUSOLVER.CuQR,b::CuArrays.CuArray)
+    function Base.ldiv!(x::CuArrays.CuArray,_qr::CuArrays.CUSOLVER.CuQR,b::CuArrays.CuArray)
       _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
       x .= vec(_x)
     end
