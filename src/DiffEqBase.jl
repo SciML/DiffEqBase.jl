@@ -25,7 +25,7 @@ using MuladdMacro, Parameters
         cuify(x) = CuArrays.CuArray(x)
 
         # Piracy, should get upstreamed
-        function ldiv!(x::CuArrays.CuArray,_qr::CuArrays.CUSOLVER.CuQR,b::CuArrays.CuArray)
+        function Base.ldiv!(x::CuArrays.CuArray,_qr::CuArrays.CUSOLVER.CuQR,b::CuArrays.CuArray)
           _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
           x .= vec(_x)
         end
