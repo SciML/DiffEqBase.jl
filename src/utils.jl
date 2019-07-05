@@ -197,8 +197,6 @@ _vec(v::AbstractVector) = v
 _reshape(v, siz) = reshape(v, siz)
 _reshape(v::Number, siz) = v
 
-islinear(f) = f isa AbstractDiffEqLinearOperator && is_constant(f)
-
 macro tight_loop_macros(ex)
    :($(esc(ex)))
 end

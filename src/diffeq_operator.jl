@@ -2,12 +2,13 @@ using LinearAlgebra
 ### AbstractDiffEqOperator Interface
 
 #=
-1. Function call and multiplication: L(u,p,t,du) for inplace and du = L(u,p,t) for
-   out-of-place, meaning L*u and A_mul_B!.
+1. Function call and multiplication: L(du, u, p, t) for inplace and du = L(u, p, t) for
+   out-of-place, meaning L*u and mul!(du, L, u).
 2. If the operator is not a constant, update it with (u,p,t). A mutating form, i.e.
    update_coefficients!(A,u,p,t) that changes the internal coefficients, and a
    out-of-place form B = update_coefficients(A,u,p,t).
-3. is_constant(A) trait for whether the operator is constant or not.
+3. isconstant(A) trait for whether the operator is constant or not.
+4. islinear(A) trait for whether the operator is linear or not.
 =#
 
 Base.eltype(L::AbstractDiffEqOperator{T}) where T = T
@@ -15,12 +16,13 @@ update_coefficients!(L,u,p,t) = nothing
 update_coefficients(L,u,p,t) = L
 
 # Traits
-is_constant(L::AbstractDiffEqOperator) = false
+isconstant(::AbstractDiffEqOperator) = false
+islinear(::AbstractDiffEqOperator) = false
 has_expmv!(L::AbstractDiffEqOperator) = false # expmv!(v, L, t, u)
 has_expmv(L::AbstractDiffEqOperator) = false # v = exp(L, t, u)
 has_exp(L::AbstractDiffEqOperator) = false # v = exp(L, t)*u
 has_mul(L::AbstractDiffEqOperator) = true # du = L*u
-has_mul!(L::AbstractDiffEqOperator) = false # A_mul_B!(du, L, u)
+has_mul!(L::AbstractDiffEqOperator) = false # mul!(du, L, u)
 has_ldiv(L::AbstractDiffEqOperator) = false # du = L\u
 has_ldiv!(L::AbstractDiffEqOperator) = false # ldiv!(du, L, u)
 
@@ -42,13 +44,15 @@ has_ldiv!(L::AbstractDiffEqOperator) = false # ldiv!(du, L, u)
 =#
 
 # Extra standard assumptions
-is_constant(L::AbstractDiffEqLinearOperator) = true
+isconstant(::AbstractDiffEqLinearOperator) = true
+islinear(::AbstractDiffEqLinearOperator) = true
+
 # Other ones from LinearMaps.jl
 # Generic fallbacks
 LinearAlgebra.exp(L::AbstractDiffEqLinearOperator,t) = exp(t*L)
 has_exp(L::AbstractDiffEqLinearOperator) = true
 expmv(L::AbstractDiffEqLinearOperator,u,p,t) = exp(L,t)*u
-expmv!(v,L::AbstractDiffEqLinearOperator,u,p,t) = A_mul_B!(v,exp(L,t),u)
+expmv!(v,L::AbstractDiffEqLinearOperator,u,p,t) = mul!(v,exp(L,t),u)
 # Factorizations have no fallback and just error
 
 """
@@ -56,31 +60,31 @@ AffineDiffEqOperator{T} <: AbstractDiffEqOperator{T}
 
 `Ex: (A₁(t) + ... + Aₙ(t))*u + B₁(t) + ... + Bₙ(t)`
 
-AffineDiffEqOperator{T}(As,Bs,u_cache=nothing)
+AffineDiffEqOperator{T}(As,Bs,du_cache=nothing)
 
 Takes in two tuples for split Affine DiffEqs
 
 1. update_coefficients! works by updating the coefficients of the component
    operators.
-2. Function calls L(u,p,t) and L(u,p,t,du) are fallbacks interpretted in this form.
+2. Function calls L(u, p, t) and L(du, u, p, t) are fallbacks interpretted in this form.
    This will allow them to work directly in the nonlinear ODE solvers without
    modification.
-3. f(u,p,t,du) is only allowed if a u_cache is given
+3. f(du, u, p, t) is only allowed if a du_cache is given
 4. B(t) can be Union{Number,AbstractArray}, in which case they are constants.
    Otherwise they are interpreted they are functions v=B(t) and B(v,t)
 
 Solvers will see this operator from integrator.f and can interpret it by
-checking the internals of As and Bs. For example, it can check is_constant(As[1])
+checking the internals of As and Bs. For example, it can check isconstant(As[1])
 etc.
 """
 struct AffineDiffEqOperator{T,T1,T2,U} <: AbstractDiffEqOperator{T}
     As::T1
     Bs::T2
-    u_cache::U
-    function AffineDiffEqOperator{T}(As,Bs,u_cache=nothing) where T
+    du_cache::U
+    function AffineDiffEqOperator{T}(As,Bs,du_cache=nothing) where T
         all([size(a) == size(As[1])
              for a in As]) || error("Operator sizes do not agree")
-        new{T,typeof(As),typeof(Bs),typeof(u_cache)}(As,Bs,u_cache)
+        new{T,typeof(As),typeof(Bs),typeof(du_cache)}(As,Bs,du_cache)
     end
 end
 
@@ -95,20 +99,20 @@ end
 
 function (L::AffineDiffEqOperator)(du,u,p,t::Number)
     update_coefficients!(L,u,p,t)
-    L.u_cache === nothing && error("Can only use inplace AffineDiffEqOperator if u_cache is given.")
-    u_cache = L.u_cache
+    L.du_cache === nothing && error("Can only use inplace AffineDiffEqOperator if du_cache is given.")
+    du_cache = L.du_cache
     fill!(du,zero(first(du)))
     # TODO: Make type-stable via recursion
     for A in L.As
-        A_mul_B!(u_cache,A,u)
-        du .+= u_cache
+        mul!(du_cache,A,u)
+        du .+= du_cache
     end
     for B in L.Bs
         if typeof(B) <: Union{Number,AbstractArray}
             du .+= B
         else
-            B(u_cache,t)
-            du .+= u_cache
+            B(du_cache,t)
+            du .+= du_cache
         end
     end
 end
@@ -118,3 +122,5 @@ function update_coefficients!(L::AffineDiffEqOperator,u,p,t)
     for A in L.As; update_coefficients!(A,u,p,t); end
     for B in L.Bs; update_coefficients!(B,u,p,t); end
 end
+
+@deprecate is_constant(L::AbstractDiffEqOperator) isconstant(L)
