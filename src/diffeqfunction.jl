@@ -565,7 +565,7 @@ function DDEFunction{iip,false}(f;
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,colorvec)
 end
-DDEFunction{iip}(f; kwargs...) = DDEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
+DDEFunction{iip}(f; kwargs...) where iip = DDEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DDEFunction(f; kwargs...) = DDEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DDEFunction(f::DDEFunction; kwargs...) = f
 
