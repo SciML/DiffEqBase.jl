@@ -299,6 +299,7 @@ function ODEFunction{iip,false}(f;
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,colorvec)
 end
+ODEFunction{iip}(f; kwargs...) where iip = ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 ODEFunction(f::ODEFunction; kwargs...) = f
 
@@ -341,6 +342,7 @@ function DiscreteFunction{iip,false}(f;
                  DiscreteFunction{iip,Any,Any,Any}(
                  f,analytic,syms)
 end
+DiscreteFunction{iip}(f; kwargs...) where iip = DiscreteFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DiscreteFunction(f; kwargs...) = DiscreteFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DiscreteFunction(f::DiscreteFunction; kwargs...) = f
 
@@ -396,6 +398,7 @@ function SDEFunction{iip,false}(f,g;
                  f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
                  paramjac,ggprime,syms,colorvec)
 end
+SDEFunction{iip}(f,g; kwargs...) where iip = SDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 SDEFunction(f::SDEFunction; kwargs...) = f
 
@@ -460,6 +463,7 @@ function RODEFunction{iip,false}(f;
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,colorvec)
 end
+RODEFunction{iip}(f; kwargs...) where iip = RODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 RODEFunction(f; kwargs...) = RODEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 RODEFunction(f::RODEFunction; kwargs...) = f
 
@@ -509,6 +513,7 @@ function DAEFunction{iip,false}(f;
                  f,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,colorvec)
 end
+DAEFunction{iip}(f; kwargs...) where iip = DAEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DAEFunction(f; kwargs...) = DAEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DAEFunction(f::DAEFunction; kwargs...) = f
 
@@ -560,6 +565,7 @@ function DDEFunction{iip,false}(f;
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,colorvec)
 end
+DDEFunction{iip}(f; kwargs...) = DDEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DDEFunction(f; kwargs...) = DDEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DDEFunction(f::DDEFunction; kwargs...) = f
 
