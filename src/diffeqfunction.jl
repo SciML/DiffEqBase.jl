@@ -577,6 +577,9 @@ DDEFunction(f::DDEFunction; kwargs...) = f
 
 ########## Existance Functions
 
+# compatibility
+has_invW(f::AbstractDiffEqFunction) = false
+
 has_analytic(f::AbstractDiffEqFunction) = f.analytic != nothing
 has_jac(f::AbstractDiffEqFunction) = f.jac != nothing
 has_tgrad(f::AbstractDiffEqFunction) = f.tgrad != nothing
