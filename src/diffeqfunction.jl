@@ -300,6 +300,7 @@ function ODEFunction{iip,false}(f;
                  paramjac,syms,colorvec)
 end
 ODEFunction{iip}(f; kwargs...) where iip = ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
+ODEFunction{iip}(f::ODEFunction; kwargs...) where iip = f
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 ODEFunction(f::ODEFunction; kwargs...) = f
 
@@ -343,6 +344,7 @@ function DiscreteFunction{iip,false}(f;
                  f,analytic,syms)
 end
 DiscreteFunction{iip}(f; kwargs...) where iip = DiscreteFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
+DiscreteFunction{iip}(f::DiscreteFunction; kwargs...) where iip = f
 DiscreteFunction(f; kwargs...) = DiscreteFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DiscreteFunction(f::DiscreteFunction; kwargs...) = f
 
@@ -399,6 +401,7 @@ function SDEFunction{iip,false}(f,g;
                  paramjac,ggprime,syms,colorvec)
 end
 SDEFunction{iip}(f,g; kwargs...) where iip = SDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
+SDEFunction{iip}(f::SDEFunction,g; kwargs...) where iip = f
 SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 SDEFunction(f::SDEFunction; kwargs...) = f
 
@@ -464,6 +467,7 @@ function RODEFunction{iip,false}(f;
                  paramjac,syms,colorvec)
 end
 RODEFunction{iip}(f; kwargs...) where iip = RODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
+RODEFunction{iip}(f::RODEFunction; kwargs...) where iip = f
 RODEFunction(f; kwargs...) = RODEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 RODEFunction(f::RODEFunction; kwargs...) = f
 
@@ -514,6 +518,7 @@ function DAEFunction{iip,false}(f;
                  paramjac,syms,colorvec)
 end
 DAEFunction{iip}(f; kwargs...) where iip = DAEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
+DAEFunction{iip}(f::DAEFunction; kwargs...) where iip = f
 DAEFunction(f; kwargs...) = DAEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DAEFunction(f::DAEFunction; kwargs...) = f
 
@@ -566,6 +571,7 @@ function DDEFunction{iip,false}(f;
                  paramjac,syms,colorvec)
 end
 DDEFunction{iip}(f; kwargs...) where iip = DDEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
+DDEFunction{iip}(f::DDEFunction; kwargs...) where iip = f
 DDEFunction(f; kwargs...) = DDEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DDEFunction(f::DDEFunction; kwargs...) = f
 
@@ -604,7 +610,6 @@ islinear(f::SplitFunction) = islinear(f.f1)
 
 ######### Compatibility Constructor from Tratis
 
-ODEFunction{iip}(f::T) where {iip,T} = return T<:ODEFunction ? f : convert(ODEFunction{iip},f)
 function Base.convert(::Type{ODEFunction}, f)
   if __has_analytic(f)
     analytic = f.analytic
@@ -694,7 +699,6 @@ function Base.convert(::Type{ODEFunction{iip}},f) where iip
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
 
-DiscreteFunction{iip}(f::T) where {iip,T} = return T<:DiscreteFunction ? f : convert(DiscreteFunction{iip},f)
 function Base.convert(::Type{DiscreteFunction},f)
   if __has_analytic(f)
     analytic = f.analytic
@@ -722,7 +726,6 @@ function Base.convert(::Type{DiscreteFunction{iip}},f) where iip
   DiscreteFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic,syms=syms)
 end
 
-DAEFunction{iip}(f::T) where {iip,T} = return T<:DAEFunction ? f : convert(DAEFunction{iip},f)
 function Base.convert(::Type{DAEFunction},f)
   if __has_analytic(f)
     analytic = f.analytic
@@ -812,7 +815,6 @@ function Base.convert(::Type{DAEFunction{iip}},f) where iip
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
 
-DDEFunction{iip}(f::T) where {iip,T} = return T<:DDEFunction ? f : convert(DDEFunction{iip},f)
 function Base.convert(::Type{DDEFunction},f)
   if __has_analytic(f)
     analytic = f.analytic
@@ -850,7 +852,6 @@ function Base.convert(::Type{DDEFunction{iip}},f) where iip
   DDEFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic,syms=syms,colorvec=colorvec)
 end
 
-SDEFunction{iip}(f::T,g::T2) where {iip,T,T2} = return T<:SDEFunction ? f : convert(SDEFunction{iip},f,g)
 function Base.convert(::Type{SDEFunction},f,g)
   if __has_analytic(f)
     analytic = f.analytic
@@ -941,7 +942,6 @@ function Base.convert(::Type{SDEFunction{iip}},f,g) where iip
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
 
-RODEFunction{iip}(f::T) where {iip,T,T2} = return T<:RODEFunction ? f : convert(RODEFunction{iip},f)
 function Base.convert(::Type{RODEFunction},f)
   if __has_analytic(f)
     analytic = f.analytic
