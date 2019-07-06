@@ -13,14 +13,23 @@ G(z) = dt⋅f(tmp + γ⋅z, p, t + c⋅h) - z = 0
 by iterating
 
 ```math
-W Δᵏ = f(tmp + γ⋅zᵏ, p, t + c⋅h) - zᵏ
+(I + (dt⋅γ)J) Δᵏ = dt*f(tmp + γ⋅zᵏ, p, t + c⋅h) - zᵏ
+zᵏ⁺¹ = zᵏ + Δᵏ
+```
+
+or, by utilizing a transformation,
+
+```math
+W Δᵏ = f(tmp + γ⋅zᵏ, p, t + c⋅h)/γ - zᵏ/(dt⋅γ)
 zᵏ⁺¹ = zᵏ + Δᵏ/(dt⋅γ)
 ```
 
 where `W = M/(dt⋅γ) - J`, `M` is the mass matrix, `dt` is the step size, `γ` is
-a constant, `J` is the Jacobian matrix.
+a constant, `J` is the Jacobian matrix. This transformation occurs since `c*J` is
+O(n^2), while `c*M` is usually much sparser. In the most common case, `M=I`, we
+have that `c*M` is O(1) for `I isa UniformScaling`.
 
-It returns the tuple `z`, where `z` is the solution.
+This returns `z`, where `z` is the solution.
 
 [^HS96]: M.E.Hoseaa and L.F.Shampine, "Analysis and implementation of TR-BDF2",
 Applied Numerical Mathematics, Volume 20, Issues 1–2, February 1996, Pages
@@ -57,9 +66,9 @@ Equations II, Springer Series in Computational Mathematics. ISBN
     # evaluate function
     u = @.. tmp + γ * z
     if mass_matrix === I
-      ztmp = dt .* f(u, p, tstep) .- z
+      ztmp = (dt .* f(u, p, tstep) .- z) .* invγdt
     else
-      ztmp = dt .* f(u, p, tstep) .- mass_matrix * z
+      ztmp = (dt .* f(u, p, tstep) .- mass_matrix * z) .* invγdt
     end
     if has_destats(integrator)
       integrator.destats.nf += 1
@@ -144,10 +153,10 @@ end
       integrator.destats.nf += 1
     end
     if mass_matrix === I
-      @.. ztmp = dt*k - z
+      @.. ztmp = (dt*k - z) * invγdt
     else
       mul!(vecztmp,mass_matrix,vecz)
-      @.. ztmp = dt*k - ztmp
+      @.. ztmp = (dt*k - ztmp) * invγdt
     end
     if DiffEqBase.has_invW(f)
       mul!(vecdz,W,vecztmp) # Here W is actually invW
