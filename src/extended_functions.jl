@@ -3,10 +3,8 @@ __has_jac(f) = isdefined(f, :jac)
 __has_tgrad(f) = isdefined(f, :tgrad)
 
 # Performance
-__has_invW(f) = isdefined(f, :invW)
-__has_invW_t(f) = isdefined(f, :invW_t)
-has_invW(f::T) where {T} = istrait(HasInvW{T})
-has_invW_t(f::T) where {T} = istrait(HasInvW_t{T})
+__has_Wfact(f) = isdefined(f, :Wfact)
+__has_Wfact_t(f) = isdefined(f, :Wfact_t)
 
 # Parameter-Based
 __has_paramderiv(f) = isdefined(f, :deriv)
