@@ -32,7 +32,10 @@ if !is_APPVEYOR && group == "Downstream"
       Pkg.add("StochasticDiffEq")
       Pkg.add("DiffEqProblemLibrary")
     end
-    @time @safetestset "Ensemble Simulations" begin include("ensemble.jl") end
-    @time @safetestset "Ensemble Analysis" begin include("ensemble_analysis.jl") end
+    @time @safetestset "Ensemble Simulations" begin include("downstream/ensemble.jl") end
+    @time @safetestset "Ensemble Analysis" begin include("downstream/ensemble_analysis.jl") end
+    @time @safetestset "ODE Event Tests" begin include("downstream/ode_event_tests.jl") end
+    @time @safetestset "Event Detection Tests" begin include("downstream/event_detection_tests.jl") end
+    @time @safetestset "PSOS and Energy Conservation Event Detection" begin include("downstream/psos_and_energy_conservation.jl") end
 end
 end
