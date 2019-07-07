@@ -73,11 +73,9 @@ Equations II, Springer Series in Computational Mathematics. ISBN
     if has_destats(integrator)
       integrator.destats.nf += 1
     end
-    if DiffEqBase.has_invW(f)
-      dz = _reshape(W * -_vec(ztmp), axes(ztmp)) # Here W is actually invW
-    else
-      dz = _reshape(W \ _vec(ztmp), axes(ztmp))
-    end
+
+    dz = _reshape(W \ _vec(ztmp), axes(ztmp))
+
     if has_destats(integrator)
       integrator.destats.nsolve += 1
     end
@@ -158,16 +156,13 @@ end
       mul!(vecztmp,mass_matrix,vecz)
       @.. ztmp = (dt*k - ztmp) * invγdt
     end
-    if DiffEqBase.has_invW(f)
-      mul!(vecdz,W,vecztmp) # Here W is actually invW
-      @.. vecdz = -vecdz
-    else
-      if W isa AbstractDiffEqLinearOperator
-        @.. u = uprev+z
-        update_coefficients!(W,u,p,tstep)
-      end
-      cache.linsolve(vecdz,W,vecztmp,iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=lintol)
+    
+    if W isa AbstractDiffEqLinearOperator
+      @.. u = uprev+z
+      update_coefficients!(W,u,p,tstep)
     end
+    cache.linsolve(vecdz,W,vecztmp,iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=lintol)
+
     if has_destats(integrator)
       integrator.destats.nsolve += 1
     end

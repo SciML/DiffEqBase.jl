@@ -113,7 +113,7 @@ DiffEqBase.@def iipnlsolve begin
       J = nf.f
       W = WOperator(f.mass_matrix, dt, J, true)
     else
-      if DiffEqBase.has_jac(f) && !DiffEqBase.has_invW(f) && f.jac_prototype !== nothing
+      if DiffEqBase.has_jac(f) && !DiffEqBase.has_Wfact(f) && f.jac_prototype !== nothing
         W = WOperator(f, dt, true)
         J = nothing # is J = W.J better?
       else

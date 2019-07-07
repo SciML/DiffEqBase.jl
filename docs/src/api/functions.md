@@ -30,8 +30,8 @@ DAEFunction
 has_analytic
 has_jac
 has_tgrad
-has_invW
-has_invW_t
+has_Wfact
+has_Wfact_t
 has_paramjac
 has_syms
 ```
