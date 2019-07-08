@@ -190,61 +190,92 @@ end
 
 ######### Backwards Compatibility Overloads
 
-(f::ODEFunction)(args...) = f.f(args...)
-(f::ODEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
-(f::ODEFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
-(f::ODEFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
-(f::ODEFunction)(::Type{Val{:Wfact}},args...) = f.Wfact(args...)
-(f::ODEFunction)(::Type{Val{:Wfact_t}},args...) = f.Wfact_t(args...)
-(f::ODEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
+for F in (:ODEFunction, :SDEFunction)
+  @eval begin
+    (f::$F{false})(u, p, t) = f.f(u, p, t)
+    (f::$F{true})(du, u, p, t) = f.f(du, u, p, t)
 
-function (f::DynamicalODEFunction)(u,p,t)
-  ArrayPartition(f.f1(u.x[1],u.x[2],p,t),f.f2(u.x[1],u.x[2],p,t))
-end
-function (f::DynamicalODEFunction)(du,u,p,t)
-  f.f1(du.x[1],u.x[1],u.x[2],p,t)
-  f.f2(du.x[2],u.x[1],u.x[2],p,t)
-end
+    (f::$F)(::Type{Val{:analytic}}, u0, p, t) = f.analytic(u0, p, t)
 
-(f::SplitFunction)(u,p,t) = f.f1(u,p,t) + f.f2(u,p,t)
-(f::SplitFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
-function (f::SplitFunction)(du,u,p,t)
-  f.f1(f.cache,u,p,t)
-  f.f2(du,u,p,t)
-  du .+= f.cache
+    (f::$F{false})(::Type{Val{:tgrad}}, u, p, t) = f.tgrad(u, p, t)
+    (f::$F{false})(::Type{Val{:jac}}, u, p, t) = f.jac(u, p, t)
+    (f::$F{false})(::Type{Val{:Wfact}}, u, p, gamma, t) = f.Wfact(u, p, gamma, t)
+    (f::$F{false})(::Type{Val{:Wfact_t}}, u, p, gamma, t) = f.Wfact_t(u, p, gamma, t)
+    (f::$F{false})(::Type{Val{:paramjac}}, u, p, t) = f.paramjac(u, p, t)
+
+    (f::$F{true})(::Type{Val{:tgrad}}, dT, u, p, t) = f.tgrad(dT, u, p, t)
+    (f::$F{true})(::Type{Val{:jac}}, J, u, p, t) = f.jac(J, u, p, t)
+    (f::$F{true})(::Type{Val{:Wfact}}, W, u, p, gamma, t) = f.Wfact(W, u, p, gamma, t)
+    (f::$F{true})(::Type{Val{:Wfact_t}}, W, u, p, gamma, t) = f.Wfact_t(W, u, p, gamma, t)
+    (f::$F{true})(::Type{Val{:paramjac}}, pJ, u, p, t) = f.paramjac(pJ, u, p, t)
+  end
 end
 
-(f::DiscreteFunction)(args...) = f.f(args...)
-(f::DiscreteFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
-
-(f::DAEFunction)(args...) = f.f(args...)
-(f::DAEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
-(f::DAEFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
-(f::DAEFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
-(f::DAEFunction)(::Type{Val{:Wfact}},args...) = f.Wfact(args...)
-(f::DAEFunction)(::Type{Val{:Wfact_t}},args...) = f.Wfact_t(args...)
-(f::DAEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
-
-(f::DDEFunction)(args...) = f.f(args...)
-(f::DDEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
-
-(f::SDEFunction)(args...) = f.f(args...)
-(f::SDEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
-(f::SDEFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
-(f::SDEFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
-(f::SDEFunction)(::Type{Val{:Wfact}},args...) = f.Wfact(args...)
-(f::SDEFunction)(::Type{Val{:Wfact_t}},args...) = f.Wfact_t(args...)
-(f::SDEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
-
-(f::SplitSDEFunction)(u,p,t) = f.f1(u,p,t) + f.f2(u,p,t)
-(f::SplitSDEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
-function (f::SplitSDEFunction)(du,u,p,t)
-  f.f1(f.cache,u,p,t)
-  f.f2(du,u,p,t)
-  du .+= f.cache
+for F in (:SplitFunction, :SplitSDEFunction)
+  @eval begin
+    (f::$F{false})(u, p, t) = f.f1(u, p, t) + f.f2(u, p, t)
+    function (f::$F{true})(du, u, p, t)
+      f.f1(f.cache, u, p, t)
+      f.f2(du, u, p, t)
+      du .+= f.cache
+      nothing
+    end
+    (f::$F)(::Type{Val{:analytic}}, u0, p, t) = f.analytic(u0, p, t)
+  end
 end
 
-(f::RODEFunction)(args...) = f.f(args...)
+function (f::DynamicalODEFunction{false})(u, p, t)
+  ArrayPartition(f.f1(u.x[1], u.x[2], p, t), f.f2(u.x[1], u.x[2], p, t))
+end
+function (f::DynamicalODEFunction{true})(du, u, p, t)
+  f.f1(du.x[1], u.x[1], u.x[2], p, t)
+  f.f2(du.x[2], u.x[1], u.x[2], p, t)
+  nothing
+end
+(f::DynamicalODEFunction)(::Type{Val{:analytic}}, u0, p, t) = f.analytic(u0, p, t)
+
+(f::DiscreteFunction{false})(u, p, t) = f.f(u, p, t)
+(f::DiscreteFunction{true})(du, u, p, t) = f.f(du, u, p, t)
+(f::DiscreteFunction)(::Type{Val{:analytic}}, u0, p, t) = f.analytic(u0, p, t)
+
+(f::DAEFunction{false})(du, u, p, t) = f.f(du, u, p, t)
+(f::DAEFunction{true})(resid, du, u, p, t) = f.f(resid, du, u, p, t)
+
+(f::DAEFunction)(::Type{Val{:analytic}}, du0, u0, p, t) = f.analytic(du0, u0, p, t)
+
+(f::DAEFunction{false})(::Type{Val{:tgrad}}, du, u, p, t) = f.tgrad(du, u, p, t)
+(f::DAEFunction{false})(::Type{Val{:jac}}, du, u, p, t) = f.jac(du, u, p, t)
+(f::DAEFunction{false})(::Type{Val{:Wfact}}, du, u, p, gamma, t) = f.Wfact(du, u, p, gamma, t)
+(f::DAEFunction{false})(::Type{Val{:Wfact_t}}, du, u, p, gamma, t) = f.Wfact_t(du, u, p, gamma, t)
+(f::DAEFunction{false})(::Type{Val{:paramjac}}, du, u, p, t) = f.paramjac(du, u, p, t)
+
+(f::DAEFunction{true})(::Type{Val{:tgrad}}, dT, du, u, p, t) = f.tgrad(dT, du, u, p, t)
+(f::DAEFunction{true})(::Type{Val{:jac}}, J, du, u, p, t) = f.jac(J, du, u, p, t)
+(f::DAEFunction{true})(::Type{Val{:Wfact}}, W, du, u, p, gamma, t) = f.Wfact(W, du, u, p, gamma, t)
+(f::DAEFunction{true})(::Type{Val{:Wfact_t}}, W, du, u, p, gamma, t) = f.Wfact_t(W, du, u, p, gamma, t)
+(f::DAEFunction{true})(::Type{Val{:paramjac}}, pJ, du, u, p, t) = f.paramjac(pJ, du, u, p, t)
+
+(f::DDEFunction{false})(u, h, p, t) = f.f(u, h, p, t)
+(f::DDEFunction{true})(du, u, h, p, t) = f.f(du, u, h, p, t)
+
+(f::DDEFunction)(::Type{Val{:analytic}}, u0, h0, p, t) = f.analytic(u0, h0, p, t)
+
+(f::RODEFunction{false})(u, p, t, W) = f.f(u, p, t, W)
+(f::RODEFunction{true})(du, u, p, t, W) = f.f(du, u, p, t, W)
+
+(f::RODEFunction)(::Type{Val{:analytic}}, u0, p, t, W) = f.analytic(u0, p, t, W)
+
+(f::RODEFunction{false})(::Type{Val{:tgrad}}, u, p, t, W) = f.tgrad(u, p, t, W)
+(f::RODEFunction{false})(::Type{Val{:jac}}, u, p, t, W) = f.jac(u, p, t, W)
+(f::RODEFunction{false})(::Type{Val{:Wfact}}, u, p, gamma, t, W) = f.Wfact(u, p, gamma, t, W)
+(f::RODEFunction{false})(::Type{Val{:Wfact_t}}, u, p, gamma, t, W) = f.Wfact_t(u, p, gamma, t, W)
+(f::RODEFunction{false})(::Type{Val{:paramjac}}, u, p, t, W) = f.paramjac(u, p, t, W)
+
+(f::RODEFunction{true})(::Type{Val{:tgrad}}, dT, u, p, t, W) = f.tgrad(dT, u, p, t, W)
+(f::RODEFunction{true})(::Type{Val{:jac}}, J, u, p, t, W) = f.jac(J, u, p, t, W)
+(f::RODEFunction{true})(::Type{Val{:Wfact}}, Wf, u, p, gamma, t, W) = f.Wfact(Wf, u, p, gamma, t, W)
+(f::RODEFunction{true})(::Type{Val{:Wfact_t}}, Wf, u, p, gamma, t, W) = f.Wfact_t(Wf, u, p, gamma, t, W)
+(f::RODEFunction{true})(::Type{Val{:paramjac}}, pJ, u, p, t, W) = f.paramjac(pJ, u, p, t, W)
 
 ######### Basic Constructor
 

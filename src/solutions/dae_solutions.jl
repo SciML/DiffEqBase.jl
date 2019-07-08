@@ -27,7 +27,7 @@ function build_solution(
   if has_analytic(prob.f)
     u_analytic = Vector{typeof(prob.u0)}()
     for i in 1:size(u,1)
-      push!(u_analytic,prob.analytic(prob.u0,t[i]))
+      push!(u_analytic, prob.analytic(prob.du0, prob.u0, prob.p, t[i]))
     end
 
     save_everystep = length(u) > 2
