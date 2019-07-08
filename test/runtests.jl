@@ -31,6 +31,7 @@ if !is_APPVEYOR && group == "Downstream"
       Pkg.add("OrdinaryDiffEq")
       Pkg.add("StochasticDiffEq")
       Pkg.add("DiffEqProblemLibrary")
+      Pkg.add("DiffEqCallbacks")
     end
     @time @safetestset "Ensemble Simulations" begin include("downstream/ensemble.jl") end
     @time @safetestset "Ensemble Analysis" begin include("downstream/ensemble_analysis.jl") end
