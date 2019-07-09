@@ -99,10 +99,10 @@ struct DynamicalODEProblem{iip} <: AbstractDynamicalODEProblem end
 Define a dynamical ODE function from a [`DynamicalODEFunction`](@ref).
 """
 function DynamicalODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kwargs...)
-  ODEProblem(f,(du0,u0),tspan,p;kwargs...)
+  ODEProblem(f,ArrayPartition(du0,u0),tspan,p;kwargs...)
 end
 function DynamicalODEProblem(f1,f2,du0,u0,tspan,p=nothing;kwargs...)
-  ODEProblem(DynamicalODEFunction(f1,f2),(du0,u0),tspan,p;kwargs...)
+  ODEProblem(DynamicalODEFunction(f1,f2),ArrayPartition(du0,u0),tspan,p;kwargs...)
 end
 
 """
@@ -121,7 +121,7 @@ Define a dynamical ODE problem from the two functions `f1` and `f2`.
 This is determined automatically, but not inferred.
 """
 function DynamicalODEProblem{iip}(f1,f2,du0,u0,tspan,p=nothing;kwargs...) where iip
-  ODEProblem(DynamicalODEFunction{iip}(f1,f2),(du0,u0),tspan,p;kwargs...)
+  ODEProblem(DynamicalODEFunction{iip}(f1,f2),ArrayPartition(du0,u0),tspan,p;kwargs...)
 end
 
 # u'' = f(t,u,du,ddu)
