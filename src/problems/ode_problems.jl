@@ -234,7 +234,7 @@ function SplitODEProblem{iip}(f::SplitFunction,u0,tspan,p=nothing;kwargs...) whe
   if f.cache === nothing && iip
     cache = similar(u0)
     f = SplitFunction{iip}(f.f1, f.f2; mass_matrix=f.mass_matrix,
-                     _func_cache=cache, analytic=f.analytic)
+                           cache=cache, analytic=f.analytic)
   end
   ODEProblem(f,u0,tspan,p,SplitODEProblem{iip}();kwargs...)
 end

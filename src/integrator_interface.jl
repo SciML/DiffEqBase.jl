@@ -27,6 +27,7 @@ get_du!(out,i::DEIntegrator) = error("get_du: method has not been implemented fo
 get_dt(i::DEIntegrator) = error("get_dt: method has not been implemented for the integrator")
 get_proposed_dt(i::DEIntegrator) = error("get_proposed_dt: method has not been implemented for the integrator")
 set_proposed_dt!(i::DEIntegrator) = error("modify_proposed_dt!: method has not been implemented for the integrator")
+get_params(i::DEIntegrator) = error("get_params: method has not been implemented for the integrator")
 """
     savevalues!(integrator::DEIntegrator,
       force_save=false) -> Tuple{Bool, Bool}

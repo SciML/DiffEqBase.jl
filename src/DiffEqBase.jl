@@ -445,7 +445,7 @@ export resize!,deleteat!,addat!,get_tmp_cache,
        resize_non_user_cache!,deleteat_non_user_cache!,addat_non_user_cache!,
        terminate!,
        add_tstop!,add_saveat!,set_abstol!,
-       set_reltol!,get_du, get_du!, get_dt,get_proposed_dt,set_proposed_dt!,
+       set_reltol!,get_du, get_du!,get_dt,get_params,get_proposed_dt,set_proposed_dt!,
        u_modified!, savevalues!,reinit!, auto_dt_reset!, set_t!,
        set_u!, check_error, change_t_via_interpolation!, addsteps!,
        isdiscrete, reeval_internals_due_to_modification!

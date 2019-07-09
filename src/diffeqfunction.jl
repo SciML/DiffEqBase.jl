@@ -1,4 +1,5 @@
 const RECOMPILE_BY_DEFAULT = true
+const UNPACK_BY_DEFAULT = true
 
 """
 $(TYPEDEF)
@@ -12,7 +13,7 @@ $(TYPEDEF)
 
 TODO
 """
-struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
+struct ODEFunction{iip,unpack,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
   f::F
   mass_matrix::TMM
   analytic::Ta
@@ -24,32 +25,159 @@ struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunctio
   paramjac::TPJ
   syms::S
   colorvec::TCV
+
+  function ODEFunction{iip,recompile,unpack}(f;
+                                             mass_matrix = I,
+                                             analytic = nothing,
+                                             tgrad = nothing,
+                                             jac = nothing,
+                                             jac_prototype = nothing,
+                                             Wfact = nothing,
+                                             Wfact_t = nothing,
+                                             paramjac = nothing,
+                                             syms = nothing,
+                                             colorvec = nothing) where {iip,recompile,unpack}
+    if mass_matrix === I && typeof(f) <: Tuple
+      mass_matrix = ntuple(i -> I, length(f))
+    end
+
+    if jac === nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
+      if iip
+        jac = update_coefficients! # (J, u, p, t)
+      else
+        jac = (u, p, t) -> update_coefficients!(deepcopy(jac_prototype), u, p, t)
+      end
+    end
+
+    if recompile
+      new{iip,unpack,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
+          typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+          typeof(paramjac),typeof(syms),typeof(colorvec)}(
+            f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+            paramjac,syms,colorvec)
+    else
+      new{iip,unpack,Any,Any,Any,Any,Any,Any,Any,Any,Any,typeof(syms),typeof(colorvec)}(
+        f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+        paramjac,syms,colorvec)
+    end
+  end
+
+  function ODEFunction{iip,recompile,unpack}(f::ODEFunction;
+                                             kwargs...) where {iip,recompile,unpack}
+    ODEFunction{iip,recompile,unpack}(f.f;
+                                      mass_matrix = f.mass_matrix,
+                                      analytic = f.analytic,
+                                      tgrad = f.tgrad,
+                                      jac = f.jac,
+                                      jac_prototype = f.jac_prototype,
+                                      Wfact = f.Wfact,
+                                      Wfact_t = f.Wfact_t,
+                                      paramjac = f.paramjac,
+                                      syms = f.syms,
+                                      colorvec = f.colorvec,
+                                      kwargs...)
+  end
+
+  ODEFunction{iip,recompile}(f; kwargs...) where {iip,recompile} =
+    ODEFunction{iip,RECOMPILE_BY_DEFAULT,UNPACK_BY_DEFAULT}(f; kwargs...)
+
+  ODEFunction{iip}(f; kwargs...) where iip =
+    ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 end
+
+ODEFunction(f; kwargs...) = ODEFunction{isinplace(f,4)}(f; kwargs...)
+ODEFunction(f::ODEFunction; kwargs...) = ODEFunction{isinplace(f)}(f; kwargs...)
 
 """
 $(TYPEDEF)
 
 TODO
 """
-struct SplitFunction{iip,F1,F2,TMM,C,Ta} <: AbstractODEFunction{iip}
+struct SplitFunction{iip,unpack,F1,F2,TMM,C,Ta} <: AbstractODEFunction{iip}
   f1::F1
   f2::F2
   mass_matrix::TMM
   cache::C
   analytic::Ta
+
+  function SplitFunction{iip,recompile,unpack}(f1, f2;
+                                               mass_matrix = I,
+                                               cache = nothing,
+                                               analytic = nothing) where {iip,recompile,unpack}
+    if recompile
+      new{iip,unpack,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(cache),
+          typeof(analytic)}(f1,f2,mass_matrix,cache,analytic)
+    else
+      new{iip,unpack,Any,Any,Any,Any,Any}(f1,f2,mass_matrix,cache,analytic)
+    end
+  end
+
+  function SplitFunction{iip,recompile,unpack}(f::SplitFunction;
+                                               kwargs...) where {iip,recompile,unpack}
+    SplitFunction{iip,recompile,unpack}(f.f1, f.f2;
+                                        mass_matrix = f.mass_matrix,
+                                        cache = f.cache,
+                                        analytic = f.analytic,
+                                        kwargs...)
+  end
+
+  SplitFunction{iip,recompile}(args...; kwargs...) where {iip,recompile} =
+    SplitFunction{iip,RECOMPILE_BY_DEFAULT,UNPACK_BY_DEFAULT}(args...; kwargs...)
+
+  SplitFunction{iip}(args...; kwargs...) where iip =
+    SplitFunction{iip,RECOMPILE_BY_DEFAULT}(args...; kwargs...)
 end
+
+SplitFunction(f1, f2; kwargs...) = SplitFunction{isinplace(f2,4)}(f1, f2; kwargs...)
+SplitFunction(f::SplitFunction; kwargs...) = SplitFunction{isinplace(f)}(f; kwargs...)
+@add_kwonly SplitFunction(f1, f2, mass_matrix, cache, analytic) =
+  SplitFunction(f1, f2; mass_matrix = mass_matrix, cache = cache, analytic = analytic)
 
 """
 $(TYPEDEF)
 
 TODO
 """
-struct DynamicalODEFunction{iip,F1,F2,TMM,Ta} <: AbstractODEFunction{iip}
+struct DynamicalODEFunction{iip,unpack,F1,F2,TMM,Ta} <: AbstractODEFunction{iip}
   f1::F1
   f2::F2
   mass_matrix::TMM
   analytic::Ta
+
+  function DynamicalODEFunction{iip,recompile,unpack}(f1, f2;
+                                                      mass_matrix = (I, I),
+                                                      analytic = nothing) where {iip,recompile,unpack}
+    if recompile
+      new{iip,unpack,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(analytic)}(
+        f1,f2,mass_matrix,analytic)
+    else
+      new{iip,unpack,Any,Any,Any,Any}(f1,f2,mass_matrix,analytic)
+    end
+  end
+
+  function DynamicalODEFunction{iip,recompile,unpack}(f::DynamicalODEFunction;
+                                                      kwargs...) where {iip,recompile,unpack}
+    DynamicalODEFunction{iip,recompile,unpack}(f.f1, f.f2;
+                                               mass_matrix = f.mass_matrix,
+                                               analytic = f.analytic,
+                                               kwargs...)
+  end
+
+  function DynamicalODEFunction{iip,recompile}(args...; kwargs...) where {iip,recompile}
+    DynamicalODEFunction{iip,recompile,UNPACK_BY_DEFAULT}(args...; kwargs...)
+  end
+
+  function DynamicalODEFunction{iip}(args...; kwargs...) where iip
+    DynamicalODEFunction{iip,RECOMPILE_BY_DEFAULT}(args...; kwargs...)
+  end
 end
+
+DynamicalODEFunction(f1, f2 = nothing; kwargs...) =
+  DynamicalODEFunction{isinplace(f1,5)}(f1, f2; kwargs...)
+DynamicalODEFunction(f::DynamicalODEFunction; kwargs...) =
+  DynamicalODEFunction{isinplace(f)}(f; kwargs...)
+@add_kwonly DynamicalODEFunction(f1, f2, mass_matrix, analytic) =
+  DynamicalODEFunction(f1, f2; mass_matrix = mass_matrix, analytic = analytic)
 
 """
 $(TYPEDEF)
@@ -89,11 +217,35 @@ $(TYPEDEF)
 
 TODO
 """
-struct DiscreteFunction{iip,F,Ta,S} <: AbstractDiscreteFunction{iip}
+struct DiscreteFunction{iip,unpack,F,Ta,S} <: AbstractDiscreteFunction{iip}
   f::F
   analytic::Ta
   syms::S
+
+  function DiscreteFunction{iip,recompile,unpack}(f;
+                                                  analytic = nothing,
+                                                  syms = nothing) where {iip,recompile,unpack}
+    if recompile
+      new{iip,unpack,typeof(f),typeof(analytic),typeof(syms)}(f,analytic,syms)
+    else
+      new{iip,unpack,Any,Any,Any}(f,analytic,syms)
+    end
+  end
+
+  function DiscreteFunction{iip,recompile,unpack}(f::DiscreteFunction;
+                                                  kwargs...) where {iip,recompile,unpack}
+    DiscreteFunction{iip,recompile,unpack}(f.f; analytic = f.analytic, syms = f.syms, kwargs...)
+  end
+
+  DiscreteFunction{iip,recompile}(f; kwargs...) where {iip,recompile} =
+    DiscreteFunction{iip,recompile,UNPACK_BY_DEFAULT}(f; kwargs...)
+
+  DiscreteFunction{iip}(f; kwargs...) where iip =
+    DiscreteFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 end
+
+DiscreteFunction(f; kwargs...) = DiscreteFunction{isinplace(f,4)}(f; kwargs...)
+DiscreteFunction(f::DiscreteFunction; kwargs...) = DiscreteFunction{isinplace(f)}(f; kwargs...)
 
 """
 $(TYPEDEF)
@@ -188,34 +340,96 @@ struct DAEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractDAEFunction{ii
   colorvec::TCV
 end
 
+######### Functional interface
+
+tgrad(f::ODEFunction{false}, u, p, t) = f.tgrad(u, p, t)
+tgrad(f::ODEFunction{false,true}, u, t, integrator::DEIntegrator) =
+  tgrad(u, get_params(integrator), t)
+tgrad!(f::ODEFunction{true}, dT, u, p, t) = f.tgrad(dT, u, p, t)
+tgrad!(f::ODEFunction{true,true}, dT, u, t, integrator::DEIntegrator) =
+  tgrad!(dT, u, get_params(integrator), t)
+
+jac(f::ODEFunction{false}, u, p, t) = f.jac(u, p, t)
+jac(f::ODEFunction{false,true}, u, t, integrator::DEIntegrator) =
+  jac(u, get_params(integrator), t)
+jac!(f::ODEFunction{true}, J, u, p, t) = f.jac(J, u, p, t)
+jac!(f::ODEFunction{true,true}, J, u, t, integrator::DEIntegrator) =
+  jac!(J, u, get_params(integrator), t)
+
+Wfact(f::ODEFunction{false}, u, p, gamma, t) = f.Wfact(u, p, gamma, t)
+Wfact(f::ODEFunction{false,true}, u, gamma, t, integrator::DEIntegrator) =
+  Wfact(f, u, get_params(integrator), gamma, t)
+Wfact!(f::ODEFunction{true}, W, u, p, gamma, t) = f.Wfact(W, u, p, gamma, t)
+Wfact!(f::ODEFunction{true,true}, W, u, gamma, t, integrator::DEIntegrator) =
+  Wfact!(f, W, u, get_params(integrator), gamma, t)
+
+Wfact_t(f::ODEFunction{false}, u, p, gamma, t) = f.Wfact_t(u, p, gamma, t)
+Wfact_t(f::ODEFunction{false,true}, u, gamma, t, integrator::DEIntegrator) =
+  Wfact_t(f, u, get_params(integrator), gamma, t)
+Wfact_t!(f::ODEFunction{true}, W, u, p, gamma, t) = f.Wfact_t(W, u, p, gamma, t)
+Wfact_t!(f::ODEFunction{true,true}, W, u, gamma, t, integrator::DEIntegrator) =
+  Wfact_t!(f, W, u, get_params(integrator), gamma, t)
+
+paramjac(f::ODEFunction{false}, u, p, t) = f.paramjac(u, p, t)
+paramjac(f::ODEFunction{false,true}, u, t, integrator::DEIntegrator) =
+  paramjac(f, u, get_params(integrator), t)
+paramjac!(f::ODEFunction{true}, pJ, u, p, t) = f.paramjac(pJ, u, p, t)
+paramjac!(f::ODEFunction{true,true}, pJ, u, t, integrator::DEIntegrator) =
+  paramjac!(f, pJ, u, get_params(integrator), t)
+
+for F in (:f1, :f2)
+  @eval begin
+    $F(f::DynamicalODEFunction{false}, u, p, t) = f.$F(u, p, t)
+    $F(f::DynamicalODEFunction{false,true}, u, t, integrator::DEIntegrator) =
+      $F(f, u, get_params(integrator), t)
+    $(Symbol(F, :!))(f!::DynamicalODEFunction{true}, du, u, p, t) = f.$F(du, u, p, t)
+    $(Symbol(F, :!))(f!::DynamicalODEFunction{true,true}, du, u, t, integrator::DEIntegrator) =
+      $(Symbol(F, :!))(f!, du, u, get_params(integrator), t)
+  end
+end
+
+######### Function overloads
+
+(f::ODEFunction{false})(u, p, t) = f.f(u, p, t)
+(f::ODEFunction{false,true})(u, t, integrator::DEIntegrator) =
+  f(u, get_params(integrator), t)
+
+(f!::ODEFunction{true})(du, u, p, t) = f!.f(du, u, p, t)
+(f!::ODEFunction{true,true})(du, u, t, integrator::DEIntegrator) =
+  f!(du, u, get_params(integrator), t)
+
+(f::DynamicalODEFunction{false})(u, p, t) =
+  ArrayPartition(f1(f, u.x[1], u.x[2], p, t), f2(f, u.x[1], u.x[2], p, t))
+(f::DynamicalODEFunction{false,true})(u, t, integrator::DEIntegrator) =
+  f(u, get_params(integrator), t)
+function (f!::DynamicalODEFunction{true})(du, u, p, t)
+  f1!(f!, du.x[1], u.x[1], u.x[2], p, t)
+  f2!(f!, du.x[2], u.x[1], u.x[2], p, t)
+  nothing
+end
+(f!::DynamicalODEFunction{true,true})(u, t, integrator::DEIntegrator) =
+  f!(du, u, get_params(integrator), t)
+
+(f::SplitFunction{false})(u, p, t) = f1(f, u, p, t) + f2(f, u, p, t)
+(f::SplitFunction{false,true})(u, t, integrator::DEIntegrator) =
+  f(u, get_params(integrator), t)
+function (f!::SplitFunction{true})(du, u, p, t)
+  f1!(f!, f!.cache, u, p, t)
+  f2!(f!, du, u, p, t)
+  du .+= f!.cache
+  nothing
+end
+(f!::SplitFunction{true,true})(du, u, t, integrator::DEIntegrator) =
+  f!(du, u, get_params(integrator), t)
+
+(f::DiscreteFunction{false})(u, p, t) = f.f(u, p, t)
+(f::DiscreteFunction{false,true})(u, t, integrator::DEIntegrator) =
+  f(u, get_params(integrator), t)
+(f!::DiscreteFunction{true})(du, u, p, t) = f!.f(du, u, p, t)
+(f!::DiscreteFunction{true,true})(du, u, t, integrator::DEIntegrator) =
+  f!(du, u, get_params(integrator), t)
+
 ######### Backwards Compatibility Overloads
-
-(f::ODEFunction)(args...) = f.f(args...)
-(f::ODEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
-(f::ODEFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
-(f::ODEFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
-(f::ODEFunction)(::Type{Val{:Wfact}},args...) = f.Wfact(args...)
-(f::ODEFunction)(::Type{Val{:Wfact_t}},args...) = f.Wfact_t(args...)
-(f::ODEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
-
-function (f::DynamicalODEFunction)(u,p,t)
-  ArrayPartition(f.f1(u.x[1],u.x[2],p,t),f.f2(u.x[1],u.x[2],p,t))
-end
-function (f::DynamicalODEFunction)(du,u,p,t)
-  f.f1(du.x[1],u.x[1],u.x[2],p,t)
-  f.f2(du.x[2],u.x[1],u.x[2],p,t)
-end
-
-(f::SplitFunction)(u,p,t) = f.f1(u,p,t) + f.f2(u,p,t)
-(f::SplitFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
-function (f::SplitFunction)(du,u,p,t)
-  f.f1(f.cache,u,p,t)
-  f.f2(du,u,p,t)
-  du .+= f.cache
-end
-
-(f::DiscreteFunction)(args...) = f.f(args...)
-(f::DiscreteFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
 
 (f::DAEFunction)(args...) = f.f(args...)
 (f::DAEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
@@ -247,106 +461,6 @@ end
 (f::RODEFunction)(args...) = f.f(args...)
 
 ######### Basic Constructor
-
-function ODEFunction{iip,true}(f;
-                 mass_matrix=I,
-                 analytic=nothing,
-                 tgrad=nothing,
-                 jac=nothing,
-                 jac_prototype=nothing,
-                 Wfact=nothing,
-                 Wfact_t=nothing,
-                 paramjac = nothing,
-                 syms = nothing,
-                 colorvec = nothing) where iip
-                 if mass_matrix == I && typeof(f) <: Tuple
-                  mass_matrix = ((I for i in 1:length(f))...,)
-                 end
-                 if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
-                  if iip
-                    jac = update_coefficients! #(J,u,p,t)
-                  else
-                    jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
-                  end
-                 end
-                 ODEFunction{iip,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
-                 typeof(paramjac),typeof(syms),typeof(colorvec)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
-                 paramjac,syms,colorvec)
-end
-function ODEFunction{iip,false}(f;
-                 mass_matrix=I,
-                 analytic=nothing,
-                 tgrad=nothing,
-                 jac=nothing,
-                 jac_prototype=nothing,
-                 Wfact=nothing,
-                 Wfact_t=nothing,
-                 paramjac = nothing,
-                 syms = nothing,
-                 colorvec = nothing) where iip
-                 if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
-                  if iip
-                    jac = update_coefficients! #(J,u,p,t)
-                  else
-                    jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
-                  end
-                 end
-                 ODEFunction{iip,Any,Any,Any,Any,
-                 Any,Any,Any,Any,
-                 Any,typeof(syms),typeof(colorvec)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
-                 paramjac,syms,colorvec)
-end
-ODEFunction{iip}(f; kwargs...) where iip = ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
-ODEFunction{iip}(f::ODEFunction; kwargs...) where iip = f
-ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
-ODEFunction(f::ODEFunction; kwargs...) = f
-
-@add_kwonly function SplitFunction(f1,f2,mass_matrix,cache,analytic)
-  f1 = typeof(f1) <: AbstractDiffEqOperator ? f1 : ODEFunction(f1)
-  f2 = ODEFunction(f2)
-  SplitFunction{isinplace(f2),typeof(f1),typeof(f2),typeof(mass_matrix),
-              typeof(cache),typeof(analytic)}(f1,f2,mass_matrix,cache,analytic)
-end
-SplitFunction{iip,true}(f1,f2; mass_matrix=I,_func_cache=nothing,analytic=nothing) where iip =
-SplitFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(_func_cache),typeof(analytic)}(f1,f2,mass_matrix,_func_cache,analytic)
-SplitFunction{iip,false}(f1,f2; mass_matrix=I,_func_cache=nothing,analytic=nothing) where iip =
-SplitFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,_func_cache,analytic)
-SplitFunction(f1,f2; kwargs...) = SplitFunction{isinplace(f2, 4)}(f1, f2; kwargs...)
-SplitFunction{iip}(f1,f2; kwargs...) where iip =
-SplitFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction(f1),ODEFunction{iip}(f2); kwargs...)
-SplitFunction(f::SplitFunction; kwargs...) = f
-
-@add_kwonly function DynamicalODEFunction{iip}(f1,f2,mass_matrix,analytic) where iip
-  f1 = ODEFunction(f1)
-  f2 != nothing && (f2 = ODEFunction(f2))
-  DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(analytic)}(f1,f2,mass_matrix,analytic)
-end
-DynamicalODEFunction{iip,true}(f1,f2;mass_matrix=(I,I),analytic=nothing) where iip =
-DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(analytic)}(f1,f2,mass_matrix,analytic)
-DynamicalODEFunction{iip,false}(f1,f2;mass_matrix=(I,I),analytic=nothing) where iip =
-DynamicalODEFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,analytic)
-DynamicalODEFunction(f1,f2=nothing; kwargs...) = DynamicalODEFunction{isinplace(f1, 5)}(f1, f2; kwargs...)
-DynamicalODEFunction{iip}(f1,f2; kwargs...) where iip =
-DynamicalODEFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction{iip}(f1), ODEFunction{iip}(f2); kwargs...)
-DynamicalODEFunction(f::DynamicalODEFunction; kwargs...) = f
-
-function DiscreteFunction{iip,true}(f;
-                 analytic=nothing, syms=nothing) where iip
-                 DiscreteFunction{iip,typeof(f),typeof(analytic),typeof(syms)}(
-                 f,analytic,syms)
-end
-function DiscreteFunction{iip,false}(f;
-                 analytic=nothing, syms=nothing) where iip
-                 DiscreteFunction{iip,Any,Any,Any}(
-                 f,analytic,syms)
-end
-DiscreteFunction{iip}(f; kwargs...) where iip = DiscreteFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
-DiscreteFunction{iip}(f::DiscreteFunction; kwargs...) where iip = f
-DiscreteFunction(f; kwargs...) = DiscreteFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
-DiscreteFunction(f::DiscreteFunction; kwargs...) = f
 
 function SDEFunction{iip,true}(f,g;
                  mass_matrix=I,
