@@ -15,45 +15,66 @@ end
 (sol::DAESolution)(t,deriv::Type=Val{0};idxs=nothing,continuity=:left) = sol.interp(t,idxs,deriv,sol.prob.p,continuity)
 (sol::DAESolution)(v,t,deriv::Type=Val{0};idxs=nothing,continuity=:left) = sol.interp(v,t,idxs,deriv,sol.prob.p,continuity)
 
-function build_solution(
-        prob::AbstractDAEProblem{uType,duType,tType,isinplace},
-        alg,t,u;dense=false,du=nothing,
-        interp = !isempty(du) ? HermiteInterpolation(t,u,du) : LinearInterpolation(t,u),
-        timeseries_errors=true,dense_errors=true, retcode = :Default, destats=nothing, kwargs...) where {uType,duType,tType,isinplace}
-
+function build_solution(prob::AbstractDAEProblem, alg, t, u, du = nothing;
+                        timeseries_errors = length(u) > 2,
+                        dense = false,
+                        dense_errors = dense,
+                        calculate_error = true,
+                        k = nothing,
+                        interp = du === nothing ? LinearInterpolation(t, u) : HermiteInterpolation(t, u, du),
+                        retcode = :Default,
+                        destats = nothing,
+                        kwargs...)
   T = eltype(eltype(u))
-  N = length((size(u[1])..., length(u)))
+  N = length((size(prob.u0)..., length(u)))
 
   if has_analytic(prob.f)
     u_analytic = Vector{typeof(prob.u0)}()
-    for i in 1:size(u,1)
-      push!(u_analytic,prob.analytic(prob.u0,t[i]))
-    end
-
-    save_everystep = length(u) > 2
-
     errors = Dict{Symbol,real(eltype(prob.u0))}()
-    if !isempty(u_analytic)
-      errors[:final] = norm(recursive_mean(abs.(u[end]-u_analytic[end])))
 
-      if save_everystep && timeseries_errors
-        errors[:l∞] = norm(maximum(vecvecapply((x)->abs.(x),u-u_analytic)))
-        errors[:l2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,u-u_analytic))))
-        if dense && dense_errors
-          densetimes = collect(range(t[1], stop=t[end], length=100))
-          interp_u = interp(densetimes)
-          interp_analytic = [prob.analytic(t,u[1]) for t in densetimes]
-          errors[:L∞] = norm(maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic)))
-          errors[:L2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,interp_u-interp_analytic))))
-        end
-      end
+    sol = DAESolution{T,N,typeof(u),typeof(du),typeof(u_analytic),typeof(errors),typeof(t),
+                      typeof(prob),typeof(alg),typeof(interp),typeof(destats)}(
+                        u,du,u_analytic,errors,t,prob,alg,interp,dense,0,destats,retcode)
+
+    if calculate_error
+      calculate_solution_errors!(sol;timeseries_errors=timeseries_errors,dense_errors=dense_errors)
     end
-    DAESolution{T,N,typeof(u),typeof(du),typeof(u_analytic),typeof(errors),typeof(t),
-                       typeof(prob),typeof(alg),typeof(interp),typeof(destats)}(u,du,u_analytic,errors,t,prob,alg,interp,dense,0,destats,retcode)
+    sol
   else
     DAESolution{T,N,typeof(u),typeof(du),Nothing,Nothing,typeof(t),
-                       typeof(prob),typeof(alg),typeof(interp),typeof(destats)}(u,du,nothing,nothing,t,prob,alg,interp,dense,0,destats,retcode)
+                typeof(prob),typeof(alg),typeof(interp),typeof(destats)}(
+                  u,du,nothing,nothing,t,prob,alg,interp,dense,0,destats,retcode)
   end
+end
+
+function calculate_solution_errors!(sol::AbstractDAESolution;
+                                    fill_uanalytic = true, timeseries_errors = true, dense_errors = true)
+  f = sol.prob.f
+
+  if fill_uanalytic
+    for i in 1:size(sol.u, 1)
+      push!(sol.u_analytic, f.analytic(prob.du0, prob.u0, prob.p, sol.t[i]))
+    end
+  end
+
+  save_everystep = length(sol.u) > 2
+  if !isempty(sol.u_analytic)
+    errors[:final] = norm(recursive_mean(abs.(sol.u[end] - sol.u_analytic[end])))
+
+    if save_everystep && timeseries_errors
+      errors[:l∞] = norm(maximum(vecvecapply(x -> abs.(x), sol.u - sol.u_analytic)))
+      errors[:l2] = norm(sqrt(recursive_mean(vecvecapply(x -> float.(x).^2, sol.u - sol.u_analytic))))
+      if sol.dense && dense_errors
+        densetimes = collect(range(sol.t[1]; stop = sol.t[end], length = 100))
+        interp_u = sol(densetimes)
+        interp_analytic = VectorOfArray([f.analytic(prob.du0, prob.u0, prob.p, t) for t in densetimes])
+        errors[:L∞] = norm(maximum(abs.(interp_u .- interp_analytic)))
+        errors[:L2] = norm(sqrt(mean((interp_u .- interp_analytic).^2)))
+      end
+    end
+  end
+
+  nothing
 end
 
 function build_solution(sol::AbstractDAESolution{T,N},u_analytic,errors) where {T,N}
