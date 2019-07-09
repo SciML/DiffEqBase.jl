@@ -25,11 +25,7 @@ function build_solution(
         retcode = :Default, destats=nothing, kwargs...)
 
   T = eltype(eltype(u))
-  if typeof(prob.u0) <: Tuple
-    N = length((size(ArrayPartition(prob.u0))..., length(u)))
-  else
-    N = length((size(prob.u0)..., length(u)))
-  end
+  N = length((size(prob.u0)..., length(u)))
 
   if typeof(prob.f) <: Tuple
     f = prob.f[1]
@@ -38,14 +34,8 @@ function build_solution(
   end
 
   if has_analytic(f)
-    if !(typeof(prob.u0) <: Tuple)
-      u_analytic = Vector{typeof(prob.u0)}()
-      errors = Dict{Symbol,real(eltype(prob.u0))}()
-    else
-      u_analytic = Vector{typeof(ArrayPartition(prob.u0))}()
-      errors = Dict{Symbol,real(eltype(prob.u0[1]))}()
-    end
-
+    u_analytic = Vector{typeof(prob.u0)}()
+    errors = Dict{Symbol,real(eltype(prob.u0))}()
     sol = ODESolution{T,N,typeof(u),typeof(u_analytic),typeof(errors),typeof(t),typeof(k),
                       typeof(prob),typeof(alg),typeof(interp),typeof(destats)}(u,u_analytic,
                        errors,t,k,prob,alg,interp,dense,0,destats,retcode)

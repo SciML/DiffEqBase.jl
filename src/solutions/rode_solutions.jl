@@ -27,11 +27,7 @@ function build_solution(
         seed = UInt64(0), destats=nothing, kwargs...)
 
   T = eltype(eltype(u))
-  if typeof(prob.u0) <: Tuple
-    N = length((size(ArrayPartition(prob.u0))..., length(u)))
-  else
-    N = length((size(prob.u0)..., length(u)))
-  end
+  N = length((size(prob.u0)..., length(u)))
 
   if typeof(prob.f) <: Tuple
     f = prob.f[1]
