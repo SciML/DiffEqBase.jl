@@ -161,7 +161,7 @@ end
       @.. u = uprev+z
       update_coefficients!(W,u,p,tstep)
     end
-    cache.linsolve(vecdz,W,vecztmp,iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=lintol)
+    nlsolver.linsolve(vecdz,W,vecztmp,iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=lintol)
 
     if has_destats(integrator)
       integrator.destats.nsolve += 1
