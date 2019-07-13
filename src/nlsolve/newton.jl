@@ -145,8 +145,8 @@ end
     end
 
     # evaluate function
-    @.. u = tmp + γ*z
-    f(k, u, p, tstep)
+    @.. dz = tmp + γ*z
+    f(k, dz, p, tstep)
     if has_destats(integrator)
       integrator.destats.nf += 1
     end
@@ -158,10 +158,10 @@ end
     end
     
     if W isa AbstractDiffEqLinearOperator
-      @.. u = uprev+z
-      update_coefficients!(W,u,p,tstep)
+      @.. dz = uprev+z
+      update_coefficients!(W,dz,p,tstep)
     end
-    cache.linsolve(vecdz,W,vecztmp,iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=lintol)
+    nlsolver.linsolve(vecdz,W,vecztmp,iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=lintol)
 
     if has_destats(integrator)
       integrator.destats.nsolve += 1

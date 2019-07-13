@@ -66,15 +66,17 @@ NLNewton(; κ=1//100, max_iter=10, fast_convergence_cutoff=1//5, new_W_dt_cutoff
 
 # caches
 
-mutable struct NLNewtonCache{W,T,C} <: AbstractNLSolverCache
+mutable struct NLNewtonCache{W,J,T,C} <: AbstractNLSolverCache
   new_W::Bool
   W::W
+  J::J
   W_dt::T
   new_W_dt_cutoff::C
 end
 
-mutable struct NLNewtonConstantCache{W,C} <: AbstractNLSolverCache
+mutable struct NLNewtonConstantCache{W,J,C} <: AbstractNLSolverCache
   W::W
+  J::J
   new_W_dt_cutoff::C
 end
 
