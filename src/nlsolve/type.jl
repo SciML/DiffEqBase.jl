@@ -74,9 +74,8 @@ mutable struct NLNewtonCache{W,J,T,C} <: AbstractNLSolverCache
   new_W_dt_cutoff::C
 end
 
-mutable struct NLNewtonConstantCache{W,J,C} <: AbstractNLSolverCache
+mutable struct NLNewtonConstantCache{W,C} <: AbstractNLSolverCache
   W::W
-  J::J
   new_W_dt_cutoff::C
 end
 

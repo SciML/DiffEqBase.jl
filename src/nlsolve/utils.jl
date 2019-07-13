@@ -213,7 +213,7 @@ DiffEqBase.@def oopnlsolve begin
       end
     end
 
-    nlcache = DiffEqBase.NLNewtonConstantCache(W,J,alg.nlsolve.new_W_dt_cutoff)
+    nlcache = DiffEqBase.NLNewtonConstantCache(W,alg.nlsolve.new_W_dt_cutoff)
   elseif alg.nlsolve isa NLFunctional
     uf = nothing
 
@@ -306,12 +306,7 @@ DiffEqBase.@def getiipnlsolvefields begin
   fsalfirst = zero(rate_prototype)
 end
 
-# No J version
 function oopnlsolve(alg,u,uprev,p,t,dt,f,W,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
-  oopnlsolve(alg,u,uprev,p,t,dt,f,W,nothing,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)  
-end
-
-function oopnlsolve(alg,u,uprev,p,t,dt,f,W,J,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
   @unpack κ, fast_convergence_cutoff = alg.nlsolve
 
   # define additional fields of cache of non-linear solver (all aliased)
@@ -324,7 +319,7 @@ function oopnlsolve(alg,u,uprev,p,t,dt,f,W,J,rate_prototype,uEltypeNoUnits,uBott
     nf = nlsolve_f(f, alg)
     # only use `nf` if the algorithm specializes on split eqs
     uf = oop_get_uf(alg,nf,t,p)
-    nlcache = DiffEqBase.NLNewtonConstantCache(W,J,alg.nlsolve.new_W_dt_cutoff)
+    nlcache = DiffEqBase.NLNewtonConstantCache(W,alg.nlsolve.new_W_dt_cutoff)
   elseif alg.nlsolve isa NLFunctional
     uf = nothing
     nlcache = DiffEqBase.NLFunctionalConstantCache()
