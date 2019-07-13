@@ -39,4 +39,9 @@ if !is_APPVEYOR && group == "Downstream"
     @time @safetestset "Event Detection Tests" begin include("downstream/event_detection_tests.jl") end
     @time @safetestset "PSOS and Energy Conservation Event Detection" begin include("downstream/psos_and_energy_conservation.jl") end
 end
+
+if !is_APPVEYOR && GROUP == "GPU"
+  @time @safetestset "Simple GPU" begin include("gpu/simple_gpu.jl") end
+end
+
 end
