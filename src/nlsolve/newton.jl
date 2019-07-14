@@ -156,9 +156,8 @@ end
       mul!(vecztmp,mass_matrix,vecz)
       @.. ztmp = (dt*k - ztmp) * invγdt
     end
-    
+
     if W isa AbstractDiffEqLinearOperator
-      @.. dz = uprev+z
       update_coefficients!(W,dz,p,tstep)
     end
     nlsolver.linsolve(vecdz,W,vecztmp,iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=lintol)
@@ -170,7 +169,8 @@ end
     # compute norm of residuals
     iter > 1 && (ndzprev = ndz)
     #W_dt != dt && (rmul!(dz, 2/(1 + dt / W_dt))) # relaxation
-    calculate_residuals!(ztmp, dz, uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
+    @.. ztmp = tmp + γ*z
+    calculate_residuals!(ztmp, dz, uprev, ztmp, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
     ndz = integrator.opts.internalnorm(ztmp, t)
 
     # check divergence (not in initial step)
