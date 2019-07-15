@@ -19,9 +19,11 @@ return EnsembleSolution(u,elapsed_time,false)
 function __solve(prob::AbstractEnsembleProblem,
                  alg::Union{DEAlgorithm,Nothing};
                  kwargs...)
+    #=
     if alg isa EnsembleAlgorithm
       @error "You forgot to pass a DE solver algorithm! Only a EnsembleAlgorithm has been supplied. Exiting"
     end
+    =#
     if :parallel_type ∈ keys(kwargs)
       if kwargs[:parallel_type] == :none
         ensemblealg = EnsembleSerial()
