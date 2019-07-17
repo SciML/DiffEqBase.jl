@@ -5,7 +5,7 @@ const is_APPVEYOR = ( Sys.iswindows() && haskey(ENV,"APPVEYOR") )
 const is_TRAVIS = haskey(ENV,"TRAVIS")
 
 @time begin
-if group == "All" || GROUP == "Core"
+if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Fast Broadcast" begin include("fastbc.jl") end
     @time @safetestset "Number of Parameters Calculation" begin include("numargs_test.jl") end
     @time @safetestset "Data Arrays" begin include("data_array_tests.jl") end
