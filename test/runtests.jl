@@ -1,16 +1,11 @@
 using SafeTestsets
 
-if haskey(ENV,"GROUP")
-    group = ENV["GROUP"]
-else
-    group = "All"
-end
-
-is_APPVEYOR = ( Sys.iswindows() && haskey(ENV,"APPVEYOR") )
-is_TRAVIS = haskey(ENV,"TRAVIS")
+const GROUP = get(ENV, "GROUP", "All")
+const is_APPVEYOR = ( Sys.iswindows() && haskey(ENV,"APPVEYOR") )
+const is_TRAVIS = haskey(ENV,"TRAVIS")
 
 @time begin
-if group == "All" || group == "Core"
+if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Fast Broadcast" begin include("fastbc.jl") end
     @time @safetestset "Number of Parameters Calculation" begin include("numargs_test.jl") end
     @time @safetestset "Data Arrays" begin include("data_array_tests.jl") end
@@ -25,7 +20,7 @@ if group == "All" || group == "Core"
     @time @safetestset "Export tests" begin include("export_tests.jl") end
     @time @safetestset "High Level solve Interface" begin include("high_level_solve.jl") end
 end
-if !is_APPVEYOR && group == "Downstream"
+if !is_APPVEYOR && GROUP == "Downstream"
     if is_TRAVIS
       using Pkg
       Pkg.add("OrdinaryDiffEq")
@@ -39,4 +34,9 @@ if !is_APPVEYOR && group == "Downstream"
     @time @safetestset "Event Detection Tests" begin include("downstream/event_detection_tests.jl") end
     @time @safetestset "PSOS and Energy Conservation Event Detection" begin include("downstream/psos_and_energy_conservation.jl") end
 end
+
+if !is_APPVEYOR && GROUP == "GPU"
+  @time @safetestset "Simple GPU" begin include("gpu/simple_gpu.jl") end
+end
+
 end
