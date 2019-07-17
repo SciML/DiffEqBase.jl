@@ -48,6 +48,7 @@ test-GPU:
     - julia -e "using InteractiveUtils;
                 versioninfo()"
     - julia --project -e "using Pkg; Pkg.add(\"CuArrays\");
+                          Pkg.add(\"OrdinaryDiffEq\");
                           Pkg.test(\"DiffEqBase\"; coverage=true);"
   only:
   - master
