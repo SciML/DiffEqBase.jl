@@ -365,11 +365,7 @@ function nlsolve_resize!(integrator::DEIntegrator, i::Int)
       resize!(k,i)
       resize!(du1,i)
       if jac_config !== nothing
-        _nlsolver.jac_config = resize_jac_config!(jac_config, uf, du1, z, alg, i)
-        integrator.cache.jac_config[idx] = _nlsolver.jac_config
-      end
-      if _nlsolver.cache isa Union{NLNewtonCache, NLNewtonConstantCache}
-        _nlsolver.cache.W = integrator.cache.W[idx]
+        _nlsolver.jac_config = resize_jac_config!(jac_config, i)
       end
       resize!(weight, i)
       nlsolve_cache_resize!(cache,alg,i)
@@ -383,11 +379,7 @@ function nlsolve_resize!(integrator::DEIntegrator, i::Int)
     resize!(k,i)
     resize!(du1,i)
     if jac_config !== nothing
-      nlsolver.jac_config = resize_jac_config!(jac_config, uf, du1, z, alg, i)
-      integrator.cache.jac_config = nlsolver.jac_config
-    end
-    if nlsolver.cache isa Union{NLNewtonCache, NLNewtonConstantCache}
-      nlsolver.cache.W = integrator.cache.W
+      nlsolver.jac_config = resize_jac_config!(jac_config,i)
     end
     resize!(weight, i)
     nlsolve_cache_resize!(cache,alg,i)
