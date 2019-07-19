@@ -11,7 +11,8 @@ struct DDEProblem{uType,tType,lType,lType2,isinplace,P,F,H,C} <:
   neutral::Bool
   order_discontinuity_t0::Int
 
-  @add_kwonly function DDEProblem{iip}(f::AbstractDDEFunction{iip}, u0, h, tspan, p = nothing;
+  @add_kwonly function DDEProblem{iip}(f::AbstractDDEFunction{iip}, u0, h, tspan;
+                                       p = nothing,
                                        constant_lags = (),
                                        dependent_lags = (),
                                        neutral = f.mass_matrix !== I && det(f.mass_matrix) != 1,
@@ -24,9 +25,9 @@ struct DDEProblem{uType,tType,lType,lType2,isinplace,P,F,H,C} <:
           order_discontinuity_t0)
   end
 
-  function DDEProblem{iip}(f::AbstractDDEFunction{iip}, h, tspan::Tuple, p = nothing;
+  function DDEProblem{iip}(f::AbstractDDEFunction{iip}, h, tspan;
                            order_discontinuity_t0 = 1, kwargs...) where iip
-    DDEProblem{iip}(f, h(p, first(tspan)), h, tspan, p;
+    DDEProblem{iip}(f, h, h, tspan;
                     order_discontinuity_t0 = max(1, order_discontinuity_t0), kwargs...)
   end
 
@@ -40,3 +41,6 @@ DDEProblem(f, args...; kwargs...) =
 
 DDEProblem(f::AbstractDDEFunction, args...; kwargs...) =
   DDEProblem{isinplace(f)}(f, args...; kwargs...)
+
+@deprecate DDEProblem{iip}(f, u0, h, tspan, p; kwargs...) where iip DDEProblem{iip}(f, u0, h, tspan; p = p, kwargs...)
+@deprecate DDEProblem(f, u0, h, tspan, p; kwargs...) DDEProblem(f, u0, h, tspan; p = p, kwargs...)

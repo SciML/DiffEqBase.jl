@@ -54,6 +54,10 @@ prob =  DDEProblem{true}(f_1delay,ones(1),t->zeros(1),(0.0, 10.0),dependent_lags
 
 @test_broken @inferred DDEProblem(f_1delay,ones(1),t->zeros(1),(0.0, 10.0),constant_lags = ones(1))
 @test_broken @inferred DDEProblem{true}(f_1delay,ones(1),t->zeros(1),(0.0, 10.0),dependent_lags = ones(1))
+@test_deprecated DDEProblem(f_1delay, ones(1), t->zeros(1), (0.0, 10.0), nothing;
+                            constant_lags = ones(1))
+@test_deprecated DDEProblem{true}(f_1delay, ones(1), t->zeros(1), (0.0, 10.0), nothing;
+                                  constant_lags = ones(1))
 
 function f(r, yp, y, p,tres)
     r[1]  = -0.04*y[1] + 1.0e4*y[2]*y[3]
