@@ -152,17 +152,19 @@ struct ScaleVector{T}
   isleft::Bool
 end
 function LinearAlgebra.ldiv!(v::ScaleVector, x)
+  vx = vec(v.x)
   if v.isleft
-    return @.. x = x * v.x
+    return @.. x = x * vx
   else
-    return @.. x = x / v.x
+    return @.. x = x / vx
   end
 end
 function LinearAlgebra.ldiv!(y, v::ScaleVector, x)
+  vx = vec(v.x)
   if v.isleft
-    return @.. y = x * v.x
+    return @.. y = x * vx
   else
-    return @.. y = x / v.x
+    return @.. y = x / vx
   end
 end
 

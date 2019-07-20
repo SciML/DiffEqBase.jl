@@ -124,4 +124,20 @@ function __init__()
       x .= vec(_x)
     end
   end
+
+  @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
+    struct DiffCache{T<:AbstractArray, S<:AbstractArray}
+        du::T
+        dual_du::S
+    end
+
+    function DiffCache(u::AbstractArray{T}, siz, ::Type{Val{chunk_size}}) where {T, chunk_size}
+        DiffCache(u, zeros(ForwardDiff.Dual{nothing,T,chunk_size}, siz...))
+    end
+
+    dualcache(u::AbstractArray, N=Val{ForwardDiff.pickchunksize(length(u))}) = DiffCache(u, size(u), N)
+
+    get_tmp(dc::DiffCache, u::AbstractArray{T}) where T<:ForwardDiff.Dual = reinterpret(T, dc.dual_du)
+    get_tmp(dc::DiffCache, u::AbstractArray) = dc.du
+  end
 end
