@@ -203,3 +203,18 @@ end
 
 # Overloaded in other repositories
 function unwrap_cache end
+
+using ForwardDiff
+struct DiffCache{T<:AbstractArray, S<:AbstractArray}
+    du::T
+    dual_du::S
+end
+
+function DiffCache(u::AbstractArray{T}, siz, ::Type{Val{chunk_size}}) where {T, chunk_size}
+    DiffCache(u, zeros(ForwardDiff.Dual{nothing,T,chunk_size}, siz...))
+end
+
+dualcache(u::AbstractArray, N=Val{ForwardDiff.pickchunksize(length(u))}) = DiffCache(u, size(u), N)
+
+get_tmp(dc::DiffCache, u::AbstractArray{T}) where T<:ForwardDiff.Dual = reinterpret(T, dc.dual_du)
+get_tmp(dc::DiffCache, u::AbstractArray) = dc.du
