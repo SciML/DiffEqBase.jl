@@ -488,6 +488,4 @@ export EnsembleThreads, EnsembleDistributed, EnsembleSplitThreads, EnsembleSeria
 
 export EnsembleAnalysis
 
-export dualcache, get_tmp
-
 end # module
