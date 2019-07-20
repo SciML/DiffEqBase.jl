@@ -37,6 +37,20 @@ function __init__()
     # Type piracy. Should upstream
     Base.nextfloat(d::ForwardDiff.Dual{T,V,N}) where {T,V,N} = ForwardDiff.Dual{T}(nextfloat(d.value), d.partials)
     Base.prevfloat(d::ForwardDiff.Dual{T,V,N}) where {T,V,N} = ForwardDiff.Dual{T}(prevfloat(d.value), d.partials)
+
+    struct DiffCache{T<:AbstractArray, S<:AbstractArray}
+        du::T
+        dual_du::S
+    end
+
+    function DiffCache(u::AbstractArray{T}, siz, ::Type{Val{chunk_size}}) where {T, chunk_size}
+        DiffCache(u, zeros(ForwardDiff.Dual{nothing,T,chunk_size}, siz...))
+    end
+
+    dualcache(u::AbstractArray, N=Val{ForwardDiff.pickchunksize(length(u))}) = DiffCache(u, size(u), N)
+
+    get_tmp(dc::DiffCache, u::AbstractArray{T}) where T<:ForwardDiff.Dual = reinterpret(T, dc.dual_du)
+    get_tmp(dc::DiffCache, u::AbstractArray) = dc.du
   end
 
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
@@ -123,21 +137,5 @@ function __init__()
       _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
       x .= vec(_x)
     end
-  end
-
-  @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
-    struct DiffCache{T<:AbstractArray, S<:AbstractArray}
-        du::T
-        dual_du::S
-    end
-
-    function DiffCache(u::AbstractArray{T}, siz, ::Type{Val{chunk_size}}) where {T, chunk_size}
-        DiffCache(u, zeros(ForwardDiff.Dual{nothing,T,chunk_size}, siz...))
-    end
-
-    dualcache(u::AbstractArray, N=Val{ForwardDiff.pickchunksize(length(u))}) = DiffCache(u, size(u), N)
-
-    get_tmp(dc::DiffCache, u::AbstractArray{T}) where T<:ForwardDiff.Dual = reinterpret(T, dc.dual_du)
-    get_tmp(dc::DiffCache, u::AbstractArray) = dc.du
   end
 end
