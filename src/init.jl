@@ -2,6 +2,17 @@ value(x) = x
 cuify(x) = error("To use LinSolveGPUFactorize, you must do `using CuArrays`")
 can_setindex(x) = true
 
+is_structured(x) = false
+is_structured(::Symmetric) = true
+is_structured(::Hermitian) = true
+is_structured(::UpperTriangular) = true
+is_structured(::LowerTriangular) = true
+is_structured(::Tridiagonal) = true
+is_structured(::SymTridiagonal) = true
+is_structured(::Bidiagonal) = true
+is_structured(::Diagonal) = true
+
+
 function __init__()
   @require ApproxFun="28f2ccd6-bb30-5033-b560-165f7b14dc2f" begin
     eval_u0(u0::ApproxFun.Fun) = false
@@ -123,5 +134,14 @@ function __init__()
       _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
       x .= vec(_x)
     end
+  end
+
+  @require BandedMatrices="aae01518-5342-5314-be14-df237901396f" begin
+    is_structured(::BandedMatrices.BandedMatrix) = true
+  end
+
+  @require BlockBandedMatrices="aae01518-5342-5314-be14-df237901396f" begin
+    is_structured(::BandedMatrices.BlockBandedMatrix) = true
+    is_structured(::BandedMatrices.BandedBlockBandedMatrix) = true
   end
 end

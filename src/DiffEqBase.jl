@@ -16,7 +16,6 @@ using FunctionWrappers: FunctionWrapper
 
 using MuladdMacro, Parameters
 
-
 # Problems
 """
 $(TYPEDEF)
