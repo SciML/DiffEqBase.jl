@@ -259,9 +259,11 @@ function ODEFunction{iip,true}(f;
                  paramjac = nothing,
                  syms = nothing,
                  colorvec = nothing) where iip
+
                  if mass_matrix == I && typeof(f) <: Tuple
                   mass_matrix = ((I for i in 1:length(f))...,)
                  end
+
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -269,11 +271,18 @@ function ODEFunction{iip,true}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
+
+                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                   _colorvec = ArrayInterface.matrix_colors(jac_prototype)
+                 else
+                   _colorvec = colorvec
+                 end
+
                  ODEFunction{iip,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
-                 typeof(paramjac),typeof(syms),typeof(colorvec)}(
+                 typeof(paramjac),typeof(syms),typeof(_colorvec)}(
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
-                 paramjac,syms,colorvec)
+                 paramjac,syms,_colorvec)
 end
 function ODEFunction{iip,false}(f;
                  mass_matrix=I,
@@ -286,6 +295,7 @@ function ODEFunction{iip,false}(f;
                  paramjac = nothing,
                  syms = nothing,
                  colorvec = nothing) where iip
+
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -293,11 +303,18 @@ function ODEFunction{iip,false}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
+
+                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                   _colorvec = ArrayInterface.matrix_colors(jac_prototype)
+                 else
+                   _colorvec = colorvec
+                 end
+
                  ODEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
-                 Any,typeof(syms),typeof(colorvec)}(
+                 Any,typeof(syms),typeof(_colorvec)}(
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
-                 paramjac,syms,colorvec)
+                 paramjac,syms,_colorvec)
 end
 ODEFunction{iip}(f; kwargs...) where iip = ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 ODEFunction{iip}(f::ODEFunction; kwargs...) where iip = f
@@ -360,6 +377,7 @@ function SDEFunction{iip,true}(f,g;
                  ggprime = nothing,
                  syms = nothing,
                  colorvec = nothing) where iip
+
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -367,13 +385,20 @@ function SDEFunction{iip,true}(f,g;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
+
+                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                   _colorvec = ArrayInterface.matrix_colors(jac_prototype)
+                 else
+                   _colorvec = colorvec
+                 end
+
                  SDEFunction{iip,typeof(f),typeof(g),
                  typeof(mass_matrix),typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
                  typeof(paramjac),typeof(syms),
-                 typeof(ggprime),typeof(colorvec)}(
+                 typeof(ggprime),typeof(_colorvec)}(
                  f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
-                 paramjac,ggprime,syms,colorvec)
+                 paramjac,ggprime,syms,_colorvec)
 end
 function SDEFunction{iip,false}(f,g;
                  mass_matrix=I,
@@ -387,6 +412,7 @@ function SDEFunction{iip,false}(f,g;
                  ggprime = nothing,
                  syms = nothing,
                  colorvec = nothing) where iip
+
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -394,11 +420,18 @@ function SDEFunction{iip,false}(f,g;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
+
+                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                   _colorvec = ArrayInterface.matrix_colors(jac_prototype)
+                 else
+                   _colorvec = colorvec
+                 end
+
                  SDEFunction{iip,Any,Any,Any,Any,Any,
                  Any,Any,Any,Any,
-                 Any,typeof(syms),Any,typeof(colorvec)}(
+                 Any,typeof(syms),Any,typeof(_colorvec)}(
                  f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
-                 paramjac,ggprime,syms,colorvec)
+                 paramjac,ggprime,syms,_colorvec)
 end
 SDEFunction{iip}(f,g; kwargs...) where iip = SDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 SDEFunction{iip}(f::SDEFunction,g; kwargs...) where iip = f
@@ -429,6 +462,7 @@ function RODEFunction{iip,true}(f;
                  paramjac = nothing,
                  syms = nothing,
                  colorvec = nothing) where iip
+
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -436,12 +470,19 @@ function RODEFunction{iip,true}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
+
+                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                   _colorvec = ArrayInterface.matrix_colors(jac_prototype)
+                 else
+                   _colorvec = colorvec
+                 end
+
                  RODEFunction{iip,typeof(f),typeof(mass_matrix),
                  typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
-                 typeof(paramjac),typeof(syms),typeof(colorvec)}(
+                 typeof(paramjac),typeof(syms),typeof(_colorvec)}(
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
-                 paramjac,syms,colorvec)
+                 paramjac,syms,_colorvec)
 end
 function RODEFunction{iip,false}(f;
                  mass_matrix=I,
@@ -453,6 +494,7 @@ function RODEFunction{iip,false}(f;
                  paramjac = nothing,
                  syms = nothing,
                  colorvec = nothing) where iip
+
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -460,11 +502,18 @@ function RODEFunction{iip,false}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
+
+                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                   _colorvec = ArrayInterface.matrix_colors(jac_prototype)
+                 else
+                   _colorvec = colorvec
+                 end
+
                  RODEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
-                 Any,typeof(syms),typeof(colorvec)}(
+                 Any,typeof(syms),typeof(_colorvec)}(
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
-                 paramjac,syms,colorvec)
+                 paramjac,syms,_colorvec)
 end
 RODEFunction{iip}(f; kwargs...) where iip = RODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 RODEFunction{iip}(f::RODEFunction; kwargs...) where iip = f
@@ -481,6 +530,7 @@ function DAEFunction{iip,true}(f;
                  paramjac = nothing,
                  syms = nothing,
                  colorvec = nothing) where iip
+
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -488,11 +538,18 @@ function DAEFunction{iip,true}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
+
+                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                   _colorvec = ArrayInterface.matrix_colors(jac_prototype)
+                 else
+                   _colorvec = colorvec
+                 end
+
                  DAEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
-                 typeof(paramjac),typeof(syms),typeof(colorvec)}(
+                 typeof(paramjac),typeof(syms),typeof(_colorvec)}(
                  f,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
-                 paramjac,syms,colorvec)
+                 paramjac,syms,_colorvec)
 end
 function DAEFunction{iip,false}(f;
                  analytic=nothing,
@@ -504,6 +561,7 @@ function DAEFunction{iip,false}(f;
                  paramjac = nothing,
                  syms = nothing,
                  colorvec = nothing) where iip
+
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -511,11 +569,18 @@ function DAEFunction{iip,false}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
+
+                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                   _colorvec = ArrayInterface.matrix_colors(jac_prototype)
+                 else
+                   _colorvec = colorvec
+                 end
+
                  DAEFunction{iip,Any,Any,Any,
                  Any,Any,Any,Any,
-                 Any,typeof(syms),typeof(colorvec)}(
+                 Any,typeof(syms),typeof(_colorvec)}(
                  f,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
-                 paramjac,syms,colorvec)
+                 paramjac,syms,_colorvec)
 end
 DAEFunction{iip}(f; kwargs...) where iip = DAEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DAEFunction{iip}(f::DAEFunction; kwargs...) where iip = f
@@ -533,6 +598,7 @@ function DDEFunction{iip,true}(f;
                  paramjac = nothing,
                  syms = nothing,
                  colorvec = nothing) where iip
+
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -540,11 +606,18 @@ function DDEFunction{iip,true}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
+
+                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                   _colorvec = ArrayInterface.matrix_colors(jac_prototype)
+                 else
+                   _colorvec = colorvec
+                 end
+
                  DDEFunction{iip,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
-                 typeof(paramjac),typeof(syms),typeof(colorvec)}(
+                 typeof(paramjac),typeof(syms),typeof(_colorvec)}(
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
-                 paramjac,syms,colorvec)
+                 paramjac,syms,_colorvec)
 end
 function DDEFunction{iip,false}(f;
                  mass_matrix=I,
@@ -557,6 +630,7 @@ function DDEFunction{iip,false}(f;
                  paramjac = nothing,
                  syms = nothing,
                  colorvec = nothing) where iip
+
                  if jac == nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
                   if iip
                     jac = update_coefficients! #(J,u,p,t)
@@ -564,11 +638,18 @@ function DDEFunction{iip,false}(f;
                     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
                   end
                  end
+
+                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                   _colorvec = ArrayInterface.matrix_colors(jac_prototype)
+                 else
+                   _colorvec = colorvec
+                 end
+
                  DDEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
-                 Any,typeof(syms),typeof(colorvec)}(
+                 Any,typeof(syms),typeof(_colorvec)}(
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
-                 paramjac,syms,colorvec)
+                 paramjac,syms,_colorvec)
 end
 DDEFunction{iip}(f; kwargs...) where iip = DDEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 DDEFunction{iip}(f::DDEFunction; kwargs...) where iip = f
