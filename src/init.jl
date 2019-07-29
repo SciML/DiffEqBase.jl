@@ -1,17 +1,5 @@
 value(x) = x
 cuify(x) = error("To use LinSolveGPUFactorize, you must do `using CuArrays`")
-can_setindex(x) = true
-
-is_structured(x) = false
-is_structured(::Symmetric) = true
-is_structured(::Hermitian) = true
-is_structured(::UpperTriangular) = true
-is_structured(::LowerTriangular) = true
-is_structured(::Tridiagonal) = true
-is_structured(::SymTridiagonal) = true
-is_structured(::Bidiagonal) = true
-is_structured(::Diagonal) = true
-
 
 function __init__()
   @require ApproxFun="28f2ccd6-bb30-5033-b560-165f7b14dc2f" begin
@@ -94,13 +82,10 @@ function __init__()
   end
 
   @require Flux="587475ba-b771-5e3f-ad9e-33799f191a9c" begin
-
     value(x::Type{Flux.Tracker.TrackedReal{T}}) where T = T
     value(x::Type{Flux.Tracker.TrackedArray{T,N,A}}) where {T,N,A} = Array{T,N}
     value(x::Flux.Tracker.TrackedReal)  = x.data
     value(x::Flux.Tracker.TrackedArray) = x.data
-
-    can_setindex(x::Flux.Tracker.TrackedArray) = false
 
     # Support adaptive with non-tracked time
     @inline function ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedArray,t) where {N}
@@ -134,14 +119,5 @@ function __init__()
       _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
       x .= vec(_x)
     end
-  end
-
-  @require BandedMatrices="aae01518-5342-5314-be14-df237901396f" begin
-    is_structured(::BandedMatrices.BandedMatrix) = true
-  end
-
-  @require BlockBandedMatrices="aae01518-5342-5314-be14-df237901396f" begin
-    is_structured(::BandedMatrices.BlockBandedMatrix) = true
-    is_structured(::BandedMatrices.BandedBlockBandedMatrix) = true
   end
 end
