@@ -1,0 +1,40 @@
+using LinearAlgebra, OrdinaryDiffEq, Test
+f = (du,u,p,t) -> du .= u ./ t
+jac = (J,u,p,t) -> (J[1,1] = 1/t; J[2,2] = 1/t; J)
+
+jp_diag = Diagonal(zeros(2))
+fun = ODEFunction(f; jac=jac, jac_prototype=jp_diag)
+prob = ODEProblem(fun,ones(2),(1.0,10.0))
+sol = solve(prob,Rosenbrock23(autodiff=false))
+@test sol[end] ≈ [10.0,10.0]
+@test length(sol) < 60
+
+jp = Tridiagonal(jp_diag)
+fun = ODEFunction(f; jac=jac, jac_prototype=jp)
+prob = ODEProblem(fun,ones(2),(1.0,10.0))
+sol = solve(prob,Rosenbrock23(autodiff=false))
+@test sol[end] ≈ [10.0,10.0]
+@test length(sol) < 60
+
+jp = SymTridiagonal(jp_diag)
+fun = ODEFunction(f; jac=jac, jac_prototype=jp)
+prob = ODEProblem(fun,ones(2),(1.0,10.0))
+sol = solve(prob,Rosenbrock23(autodiff=false))
+@test sol[end] ≈ [10.0,10.0]
+@test length(sol) < 60
+
+@test_broken begin
+    jp = Hermitian(jp_diag)
+    fun = ODEFunction(f; jac=jac, jac_prototype=jp)
+    prob = ODEProblem(fun,ones(2),(1.0,10.0))
+    sol = solve(prob,Rosenbrock23(autodiff=false))
+    @test sol[end] ≈ [10.0,10.0]
+    @test length(sol) < 60
+
+    jp = Symmetric(jp_diag)
+    fun = ODEFunction(f; jac=jac, jac_prototype=jp)
+    prob = ODEProblem(fun,ones(2),(1.0,10.0))
+    sol = solve(prob,Rosenbrock23(autodiff=false))
+    @test sol[end] ≈ [10.0,10.0]
+    @test length(sol) < 60
+end

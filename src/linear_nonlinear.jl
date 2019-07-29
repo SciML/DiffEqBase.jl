@@ -58,11 +58,13 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
       else
         p.A = lu!(A)
       end
-    elseif typeof(A) <: Union{SymTridiagonal,Tridiagonal}
+    elseif typeof(A) <: Tridiagonal
+      p.A = lu!(A)
+    elseif typeof(A) <: Union{SymTridiagonal}
       p.A = ldlt!(A)
     elseif typeof(A) <: Union{Symmetric,Hermitian}
       p.A = bunchkaufman!(A)
-    elseif is_structured(A) || typeof(A) <: SparseMatrixCSC
+    elseif ArrayInterface.isstructured(A) || typeof(A) <: SparseMatrixCSC
       p.A = factorize(A)
     elseif !(typeof(A) <: AbstractDiffEqOperator)
       # Most likely QR is the one that is overloaded
@@ -77,7 +79,7 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
   # Missing a little bit of efficiency in a rare case
   #elseif typeof(A) <: DiffEqArrayOperator
   #  ldiv!(x,p.A,b)
-  elseif is_structured(A) || A isa SparseMatrixCSC
+  elseif ArrayInterface.isstructured(A) || A isa SparseMatrixCSC
     ldiv!(x,p.A,b)
   elseif typeof(A) <: AbstractDiffEqOperator
     # No good starting guess, so guess zero
