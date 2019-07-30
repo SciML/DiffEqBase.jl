@@ -27,7 +27,7 @@ end
 function BVProblem(f::AbstractODEFunction,bc,u0,tspan,args...;kwargs...)
     BVProblem{DiffEqBase.isinplace(f,4)}(f,bc,u0,tspan,args...;kwargs...)
 end
-  
+
 function BVProblem(f,bc,u0,tspan,p=nothing;kwargs...)
     BVProblem(convert(ODEFunction,f),bc,u0,tspan,p;kwargs...)
 end
