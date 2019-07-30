@@ -4,6 +4,7 @@ authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 version = "5.16.5"
 
 [deps]
+ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
@@ -33,6 +34,7 @@ RecipesBase = ">= 0.1.0"
 RecursiveArrayTools = ">= 0.12.3"
 StaticArrays = ">= 0.8.3"
 TableTraits = "^0.3, ^0.4, ^1"
+ArrayInterface = "1.1"
 julia = "1"
 
 [extras]

@@ -2,7 +2,7 @@ module DiffEqBase
 
 using RecipesBase, RecursiveArrayTools, Compat,
       Requires, TableTraits, IteratorInterfaceExtensions, TreeViews,
-      IterativeSolvers, RecursiveFactorization, Distributed
+      IterativeSolvers, RecursiveFactorization, Distributed, ArrayInterface
 
 using Roots # callbacks
 
@@ -15,7 +15,6 @@ using DocStringExtensions
 using FunctionWrappers: FunctionWrapper
 
 using MuladdMacro, Parameters
-
 
 # Problems
 """

@@ -53,12 +53,18 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
   if update_matrix
     if typeof(A) <: Matrix
       blasvendor = BLAS.vendor()
-      if (blasvendor === :openblas || blasvendor === :openblas64) && size(A,1) <= 500 && can_setindex(x) # if the user doesn't use OpenBLAS, we assume that is a much better BLAS implementation like MKL
+      if (blasvendor === :openblas || blasvendor === :openblas64) && size(A,1) <= 500 && ArrayInterface.can_setindex(x) # if the user doesn't use OpenBLAS, we assume that is a much better BLAS implementation like MKL
         p.A = RecursiveFactorization.lu!(A)
       else
         p.A = lu!(A)
       end
-    elseif typeof(A) <: SparseMatrixCSC
+    elseif typeof(A) <: Tridiagonal
+      p.A = lu!(A)
+    elseif typeof(A) <: Union{SymTridiagonal}
+      p.A = ldlt!(A)
+    elseif typeof(A) <: Union{Symmetric,Hermitian}
+      p.A = bunchkaufman!(A)
+    elseif ArrayInterface.isstructured(A) || typeof(A) <: SparseMatrixCSC
       p.A = factorize(A)
     elseif !(typeof(A) <: AbstractDiffEqOperator)
       # Most likely QR is the one that is overloaded
@@ -67,12 +73,14 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
     end
   end
 
-  if typeof(A) <: Matrix # No 2-arg form for SparseArrays!
+  if typeof(A) <: Union{Matrix,SymTridiagonal,Tridiagonal,Symmetric,Hermitian} # No 2-arg form for SparseArrays!
     x .= b
     ldiv!(p.A,x)
   # Missing a little bit of efficiency in a rare case
   #elseif typeof(A) <: DiffEqArrayOperator
   #  ldiv!(x,p.A,b)
+  elseif ArrayInterface.isstructured(A) || A isa SparseMatrixCSC
+    ldiv!(x,p.A,b)
   elseif typeof(A) <: AbstractDiffEqOperator
     # No good starting guess, so guess zero
     if p.iterable === nothing

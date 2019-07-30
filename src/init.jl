@@ -1,6 +1,8 @@
 value(x) = x
 cuify(x) = error("To use LinSolveGPUFactorize, you must do `using CuArrays`")
-can_setindex(x) = true
+
+# Piracy, should get upstreamed
+LinearAlgebra.ldiv!(Y::AbstractArray, A::AbstractArray, B::AbstractArray) = (copy!(Y,B); ldiv!(A,Y))
 
 function __init__()
   @require ApproxFun="28f2ccd6-bb30-5033-b560-165f7b14dc2f" begin
@@ -97,13 +99,10 @@ function __init__()
   end
 
   @require Flux="587475ba-b771-5e3f-ad9e-33799f191a9c" begin
-
     value(x::Type{Flux.Tracker.TrackedReal{T}}) where T = T
     value(x::Type{Flux.Tracker.TrackedArray{T,N,A}}) where {T,N,A} = Array{T,N}
     value(x::Flux.Tracker.TrackedReal)  = x.data
     value(x::Flux.Tracker.TrackedArray) = x.data
-
-    can_setindex(x::Flux.Tracker.TrackedArray) = false
 
     # Support adaptive with non-tracked time
     @inline function ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedArray,t) where {N}
