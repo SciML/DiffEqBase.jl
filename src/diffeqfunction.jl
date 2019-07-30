@@ -272,7 +272,7 @@ function ODEFunction{iip,true}(f;
                   end
                  end
 
-                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                 if jac_prototype !== nothing && colorvec == nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
                    _colorvec = ArrayInterface.matrix_colors(jac_prototype)
                  else
                    _colorvec = colorvec
@@ -304,7 +304,7 @@ function ODEFunction{iip,false}(f;
                   end
                  end
 
-                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                 if jac_prototype !== nothing && colorvec == nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
                    _colorvec = ArrayInterface.matrix_colors(jac_prototype)
                  else
                    _colorvec = colorvec
@@ -386,7 +386,7 @@ function SDEFunction{iip,true}(f,g;
                   end
                  end
 
-                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                 if jac_prototype !== nothing && colorvec == nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
                    _colorvec = ArrayInterface.matrix_colors(jac_prototype)
                  else
                    _colorvec = colorvec
@@ -421,7 +421,7 @@ function SDEFunction{iip,false}(f,g;
                   end
                  end
 
-                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                 if jac_prototype !== nothing && colorvec == nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
                    _colorvec = ArrayInterface.matrix_colors(jac_prototype)
                  else
                    _colorvec = colorvec
@@ -471,7 +471,7 @@ function RODEFunction{iip,true}(f;
                   end
                  end
 
-                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                 if jac_prototype !== nothing && colorvec == nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
                    _colorvec = ArrayInterface.matrix_colors(jac_prototype)
                  else
                    _colorvec = colorvec
@@ -503,7 +503,7 @@ function RODEFunction{iip,false}(f;
                   end
                  end
 
-                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                 if jac_prototype !== nothing && colorvec == nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
                    _colorvec = ArrayInterface.matrix_colors(jac_prototype)
                  else
                    _colorvec = colorvec
@@ -539,7 +539,7 @@ function DAEFunction{iip,true}(f;
                   end
                  end
 
-                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                 if jac_prototype !== nothing && colorvec == nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
                    _colorvec = ArrayInterface.matrix_colors(jac_prototype)
                  else
                    _colorvec = colorvec
@@ -570,7 +570,7 @@ function DAEFunction{iip,false}(f;
                   end
                  end
 
-                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                 if jac_prototype !== nothing && colorvec == nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
                    _colorvec = ArrayInterface.matrix_colors(jac_prototype)
                  else
                    _colorvec = colorvec
@@ -607,7 +607,7 @@ function DDEFunction{iip,true}(f;
                   end
                  end
 
-                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                 if jac_prototype !== nothing && colorvec == nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
                    _colorvec = ArrayInterface.matrix_colors(jac_prototype)
                  else
                    _colorvec = colorvec
@@ -639,7 +639,7 @@ function DDEFunction{iip,false}(f;
                   end
                  end
 
-                 if jac_prototype !== nothing && colorvec = nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+                 if jac_prototype !== nothing && colorvec == nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
                    _colorvec = ArrayInterface.matrix_colors(jac_prototype)
                  else
                    _colorvec = colorvec
