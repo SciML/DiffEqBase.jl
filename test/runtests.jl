@@ -19,6 +19,9 @@ if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Integrator interface" begin include("integrator_tests.jl") end
     @time @safetestset "Export tests" begin include("export_tests.jl") end
     @time @safetestset "High Level solve Interface" begin include("high_level_solve.jl") end
+    @time @safetestset "DiffEqFunction tests" begin include("diffeqfunction_tests.jl") end
+    @time @safetestset "Internal Euler" begin include("internal_euler_test.jl") end
+    @time @safetestset "Numargs" begin include("numargs_test.jl") end
 end
 if !is_APPVEYOR && GROUP == "Downstream"
     if is_TRAVIS
@@ -33,6 +36,7 @@ if !is_APPVEYOR && GROUP == "Downstream"
     @time @safetestset "ODE Event Tests" begin include("downstream/ode_event_tests.jl") end
     @time @safetestset "Event Detection Tests" begin include("downstream/event_detection_tests.jl") end
     @time @safetestset "PSOS and Energy Conservation Event Detection" begin include("downstream/psos_and_energy_conservation.jl") end
+    @time @safetestset "DE stats" begin include("downstream/destats_tests.jl") end
 end
 
 if !is_APPVEYOR && GROUP == "GPU"
