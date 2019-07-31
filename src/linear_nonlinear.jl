@@ -50,6 +50,11 @@ end
 DefaultLinSolve() = DefaultLinSolve(nothing, nothing)
 
 function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
+  if p.iterable isa Vector && eltype(p.iterable) <: LinearAlgebra.BlasInt # `iterable` here is the pivoting vector
+    F = LU{eltype(A)}(A, p.iterable, zero(LinearAlgebra.BlasInt))
+    ldiv!(x, F, b)
+    return nothing
+  end
   if update_matrix
     if typeof(A) <: Matrix
       blasvendor = BLAS.vendor()
@@ -100,7 +105,12 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
 end
 
 function (p::DefaultLinSolve)(::Type{Val{:init}},f,u0_prototype)
-  DefaultLinSolve()
+  if has_Wfact(f.f) || has_Wfact_t(f.f)
+    piv = collect(one(LinearAlgebra.BlasInt):convert(LinearAlgebra.BlasInt, length(u0_prototype))) # pivoting vector
+    DefaultLinSolve(f, piv)
+  else
+    DefaultLinSolve()
+  end
 end
 
 const DEFAULT_LINSOLVE = DefaultLinSolve()
