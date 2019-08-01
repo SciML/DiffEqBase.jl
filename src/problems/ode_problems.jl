@@ -33,6 +33,8 @@ struct ODEProblem{uType,tType,isinplace,P,F,C,PT} <:
                                        u0,tspan,p=nothing,
                                        problem_type=StandardODEProblem();
                                        callback=nothing) where {iip}
+    mass_matrix = concretize_mass_matrix(f.mass_matrix, u0)
+    f = remake(f, mass_matrix = mass_matrix)
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(_tspan),
        isinplace(f),typeof(p),typeof(f),
@@ -175,10 +177,11 @@ function SecondOrderODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kw
         v
       end
     end
-    return ODEProblem(DynamicalODEFunction{iip}(f.f1,f2;mass_matrix=f.mass_matrix,analytic=f.analytic),_u0,tspan,p,
+    mass_matrix = concretize_mass_matrix(f.mass_matrix, u0)
+    return ODEProblem(DynamicalODEFunction{iip}(f.f1,f2;mass_matrix=mass_matrix,analytic=f.analytic),_u0,tspan,p,
                   SecondOrderODEProblem{iip}();kwargs...)
   else
-    return ODEProblem(DynamicalODEFunction{iip}(f.f1,f.f2;mass_matrix=f.mass_matrix,analytic=f.analytic),_u0,tspan,p,
+    return ODEProblem(DynamicalODEFunction{iip}(f.f1,f.f2;mass_matrix=mass_matrix,analytic=f.analytic),_u0,tspan,p,
                   SecondOrderODEProblem{iip}();kwargs...)
   end
 end
@@ -232,8 +235,9 @@ SplitODEProblem(f::SplitFunction,u0,tspan,p=nothing;kwargs...) =
   SplitODEProblem{isinplace(f)}(f,u0,tspan,p;kwargs...)
 function SplitODEProblem{iip}(f::SplitFunction,u0,tspan,p=nothing;kwargs...) where iip
   if f.cache === nothing && iip
+    mass_matrix = concretize_mass_matrix(f.mass_matrix, u0)
     cache = similar(u0)
-    f = SplitFunction{iip}(f.f1, f.f2; mass_matrix=f.mass_matrix,
+    f = SplitFunction{iip}(f.f1, f.f2; mass_matrix=mass_matrix,
                      _func_cache=cache, analytic=f.analytic)
   end
   ODEProblem(f,u0,tspan,p,SplitODEProblem{iip}();kwargs...)

@@ -260,7 +260,7 @@ function ODEFunction{iip,true}(f;
                  syms = nothing,
                  colorvec = nothing) where iip
 
-                 if mass_matrix == I && typeof(f) <: Tuple
+                 if mass_matrix === I && typeof(f) <: Tuple
                   mass_matrix = ((I for i in 1:length(f))...,)
                  end
 
@@ -284,6 +284,7 @@ function ODEFunction{iip,true}(f;
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
 end
+
 function ODEFunction{iip,false}(f;
                  mass_matrix=I,
                  analytic=nothing,
@@ -316,7 +317,8 @@ function ODEFunction{iip,false}(f;
                  f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
 end
-ODEFunction{iip}(f; kwargs...) where iip = ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
+
+@add_kwonly ODEFunction{iip}(f; kwargs...) where iip = ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 ODEFunction{iip}(f::ODEFunction; kwargs...) where iip = f
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 ODEFunction(f::ODEFunction; kwargs...) = f
