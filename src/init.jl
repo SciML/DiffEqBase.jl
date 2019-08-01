@@ -1,5 +1,7 @@
 value(x) = x
 cuify(x) = error("To use LinSolveGPUFactorize, you must do `using CuArrays`")
+concretize_mass_matrix(M, u0) = M
+concretize_mass_matrix(Ms::Tuple, u0) = map(M -> concretize_mass_matrix(M, u0), Ms)
 
 # Piracy, should get upstreamed
 LinearAlgebra.ldiv!(Y::AbstractArray, A::AbstractArray, B::AbstractArray) = (copy!(Y,B); ldiv!(A,Y))
@@ -136,5 +138,7 @@ function __init__()
       _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
       x .= vec(_x)
     end
+    concretize_mass_matrix(M::UniformScaling, u0::CuArrays.CuArray{T}) where T = (n = length(u0); CuArrays.CuArray{T}(M, n, n))
+    concretize_mass_matrix(M::CuArrays.CuArray, u0::CuArrays.CuArray) = M
   end
 end
