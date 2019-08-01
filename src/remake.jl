@@ -26,6 +26,11 @@ function remake(thing; kwargs...)
   T(; struct_as_namedtuple(thing)...,kwargs...)
 end
 
+function remake(thing::AbstractDiffEqFunction{iip}; kwargs...) where iip
+  T = ODEFunction{iip}
+  T(; struct_as_namedtuple(thing)...,kwargs...)
+end
+
 isrecompile(prob::ODEProblem{iip}) where {iip} = (prob.f isa ODEFunction) ? !(typeof(prob.f.f) <: FunctionWrapper) : true
 
 function remake(thing::ODEProblem; kwargs...)
