@@ -1,4 +1,4 @@
-using DiffEqBase, Test
+using DiffEqBase, Test, RecursiveArrayTools
 
 macro iop_def(funcdef::Expr)
     """Define in- and out-of-place functions simultaneously.
@@ -50,6 +50,22 @@ odefun = ODEFunction{false}(f_op)
 odefun_ip = ODEFunction{true}(f_ip)
 expected = f_op(u, p, t)
 test_iop(expected, odefun, odefun_ip, u, p, t)
+
+# SplitFunction
+@iop_def f2(u, p, t) = u .^ 2
+sfun = SplitFunction{false}(f_op, f2_op)
+sfun_ip = SplitFunction{true}(f_ip, f2_ip; _func_cache=similar(u))
+expected = f_op(u, p, t) + f2_op(u, p, t)
+test_iop(expected, sfun, sfun_ip, u, p, t)
+
+# DynamicalODEFunction
+@iop_def dode_f1(v, u, p, t) = -u
+@iop_def dode_f2(v, u, p, t) = p[1] .* v
+dodefun = DynamicalODEFunction{false}(dode_f1_op, dode_f2_op)
+dodefun_ip = DynamicalODEFunction{true}(dode_f1_ip, dode_f2_ip)
+v = [4.0, 5.0, 6.0]
+expected = ArrayPartition(dode_f1_op(v, u, p, t), dode_f2_op(v, u, p, t))
+test_iop(expected, dodefun, dodefun_ip, ArrayPartition(v, u), p, t)
 
 # DiscreteFunction
 dfun = DiscreteFunction{false}(f_op)
