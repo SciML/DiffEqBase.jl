@@ -18,12 +18,20 @@ diffeqbc(x) = x
 @inline combine_axes(A, B) = broadcast_shape(broadcast_axes(A), broadcast_axes(B)) # Julia 1.0 compatible
 @inline check_broadcast_axes(shp, A::Union{Number, Array, Broadcasted}) = check_broadcast_shape(shp, axes(A))
 
-@inline preprocess(f, dest, bc::Broadcasted{Style}) where {Style} = Broadcasted{Style}(bc.f, preprocess_args(f, dest, bc.args), bc.axes)
-preprocess(f, dest, x) = f(broadcast_unalias(dest, x))
+@noinline throwfastbc(axesA, axesB) = throw(DimensionMismatch("DiffEq's fast broadcast cannot broadcast $axesA with $axesB"))
+@inline preprocess(f::typeof(diffeqbc), dest, bc::Broadcasted{Style}) where {Style} = Broadcasted{Style}(bc.f, preprocess_args(f, dest, bc.args), bc.axes)
+@inline function preprocess(f::typeof(diffeqbc), dest, x)
+    axesdest = axes(dest)
+    axesx = axes(x)
+    if !(axesdest === () || axesx === ())
+        axesdest == axesx || throwfastbc(axesdest, axesx)
+    end
+    f(broadcast_unalias(dest, x))
+end
 
-@inline preprocess_args(f, dest, args::Tuple) = (preprocess(f, dest, args[1]), preprocess_args(f, dest, tail(args))...)
-@inline preprocess_args(f, dest, args::Tuple{Any}) = (preprocess(f, dest, args[1]),)
-preprocess_args(f, dest, args::Tuple{}) = ()
+@inline preprocess_args(f::typeof(diffeqbc), dest, args::Tuple) = (preprocess(f, dest, args[1]), preprocess_args(f, dest, tail(args))...)
+@inline preprocess_args(f::typeof(diffeqbc), dest, args::Tuple{Any}) = (preprocess(f, dest, args[1]),)
+preprocess_args(f::typeof(diffeqbc), dest, args::Tuple{}) = ()
 
 # Performance optimization for the common identity scalar case: dest .= val
 @inline copyto!(dest::DiffEqBC, bc::Broadcasted{<:AbstractArrayStyle{0}}) = copyto!(dest.x, bc)
