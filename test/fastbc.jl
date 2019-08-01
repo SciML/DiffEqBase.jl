@@ -45,3 +45,8 @@ a, b, c = [rand(Bool, 10) for i in 1:3]; a_ = copy(a)
 x = ones(10); y = similar(x)
 @test_nowarn @.. y = 0.1
 @test_nowarn @.. y = x
+
+du = rand(4, 2)
+u1 = rand(4)
+u2 = rand(1, 2)
+@test_throws DimensionMismatch @.. du = u1 * u2 
