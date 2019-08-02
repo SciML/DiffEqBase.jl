@@ -17,4 +17,4 @@ __has_syms(f) = isdefined(f, :syms)
 __has_analytic(f) = isdefined(f, :analytic)
 
 # Color vector for sparse Jacobian
-__has_colorvec(f) = isdefined(f,:colorvec)
+__has_color(f) = isdefined(f,:color)
