@@ -3,7 +3,7 @@ using DiffEqBase, DiffEqBase.InternalEuler
 # Try it
 ff = ODEFunction(
     (u, p, t) -> u,
-    jac=(u, p, t) -> u,
+    jac=(u, p, t) -> 1.,
     analytic=(u0, p, t) -> u0*exp(t)
 )
 
