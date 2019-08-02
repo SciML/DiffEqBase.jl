@@ -18,12 +18,7 @@ build:
     - export PATH="$(pwd)/julia-1.1.1/bin:$PATH"
     - julia -e "using InteractiveUtils;
                 versioninfo()"
-    - julia --project -e "using Pkg;
-                          Pkg.update();
-                          Pkg.instantiate();
-                          Pkg.add(\"OrdinaryDiffEq\");
-                          pkg\"precompile\";
-                          using OrdinaryDiffEq;"
+    - julia --project -e "using Pkg; Pkg.add(\"OrdinaryDiffEq\"); Pkg.build(\"OrdinaryDiffEq\"); using OrdinaryDiffEq"
   only:
   - master
   - tags
