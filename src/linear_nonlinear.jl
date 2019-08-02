@@ -69,7 +69,9 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
       p.A = ldlt!(A)
     elseif typeof(A) <: Union{Symmetric,Hermitian}
       p.A = bunchkaufman!(A)
-    elseif ArrayInterface.isstructured(A) || typeof(A) <: SparseMatrixCSC
+    elseif typeof(A) <: SparseMatrixCSC
+      p.A = lu(A)
+    elseif ArrayInterface.isstructured(A)
       p.A = factorize(A)
     elseif !(typeof(A) <: AbstractDiffEqOperator)
       # Most likely QR is the one that is overloaded
