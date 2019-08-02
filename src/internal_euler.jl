@@ -61,7 +61,6 @@ function DiffEqBase.solve(prob::DiffEqBase.AbstractODEProblem{uType,tType,isinpl
     # TODO: fix numparameters as it picks up the Jacobian
 #    @assert !isinplace "Only out of place functions supported"
     @assert DiffEqBase.has_jac(f) "Provide Jacobian as f(::Val{:jac}, ...)"
-    jac = (u,p,t) -> f(Val{:jac}(),u,p,t)
 
     if isempty(tstops)
         tstops = tspan[1]:dt:tspan[2]
@@ -69,12 +68,12 @@ function DiffEqBase.solve(prob::DiffEqBase.AbstractODEProblem{uType,tType,isinpl
     @assert tstops[1]==tspan[1]
 
     nt = length(tstops)
-    out = Vector{uType}(nt)
+    out = Vector{uType}(undef, nt)
     out[1] = copy(u0)
     for i=2:nt
         t = tstops[i]
         dt = t-tstops[i-1]
-        out[i] = newton(t, dt, out[i-1], p, f, jac, tol, maxiter)
+        out[i] = newton(t, dt, out[i-1], p, f, f.jac, tol, maxiter)
     end
     # make solution type
     DiffEqBase.build_solution(prob, Alg, tstops, out)
