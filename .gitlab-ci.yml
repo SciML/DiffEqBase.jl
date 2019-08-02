@@ -8,6 +8,10 @@ cache:
   paths:
     - .julia/
 
+stages:
+  - build
+  - test
+
 build:
   stage: build
   tags:
