@@ -1,9 +1,11 @@
 using DiffEqBase, DiffEqBase.InternalEuler
 
 # Try it
-ff(t,u) = u
-ff(::Val{:jac}, t, u) = 1
-ff(::Type{Val{:analytic}},t,u0) = u0*exp(t)
+ff = ODEFunction(
+    (u, p, t) -> u,
+    jac=(u, p, t) -> 1.,
+    analytic=(u0, p, t) -> u0*exp(t)
+)
 
 dt = 0.01
 prob = ODEProblem(ff, 1.0, (0.0,1.0) )
