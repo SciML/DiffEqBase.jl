@@ -359,6 +359,13 @@ abstract type AbstractDiffEqFunction{iip} <: Function end
 
 """
 $(TYPEDEF)
+
+Base for types which define the history of a delay differential equation.
+"""
+abstract type AbstractHistoryFunction <: Function end
+
+"""
+$(TYPEDEF)
 """
 abstract type AbstractReactionNetwork <: Function end
 
