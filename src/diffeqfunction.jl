@@ -31,12 +31,20 @@ $(TYPEDEF)
 
 TODO
 """
-struct SplitFunction{iip,F1,F2,TMM,C,Ta} <: AbstractODEFunction{iip}
+struct SplitFunction{iip,F1,F2,TMM,C,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
   f1::F1
   f2::F2
   mass_matrix::TMM
   cache::C
   analytic::Ta
+  tgrad::Tt
+  jac::TJ
+  jac_prototype::JP
+  Wfact::TW
+  Wfact_t::TWt
+  paramjac::TPJ
+  syms::S
+  colorvec::TCV
 end
 
 """
@@ -128,13 +136,21 @@ $(TYPEDEF)
 
 TODO
 """
-struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta} <: AbstractSDEFunction{iip}
+struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractSDEFunction{iip}
   f1::F1
   f2::F2
   g::G
   mass_matrix::TMM
   cache::C
   analytic::Ta
+  tgrad::Tt
+  jac::TJ
+  jac_prototype::JP
+  Wfact::TW
+  Wfact_t::TWt
+  paramjac::TPJ
+  syms::S
+  colorvec::TCV
 end
 
 """
@@ -325,12 +341,45 @@ ODEFunction(f::ODEFunction; kwargs...) = f
   f1 = typeof(f1) <: AbstractDiffEqOperator ? f1 : ODEFunction(f1)
   f2 = ODEFunction(f2)
   SplitFunction{isinplace(f2),typeof(f1),typeof(f2),typeof(mass_matrix),
-              typeof(cache),typeof(analytic)}(f1,f2,mass_matrix,cache,analytic)
+              typeof(cache),typeof(analytic),typeof(tgrad),typeof(jac),
+              typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
+              typeof(colorvec)}(f1,f2,mass_matrix,cache,analytic,tgrad,jac,
+              jac_prototype,Wfact,Wfact_t,paramjac,syms,colorvec)
 end
-SplitFunction{iip,true}(f1,f2; mass_matrix=I,_func_cache=nothing,analytic=nothing) where iip =
-SplitFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(_func_cache),typeof(analytic)}(f1,f2,mass_matrix,_func_cache,analytic)
-SplitFunction{iip,false}(f1,f2; mass_matrix=I,_func_cache=nothing,analytic=nothing) where iip =
-SplitFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,_func_cache,analytic)
+function SplitFunction{iip,true}(f1,f2;
+                                 mass_matrix=I,_func_cache=nothing,
+                                 analytic=nothing,
+                                 tgrad = nothing,
+                                 jac = nothing,
+                                 jac_prototype = nothing,
+                                 Wfact = nothing,
+                                 Wfact_t = nothing,
+                                 paramjac = nothing,
+                                 syms = nothing,
+                                 colorvec = nothing) where iip
+  SplitFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),
+                typeof(_func_cache),typeof(analytic),
+                typeof(tgrad),typeof(jac),typeof(jac_prototype),
+                typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
+                typeof(colorvec)}(
+                f1,f2,mass_matrix,_func_cache,analytic,tgrad,jac,jac_prototype,
+                Wfact,Wfact_t,paramjac,syms,colorvec)
+end
+function SplitFunction{iip,false}(f1,f2; mass_matrix=I,
+                                  _func_cache=nothing,analytic=nothing,
+                                  tgrad = nothing,
+                                  jac = nothing,
+                                  jac_prototype = nothing,
+                                  Wfact = nothing,
+                                  Wfact_t = nothing,
+                                  paramjac = nothing,
+                                  syms = nothing,
+                                  colorvec = nothing) where iip
+  SplitFunction{iip,Any,Any,Any,Any,Any,Any,Any,
+                Any,Any,Any,Any,Any}(
+                f1,f2,mass_matrix,_func_cache,analytic,tgrad,jac,jac_prototype,
+                Wfact,Wfact_t,paramjac,syms,colorvec)
+end
 SplitFunction(f1,f2; kwargs...) = SplitFunction{isinplace(f2, 4)}(f1, f2; kwargs...)
 SplitFunction{iip}(f1,f2; kwargs...) where iip =
 SplitFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction(f1),ODEFunction{iip}(f2); kwargs...)
@@ -438,14 +487,42 @@ SDEFunction{iip}(f::SDEFunction,g; kwargs...) where iip = f
 SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 SDEFunction(f::SDEFunction; kwargs...) = f
 
-SplitSDEFunction{iip,true}(f1,f2,g; mass_matrix=I,
-                           _func_cache=nothing,analytic=nothing) where iip =
-SplitSDEFunction{iip,typeof(f1),typeof(f2),typeof(g),
+function SplitSDEFunction{iip,true}(f1,f2,g; mass_matrix=I,
+                           _func_cache=nothing,analytic=nothing,
+                           tgrad = nothing,
+                           jac = nothing,
+                           jac_prototype = nothing,
+                           Wfact = nothing,
+                           Wfact_t = nothing,
+                           paramjac = nothing,
+                           syms = nothing,
+                           colorvec = nothing) where iip
+  SplitSDEFunction{iip,typeof(f1),typeof(f2),typeof(g),
               typeof(mass_matrix),typeof(_func_cache),
-              typeof(analytic)}(f1,f2,g,mass_matrix,_func_cache,analytic)
-SplitSDEFunction{iip,false}(f1,f2,g; mass_matrix=I,
-                            _func_cache=nothing,analytic=nothing) where iip =
-SplitSDEFunction{iip,Any,Any,Any,Any,Any}(f1,f2,g,mass_matrix,_func_cache,analytic)
+              typeof(analytic),
+              typeof(tgrad),typeof(jac),typeof(jac_prototype),
+              typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
+              typeof(colorvec)}(f1,f2,g,mass_matrix,_func_cache,analytic,
+              tgrad,jac,jac_prototype,
+              Wfact,Wfact_t,paramjac,syms,colorvec)
+end
+function SplitSDEFunction{iip,false}(f1,f2,g; mass_matrix=I,
+                            _func_cache=nothing,analytic=nothing,
+                            tgrad = nothing,
+                            jac = nothing,
+                            jac_prototype = nothing,
+                            Wfact = nothing,
+                            Wfact_t = nothing,
+                            paramjac = nothing,
+                            syms = nothing,
+                            colorvec = nothing) where iip
+  SplitSDEFunction{iip,Any,Any,Any,Any,Any,
+                   Any,Any,Any,
+                   Any,Any,Any,Any,Any}(
+                   f1,f2,g,mass_matrix,_func_cache,analytic,
+                   tgrad,jac,jac_prototype,
+                   Wfact,Wfact_t,paramjac,syms,colorvec)
+end
 SplitSDEFunction(f1,f2,g; kwargs...) = SplitSDEFunction{isinplace(f2, 4)}(f1, f2, g; kwargs...)
 SplitSDEFunction{iip}(f1,f2, g; kwargs...) where iip =
 SplitSDEFunction{iip,RECOMPILE_BY_DEFAULT}(SDEFunction(f1,g), SDEFunction{iip}(f2,g), g; kwargs...)
