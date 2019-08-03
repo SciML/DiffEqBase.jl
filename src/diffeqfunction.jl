@@ -337,11 +337,14 @@ ODEFunction{iip}(f::ODEFunction; kwargs...) where iip = f
 ODEFunction(f; kwargs...) = ODEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
 ODEFunction(f::ODEFunction; kwargs...) = f
 
-@add_kwonly function SplitFunction(f1,f2,mass_matrix,cache,analytic)
+@add_kwonly function SplitFunction(f1,f2,mass_matrix,cache,analytic,tgrad,jac,
+                                   jac_prototype,Wfact,Wfact_t,paramjac,
+                                   syms,colorvec)
   f1 = typeof(f1) <: AbstractDiffEqOperator ? f1 : ODEFunction(f1)
   f2 = ODEFunction(f2)
   SplitFunction{isinplace(f2),typeof(f1),typeof(f2),typeof(mass_matrix),
               typeof(cache),typeof(analytic),typeof(tgrad),typeof(jac),
+              typeof(jac_prototype),
               typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
               typeof(colorvec)}(f1,f2,mass_matrix,cache,analytic,tgrad,jac,
               jac_prototype,Wfact,Wfact_t,paramjac,syms,colorvec)
@@ -486,6 +489,18 @@ SDEFunction{iip}(f,g; kwargs...) where iip = SDEFunction{iip,RECOMPILE_BY_DEFAUL
 SDEFunction{iip}(f::SDEFunction,g; kwargs...) where iip = f
 SDEFunction(f,g; kwargs...) = SDEFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 SDEFunction(f::SDEFunction; kwargs...) = f
+
+@add_kwonly function SplitSDEFunction(f1,f2,g,mass_matrix,cache,analytic,tgrad,jac,
+                                   jac_prototype,Wfact,Wfact_t,paramjac,
+                                   syms,colorvec)
+  f1 = typeof(f1) <: AbstractDiffEqOperator ? f1 : SDEFunction(f1)
+  f2 = SDEFunction(f2)
+  SplitFunction{isinplace(f2),typeof(f1),typeof(f2),typeof(g),typeof(mass_matrix),
+              typeof(cache),typeof(analytic),typeof(tgrad),typeof(jac),
+              typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
+              typeof(colorvec)}(f1,f2,mass_matrix,cache,analytic,tgrad,jac,
+              jac_prototype,Wfact,Wfact_t,paramjac,syms,colorvec)
+end
 
 function SplitSDEFunction{iip,true}(f1,f2,g; mass_matrix=I,
                            _func_cache=nothing,analytic=nothing,
