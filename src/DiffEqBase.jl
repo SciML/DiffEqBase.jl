@@ -490,6 +490,8 @@ export LinSolveFactorize, LinSolveGPUFactorize, DefaultLinSolve, DEFAULT_LINSOLV
 export AffineDiffEqOperator, update_coefficients!, update_coefficients, isconstant,
        has_expmv!, has_expmv, has_exp, has_mul, has_mul!, has_ldiv, has_ldiv!
 
+export DiffEqScalar, DiffEqArrayOperator, DiffEqIdentity
+
 export NLNewton, NLFunctional, NLAnderson
 
 export EnsembleThreads, EnsembleDistributed, EnsembleSplitThreads, EnsembleSerial

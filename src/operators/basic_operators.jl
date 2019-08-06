@@ -95,3 +95,9 @@ Base.size(L::FactorizedDiffEqArrayOperator, args...) = size(L.F, args...)
 LinearAlgebra.ldiv!(Y::AbstractVecOrMat, L::FactorizedDiffEqArrayOperator, B::AbstractVecOrMat) = ldiv!(Y, L.F, B)
 LinearAlgebra.ldiv!(L::FactorizedDiffEqArrayOperator, B::AbstractVecOrMat) = ldiv!(L.F, B)
 Base.:\(L::FactorizedDiffEqArrayOperator, x::AbstractVecOrMat) = L.F \ x
+
+# The (u,p,t) and (du,u,p,t) interface
+for T in [DiffEqScalar, DiffEqArrayOperator, FactorizedDiffEqArrayOperator, DiffEqIdentity]
+  (L::T)(u,p,t) = (update_coefficients!(L,u,p,t); L * u)
+  (L::T)(du,u,p,t) = (update_coefficients!(L,u,p,t); mul!(du,L,u))
+end
