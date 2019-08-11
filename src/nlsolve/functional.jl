@@ -156,7 +156,8 @@ Equations II, Springer Series in Computational Mathematics. ISBN
         end
 
         # update norm of residuals
-        ndz = integrator.opts.internalnorm(z .- z₊ .+ dz, tstep)
+        atmp = calculate_residuals(z .- z₊ .+ dz, uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
+        ndz = integrator.opts.internalnorm(atmp, t)
       end
     end
   end
@@ -305,7 +306,8 @@ end
 
         # update norm of residuals
         @.. dz = z - z₊ + dz
-        ndz = integrator.opts.internalnorm(dz, tstep)
+        calculate_residuals!(ztmp, dz, uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
+        ndz = integrator.opts.internalnorm(ztmp, t)
       end
     end
   end
