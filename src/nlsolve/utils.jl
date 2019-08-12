@@ -241,14 +241,14 @@ function Base.resize!(nlcache::NLAndersonCache, nlalg::NLAnderson, i::Int)
 end
 
 function Base.resize!(nlcache::NLAndersonConstantCache, nlalg::NLAnderson, i::Int)
-  @unpack max_history = nlcache
+  @unpack γs, Δz₊s = nlcache
 
   # determine new maximum history
-  max_history_old = length(nlcache.Δz₊s)
+  max_history_old = length(Δz₊s)
   max_history = min(nlalg.max_history, nlalg.max_iter, i)
 
-  resize!(nlcache.γs, max_history)
-  resize!(nlcache.Δz₊s, max_history)
+  resize!(γs, max_history)
+  resize!(Δz₊s, max_history)
 
   if max_history != max_history_old
     nlcache.Q = typeof(nlcache.Q)(undef, i, max_history)
