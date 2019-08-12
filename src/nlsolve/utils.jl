@@ -67,23 +67,6 @@ function qradd!(Q::AbstractMatrix, R::AbstractMatrix, v::Number, k::Int)
   Q, R
 end
 
-get_status(nlsolver::NLSolver) = nlsolver.status
-
-nlsolvefail(nlsolver) = nlsolvefail(get_status(nlsolver))
-nlsolvefail(nlstatus::NLStatus) = Int8(nlstatus) < 0
-
-isnewton(::NLSolver) = false
-isnewton(::NLSolver{<:NLNewton}) = true
-
-set_new_W!(nlsolver::NLSolver, val::Bool)::Bool = set_new_W!(nlsolver.cache, val)
-set_new_W!(nlcache::NLNewtonCache, val::Bool)::Bool = (nlcache.new_W = val; val)
-
-get_W(nlsolver::NLSolver) = get_W(nlsolver.cache)
-get_W(nlcache::Union{NLNewtonCache,NLNewtonConstantCache}) = nlcache.W
-
-set_W!(nlsolver::NLSolver, W) = set_W!(nlsolver.cache, W)
-set_W!(nlcache::Union{NLNewtonCache,NLNewtonConstantCache}, W) = (nlcache.W = W; W)
-
 function nlsolve_f end
 function iip_get_uf end
 function oop_get_uf end
