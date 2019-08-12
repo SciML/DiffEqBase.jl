@@ -122,7 +122,7 @@ function iipnlsolve(alg,u,uprev,p,t,dt,f,W,J,rate_prototype,uEltypeNoUnits,uBott
     # TODO: check if the solver is iterative
     weight = similar(u)
 
-    nlcache = DiffEqBase.NLNewtonCache(true,W,J,dt,alg.nlsolve.new_W_dt_cutoff,du1,uf,jac_config,linsolve,weight)
+    nlcache = DiffEqBase.NLNewtonCache(true,W,J,dt,du1,uf,jac_config,linsolve,weight)
   elseif alg.nlsolve isa NLFunctional
     z₊ = similar(z)
 
@@ -138,7 +138,7 @@ function iipnlsolve(alg,u,uprev,p,t,dt,f,W,J,rate_prototype,uEltypeNoUnits,uBott
     dzold = zero(z)
     z₊old = zero(z)
 
-    nlcache = DiffEqBase.NLAndersonCache(z₊,dzold,z₊old,Δz₊s,Q,R,γs,alg.nlsolve.aa_start,alg.nlsolve.droptol)
+    nlcache = DiffEqBase.NLAndersonCache(z₊,dzold,z₊old,Δz₊s,Q,R,γs)
   end
 
   # create non-linear solver
@@ -161,7 +161,7 @@ function oopnlsolve(alg,u,uprev,p,t,dt,f,W,J,rate_prototype,uEltypeNoUnits,uBott
     nf = nlsolve_f(f, alg)
     # only use `nf` if the algorithm specializes on split eqs
     uf = oop_get_uf(alg,nf,t,p)
-    nlcache = DiffEqBase.NLNewtonConstantCache(W,J,alg.nlsolve.new_W_dt_cutoff,uf)
+    nlcache = DiffEqBase.NLNewtonConstantCache(true,W,J,dt,uf)
   elseif alg.nlsolve isa NLFunctional
     nlcache = DiffEqBase.NLFunctionalConstantCache()
   elseif alg.nlsolve isa NLAnderson
@@ -171,7 +171,7 @@ function oopnlsolve(alg,u,uprev,p,t,dt,f,W,J,rate_prototype,uEltypeNoUnits,uBott
     R = Matrix{uEltypeNoUnits}(undef, max_history, max_history)
     γs = Vector{uEltypeNoUnits}(undef, max_history)
 
-    nlcache = DiffEqBase.NLAndersonConstantCache(Δz₊s,Q,R,γs,alg.nlsolve.aa_start,alg.nlsolve.droptol)
+    nlcache = DiffEqBase.NLAndersonConstantCache(Δz₊s,Q,R,γs)
   end
 
   # create non-linear solver

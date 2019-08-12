@@ -71,9 +71,11 @@ mutable struct NLNewtonCache{W,J,T,du1Type,ufType,jcType,lsType,uType} <: Abstra
   weight::uType
 end
 
-mutable struct NLNewtonConstantCache{W,J,C,ufType} <: AbstractNLSolverCache
+mutable struct NLNewtonConstantCache{W,J,T,ufType} <: AbstractNLSolverCache
+  new_W::Bool
   W::W
   J::J
+  W_dt::T
   uf::ufType
 end
 
@@ -83,7 +85,7 @@ end
 
 struct NLFunctionalConstantCache <: AbstractNLSolverCache end
 
-mutable struct NLAndersonCache{uType,gsType,QType,RType,gType,D} <: AbstractNLSolverCache
+mutable struct NLAndersonCache{uType,gsType,QType,RType,gType} <: AbstractNLSolverCache
   z₊::uType
   dzold::uType
   z₊old::uType
@@ -91,15 +93,11 @@ mutable struct NLAndersonCache{uType,gsType,QType,RType,gType,D} <: AbstractNLSo
   Q::QType
   R::RType
   γs::gType
-  aa_start::Int
-  droptol::D
 end
 
-mutable struct NLAndersonConstantCache{gsType,QType,RType,gType,D} <: AbstractNLSolverCache
+mutable struct NLAndersonConstantCache{gsType,QType,RType,gType} <: AbstractNLSolverCache
   Δz₊s::gsType
   Q::QType
   R::RType
   γs::gType
-  aa_start::Int
-  droptol::D
 end

@@ -125,7 +125,7 @@ end
   @unpack z,dz,tmp,ztmp,k,c,γ = nlsolver
   @unpack κ,max_iter,fast_convergence_cutoff = nlsolver.alg
   nlcache = nlsolver.cache
-  @unpack W,new_W,weight = nlcache
+  @unpack W,new_W,linsolve,weight = nlcache
 
   calculate_residuals!(weight, fill!(weight, one(eltype(u))), uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
   lintol = integrator.opts.reltol
@@ -164,7 +164,7 @@ end
     if W isa AbstractDiffEqLinearOperator
       update_coefficients!(W,dz,p,tstep)
     end
-    nlsolver.linsolve(vecdz,W,vecztmp,iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=lintol)
+    linsolve(vecdz,W,vecztmp,iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=lintol)
 
     if has_destats(integrator)
       integrator.destats.nsolve += 1

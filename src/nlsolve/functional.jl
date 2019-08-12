@@ -32,7 +32,8 @@ Equations II, Springer Series in Computational Mathematics. ISBN
   nlcache = nlsolver.cache
 
   if nlcache isa NLAndersonConstantCache
-    @unpack Δz₊s,Q,R,γs,aa_start,droptol = nlcache
+    @unpack aa_start,droptol = nlsolver.alg
+    @unpack Δz₊s,Q,R,γs = nlcache
   end
 
   # precalculations
@@ -177,11 +178,11 @@ end
   @unpack z,dz,tmp,ztmp,k,c,γ = nlsolver
   @unpack κ,max_iter,fast_convergence_cutoff = nlsolver.alg
   nlcache = nlsolver.cache
+  @unpack z₊ = nlcache
 
-  if nlcache isa NLFunctionalCache
-    @unpack z₊ = nlcache
-  else
-    @unpack z₊,dzold,z₊old,Δz₊s,Q,R,γs,aa_start,droptol = nlcache
+  if nlcache isa NLAndersonCache
+    @unpack aa_start,droptol = nlsolver.alg
+    @unpack dzold,z₊old,Δz₊s,Q,R,γs = nlcache
   end
 
   # precalculations
