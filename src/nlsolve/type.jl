@@ -11,25 +11,18 @@ end
 
 # solver
 
-mutable struct NLSolver{iip,uType,rateType,uTolType,kType,gType,cType,du1Type,ufType,jcType,lsType,C1,C<:AbstractNLSolverCache}
+mutable struct NLSolver{algType<:AbstractNLSolverAlgorithm,IIP,uType,rateType,uTolType,gType,cType,C}
   z::uType
   dz::uType
   tmp::uType
   ztmp::uType
   k::rateType
+  alg::algType
   ηold::uTolType
-  κ::kType
   γ::gType
   c::cType
-  max_iter::Int
   nl_iters::Int
   status::NLStatus
-  fast_convergence_cutoff::C1
-  du1::du1Type
-  uf::ufType
-  jac_config::jcType
-  linsolve::lsType
-  weight::uType
   cache::C
 end
 
@@ -66,18 +59,22 @@ NLNewton(; κ=1//100, max_iter=10, fast_convergence_cutoff=1//5, new_W_dt_cutoff
 
 # caches
 
-mutable struct NLNewtonCache{W,J,T,C} <: AbstractNLSolverCache
+mutable struct NLNewtonCache{W,J,T,du1Type,ufType,jcType,lsType,uType} <: AbstractNLSolverCache
   new_W::Bool
   W::W
   J::J
   W_dt::T
-  new_W_dt_cutoff::C
+  du1::du1Type
+  uf::ufType
+  jac_config::jcType
+  linsolve::lsType
+  weight::uType
 end
 
-mutable struct NLNewtonConstantCache{W,J,C} <: AbstractNLSolverCache
+mutable struct NLNewtonConstantCache{W,J,C,ufType} <: AbstractNLSolverCache
   W::W
   J::J
-  new_W_dt_cutoff::C
+  uf::ufType
 end
 
 struct NLFunctionalCache{uType} <: AbstractNLSolverCache

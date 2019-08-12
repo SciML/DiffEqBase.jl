@@ -1,5 +1,5 @@
 """
-    nlsolve!(nlsolver::NLSolver, nlcache::Union{NLNewtonCache,NLNewtonConstantCache}, integrator)
+    nlsolve!(nlsolver::NLSolver{<:NLNewton}, integrator)
 
 Perform numerically stable modified Newton iteration that is specialized for implicit
 methods (see [^HS96] and [^HW96]).
@@ -41,9 +41,11 @@ Equations II, Springer Series in Computational Mathematics. ISBN
 978-3-642-05221-7. Section IV.8.
 [doi:10.1007/978-3-642-05221-7](https://doi.org/10.1007/978-3-642-05221-7)
 """
-@muladd function nlsolve!(nlsolver::NLSolver, nlcache::NLNewtonConstantCache, integrator)
+@muladd function nlsolve!(nlsolver::NLSolver{<:NLNewton,false}, integrator)
   @unpack t,dt,uprev,u,p = integrator
-  @unpack z,tmp,κ,c,γ,max_iter = nlsolver
+  @unpack z,tmp,c,γ = nlsolver
+  @unpack κ,max_iter,fast_convergence_cutoff = nlsolver.alg
+  nlcache = nlsolver.cache
   W = nlcache.W
 
   # precalculations
@@ -103,7 +105,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
     iter > 1 && (η = θ / (1 - θ))
     if η * ndz < κ && (iter > 1 || iszero(ndz) || !iszero(integrator.success_iter))
       # Newton method converges
-      nlsolver.status = η < nlsolver.fast_convergence_cutoff ? FastConvergence : Convergence
+      nlsolver.status = η < fast_convergence_cutoff ? FastConvergence : Convergence
       fail_convergence = false
       break
     end
@@ -118,11 +120,13 @@ Equations II, Springer Series in Computational Mathematics. ISBN
   return z
 end
 
-@muladd function nlsolve!(nlsolver::NLSolver, nlcache::NLNewtonCache, integrator)
-  @unpack t,dt,uprev,u,p,cache = integrator
-  @unpack z,dz,tmp,ztmp,k,κ,c,γ,max_iter,weight = nlsolver
-  @unpack W, new_W, W_dt = nlcache
-  cache = unwrap_cache(integrator, true)
+@muladd function nlsolve!(nlsolver::NLSolver{<:NLNewton,true}, integrator)
+  @unpack t,dt,uprev,u,p = integrator
+  @unpack z,dz,tmp,ztmp,k,c,γ = nlsolver
+  @unpack κ,max_iter,fast_convergence_cutoff = nlsolver.alg
+  nlcache = nlsolver.cache
+  @unpack W,new_W,weight = nlcache
+
   calculate_residuals!(weight, fill!(weight, one(eltype(u))), uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
   lintol = integrator.opts.reltol
 
@@ -190,7 +194,7 @@ end
     iter > 1 && (η = θ / (1 - θ))
     if η * ndz < κ && (iter > 1 || iszero(ndz) || !iszero(integrator.success_iter))
       # Newton method converges
-      nlsolver.status = η < nlsolver.fast_convergence_cutoff ? FastConvergence : Convergence
+      nlsolver.status = η < fast_convergence_cutoff ? FastConvergence : Convergence
       fail_convergence = false
       break
     end

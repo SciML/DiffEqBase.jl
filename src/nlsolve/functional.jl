@@ -1,5 +1,5 @@
 """
-    nlsolve!(nlsolver::NLSolver, nlcache::Union{NLFunctionalCache,NLAndersonCache,NLFunctionalConstantCache,NLAndersonConstantCache}, integrator)
+    nlsolve!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson}}, integrator)
 
 Perform functional iteration that is used by implicit methods.
 
@@ -25,9 +25,11 @@ Equations II, Springer Series in Computational Mathematics. ISBN
 978-3-642-05221-7. Section IV.8.
 [doi:10.1007/978-3-642-05221-7](https://doi.org/10.1007/978-3-642-05221-7)
 """
-@muladd function nlsolve!(nlsolver::NLSolver, nlcache::Union{NLFunctionalConstantCache,NLAndersonConstantCache}, integrator)
+@muladd function nlsolve!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson},false}, integrator)
   @unpack t,dt,uprev,u,p = integrator
-  @unpack z,tmp,κ,c,γ,max_iter = nlsolver
+  @unpack z,tmp,c,γ = nlsolver
+  @unpack κ,max_iter,fast_convergence_cutoff = nlsolver.alg
+  nlcache = nlsolver.cache
 
   if nlcache isa NLAndersonConstantCache
     @unpack Δz₊s,Q,R,γs,aa_start,droptol = nlcache
@@ -92,7 +94,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
     iter > 1 && (η = θ / (1 - θ))
     if η * ndz < κ && (iter > 1 || iszero(ndz))
       # fixed-point iteration converges
-      nlsolver.status = η < nlsolver.fast_convergence_cutoff ? FastConvergence : Convergence
+      nlsolver.status = η < fast_convergence_cutoff ? FastConvergence : Convergence
       fail_convergence = false
       break
     end
@@ -170,9 +172,11 @@ Equations II, Springer Series in Computational Mathematics. ISBN
   return z
 end
 
-@muladd function nlsolve!(nlsolver::NLSolver, nlcache::Union{NLFunctionalCache,NLAndersonCache}, integrator)
+@muladd function nlsolve!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson},true}, integrator)
   @unpack t,dt,uprev,u,p = integrator
-  @unpack z,dz,tmp,ztmp,k,κ,c,γ,max_iter = nlsolver
+  @unpack z,dz,tmp,ztmp,k,c,γ = nlsolver
+  @unpack κ,max_iter,fast_convergence_cutoff = nlsolver.alg
+  nlcache = nlsolver.cache
 
   if nlcache isa NLFunctionalCache
     @unpack z₊ = nlcache
@@ -238,7 +242,7 @@ end
     iter > 1 && (η = θ / (1 - θ))
     if η * ndz < κ && (iter > 1 || iszero(ndz))
       # fixed-point iteration converges
-      nlsolver.status = η < nlsolver.fast_convergence_cutoff ? FastConvergence : Convergence
+      nlsolver.status = η < fast_convergence_cutoff ? FastConvergence : Convergence
       fail_convergence = false
       break
     end
