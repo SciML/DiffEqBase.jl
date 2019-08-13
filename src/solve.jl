@@ -84,7 +84,7 @@ function get_concrete_tspan(prob, kwargs)
     tspan = prob.tspan(prob.p)
   elseif prob.tspan == (nothing, nothing)
     if haskey(kwargs, :tspan)
-      tspan = kwargs.tspan
+      tspan = kwargs[:tspan]
     else
       error("No tspan is set in the problem or chosen in the init/solve call")
     end

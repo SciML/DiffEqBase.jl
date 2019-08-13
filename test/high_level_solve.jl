@@ -16,6 +16,11 @@ prob = ODEProblem((u,p,t)->u,(p,t)->Normal(p,1),(0.0,1.0),1.0)
 prob2 = DiffEqBase.get_concrete_problem(prob,nothing)
 @test typeof(prob2.u0) == Float64
 
+kwargs(; kw...) = kw
+prob = ODEProblem((u,p,t)->u,1.0,nothing)
+prob2 = DiffEqBase.get_concrete_problem(prob,kwargs(tspan=(1.2,3.4)))
+@test prob2.tspan === (1.2,3.4)
+
 prob = ODEProblem((u,p,t)->u,1.0,(0,1))
 @test_logs (:warn,
             "Integer time values are incompatible with adaptive integrators. Utilize " *
