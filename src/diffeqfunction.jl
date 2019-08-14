@@ -752,14 +752,14 @@ DDEFunction(f::DDEFunction; kwargs...) = f
 
 # compatibility
 has_invW(f::AbstractDiffEqFunction) = false
-has_analytic(f::AbstractDiffEqFunction) = f.analytic != nothing
-has_jac(f::AbstractDiffEqFunction) = f.jac != nothing
-has_tgrad(f::AbstractDiffEqFunction) = f.tgrad != nothing
-has_Wfact(f::AbstractDiffEqFunction) = f.Wfact != nothing
-has_Wfact_t(f::AbstractDiffEqFunction) = f.Wfact_t != nothing
-has_paramjac(f::AbstractDiffEqFunction) = f.paramjac != nothing
-has_syms(f::AbstractDiffEqFunction) = :syms ∈ fieldnames(typeof(f)) && f.syms != nothing
-has_colorvec(f::AbstractDiffEqFunction) = f.colorvec != nothing
+has_analytic(f::AbstractDiffEqFunction) = __has_analytic(f) && f.analytic !== nothing
+has_jac(f::AbstractDiffEqFunction) = __has_jac(f) && f.jac !== nothing
+has_tgrad(f::AbstractDiffEqFunction) = __has_tgrad(f) && f.tgrad !== nothing
+has_Wfact(f::AbstractDiffEqFunction) = __has_Wfact(f) && f.Wfact !== nothing
+has_Wfact_t(f::AbstractDiffEqFunction) = __has_Wfact_t(f) && f.Wfact_t !== nothing
+has_paramjac(f::AbstractDiffEqFunction) = __has_paramjac(f) && f.paramjac !== nothing
+has_syms(f::AbstractDiffEqFunction) = __has_syms(f) && f.syms !== nothing
+has_colorvec(f::AbstractDiffEqFunction) = __has_colorvec(f) && f.colorvec !== nothing
 
 # TODO: find an appropriate way to check `has_*`
 has_jac(f::Union{SplitFunction,SplitSDEFunction}) = has_jac(f.f1)
