@@ -32,6 +32,7 @@ if !is_APPVEYOR && GROUP == "Downstream"
       Pkg.add("DiffEqProblemLibrary")
       Pkg.add("DiffEqCallbacks")
     end
+    @time @safetestset "Null Parameters" begin include("downstream/null_params_test.jl") end
     @time @safetestset "Ensemble Simulations" begin include("downstream/ensemble.jl") end
     @time @safetestset "Ensemble Analysis" begin include("downstream/ensemble_analysis.jl") end
     @time @safetestset "Default linsolve with structure" begin include("downstream/default_linsolve_structure.jl") end

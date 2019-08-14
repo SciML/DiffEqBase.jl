@@ -68,3 +68,6 @@ function TreeViews.treelabel(io::IO,x::DiffEqBase.DEProblem,
                              mime::MIME"text/plain" = MIME"text/plain"())
   show(io,mime,Base.Text(Base.summary(x)))
 end
+
+struct NullParameters end
+Base.getindex(::NullParameters,i...) = error("Parameters were indexed but the parameters are `nothing`. You likely forgot to pass in parameters to the DEProblem!")

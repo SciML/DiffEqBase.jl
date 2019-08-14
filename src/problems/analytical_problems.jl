@@ -4,7 +4,7 @@ struct AnalyticalProblem{uType,tType,isinplace,P,F,C} <: AbstractAnalyticalProbl
   tspan::tType
   p::P
   callback::C
-  @add_kwonly function AnalyticalProblem{iip}(f,u0,tspan,p=nothing;
+  @add_kwonly function AnalyticalProblem{iip}(f,u0,tspan,p=NullParameters();
            callback = nothing) where {iip}
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(_tspan),iip,typeof(p),
@@ -12,7 +12,7 @@ struct AnalyticalProblem{uType,tType,isinplace,P,F,C} <: AbstractAnalyticalProbl
   end
 end
 
-function AnalyticalProblem(f,u0,tspan,p=nothing;kwargs...)
+function AnalyticalProblem(f,u0,tspan,p=NullParameters();kwargs...)
   iip = DiffEqBase.isinplace(f,4)
   AnalyticalProblem{iip}(f,u0,tspan,p;kwargs...)
 end

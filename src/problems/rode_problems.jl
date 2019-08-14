@@ -7,7 +7,7 @@ mutable struct RODEProblem{uType,tType,isinplace,P,NP,F,C,ND} <: AbstractRODEPro
   callback::C
   rand_prototype::ND
   seed::UInt64
-  @add_kwonly function RODEProblem{iip}(f::RODEFunction{iip},u0,tspan,p=nothing;
+  @add_kwonly function RODEProblem{iip}(f::RODEFunction{iip},u0,tspan,p=NullParameters();
                        rand_prototype = nothing,
                        noise= nothing, seed = UInt64(0),
                        callback=nothing) where {iip}
@@ -19,15 +19,15 @@ mutable struct RODEProblem{uType,tType,isinplace,P,NP,F,C,ND} <: AbstractRODEPro
               f,u0,_tspan,p,noise,callback,
               rand_prototype,seed)
   end
-  function RODEProblem{iip}(f,u0,tspan,p=nothing;kwargs...) where {iip}
+  function RODEProblem{iip}(f,u0,tspan,p=NullParameters();kwargs...) where {iip}
     RODEProblem(convert(RODEFunction{iip},f),u0,tspan,p;kwargs...)
   end
 end
 
-function RODEProblem(f::RODEFunction,u0,tspan,p=nothing;kwargs...)
+function RODEProblem(f::RODEFunction,u0,tspan,p=NullParameters();kwargs...)
   RODEProblem{isinplace(f)}(f,u0,tspan,p;kwargs...)
 end
 
-function RODEProblem(f,u0,tspan,p=nothing;kwargs...)
+function RODEProblem(f,u0,tspan,p=NullParameters();kwargs...)
   RODEProblem(convert(RODEFunction,f),u0,tspan,p;kwargs...)
 end

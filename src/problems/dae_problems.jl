@@ -8,7 +8,7 @@ struct DAEProblem{uType,duType,tType,isinplace,P,F,C,D} <: AbstractDAEProblem{uT
   callback::C
   differential_vars::D
   @add_kwonly function DAEProblem{iip}(f::AbstractDAEFunction{iip},
-                      du0,u0,tspan,p=nothing;
+                      du0,u0,tspan,p=NullParameters();
                       callback = nothing,
                       differential_vars = nothing) where {iip}
     _tspan = promote_tspan(tspan)
@@ -20,15 +20,15 @@ struct DAEProblem{uType,duType,tType,isinplace,P,F,C,D} <: AbstractDAEProblem{uT
                callback,differential_vars)
   end
 
-  function DAEProblem{iip}(f,du0,u0,tspan,p=nothing;kwargs...) where {iip}
+  function DAEProblem{iip}(f,du0,u0,tspan,p=NullParameters();kwargs...) where {iip}
     DAEProblem(convert(DAEFunction{iip},f),du0,u0,tspan,p;kwargs...)
   end
 end
 
-function DAEProblem(f::AbstractDAEFunction,du0,u0,tspan,p=nothing;kwargs...)
+function DAEProblem(f::AbstractDAEFunction,du0,u0,tspan,p=NullParameters();kwargs...)
   DAEProblem{isinplace(f)}(f,du0,u0,tspan,p;kwargs...)
 end
 
-function DAEProblem(f,du0,u0,tspan,p=nothing;kwargs...)
+function DAEProblem(f,du0,u0,tspan,p=NullParameters();kwargs...)
   DAEProblem(convert(DAEFunction,f),du0,u0,tspan,p;kwargs...)
 end
