@@ -750,6 +750,17 @@ DDEFunction(f::DDEFunction; kwargs...) = f
 
 ########## Existance Functions
 
+# Check that field/property exists (may be nothing)
+__has_jac(f) = isdefined(f, :jac)
+__has_tgrad(f) = isdefined(f, :tgrad)
+__has_Wfact(f) = isdefined(f, :Wfact)
+__has_Wfact_t(f) = isdefined(f, :Wfact_t)
+__has_paramderiv(f) = isdefined(f, :deriv)
+__has_paramjac(f) = isdefined(f, :paramjac)
+__has_syms(f) = isdefined(f, :syms)
+__has_analytic(f) = isdefined(f, :analytic)
+__has_colorvec(f) = isdefined(f, :colorvec)
+
 # compatibility
 has_invW(f::AbstractDiffEqFunction) = false
 has_analytic(f::AbstractDiffEqFunction) = __has_analytic(f) && f.analytic !== nothing
