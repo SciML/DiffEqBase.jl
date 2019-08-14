@@ -98,7 +98,7 @@ end
 function get_concrete_u0(prob, t0, kwargs)
   if eval_u0(prob.u0)
     u0 = prob.u0(prob.p, t0)
-  elseif u0 === nothing
+  elseif prob.u0 === nothing
     u0 = kwargs[:u0]
   else
     u0 = prob.u0
