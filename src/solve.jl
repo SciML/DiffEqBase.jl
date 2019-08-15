@@ -51,7 +51,7 @@ function get_concrete_problem(prob::AbstractJumpProblem,kwargs)
 end
 
 function get_concrete_problem(prob::AbstractSteadyStateProblem, kwargs)
-  u0 = get_concrete_u0(prob, Inf)
+  u0 = get_concrete_u0(prob, Inf, kwargs)
   remake(prob; u0 = u0)
 end
 
@@ -61,14 +61,14 @@ end
 
 function get_concrete_problem(prob, kwargs)
   tspan = get_concrete_tspan(prob, kwargs)
-  u0 = get_concrete_u0(prob, tspan[1])
+  u0 = get_concrete_u0(prob, tspan[1], kwargs)
   remake(prob; u0 = u0, tspan = tspan)
 end
 
 function get_concrete_problem(prob::DDEProblem, kwargs)
   tspan = get_concrete_tspan(prob, kwargs)
 
-  u0 = get_concrete_u0(prob, tspan[1])
+  u0 = get_concrete_u0(prob, tspan[1], kwargs)
 
   if prob.constant_lags isa Function
     constant_lags = prob.constant_lags(prob.p)
@@ -82,7 +82,7 @@ end
 function get_concrete_tspan(prob, kwargs)
   if prob.tspan isa Function
     tspan = prob.tspan(prob.p)
-  elseif prob.tspan == (nothing, nothing)
+  elseif prob.tspan === (nothing, nothing)
     if haskey(kwargs, :tspan)
       tspan = kwargs[:tspan]
     else
@@ -95,9 +95,11 @@ function get_concrete_tspan(prob, kwargs)
   tspan
 end
 
-function get_concrete_u0(prob, t0)
+function get_concrete_u0(prob, t0, kwargs)
   if eval_u0(prob.u0)
     u0 = prob.u0(prob.p, t0)
+  elseif prob.u0 === nothing
+    u0 = kwargs[:u0]
   else
     u0 = prob.u0
   end
