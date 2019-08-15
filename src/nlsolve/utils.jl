@@ -73,11 +73,6 @@ function oop_get_uf end
 function build_jac_config end
 function resize_jac_config! end
 
-# No J version
-function iipnlsolve(alg,u,uprev,p,t,dt,f,W,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
-  iipnlsolve(alg,u,uprev,p,t,dt,f,W,nothing,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
-end
-
 function iipnlsolve(alg,u,uprev,p,t,dt,f,W,J,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
   # define additional fields of cache of non-linear solver
   z = similar(u); dz = similar(u); tmp = similar(u); b = similar(u)
@@ -105,7 +100,7 @@ function iipnlsolve(alg,u,uprev,p,t,dt,f,W,J,rate_prototype,uEltypeNoUnits,uBott
     # TODO: check if the solver is iterative
     weight = similar(u)
 
-    nlcache = DiffEqBase.NLNewtonCache(true,W,J,dt,du1,uf,jac_config,linsolve,weight)
+    nlcache = DiffEqBase.NLNewtonCache(true,W,J,dt,du1,uf,jac_config,linsolve,weight,alg.nlsolve.new_W_dt_cutoff)
   elseif alg.nlsolve isa NLFunctional
     z₊ = similar(z)
 
@@ -128,11 +123,6 @@ function iipnlsolve(alg,u,uprev,p,t,dt,f,W,J,rate_prototype,uEltypeNoUnits,uBott
   nlsolver = NLSolver{typeof(alg.nlsolve),true,typeof(u),typeof(k),uTolType,typeof(γ),typeof(c),typeof(nlcache)}(z,dz,tmp,b,k,alg.nlsolve,one(uTolType),γ,c,10000,Convergence,nlcache)
 end
 
-# No J version
-function oopnlsolve(alg,u,uprev,p,t,dt,f,W,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
-  oopnlsolve(alg,u,uprev,p,t,dt,f,W,nothing,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)  
-end
-
 function oopnlsolve(alg,u,uprev,p,t,dt,f,W,J,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
   # define additional fields of cache of non-linear solver (all aliased)
   z = uprev; dz = z; tmp = z; b = z; k = rate_prototype
@@ -144,7 +134,7 @@ function oopnlsolve(alg,u,uprev,p,t,dt,f,W,J,rate_prototype,uEltypeNoUnits,uBott
     nf = nlsolve_f(f, alg)
     # only use `nf` if the algorithm specializes on split eqs
     uf = oop_get_uf(alg,nf,t,p)
-    nlcache = DiffEqBase.NLNewtonConstantCache(true,W,J,dt,uf)
+    nlcache = DiffEqBase.NLNewtonConstantCache(true,W,J,dt,uf,alg.nlsolve.new_W_dt_cutoff)
   elseif alg.nlsolve isa NLFunctional
     nlcache = DiffEqBase.NLFunctionalConstantCache()
   elseif alg.nlsolve isa NLAnderson
@@ -257,3 +247,35 @@ function Base.resize!(nlcache::NLAndersonConstantCache, nlalg::NLAnderson, i::In
 
   nothing
 end
+
+# to be removed
+function Base.getproperty(nlsolver::NLSolver, x::Symbol)
+  if x in (:du1, :uf, :jac_config, :linsolve, :weight)
+    @warn "deprecated field: $x is moved to cache.$x"
+    getproperty(nlsolver.cache, x)
+  else
+    getfield(nlsolver, x)
+  end
+end
+
+function Base.getproperty(cache::Union{NLNewtonCache,NLNewtonConstantCache}, x::Symbol)
+  if x === :new_W_dt_cutoff
+    @warn "deprecated field: cache.new_W_dt_cutoff is moved to alg.new_W_dt_cutoff"
+  end
+
+  getfield(cache, x)
+end
+
+
+@deprecate iipnlsolve(alg,u,uprev,p,t,dt,f,W,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c) iipnlsolve(alg,u,uprev,p,t,dt,f,W,nothing,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
+@deprecate oopnlsolve(alg,u,uprev,p,t,dt,f,W,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c) oopnlsolve(alg,u,uprev,p,t,dt,f,W,nothing,rate_prototype,uEltypeNoUnits,uBottomEltypeNoUnits,γ,c)
+
+@def getiipnlsolvefields begin
+  @warn "@getiipnlsolvefields is removed, use iipnlsolve instead"
+end
+
+@def getoopnlsolvefields begin
+  @warn "@getoopnlsolvefields is removed, use oopnlsolve instead"
+end
+
+@deprecate nlsolve!(nlsolver::NLSolver, cache::AbstractNLSolverCache, integrator) nlsolve!(nlsolver, integrator)

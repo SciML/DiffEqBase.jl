@@ -59,7 +59,7 @@ NLNewton(; κ=1//100, max_iter=10, fast_convergence_cutoff=1//5, new_W_dt_cutoff
 
 # caches
 
-mutable struct NLNewtonCache{W,J,T,du1Type,ufType,jcType,lsType,uType} <: AbstractNLSolverCache
+mutable struct NLNewtonCache{W,J,T,du1Type,ufType,jcType,lsType,uType,C} <: AbstractNLSolverCache
   new_W::Bool
   W::W
   J::J
@@ -69,14 +69,16 @@ mutable struct NLNewtonCache{W,J,T,du1Type,ufType,jcType,lsType,uType} <: Abstra
   jac_config::jcType
   linsolve::lsType
   weight::uType
+  new_W_dt_cutoff::C # to be removed
 end
 
-mutable struct NLNewtonConstantCache{W,J,T,ufType} <: AbstractNLSolverCache
+mutable struct NLNewtonConstantCache{W,J,T,ufType,C} <: AbstractNLSolverCache
   new_W::Bool
   W::W
   J::J
   W_dt::T
   uf::ufType
+  new_W_dt_cutoff::C # to be removed
 end
 
 struct NLFunctionalCache{uType} <: AbstractNLSolverCache
