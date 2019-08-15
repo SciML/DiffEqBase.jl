@@ -24,14 +24,14 @@ if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Numargs" begin include("numargs_test.jl") end
     @time @safetestset "Basic Operators Interface" begin include("basic_operators_interface.jl") end
 end
+
 if !is_APPVEYOR && GROUP == "Downstream"
-    if is_TRAVIS
-      using Pkg
-      Pkg.add("OrdinaryDiffEq")
-      Pkg.add("StochasticDiffEq")
-      Pkg.add("DiffEqProblemLibrary")
-      Pkg.add("DiffEqCallbacks")
-    end
+    # add additional packages
+    using Pkg
+    Pkg.activate("downstream")
+    Pkg.develop(PackageSpec(path=joinpath(pwd(), "..")))
+    Pkg.instantiate()
+
     @time @safetestset "Null Parameters" begin include("downstream/null_params_test.jl") end
     @time @safetestset "Ensemble Simulations" begin include("downstream/ensemble.jl") end
     @time @safetestset "Ensemble Analysis" begin include("downstream/ensemble_analysis.jl") end
