@@ -258,8 +258,8 @@ end
   else
     callback.condition(previous_condition,integrator.uprev[callback.idxs],integrator.tprev,integrator)
   end
-
   integrator.sol.destats.ncondition += 1
+
   ivec = integrator.vector_event_last_time
   prev_sign = @view(integrator.callback_cache.prev_sign[1:callback.len])
   next_sign = @view(integrator.callback_cache.next_sign[1:callback.len])
@@ -300,7 +300,6 @@ end
   next_condition = get_condition(integrator, callback, abst)
   @. next_sign = sign(next_condition)
 
-  integrator.sol.destats.ncondition += 1
   event_idx = findall(x-> ((prev_sign[x] < 0 && callback.affect! !== nothing) || (prev_sign[x] > 0 && callback.affect_neg! !== nothing)) && prev_sign[x]*next_sign[x]<=0, keys(prev_sign))
   if length(event_idx) != 0
     event_occurred = true
@@ -338,8 +337,8 @@ end
   else
     @views previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
   end
-
   integrator.sol.destats.ncondition += 1
+
   prev_sign = 0.0
   next_sign = 0.0
 
@@ -376,8 +375,6 @@ end
   abst = integrator.t
   next_condition = get_condition(integrator, callback, abst)
   next_sign = sign(next_condition)
-
-  integrator.sol.destats.ncondition += 1
 
   if ((prev_sign < 0 && callback.affect! !== nothing) || (prev_sign > 0 && callback.affect_neg! !== nothing)) && prev_sign*next_sign<=0
     event_occurred = true
