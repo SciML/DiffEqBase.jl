@@ -51,7 +51,7 @@ function get_concrete_problem(prob::AbstractJumpProblem,kwargs)
 end
 
 function get_concrete_problem(prob::AbstractSteadyStateProblem, kwargs)
-  u0 = get_concrete_u0(prob, Inf)
+  u0 = get_concrete_u0(prob, Inf, kwargs)
   remake(prob; u0 = u0)
 end
 
@@ -68,7 +68,7 @@ end
 function get_concrete_problem(prob::DDEProblem, kwargs)
   tspan = get_concrete_tspan(prob, kwargs)
 
-  u0 = get_concrete_u0(prob, tspan[1])
+  u0 = get_concrete_u0(prob, tspan[1], kwargs)
 
   if prob.constant_lags isa Function
     constant_lags = prob.constant_lags(prob.p)
