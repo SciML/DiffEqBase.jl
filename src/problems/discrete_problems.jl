@@ -22,7 +22,7 @@ struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{u
   """ A callback to be applied to every solver which uses the problem."""
   callback::C
   @add_kwonly function DiscreteProblem{iip}(f::AbstractDiscreteFunction{iip},
-                                            u0,tspan::Tuple,p=nothing;
+                                            u0,tspan::Tuple,p=NullParameters();
                                             callback = nothing) where {iip}
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(_tspan),isinplace(f,4),
@@ -30,7 +30,7 @@ struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{u
         typeof(f),typeof(callback)}(f,u0,_tspan,p,callback)
   end
 
-  function DiscreteProblem{iip}(u0::Nothing,tspan::Nothing,p=nothing;
+  function DiscreteProblem{iip}(u0::Nothing,tspan::Nothing,p=NullParameters();
                                 callback = nothing) where {iip}
     if iip
       f = DISCRETE_INPLACE_DEFAULT
@@ -41,21 +41,21 @@ struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{u
         typeof(f),typeof(callback)}(f,nothing,nothing,p,callback)
   end
 
-  function DiscreteProblem{iip}(f,u0,tspan,p=nothing;kwargs...) where {iip}
+  function DiscreteProblem{iip}(f,u0,tspan,p=NullParameters();kwargs...) where {iip}
     DiscreteProblem(convert(DiscreteFunction{iip},f),u0,tspan,p;kwargs...)
   end
 end
 
 """
-    DiscreteProblem{isinplace}(f,u0,tspan,p=nothing,callback=nothing)
+    DiscreteProblem{isinplace}(f,u0,tspan,p=NullParameters(),callback=nothing)
 
 Defines a discrete problem with the specified functions.
 """
-function DiscreteProblem(f::AbstractDiscreteFunction,u0,tspan::Tuple,p=nothing;kwargs...)
+function DiscreteProblem(f::AbstractDiscreteFunction,u0,tspan::Tuple,p=NullParameters();kwargs...)
   DiscreteProblem{isinplace(f)}(f,u0,tspan,p;kwargs...)
 end
 
-function DiscreteProblem(f,u0,tspan::Tuple,p=nothing;kwargs...)
+function DiscreteProblem(f,u0,tspan::Tuple,p=NullParameters();kwargs...)
   iip = isinplace(f,4)
   DiscreteProblem(convert(DiscreteFunction{iip},f),u0,tspan,p;kwargs...)
 end
@@ -75,7 +75,7 @@ function DiscreteProblem(u0,tspan::Tuple,p::Tuple;kwargs...)
   DiscreteProblem(f,u0,tspan,p;kwargs...)
 end
 
-function DiscreteProblem(u0,tspan::Tuple,p=nothing;kwargs...)
+function DiscreteProblem(u0,tspan::Tuple,p=NullParameters();kwargs...)
   iip = typeof(u0) <: AbstractArray
   if iip
     f = DISCRETE_INPLACE_DEFAULT

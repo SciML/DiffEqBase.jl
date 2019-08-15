@@ -30,7 +30,7 @@ struct ODEProblem{uType,tType,isinplace,P,F,C,PT} <:
   """TODO"""
   problem_type::PT
   @add_kwonly function ODEProblem{iip}(f::AbstractODEFunction{iip},
-                                       u0,tspan,p=nothing,
+                                       u0,tspan,p=NullParameters(),
                                        problem_type=StandardODEProblem();
                                        callback=nothing) where {iip}
     _tspan = promote_tspan(tspan)
@@ -42,17 +42,17 @@ struct ODEProblem{uType,tType,isinplace,P,F,C,PT} <:
   end
 
   """
-      ODEProblem{isinplace}(f,u0,tspan,p=nothing,callback=CallbackSet())
+      ODEProblem{isinplace}(f,u0,tspan,p=NullParameters(),callback=CallbackSet())
 
   Define an ODE problem with the specified function.
   `isinplace` optionally sets whether the function is inplace or not.
   This is determined automatically, but not inferred.
   """
-  function ODEProblem{iip}(f,u0,tspan,p=nothing;kwargs...) where {iip}
+  function ODEProblem{iip}(f,u0,tspan,p=NullParameters();kwargs...) where {iip}
     ODEProblem(convert(ODEFunction{iip},f),u0,tspan,p;kwargs...)
   end
 
-  @add_kwonly function ODEProblem{iip,recompile}(f,u0,tspan,p=nothing;kwargs...) where {iip,recompile}
+  @add_kwonly function ODEProblem{iip,recompile}(f,u0,tspan,p=NullParameters();kwargs...) where {iip,recompile}
     if !recompile
       if iip
         ODEProblem{iip}(wrapfun_iip(f,(u0,u0,p,tspan[1])),u0,tspan,p;kwargs...)
@@ -66,7 +66,7 @@ struct ODEProblem{uType,tType,isinplace,P,F,C,PT} <:
 end
 
 """
-    ODEProblem(f::ODEFunction,u0,tspan,p=nothing,callback=CallbackSet())
+    ODEProblem(f::ODEFunction,u0,tspan,p=NullParameters(),callback=CallbackSet())
 
 Define an ODE problem from a [`ODEFunction`](@ref).
 """
@@ -74,7 +74,7 @@ function ODEProblem(f::AbstractODEFunction,u0,tspan,args...;kwargs...)
   ODEProblem{isinplace(f)}(f,u0,tspan,args...;kwargs...)
 end
 
-function ODEProblem(f,u0,tspan,p=nothing;kwargs...)
+function ODEProblem(f,u0,tspan,p=NullParameters();kwargs...)
   ODEProblem(convert(ODEFunction,f),u0,tspan,p;kwargs...)
 end
 
@@ -94,19 +94,19 @@ struct DynamicalODEProblem{iip} <: AbstractDynamicalODEProblem end
 # u' = f1(v)
 # v' = f2(t,u)
 """
-    DynamicalODEProblem(f::DynamicalODEFunction,v0,u0,tspan,p=nothing,callback=CallbackSet())
+    DynamicalODEProblem(f::DynamicalODEFunction,v0,u0,tspan,p=NullParameters(),callback=CallbackSet())
 
 Define a dynamical ODE function from a [`DynamicalODEFunction`](@ref).
 """
-function DynamicalODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kwargs...)
+function DynamicalODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=NullParameters();kwargs...)
   ODEProblem(f,ArrayPartition(du0,u0),tspan,p;kwargs...)
 end
-function DynamicalODEProblem(f1,f2,du0,u0,tspan,p=nothing;kwargs...)
+function DynamicalODEProblem(f1,f2,du0,u0,tspan,p=NullParameters();kwargs...)
   ODEProblem(DynamicalODEFunction(f1,f2),ArrayPartition(du0,u0),tspan,p;kwargs...)
 end
 
 """
-    DynamicalODEProblem{isinplace}(f1,f2,v0,u0,tspan,p=nothing,callback=CallbackSet())
+    DynamicalODEProblem{isinplace}(f1,f2,v0,u0,tspan,p=NullParameters(),callback=CallbackSet())
 
 Define a dynamical ODE problem from the two functions `f1` and `f2`.
 
@@ -120,7 +120,7 @@ Define a dynamical ODE problem from the two functions `f1` and `f2`.
 `isinplace` optionally sets whether the function is inplace or not.
 This is determined automatically, but not inferred.
 """
-function DynamicalODEProblem{iip}(f1,f2,du0,u0,tspan,p=nothing;kwargs...) where iip
+function DynamicalODEProblem{iip}(f1,f2,du0,u0,tspan,p=NullParameters();kwargs...) where iip
   ODEProblem(DynamicalODEFunction{iip}(f1,f2),ArrayPartition(du0,u0),tspan,p;kwargs...)
 end
 
@@ -131,13 +131,13 @@ $(TYPEDEF)
 TODO
 """
 struct SecondOrderODEProblem{iip} <: AbstractDynamicalODEProblem end
-function SecondOrderODEProblem(f,du0,u0,tspan,p=nothing;kwargs...)
+function SecondOrderODEProblem(f,du0,u0,tspan,p=NullParameters();kwargs...)
   iip = isinplace(f,5)
   SecondOrderODEProblem{iip}(f,du0,u0,tspan,p;kwargs...)
 end
 
 """
-    SecondOrderODEProblem{isinplace}(f,du0,u0,tspan,p=nothing,callback=CallbackSet())
+    SecondOrderODEProblem{isinplace}(f,du0,u0,tspan,p=NullParameters(),callback=CallbackSet())
 
 Define a second order ODE problem with the specified function.
 
@@ -148,7 +148,7 @@ Define a second order ODE problem with the specified function.
 * `tspan`: The timespan for the problem.
 * `callback`: A callback to be applied to every solver which uses the problem. Defaults to nothing.
 """
-function SecondOrderODEProblem{iip}(f,du0,u0,tspan,p=nothing;kwargs...) where iip
+function SecondOrderODEProblem{iip}(f,du0,u0,tspan,p=NullParameters();kwargs...) where iip
   if iip
     f2 = function (du,v,u,p,t)
       du .= v
@@ -162,7 +162,7 @@ function SecondOrderODEProblem{iip}(f,du0,u0,tspan,p=nothing;kwargs...) where ii
   ODEProblem(DynamicalODEFunction{iip}(f,f2),_u0,tspan,p,
                   SecondOrderODEProblem{iip}();kwargs...)
 end
-function SecondOrderODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=nothing;kwargs...)
+function SecondOrderODEProblem(f::DynamicalODEFunction,du0,u0,tspan,p=NullParameters();kwargs...)
   iip = isinplace(f.f1, 5)
   _u0 = ArrayPartition((du0,u0))
   if f.f2.f === nothing
@@ -197,12 +197,12 @@ TODO
 """
 struct SplitODEProblem{iip} <: AbstractSplitODEProblem end
 # u' = Au + f
-function SplitODEProblem(f1,f2,u0,tspan,p=nothing;kwargs...)
+function SplitODEProblem(f1,f2,u0,tspan,p=NullParameters();kwargs...)
   f = SplitFunction(f1,f2)
   SplitODEProblem(f,u0,tspan,p;kwargs...)
 end
 """
-    SplitODEProblem{isinplace}(f1,f2,u0,tspan,p=nothing;kwargs...)
+    SplitODEProblem{isinplace}(f1,f2,u0,tspan,p=NullParameters();kwargs...)
 
 Define a split ODE problem from separate functions `f1` and `f2`.
 
@@ -218,7 +218,7 @@ signature of `f2`. Note that both `f1` and `f2` should support the in-place styl
 `isinplace` is true or they should both support the out-of-place style if
 `isinplace` is false. You cannot mix up the two styles.
 """
-function SplitODEProblem{iip}(f1,f2,u0,tspan,p=nothing;kwargs...) where iip
+function SplitODEProblem{iip}(f1,f2,u0,tspan,p=NullParameters();kwargs...) where iip
   f = SplitFunction{iip}(f1,f2)
   SplitODEProblem(f,u0,tspan,p;kwargs...)
 end
@@ -228,9 +228,9 @@ $(SIGNATURES)
 
 Define a split ODE problem from a [`SplitFunction`](@ref).
 """
-SplitODEProblem(f::SplitFunction,u0,tspan,p=nothing;kwargs...) =
+SplitODEProblem(f::SplitFunction,u0,tspan,p=NullParameters();kwargs...) =
   SplitODEProblem{isinplace(f)}(f,u0,tspan,p;kwargs...)
-function SplitODEProblem{iip}(f::SplitFunction,u0,tspan,p=nothing;kwargs...) where iip
+function SplitODEProblem{iip}(f::SplitFunction,u0,tspan,p=NullParameters();kwargs...) where iip
   if f.cache === nothing && iip
     cache = similar(u0)
     f = SplitFunction{iip}(f.f1, f.f2; mass_matrix=f.mass_matrix,

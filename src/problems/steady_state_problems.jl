@@ -16,7 +16,7 @@ struct SteadyStateProblem{uType,isinplace,P,F} <: AbstractSteadyStateProblem{uTy
   """Parameter values for the ODE function."""
   p::P
   @add_kwonly function SteadyStateProblem{iip}(f::AbstractODEFunction{iip},
-                                               u0,p=nothing) where {iip}
+                                               u0,p=NullParameters()) where {iip}
     new{typeof(u0),isinplace(f),typeof(p),typeof(f)}(f,u0,p)
   end
 
@@ -27,7 +27,7 @@ struct SteadyStateProblem{uType,isinplace,P,F} <: AbstractSteadyStateProblem{uTy
   `isinplace` optionally sets whether the function is inplace or not.
   This is determined automatically, but not inferred.
   """
-  function SteadyStateProblem{iip}(f,u0,p=nothing) where iip
+  function SteadyStateProblem{iip}(f,u0,p=NullParameters()) where iip
     SteadyStateProblem(ODEFunction{iip}(f),u0,p)
   end
 end
@@ -38,11 +38,11 @@ $(SIGNATURES)
 Define a steady state problem using an instance of
 [`AbstractODEFunction`](@ref).
 """
-function SteadyStateProblem(f::AbstractODEFunction,u0,p=nothing;kwargs...)
+function SteadyStateProblem(f::AbstractODEFunction,u0,p=NullParameters();kwargs...)
   SteadyStateProblem{isinplace(f)}(f,u0,p;kwargs...)
 end
 
-function SteadyStateProblem(f,u0,p=nothing;kwargs...)
+function SteadyStateProblem(f,u0,p=NullParameters();kwargs...)
   SteadyStateProblem(ODEFunction(f),u0,p;kwargs...)
 end
 
