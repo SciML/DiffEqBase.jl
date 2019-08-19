@@ -5,31 +5,32 @@ abstract type AbstractNLSolverAlgorithm end
 struct NLFunctional{K,C} <: AbstractNLSolverAlgorithm
   κ::K
   fast_convergence_cutoff::C
-  max_iter::Int
+  maxiters::Int
 end
 
-NLFunctional(; κ=1//100, max_iter=10, fast_convergence_cutoff=1//5) = NLFunctional(κ, fast_convergence_cutoff, max_iter)
+NLFunctional(; κ=1//100, maxiters=10, fast_convergence_cutoff=1//5) = NLFunctional(κ, fast_convergence_cutoff, maxiters)
 
 struct NLAnderson{K,D,C} <: AbstractNLSolverAlgorithm
   κ::K
   fast_convergence_cutoff::C
-  max_iter::Int
+  maxiters::Int
   max_history::Int
   aa_start::Int
   droptol::D
 end
 
-NLAnderson(; κ=1//100, max_iter=10, max_history::Int=10, aa_start::Int=1, droptol=1e10, fast_convergence_cutoff=1//5) =
-  NLAnderson(κ, fast_convergence_cutoff, max_iter, max_history, aa_start, droptol)
+NLAnderson(; κ=1//100, maxiters=10, max_history::Int=10, aa_start::Int=1, droptol=1e10, fast_convergence_cutoff=1//5) =
+  NLAnderson(κ, fast_convergence_cutoff, maxiters, max_history, aa_start, droptol)
 
 struct NLNewton{K,C1,C2} <: AbstractNLSolverAlgorithm
   κ::K
-  max_iter::Int
+  maxiters::Int
   fast_convergence_cutoff::C1
   new_W_dt_cutoff::C2
 end
 
-NLNewton(; κ=1//100, max_iter=10, fast_convergence_cutoff=1//5, new_W_dt_cutoff=1//5) = NLNewton(κ, max_iter, fast_convergence_cutoff, new_W_dt_cutoff)
+NLNewton(; κ=1//100, maxiters=10, fast_convergence_cutoff=1//5, new_W_dt_cutoff=1//5) =
+  NLNewton(κ, maxiters, fast_convergence_cutoff, new_W_dt_cutoff)
 
 ## status
 
@@ -39,7 +40,7 @@ NLNewton(; κ=1//100, max_iter=10, fast_convergence_cutoff=1//5, new_W_dt_cutoff
   SlowConvergence     = 0
   VerySlowConvergence = -1
   Divergence          = -2
-  MaxIterReached      = -3
+  MaxItersReached      = -3
 end
 
 ## NLsolver
@@ -52,10 +53,10 @@ mutable struct NLSolver{algType<:AbstractNLSolverAlgorithm,IIP,uType,uTolType,tT
   c::tTypeNoUnits
   alg::algType
   κ::uTolType
-  ηold::uTolType
+  η::uTolType
   fast_convergence_cutoff::uTolType
-  max_iter::Int
-  nl_iters::Int
+  iter::Int
+  maxiters::Int
   status::NLStatus
   cache::C
 end

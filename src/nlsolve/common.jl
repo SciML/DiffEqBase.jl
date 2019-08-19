@@ -46,7 +46,7 @@ function build_nlsolver(alg,nlalg::Union{NLFunctional,NLAnderson,NLNewton},u,rat
     dzprev = similar(u)
     gprev = similar(u)
 
-    max_history = min(nlalg.max_history, nlalg.max_iter, length(u))
+    max_history = min(nlalg.max_history, nlalg.maxiters, length(u))
     Δgs = [zero(u) for i in 1:max_history]
     Q = Matrix{uEltypeNoUnits}(undef, length(u), max_history)
     R = Matrix{uEltypeNoUnits}(undef, max_history, max_history)
@@ -62,7 +62,7 @@ function build_nlsolver(alg,nlalg::Union{NLFunctional,NLAnderson,NLNewton},u,rat
 
   NLSolver{typeof(nlalg),true,typeof(u),uTolType,tTypeNoUnits,typeof(cache)}(
     z, zprev, tmp, uTolType(γ), tTypeNoUnits(c), nlalg, uTolType(nlalg.κ), η,
-    uTolType(nlalg.fast_convergence_cutoff), nlalg.max_iter, 10_000, Convergence, cache)  
+    uTolType(nlalg.fast_convergence_cutoff), nlalg.maxiters, 10_000, Convergence, cache)  
 end
 
 function build_nlsolver(alg,nlalg::Union{NLFunctional,NLAnderson,NLNewton},u,rate_prototype,
@@ -95,7 +95,7 @@ function build_nlsolver(alg,nlalg::Union{NLFunctional,NLAnderson,NLNewton},u,rat
     dzprev = u
     gprev = u
     
-    max_history = min(nlalg.max_history, nlalg.max_iter, length(z))
+    max_history = min(nlalg.max_history, nlalg.maxiters, length(z))
     Δgs = Vector{typeof(u)}(undef, max_history)
     Q = Matrix{uEltypeNoUnits}(undef, length(u), max_history)
     R = Matrix{uEltypeNoUnits}(undef, max_history, max_history)
@@ -111,7 +111,7 @@ function build_nlsolver(alg,nlalg::Union{NLFunctional,NLAnderson,NLNewton},u,rat
   
   NLSolver{typeof(nlalg),false,typeof(u),uTolType,tTypeNoUnits,typeof(cache)}(
     z, zprev, tmp, uTolType(γ), tTypeNoUnits(c), nlalg, uTolType(nlalg.κ), η,
-    uTolType(nlalg.fast_convergence_cutoff), nlalg.max_iter, 10_000, Convergence, cache)
+    uTolType(nlalg.fast_convergence_cutoff), nlalg.maxiters, 10_000, Convergence, cache)
 end
 
 ## norm_of_residuals

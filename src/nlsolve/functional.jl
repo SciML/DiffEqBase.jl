@@ -1,23 +1,24 @@
 ## preamble!
 
-@muladd function preamble!(nlsolver::NLSolver{<:NLFunctional}, integrator)
-  nlsolver.cache.tstep = integrator.t + nlsolver.c * integrator.dt
+@muladd function initialize_cache!(nlcache::Union{NLFunctionalConstantCache,NLFunctionalCache},
+                                   nlsolver::NLSolver{<:NLFunctional}, integrator)
+  nlcache.tstep = integrator.t + nlsolver.c * integrator.dt
 
   nothing
 end
 
-@muladd function preamble!(nlsolver::NLSolver{<:NLAnderson}, integrator)
-  @unpack cache = nlsolver
-
-  cache.history = 0
-  cache.tstep = integrator.t + nlsolver.c * integrator.dt
+@muladd function initialize_cache!(nlcache::Union{NLAndersonConstantCache,NLAndersonCache},
+                                   nlsolver::NLSolver{<:NLAnderson}, integrator)
+  nlcache.history = 0
+  nlcache.tstep = integrator.t + nlsolver.c * integrator.dt
 
   nothing
 end
 
-## loopheader!
+## adjust_step!
 
-@muladd function loopheader!(nlsolver::NLSolver{<:NLAnderson,false}, integrator, iter::Int)
+@muladd function adjust_step!(nlsolver::NLSolver{<:NLAnderson,false}, integrator)
+  @unpack iter = nlsolver
   @unpack aa_start = nlsolver.alg
   
   # perform Anderson acceleration
@@ -88,11 +89,11 @@ end
     cache.history = history
   end
 
-  # apply step
-  apply_step!(nlsolver, integrator)
+  nothing
 end
 
-@muladd function loopheader!(nlsolver::NLSolver{<:NLAnderson,true}, integrator, iter::Int)
+@muladd function adjust_step!(nlsolver::NLSolver{<:NLAnderson,true}, integrator)
+  @unpack iter = nlsolver
   @unpack aa_start = nlsolver.alg
 
   # perform Anderson acceleration
@@ -165,21 +166,20 @@ end
     cache.history = history
   end
 
-  # apply step
-  apply_step!(nlsolver, integrator)
+  nothing
 end
 
 ## perform_step
 
 """
-    perform_step!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson}}, integrator, iter::Int)
+    perform_step!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson}}, integrator)
 
 Update `nlsolver.z` with the next iterate `G(nlsolver.z)`, where
 ```math
 G(z) = dt⋅f(tmp + γ⋅z, p, t + c⋅dt).
 ```
 """
-@muladd function perform_step!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson},false}, integrator, iter::Int)
+@muladd function perform_step!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson},false}, integrator)
   @unpack p,dt = integrator
   @unpack zprev,tmp,γ,cache = nlsolver
   @unpack tstep = cache
@@ -201,14 +201,16 @@ G(z) = dt⋅f(tmp + γ⋅z, p, t + c⋅dt).
     integrator.destats.nf += 1
   end
 
-  # save residuals and proposed candidate 
+  # cache residuals 
   cache.dz = dz
+
+  # save next step
   nlsolver.z = z
 
   nothing
 end
 
-@muladd function perform_step!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson},true}, integrator, iter::Int)
+@muladd function perform_step!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson},true}, integrator)
   @unpack p,dt = integrator
   @unpack z,zprev,tmp,γ,cache = nlsolver
   @unpack dz,tstep,k = cache
@@ -261,7 +263,7 @@ function Base.resize!(nlcache::NLAndersonCache, nlalg::NLAnderson, i::Int)
 
   # determine new maximum history
   max_history_old = length(Δgs)
-  max_history = min(nlalg.max_history, nlalg.max_iter, i)
+  max_history = min(nlalg.max_history, nlalg.maxiters, i)
 
   resize!(nlcache.γs, max_history)
   resize!(nlcache.Δgs, max_history)
@@ -282,7 +284,7 @@ end
 function Base.resize!(nlcache::NLAndersonConstantCache, nlalg::NLAnderson, i::Int)
   # determine new maximum history
   max_history_old = length(nlcache.Δgs)
-  max_history = min(nlalg.max_history, nlalg.max_iter, i)
+  max_history = min(nlalg.max_history, nlalg.maxiters, i)
 
   resize!(nlcache.γs, max_history)
   resize!(nlcache.Δgs, max_history)
