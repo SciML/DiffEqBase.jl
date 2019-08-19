@@ -45,7 +45,9 @@ end
 
 ## NLsolver
 
-mutable struct NLSolver{algType<:AbstractNLSolverAlgorithm,IIP,uType,uTolType,tTypeNoUnits,C}
+abstract type AbstractNLSolver end
+
+mutable struct NLSolver{algType<:AbstractNLSolverAlgorithm,IIP,uType,uTolType,tTypeNoUnits,C} <: AbstractNLSolver
   z::uType
   zprev::uType
   tmp::uType

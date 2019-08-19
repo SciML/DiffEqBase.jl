@@ -1,5 +1,5 @@
 """
-    nlsolve!(nlsolver::NLSolver, integrator)
+    nlsolve!(nlsolver::AbstractNLSolver, integrator)
 
 Solve
 ```math
@@ -7,7 +7,7 @@ G(z) = dt⋅f(tmp + γ⋅z, p, t + c⋅h) - z = 0
 ```
 where `dt` is the step size and `γ` and `c` are constants, and return the solution `z`.
 """
-function nlsolve!(nlsolver::NLSolver, integrator)
+function nlsolve!(nlsolver::AbstractNLSolver, integrator)
   preamble!(nlsolver, integrator)
 
   while get_status(nlsolver) === SlowConvergence
@@ -24,7 +24,7 @@ function nlsolve!(nlsolver::NLSolver, integrator)
   postamble!(nlsolver, integrator)
 end
 
-## default implementations
+## default implementations for NLSolver
 
 function preamble!(nlsolver::NLSolver, integrator)
   nlsolver.iter = 0
@@ -73,7 +73,7 @@ end
 
 loopfooter!(nlsolver::NLSolver, integrator) = check_status!(nlsolver, integrator)
 
-function check_status!(nlsolver, integrator)
+function check_status!(nlsolver::NLSolver, integrator)
   nlsolver.status = check_status(nlsolver, integrator)
   nothing
 end

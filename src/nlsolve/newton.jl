@@ -140,21 +140,6 @@ end
 
 isnewton(::NLSolver{<:NLNewton}) = true
 
-## accessors
-
-get_new_W(nlcache::Union{NLNewtonCache,NLNewtonConstantCache})::Bool = nlcache.new_W
-set_new_W!(nlcache::Union{NLNewtonCache,NLNewtonConstantCache}, val::Bool)::Bool =
-  (nlcache.new_W = val; val)
-
-get_W(nlcache::Union{NLNewtonCache,NLNewtonConstantCache}) = nlcache.W
-set_W!(nlcache::Union{NLNewtonCache,NLNewtonConstantCache}, W) = (nlcache.W = W; W)
-
-get_W_dt(nlcache::Union{NLNewtonCache,NLNewtonConstantCache}) = nlcache.W_dt
-set_W_dt!(nlcache::Union{NLNewtonCache,NLNewtonConstantCache}, W_dt) =
-  (nlcache.W_dt = W_dt; nothing)
-
-get_linsolve(nlcache::NLNewtonCache) = nlcache.linsolve
-
 ## resize!
 
 function Base.resize!(nlcache::NLNewtonCache, nlsolver, integrator, i::Int)

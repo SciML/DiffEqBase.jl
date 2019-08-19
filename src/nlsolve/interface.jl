@@ -1,25 +1,46 @@
 ## accessors
 function nlsolve_f end
 
-get_status(nlsolver::NLSolver) = nlsolver.status
+get_status(nlsolver::AbstractNLSolver) = nlsolver.status
 
-nlsolvefail(nlsolver) = nlsolvefail(get_status(nlsolver))
+nlsolvefail(nlsolver::AbstractNLSolver) = nlsolvefail(get_status(nlsolver))
 nlsolvefail(nlstatus::NLStatus) = Int8(nlstatus) < 0
 
-get_new_W(nlsolver::NLSolver)::Bool = get_new_W(nlsolver.cache)
-set_new_W!(nlsolver::NLSolver, val::Bool)::Bool = set_new_W!(nlsolver.cache, val)
+get_cache(nlsolver::AbstractNLSolver) = nlsolver.cache
 
-get_W(nlsolver::NLSolver) = get_W(nlsolver.cache)
-set_W!(nlsolver::NLSolver, W) = set_W!(nlsolver.cache, W)
+get_new_W(nlsolver::AbstractNLSolver)::Bool = get_new_W(get_cache(nlsolver))
+get_new_W(nlcache::AbstractNLSolverCache)::Bool = nlcache.new_W
 
-get_W_dt(nlsolver::NLSolver) = get_W_dt(nlsolver.cache)
-set_W_dt!(nlsolver::NLSolver, W_dt) = set_W_dt!(nlsolver.cache, W_dt)
+set_new_W!(nlsolver::AbstractNLSolver, val::Bool)::Bool = set_new_W!(get_cache(nlsolver), val)
+set_new_W!(nlcache::AbstractNLSolverCache, val::Bool)::Bool = (nlcache.new_W = val; val)
 
-get_linsolve(nlsolver::NLSolver) = get_linsolve(nlsolver.cache)
+get_W(nlsolver::AbstractNLSolver) = get_W(get_cache(nlsolver))
+get_W(nlcache::AbstractNLSolverCache) = nlcache.W
+
+set_W!(nlsolver::AbstractNLSolver, W) = set_W!(get_cache(nlsolver), W)
+set_W!(nlcache::AbstractNLSolverCache, W) = (nlcache.W = W; nothing)
+
+get_W_dt(nlsolver::AbstractNLSolver) = get_W_dt(get_cache(nlsolver))
+get_W_dt(nlcache::AbstractNLSolverCache) = nlcache.W_dt
+
+set_W_dt!(nlsolver::AbstractNLSolver, W_dt) = set_W_dt!(get_cache(nlsolver), W_dt)
+set_W_dt!(nlcache::AbstractNLSolverCache, W_dt) = (nlcache.W_dt = W_dt; nothing)
+
+get_linsolve(nlsolver::AbstractNLSolver) = get_linsolve(get_cache(nlsolver))
+get_linsolve(nlcache::AbstractNLSolverCache) = nlcache.linsolve
+
+du_cache(nlsolver::AbstractNLSolver) = du_cache(get_cache(nlsolver))
+du_cache(::AbstractNLSolverCache) = nothing
+
+function get_nlsolver(integrator::DEIntegrator)
+  isdefined(integrator.cache, :nlsolver) || return
+  
+  integrator.cache.nlsolver
+end
 
 ## traits
 
-isnewton(::NLSolver) = false
+isnewton(::AbstractNLSolver) = false
 
 ## build
 
@@ -34,9 +55,10 @@ function resize_J! end
 function resize_W! end
 
 function resize_nlsolver!(integrator::DEIntegrator, i::Int)
-  isdefined(integrator.cache, :nlsolver) || return
+  nlsolver = get_nlsolver(integrator)
+ 
+  nlsolver === nothing && return
 
-  nlsolver = integrator.cache.nlsolver
   if nlsolver isa AbstractArray
     for idx in eachindex(nlsolver)
       resize!(nlsolver[idx], integrator, i)
@@ -48,14 +70,14 @@ function resize_nlsolver!(integrator::DEIntegrator, i::Int)
   nothing
 end
 
-function Base.resize!(nlsolver::NLSolver, integrator, i::Int)
-  @unpack z,zprev,tmp,cache = nlsolver
+function Base.resize!(nlsolver::AbstractNLSolver, integrator, i::Int)
+  @unpack z,zprev,tmp = nlsolver
 
   resize!(z, i)
   resize!(zprev, i)
   resize!(tmp, i)
 
-  resize!(cache, nlsolver, integrator, i)
+  resize!(get_cache(nlsolver), nlsolver, integrator, i)
 end
 
 ## default: dispatch only on the cache
