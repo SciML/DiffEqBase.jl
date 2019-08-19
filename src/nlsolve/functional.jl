@@ -1,326 +1,296 @@
-"""
-    nlsolve!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson}}, integrator)
+## preamble!
 
-Perform functional iteration that is used by implicit methods.
+@muladd function preamble!(nlsolver::NLSolver{<:NLFunctional}, integrator)
+  nlsolver.cache.tstep = integrator.t + nlsolver.c * integrator.dt
 
-It solves
-
-```math
-G(z) = dt⋅f(tmp + γ⋅z, p, t + c⋅h)
-z = G(z)
-```
-
-by iterating
-
-```math
-zᵏ⁺¹ = G(zᵏ),
-```
-
-where `dt` is the step size and `γ` is a constant.
-
-It returns the tuple `z`, where `z` is the solution.
-
-[^HW96]: Ernst Hairer and Gerhard Wanner, "Solving Ordinary Differential
-Equations II, Springer Series in Computational Mathematics. ISBN
-978-3-642-05221-7. Section IV.8.
-[doi:10.1007/978-3-642-05221-7](https://doi.org/10.1007/978-3-642-05221-7)
-"""
-@muladd function nlsolve!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson},false}, integrator)
-  @unpack t,dt,uprev,u,p = integrator
-  @unpack z,tmp,c,γ = nlsolver
-  @unpack κ,max_iter,fast_convergence_cutoff = nlsolver.alg
-  nlcache = nlsolver.cache
-
-  if nlcache isa NLAndersonConstantCache
-    @unpack aa_start,droptol = nlsolver.alg
-    @unpack Δz₊s,Q,R,γs = nlcache
-  end
-
-  # precalculations
-  mass_matrix = integrator.f.mass_matrix
-  f = nlsolve_f(integrator)
-  tstep = t + c*dt
-  η = nlsolver.ηold
-  if nlcache isa NLAndersonConstantCache
-    history = 0
-    max_history = length(Δz₊s)
-  end
-
-  # fixed point iteration
-  local ndz
-  if nlcache isa NLAndersonConstantCache
-    local Δdz, dzold, z₊old # cache variables
-  end
-  fail_convergence = true
-  iter = 0
-  while iter < max_iter
-    iter += 1
-    if has_destats(integrator)
-      integrator.destats.nnonliniter += 1
-    end
-
-    # evaluate function
-    u = @.. tmp + γ*z
-    if mass_matrix == I
-      z₊ = dt .* f(u, p, tstep)
-      dz = z₊ .- z
-    else
-      mz = _reshape(mass_matrix * _vec(z), axes(z))
-      dz = dt .* f(u, p, tstep) .- mz
-      z₊ = z .+ dz
-    end
-    if has_destats(integrator)
-      integrator.destats.nf += 1
-    end
-
-    # compute norm of residuals
-    iter > 1 && (ndzprev = ndz)
-    atmp = calculate_residuals(dz, uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
-    ndz = integrator.opts.internalnorm(atmp, t)
-
-    # check divergence (not in initial step)
-    if iter > 1
-      θ = ndz / ndzprev
-      ( diverge = θ > 1 ) && ( nlsolver.status = Divergence )
-      ( veryslowconvergence = ndz * θ^(max_iter - iter) > κ * (1 - θ) ) && ( nlsolver.status = VerySlowConvergence )
-      if diverge || veryslowconvergence
-        break
-      end
-    end
-
-    # update iterate
-    z = z₊
-
-    # check stopping criterion
-    iter > 1 && (η = θ / (1 - θ))
-    if η * ndz < κ && (iter > 1 || iszero(ndz))
-      # fixed-point iteration converges
-      nlsolver.status = η < fast_convergence_cutoff ? FastConvergence : Convergence
-      fail_convergence = false
-      break
-    end
-
-    # perform Anderson acceleration
-    if nlcache isa NLAndersonConstantCache && iter < max_iter
-      if iter == aa_start
-        # update cached values for next step of Anderson acceleration
-        dzold = dz
-        z₊old = z₊
-      elseif iter > aa_start
-        # increase size of history
-        history += 1
-
-        # remove oldest history if maximum size is exceeded
-        if history > max_history
-          # circularly shift differences of z₊
-          for i in 1:(max_history-1)
-            Δz₊s[i] = Δz₊s[i + 1]
-          end
-
-          # delete left-most column of QR decomposition
-          qrdelete!(Q, R, max_history)
-
-          # update size of history
-          history = max_history
-        end
-
-        # update history of differences of z₊
-        Δz₊s[history] = @.. z₊ - z₊old
-
-        # replace/add difference of residuals as right-most column to QR decomposition
-        qradd!(Q, R, _vec(dz .- dzold), history)
-
-        # update cached values
-        dzold = dz
-        z₊old = z₊
-
-        # define current Q and R matrices
-        Qcur, Rcur = view(Q, :, 1:history), UpperTriangular(view(R, 1:history, 1:history))
-
-        # check condition (TODO: incremental estimation)
-        if droptol !== nothing
-          while cond(R) > droptol && history > 1
-            qrdelete!(Q, R, history)
-            history -= 1
-            Qcur, Rcur = view(Q, :, 1:history), UpperTriangular(view(R, 1:history, 1:history))
-          end
-        end
-
-        # solve least squares problem
-        γscur = view(γs, 1:history)
-        ldiv!(Rcur, mul!(γscur, Qcur', _vec(dz)))
-        if has_destats(integrator)
-          integrator.destats.nsolve += 1
-        end
-
-        # update next iterate
-        for i in 1:history
-          z = @.. z - γs[i] * Δz₊s[i]
-        end
-
-        # update norm of residuals
-        atmp = calculate_residuals(z .- z₊ .+ dz, uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
-        ndz = integrator.opts.internalnorm(atmp, t)
-      end
-    end
-  end
-  if fail_convergence && has_destats(integrator)
-    integrator.destats.nnonlinconvfail += 1
-  end
-  integrator.force_stepfail = fail_convergence
-  nlsolver.ηold = η
-  nlsolver.nl_iters = iter
-  return z
+  nothing
 end
 
-@muladd function nlsolve!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson},true}, integrator)
-  @unpack t,dt,uprev,u,p = integrator
-  @unpack z,dz,tmp,ztmp,k,c,γ = nlsolver
-  @unpack κ,max_iter,fast_convergence_cutoff = nlsolver.alg
-  nlcache = nlsolver.cache
-  @unpack z₊ = nlcache
+@muladd function preamble!(nlsolver::NLSolver{<:NLAnderson}, integrator)
+  @unpack cache = nlsolver
 
-  if nlcache isa NLAndersonCache
-    @unpack aa_start,droptol = nlsolver.alg
-    @unpack dzold,z₊old,Δz₊s,Q,R,γs = nlcache
+  cache.history = 0
+  cache.tstep = integrator.t + nlsolver.c * integrator.dt
+
+  nothing
+end
+
+## loopheader!
+
+@muladd function loopheader!(nlsolver::NLSolver{<:NLAnderson,false}, integrator, iter::Int)
+  @unpack aa_start = nlsolver.alg
+  
+  # perform Anderson acceleration
+  if iter == aa_start
+    @unpack cache = nlsolver
+
+    # update cached values for next step of Anderson acceleration
+    cache.dzprev = cache.dz
+    cache.gprev = nlsolver.z
+  elseif iter > aa_start
+    @unpack z,cache = nlsolver
+    @unpack dz,Δgs,Q,R,γs,history,droptol = cache
+
+    # increase size of history
+    history += 1
+  
+    # remove oldest history if maximum size is exceeded
+    max_history = length(Δgs)
+    if history > max_history
+      # circularly shift differences of G(z)
+      for i in 1:(max_history-1)
+        Δgs[i] = Δgs[i + 1]
+      end
+  
+      # delete left-most column of QR decomposition
+      qrdelete!(Q, R, max_history)
+  
+      # update size of history
+      history = max_history
+    end
+  
+    # update history of differences of G(z)
+    Δgs[history] = @.. z - cache.gprev
+  
+    # replace/add difference of residuals as right-most column to QR decomposition
+    qradd!(Q, R, _vec(dz .- cache.dzprev), history)
+  
+    # update cached values
+    cache.dzprev = dz
+    cache.gprev = z
+  
+    # define current Q and R matrices
+    Qcur, Rcur = view(Q, :, 1:history), UpperTriangular(view(R, 1:history, 1:history))
+  
+    # check condition (TODO: incremental estimation)
+    if droptol !== nothing
+      while cond(R) > droptol && history > 1
+        qrdelete!(Q, R, history)
+        history -= 1
+        Qcur, Rcur = view(Q, :, 1:history), UpperTriangular(view(R, 1:history, 1:history))
+      end
+    end
+  
+    # solve least squares problem
+    γscur = view(γs, 1:history)
+    ldiv!(Rcur, mul!(γscur, Qcur', _vec(dz)))
+    if has_destats(integrator)
+      integrator.destats.nsolve += 1
+    end
+  
+    # update iterate
+    for i in 1:history
+      z = @.. z - γs[i] * Δgs[i]
+    end
+  
+    # update cached values
+    nlsolver.z = z
+    cache.history = history
   end
 
-  # precalculations
-  vecztmp = vec(ztmp); vecz = vec(z); vecz₊ = vec(z₊)
+  # apply step
+  apply_step!(nlsolver, integrator)
+end
+
+@muladd function loopheader!(nlsolver::NLSolver{<:NLAnderson,true}, integrator, iter::Int)
+  @unpack aa_start = nlsolver.alg
+
+  # perform Anderson acceleration
+  if iter == aa_start
+    @unpack z,cache = nlsolver
+
+    # update cached values for next step of Anderson acceleration
+    @.. cache.gprev = z
+    @.. cache.dzprev = cache.dz
+  elseif iter > aa_start
+    @unpack z,cache = nlsolver
+    @unpack gprev,dz,dzprev,Δgs,Q,R,γs,history,droptol = cache
+
+    # increase size of history
+    history += 1
+
+    # remove oldest history if maximum size is exceeded
+    max_history = length(Δgs)
+    if history > max_history
+      # circularly shift differences of z
+      ptr = Δgs[1]
+      for i in 1:(max_history-1)
+        Δgs[i] = Δgs[i + 1]
+      end
+      Δgs[max_history] = ptr
+
+      # delete left-most column of QR decomposition
+      qrdelete!(Q, R, max_history)
+
+      # update size of history
+      history = max_history
+    end
+
+    # update history of differences of z
+    @.. Δgs[history] = z - gprev
+
+    # replace/add difference of residuals as right-most column to QR decomposition
+    @.. dzprev = dz - dzprev
+    qradd!(Q, R, vec(dzprev), history)
+
+    # update cached values
+    @.. dzprev = dz
+    @.. gprev = z
+
+    # define current Q and R matrices
+    Qcur, Rcur = view(Q, :, 1:history), UpperTriangular(view(R, 1:history, 1:history))
+
+    # check condition (TODO: incremental estimation)
+    if droptol !== nothing
+      while cond(R) > droptol && history > 1
+        qrdelete!(Q, R, history)
+        history -= 1
+        Qcur, Rcur = view(Q, :, 1:history), UpperTriangular(view(R, 1:history, 1:history))
+      end
+    end
+
+    # solve least squares problem
+    γscur = view(γs, 1:history)
+    ldiv!(Rcur, mul!(γscur, Qcur', vec(dz)))
+    if has_destats(integrator)
+      integrator.destats.nsolve += 1
+    end
+
+    # update next iterate
+    for i in 1:history
+      @.. z = z - γs[i] * Δgs[i]
+    end
+
+    # update cached values
+    cache.history = history
+  end
+
+  # apply step
+  apply_step!(nlsolver, integrator)
+end
+
+## perform_step
+
+"""
+    perform_step!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson}}, integrator, iter::Int)
+
+Update `nlsolver.z` with the next iterate `G(nlsolver.z)`, where
+```math
+G(z) = dt⋅f(tmp + γ⋅z, p, t + c⋅dt).
+```
+"""
+@muladd function perform_step!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson},false}, integrator, iter::Int)
+  @unpack p,dt = integrator
+  @unpack zprev,tmp,γ,cache = nlsolver
+  @unpack tstep = cache
+
   mass_matrix = integrator.f.mass_matrix
   f = nlsolve_f(integrator)
-  tstep = t + c*dt
-  η = nlsolver.ηold
-  if nlcache isa NLAndersonCache
-    history = 0
-    max_history = length(Δz₊s)
+
+  # evaluate function
+  ztmp = @.. tmp + γ * zprev
+  if mass_matrix == I
+    z = dt .* f(ztmp, p, tstep)
+    dz = z .- zprev
+  else
+    mz = _reshape(mass_matrix * _vec(zprev), axes(zprev))
+    dz = dt .* f(ztmp, p, tstep) .- mz
+    z = zprev .+ dz
+  end
+  if has_destats(integrator)
+    integrator.destats.nf += 1
   end
 
-  # fixed-point iteration without Newton
-  local ndz
-  fail_convergence = true
-  iter = 0
-  while iter < max_iter
-    iter += 1
-    if has_destats(integrator)
-      integrator.destats.nnonliniter += 1
-    end
+  # save residuals and proposed candidate 
+  cache.dz = dz
+  nlsolver.z = z
 
-    # evaluate function
-    @.. u = tmp + γ*z
-    f(k, u, p, tstep)
-    if has_destats(integrator)
-      integrator.destats.nf += 1
-    end
-    if mass_matrix == I
-      @.. z₊ = dt*k
-      @.. dz = z₊ - z
-    else
-      mul!(vecztmp, mass_matrix, vecz)
-      @.. dz = dt*k - ztmp
-      @.. z₊ = z + dz
-    end
+  nothing
+end
 
-    # compute norm of residuals
-    iter > 1 && (ndzprev = ndz)
-    calculate_residuals!(ztmp, dz, uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
-    ndz = integrator.opts.internalnorm(ztmp, t)
+@muladd function perform_step!(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson},true}, integrator, iter::Int)
+  @unpack p,dt = integrator
+  @unpack z,zprev,tmp,γ,cache = nlsolver
+  @unpack dz,tstep,k = cache
 
-    # check divergence (not in initial step)
-    if iter > 1
-      θ = ndz / ndzprev
-      ( diverge = θ > 1 ) && ( nlsolver.status = Divergence )
-      ( veryslowconvergence = ndz * θ^(max_iter - iter) > κ * (1 - θ) ) && ( nlsolver.status = VerySlowConvergence )
-      if diverge || veryslowconvergence
-        break
-      end
-    end
+  mass_matrix = integrator.f.mass_matrix
+  f = nlsolve_f(integrator)
 
-    # update iterate
-    @.. z = z₊
+  # use z as temporary variable
+  ztmp = z
 
-    # check stopping criterion
-    iter > 1 && (η = θ / (1 - θ))
-    if η * ndz < κ && (iter > 1 || iszero(ndz))
-      # fixed-point iteration converges
-      nlsolver.status = η < fast_convergence_cutoff ? FastConvergence : Convergence
-      fail_convergence = false
-      break
-    end
+  # evaluate function
+  @.. ztmp = tmp + γ * zprev
+  f(k, ztmp, p, tstep)
+  if has_destats(integrator)
+    integrator.destats.nf += 1
+  end
+  
+  if mass_matrix == I
+    @.. z = dt * k
+    @.. dz = z - zprev
+  else
+    mul!(vec(ztmp), mass_matrix, vec(zprev))
+    @.. dz = dt * k - ztmp
+    @.. z = zprev + dz
+  end
 
-    # perform Anderson acceleration
-    if nlcache isa NLAndersonCache && iter < max_iter
-      if iter == aa_start
-        # update cached values for next step of Anderson acceleration
-        @.. dzold = dz
-        @.. z₊old = z₊
-      elseif iter > aa_start
-        # increase size of history
-        history += 1
+  nothing
+end
 
-        # remove oldest history if maximum size is exceeded
-        if history > max_history
-          # circularly shift differences of z₊
-          ptr = Δgs[1]
-          for i in 1:(max_history-1)
-            Δz₊s[i] = Δz₊s[i + 1]
-          end
-          Δz₊s[max_history] = ptr
+## resize!
 
-          # delete left-most column of QR decomposition
-          qrdelete!(Q, R, max_history)
+function Base.resize!(nlcache::NLFunctionalCache, i::Int)
+  resize!(nlcache.dz, i)
+  resize!(nlcache.k, i)
+  resize!(nlcache.atmp, i)
+  nothing
+end
 
-          # update size of history
-          history = max_history
-        end
+function Base.resize!(nlcache::Union{NLAndersonCache,NLAndersonConstantCache}, nlsolver::NLSolver{<:NLAnderson},
+  integrator, i::Int)
+resize!(nlcache, nlsolver.alg, i)
+end
 
-        # update history of differences of z₊
-        @.. Δz₊s[history] = z₊ - z₊old
+function Base.resize!(nlcache::NLAndersonCache, nlalg::NLAnderson, i::Int)
+  resize!(nlcache.dz, i)
+  resize!(nlcache.k, i)
+  resize!(nlcache.atmp, i)
+  resize!(nlcache.gprev, i)
+  resize!(nlcache.dzprev, i)
 
-        # replace/add difference of residuals as right-most column to QR decomposition
-        @.. dzold = dz - dzold
-        qradd!(Q, R, vec(dzold), history)
+  # determine new maximum history
+  max_history_old = length(Δgs)
+  max_history = min(nlalg.max_history, nlalg.max_iter, i)
 
-        # update cached values
-        @.. dzold = dz
-        @.. z₊old = z₊
-
-        # define current Q and R matrices
-        Qcur, Rcur = view(Q, :, 1:history), UpperTriangular(view(R, 1:history, 1:history))
-
-        # check condition (TODO: incremental estimation)
-        if droptol !== nothing
-          while cond(R) > droptol && history > 1
-            qrdelete!(Q, R, history)
-            history -= 1
-            Qcur, Rcur = view(Q, :, 1:history), UpperTriangular(view(R, 1:history, 1:history))
-          end
-        end
-
-        # solve least squares problem
-        γscur = view(γs, 1:history)
-        ldiv!(Rcur, mul!(γscur, Qcur', vec(dz)))
-        if has_destats(integrator)
-          integrator.destats.nsolve += 1
-        end
-
-        # update next iterate
-        for i in 1:history
-          @.. z = z - γs[i] * Δz₊s[i]
-        end
-
-        # update norm of residuals
-        @.. dz = z - z₊ + dz
-        calculate_residuals!(ztmp, dz, uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
-        ndz = integrator.opts.internalnorm(ztmp, t)
-      end
+  resize!(nlcache.γs, max_history)
+  resize!(nlcache.Δgs, max_history)
+  if max_history > max_history_old
+    for i in (max_history_old + 1):max_history
+      nlcache.Δgs[i] = zero(nlcache.gprev)
     end
   end
-  if fail_convergence && has_destats(integrator)
-    integrator.destats.nnonlinconvfail += 1
+
+  if max_history != max_history_old
+    nlcache.Q = typeof(nlcache.Q)(undef, i, max_history)
+    nlcache.R = typeof(nlcache.R)(undef, max_history, max_history)
   end
-  integrator.force_stepfail = fail_convergence
-  nlsolver.ηold = η
-  nlsolver.nl_iters = iter
-  return z
+
+  nothing
+end
+
+function Base.resize!(nlcache::NLAndersonConstantCache, nlalg::NLAnderson, i::Int)
+  # determine new maximum history
+  max_history_old = length(nlcache.Δgs)
+  max_history = min(nlalg.max_history, nlalg.max_iter, i)
+
+  resize!(nlcache.γs, max_history)
+  resize!(nlcache.Δgs, max_history)
+
+  if max_history != max_history_old
+    nlcache.Q = typeof(nlcache.Q)(undef, i, max_history)
+    nlcache.R = typeof(nlcache.R)(undef, max_history, max_history)
+  end
+
+  nothing
 end

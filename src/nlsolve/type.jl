@@ -1,32 +1,6 @@
+## algorithms
+
 abstract type AbstractNLSolverAlgorithm end
-abstract type AbstractNLSolverCache end
-
-@enum NLStatus::Int8 begin
-  FastConvergence     = 2
-  Convergence         = 1
-  SlowConvergence     = 0
-  VerySlowConvergence = -1
-  Divergence          = -2
-end
-
-# solver
-
-mutable struct NLSolver{algType<:AbstractNLSolverAlgorithm,IIP,uType,rateType,uTolType,gType,cType,C}
-  z::uType
-  dz::uType
-  tmp::uType
-  ztmp::uType
-  k::rateType
-  alg::algType
-  ηold::uTolType
-  γ::gType
-  c::cType
-  nl_iters::Int
-  status::NLStatus
-  cache::C
-end
-
-# algorithms
 
 struct NLFunctional{K,C} <: AbstractNLSolverAlgorithm
   κ::K
@@ -45,7 +19,7 @@ struct NLAnderson{K,D,C} <: AbstractNLSolverAlgorithm
   droptol::D
 end
 
-NLAnderson(; κ=1//100, max_iter=10, max_history::Int=5, aa_start::Int=1, droptol=nothing, fast_convergence_cutoff=1//5) =
+NLAnderson(; κ=1//100, max_iter=10, max_history::Int=10, aa_start::Int=1, droptol=1e10, fast_convergence_cutoff=1//5) =
   NLAnderson(κ, fast_convergence_cutoff, max_iter, max_history, aa_start, droptol)
 
 struct NLNewton{K,C1,C2} <: AbstractNLSolverAlgorithm
@@ -57,49 +31,105 @@ end
 
 NLNewton(; κ=1//100, max_iter=10, fast_convergence_cutoff=1//5, new_W_dt_cutoff=1//5) = NLNewton(κ, max_iter, fast_convergence_cutoff, new_W_dt_cutoff)
 
-# caches
+## status
 
-mutable struct NLNewtonCache{W,J,T,du1Type,ufType,jcType,lsType,uType,C} <: AbstractNLSolverCache
-  new_W::Bool
-  W::W
+@enum NLStatus::Int8 begin
+  FastConvergence     = 2
+  Convergence         = 1
+  SlowConvergence     = 0
+  VerySlowConvergence = -1
+  Divergence          = -2
+  MaxIterReached      = -3
+end
+
+## NLsolver
+
+mutable struct NLSolver{algType<:AbstractNLSolverAlgorithm,IIP,uType,uTolType,tTypeNoUnits,C}
+  z::uType
+  zprev::uType
+  tmp::uType
+  γ::uTolType
+  c::tTypeNoUnits
+  alg::algType
+  κ::uTolType
+  ηold::uTolType
+  fast_convergence_cutoff::uTolType
+  max_iter::Int
+  nl_iters::Int
+  status::NLStatus
+  cache::C
+end
+
+## caches
+
+abstract type AbstractNLSolverCache end
+
+mutable struct NLFunctionalCache{uType,tType,rateType,uNoUnitsType} <: AbstractNLSolverCache
+  dz::uType
+  tstep::tType
+  k::rateType
+  atmp::uNoUnitsType
+end
+
+mutable struct NLFunctionalConstantCache{uType,tType} <: AbstractNLSolverCache
+  dz::uType
+  tstep::tType
+end
+
+mutable struct NLAndersonCache{uType,tType,rateType,uNoUnitsType,uEltypeNoUnits,D} <: AbstractNLSolverCache
+  dz::uType
+  tstep::tType
+  k::rateType
+  atmp::uNoUnitsType
+  gprev::uType
+  dzprev::uType
+  Δgs::Vector{uType}
+  Q::Matrix{uEltypeNoUnits}
+  R::Matrix{uEltypeNoUnits}
+  γs::Vector{uEltypeNoUnits}
+  history::Int
+  droptol::D
+end
+
+mutable struct NLAndersonConstantCache{uType,tType,uEltypeNoUnits,D} <: AbstractNLSolverCache
+  dz::uType
+  tstep::tType
+  gprev::uType
+  dzprev::uType
+  Δgs::Vector{uType}
+  Q::Matrix{uEltypeNoUnits}
+  R::Matrix{uEltypeNoUnits}
+  γs::Vector{uEltypeNoUnits}
+  history::Int
+  droptol::D
+end
+
+mutable struct NLNewtonCache{uType,tType,rateType,uNoUnitsType,J,W,du1Type,ufType,jcType,lsType,G} <: AbstractNLSolverCache
+  dz::uType
+  tstep::tType
+  k::rateType
+  atmp::uNoUnitsType
   J::J
-  W_dt::T
+  W::W
+  new_W::Bool
+  W_dt::tType
   du1::du1Type
   uf::ufType
   jac_config::jcType
   linsolve::lsType
   weight::uType
-  new_W_dt_cutoff::C # to be removed
+  invγdt::G
+  new_W_dt_cutoff::tType
 end
 
-mutable struct NLNewtonConstantCache{W,J,T,ufType,C} <: AbstractNLSolverCache
-  new_W::Bool
-  W::W
+mutable struct NLNewtonConstantCache{uType,tType,J,W,ufType,G} <: AbstractNLSolverCache
+  dz::uType
+  tstep::tType
   J::J
-  W_dt::T
+  W::W
+  new_W::Bool
+  W_dt::tType
   uf::ufType
-  new_W_dt_cutoff::C # to be removed
-end
-
-struct NLFunctionalCache{uType} <: AbstractNLSolverCache
-  z₊::uType
-end
-
-struct NLFunctionalConstantCache <: AbstractNLSolverCache end
-
-mutable struct NLAndersonCache{uType,gsType,QType,RType,gType} <: AbstractNLSolverCache
-  z₊::uType
-  dzold::uType
-  z₊old::uType
-  Δz₊s::gsType
-  Q::QType
-  R::RType
-  γs::gType
-end
-
-mutable struct NLAndersonConstantCache{gsType,QType,RType,gType} <: AbstractNLSolverCache
-  Δz₊s::gsType
-  Q::QType
-  R::RType
-  γs::gType
+  invγdt::G
+  new_W_dt_cutoff::tType
 end
