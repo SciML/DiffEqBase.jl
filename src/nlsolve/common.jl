@@ -7,7 +7,7 @@ function build_nlsolver(alg,nlalg::Union{NLFunctional,NLAnderson,NLNewton},u,rat
   uTolType = real(uBottomEltypeNoUnits)
 
   # define fields of non-linear solver
-  z = similar(u); zprev = similar(u); tmp = similar(u)
+  z = similar(u); gz = similar(u); tmp = similar(u)
 
   # build cache for non-linear solver
   dz = similar(u)
@@ -59,9 +59,10 @@ function build_nlsolver(alg,nlalg::Union{NLFunctional,NLAnderson,NLNewton},u,rat
 
   # build non-linear solver
   η = one(uTolType)
+  ndz = one(uTolType)
 
   NLSolver{typeof(nlalg),true,typeof(u),uTolType,tTypeNoUnits,typeof(cache)}(
-    z, zprev, tmp, uTolType(γ), tTypeNoUnits(c), nlalg, uTolType(nlalg.κ), η,
+    z, gz, tmp, uTolType(γ), tTypeNoUnits(c), nlalg, uTolType(nlalg.κ), η, ndz,
     uTolType(nlalg.fast_convergence_cutoff), nlalg.maxiters, 10_000, Convergence, cache)  
 end
 
@@ -72,7 +73,7 @@ function build_nlsolver(alg,nlalg::Union{NLFunctional,NLAnderson,NLNewton},u,rat
   uTolType = real(uBottomEltypeNoUnits)
 
   # define fields of non-linear solver
-  z = u; zprev = u; tmp = u
+  z = u; gz = u; tmp = u
 
   # create cache of non-linear solver
   dz = u
@@ -108,9 +109,10 @@ function build_nlsolver(alg,nlalg::Union{NLFunctional,NLAnderson,NLNewton},u,rat
 
   # build non-linear solver
   η = one(uTolType)
+  ndz = one(uTolType)
   
   NLSolver{typeof(nlalg),false,typeof(u),uTolType,tTypeNoUnits,typeof(cache)}(
-    z, zprev, tmp, uTolType(γ), tTypeNoUnits(c), nlalg, uTolType(nlalg.κ), η,
+    z, gz, tmp, uTolType(γ), tTypeNoUnits(c), nlalg, uTolType(nlalg.κ), η, ndz,
     uTolType(nlalg.fast_convergence_cutoff), nlalg.maxiters, 10_000, Convergence, cache)
 end
 
@@ -119,19 +121,23 @@ end
 function norm_of_residuals(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson,NLNewton},true},
                            integrator)
   @unpack t,opts = integrator
-  @unpack z,zprev,cache = nlsolver
+  @unpack z,gz,cache = nlsolver
   @unpack dz,atmp = cache
 
-  calculate_residuals!(atmp, dz, zprev, z, opts.abstol, opts.reltol, opts.internalnorm, t)
+  calculate_residuals!(atmp, dz, z, gz, opts.abstol, opts.reltol, opts.internalnorm, t)
   opts.internalnorm(atmp, t)
 end
 
 function norm_of_residuals(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson,NLNewton},false},
                            integrator)
   @unpack t,opts = integrator
-  @unpack z,zprev,cache = nlsolver
+  @unpack z,gz,cache = nlsolver
   @unpack dz = cache
 
-  atmp = calculate_residuals(dz, zprev, z, opts.abstol, opts.reltol, opts.internalnorm, t)
+  atmp = calculate_residuals(dz, z, gz, opts.abstol, opts.reltol, opts.internalnorm, t)
   opts.internalnorm(atmp, t)
 end
+
+## du_cache
+
+du_cache(nlcache::Union{NLFunctionalCache,NLAndersonCache,NLNewtonCache}) = (nlcache.k,)

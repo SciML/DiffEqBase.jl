@@ -1,7 +1,7 @@
 ## initial_η
 
 initial_η(nlsolver::NLSolver{NLNewton}, integrator) =
-  max(nlsolver.ηold, eps(eltype(integrator.opts.reltol)))^(0.8)
+  max(nlsolver.η, eps(eltype(integrator.opts.reltol)))^(0.8)
 
 ## preamble!
 
@@ -38,17 +38,17 @@ that is specialized for implicit methods (see [^HS96] and [^HW96]).
 
 It solves
 ```math
-G(z) = dt⋅f(tmp + γ⋅z, p, t + c⋅dt) - z = 0
+z = dt⋅f(tmp + γ⋅z, p, t + c⋅dt)
 ```
 by iterating
 ```math
 (I + (dt⋅γ)J) Δᵏ = dt*f(tmp + γ⋅zᵏ, p, t + c⋅dt) - zᵏ
-zᵏ⁺¹ = zᵏ + Δᵏ
+zᵏ⁺¹ = g(zᵏ) = zᵏ - Δᵏ
 ```
 or, by utilizing a transformation,
 ```math
 W Δᵏ = f(tmp + γ⋅zᵏ, p, t + c⋅dt)/γ - zᵏ/(dt⋅γ)
-zᵏ⁺¹ = zᵏ + Δᵏ/(dt⋅γ)
+zᵏ⁺¹ = g(zᵏ) = zᵏ - Δᵏ/(dt⋅γ)
 ```
 where `W = M/(dt⋅γ) - J`, `M` is the mass matrix, `dt` is the step size, `γ` and
 `c` are constants, `J` is the Jacobian matrix. This transformation occurs since `c*J` is
@@ -67,7 +67,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
 """
 @muladd function perform_step!(nlsolver::NLSolver{<:NLNewton,false}, integrator)
   @unpack p,dt = integrator
-  @unpack zprev,tmp,γ,cache = nlsolver
+  @unpack z,tmp,γ,cache = nlsolver
   @unpack tstep,W,invγdt = cache
 
   # precalculations
@@ -75,11 +75,11 @@ Equations II, Springer Series in Computational Mathematics. ISBN
   f = nlsolve_f(integrator)
 
   # evaluate function
-  ztmp = @.. tmp + γ * zprev
+  ztmp = @.. tmp + γ * z
   if mass_matrix === I
-    ztmp = (dt .* f(ztmp, p, tstep) .- zprev) .* invγdt
+    ztmp = (dt .* f(ztmp, p, tstep) .- z) .* invγdt
   else
-    ztmp = (dt .* f(ztmp, p, tstep) .- mass_matrix * zprev) .* invγdt
+    ztmp = (dt .* f(ztmp, p, tstep) .- mass_matrix * z) .* invγdt
   end
   if has_destats(integrator)
     integrator.destats.nf += 1
@@ -91,24 +91,24 @@ Equations II, Springer Series in Computational Mathematics. ISBN
   end
 
   cache.dz = dz
-  nlsolver.z = @.. zprev - dz
+  nlsolver.gz = @.. z - dz
 
   nothing
 end
 
 @muladd function perform_step!(nlsolver::NLSolver{<:NLNewton,true}, integrator)
   @unpack p,dt = integrator
-  @unpack z,zprev,tmp,γ,iter,cache = nlsolver
+  @unpack z,gz,tmp,γ,iter,cache = nlsolver
   @unpack dz,tstep,k,W,new_W,linsolve,weight,invγdt = cache
   
   mass_matrix = integrator.f.mass_matrix
   f = nlsolve_f(integrator)
 
-  # use z as temporary variable
-  ztmp = z
+  # use gz as temporary variable
+  ztmp = gz
 
   # evaluate function
-  @.. ztmp = tmp + γ * zprev
+  @.. ztmp = tmp + γ * z
   if W isa AbstractDiffEqLinearOperator
     update_coefficients!(W, ztmp, p, tstep)
   end
@@ -119,10 +119,10 @@ end
   end
 
   if mass_matrix === I
-    @.. ztmp = (dt * k - zprev) * invγdt
-  else
-    mul!(vec(z), mass_matrix, vec(zprev))
     @.. ztmp = (dt * k - z) * invγdt
+  else
+    mul!(vec(ztmp), mass_matrix, vec(z))
+    @.. ztmp = (dt * k - ztmp) * invγdt
   end
 
   linsolve(vec(dz), W, vec(ztmp), iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=integrator.opts.reltol)
@@ -131,7 +131,7 @@ end
   end
 
   # compute next iterate
-  @.. z = zprev - dz
+  @.. gz = z - dz
 
   nothing
 end

@@ -71,10 +71,10 @@ function resize_nlsolver!(integrator::DEIntegrator, i::Int)
 end
 
 function Base.resize!(nlsolver::AbstractNLSolver, integrator, i::Int)
-  @unpack z,zprev,tmp = nlsolver
+  @unpack z,gz,tmp = nlsolver
 
   resize!(z, i)
-  resize!(zprev, i)
+  resize!(gz, i)
   resize!(tmp, i)
 
   resize!(get_cache(nlsolver), nlsolver, integrator, i)

@@ -48,14 +48,17 @@ end
 abstract type AbstractNLSolver end
 
 mutable struct NLSolver{algType<:AbstractNLSolverAlgorithm,IIP,uType,uTolType,tTypeNoUnits,C} <: AbstractNLSolver
+  """current solution"""
   z::uType
-  zprev::uType
+  """value `g(z)` of Newton or fixed-point iteration"""
+  gz::uType
   tmp::uType
   γ::uTolType
   c::tTypeNoUnits
   alg::algType
   κ::uTolType
   η::uTolType
+  ndz::uTolType
   fast_convergence_cutoff::uTolType
   iter::Int
   maxiters::Int
@@ -68,6 +71,7 @@ end
 abstract type AbstractNLSolverCache end
 
 mutable struct NLFunctionalCache{uType,tType,rateType,uNoUnitsType} <: AbstractNLSolverCache
+  """residuals `g(z) - z` of fixed-point iteration"""
   dz::uType
   tstep::tType
   k::rateType
@@ -75,18 +79,22 @@ mutable struct NLFunctionalCache{uType,tType,rateType,uNoUnitsType} <: AbstractN
 end
 
 mutable struct NLFunctionalConstantCache{uType,tType} <: AbstractNLSolverCache
+  """residuals `g(z) - z` of fixed-point iteration"""
   dz::uType
   tstep::tType
 end
 
 mutable struct NLAndersonCache{uType,tType,rateType,uNoUnitsType,uEltypeNoUnits,D} <: AbstractNLSolverCache
+  """residuals of `g(z) - z` of fixed-point iteration"""
   dz::uType
   tstep::tType
   k::rateType
   atmp::uNoUnitsType
-  gprev::uType
+  """value `g(zprev)` of previous fixed-point iteration"""
+  gzprev::uType
+  """residuals `g(zprev) - zprev` of previous fixed-point iteration"""
   dzprev::uType
-  Δgs::Vector{uType}
+  Δgzs::Vector{uType}
   Q::Matrix{uEltypeNoUnits}
   R::Matrix{uEltypeNoUnits}
   γs::Vector{uEltypeNoUnits}
@@ -95,11 +103,14 @@ mutable struct NLAndersonCache{uType,tType,rateType,uNoUnitsType,uEltypeNoUnits,
 end
 
 mutable struct NLAndersonConstantCache{uType,tType,uEltypeNoUnits,D} <: AbstractNLSolverCache
+  """residuals `g(z) - z` of fixed-point iteration"""
   dz::uType
   tstep::tType
-  gprev::uType
+  """value `g(zprev)` of previous fixed-point iteration"""
+  gzprev::uType
+  """residuals `g(zprev) - zprev` of previous fixed-point iteration"""
   dzprev::uType
-  Δgs::Vector{uType}
+  Δgzs::Vector{uType}
   Q::Matrix{uEltypeNoUnits}
   R::Matrix{uEltypeNoUnits}
   γs::Vector{uEltypeNoUnits}
@@ -108,6 +119,7 @@ mutable struct NLAndersonConstantCache{uType,tType,uEltypeNoUnits,D} <: Abstract
 end
 
 mutable struct NLNewtonCache{uType,tType,rateType,uNoUnitsType,J,W,du1Type,ufType,jcType,lsType,G} <: AbstractNLSolverCache
+  """residuals `z - g(z)` of Newton iteration"""
   dz::uType
   tstep::tType
   k::rateType
@@ -126,6 +138,7 @@ mutable struct NLNewtonCache{uType,tType,rateType,uNoUnitsType,J,W,du1Type,ufTyp
 end
 
 mutable struct NLNewtonConstantCache{uType,tType,J,W,ufType,G} <: AbstractNLSolverCache
+  """residuals `z - g(z)` of Newton iteration"""
   dz::uType
   tstep::tType
   J::J
