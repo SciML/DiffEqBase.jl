@@ -24,9 +24,9 @@ function nlsolve!(nlsolver::AbstractNLSolver, integrator)
   postamble!(nlsolver, integrator)
 end
 
-## default implementations for NLSolver
+## default implementations
 
-function preamble!(nlsolver::NLSolver, integrator)
+function preamble!(nlsolver::AbstractNLSolver, integrator)
   nlsolver.iter = 0
   if nlsolver.maxiters == 0
     nlsolver.status = MaxItersReached
@@ -41,36 +41,18 @@ function preamble!(nlsolver::NLSolver, integrator)
   nothing
 end
 
-initial_η(nlsolver::NLSolver, integrator) = nlsolver.η
+initial_η(nlsolver::AbstractNLSolver, integrator) = nlsolver.η
 
-initialize_cache!(nlcache, nlsolver::NLSolver, integrator) = nothing
+initialize_cache!(nlcache, nlsolver::AbstractNLSolver, integrator) = nothing
 
-apply_step!(nlsolver::NLSolver, integrator) = _apply_step!(nlsolver, integrator)
+apply_step!(nlsolver::AbstractNLSolver, integrator) = _apply_step!(nlsolver, integrator)
 
-function _apply_step!(nlsolver::NLSolver{algType,iip}, integrator) where {algType,iip}
-  if nlsolver.iter > 0
-    if iip
-      recursivecopy!(nlsolver.z, nlsolver.gz)
-    else
-      nlsolver.z = nlsolver.gz
-    end
-  end
-
-  # update statistics
-  nlsolver.iter += 1
-  if has_destats(integrator)
-    integrator.destats.nnonliniter += 1
-  end
-
-  nothing
-end
-
-function check_status!(nlsolver::NLSolver, integrator)
+function check_status!(nlsolver::AbstractNLSolver, integrator)
   nlsolver.status = check_status(nlsolver, integrator)
   nothing
 end
 
-function check_status(nlsolver::NLSolver, integrator)
+function check_status(nlsolver::AbstractNLSolver, integrator)
   @unpack iter,maxiters,κ,fast_convergence_cutoff = nlsolver
 
   # compute norm of residuals and cache previous value
@@ -115,7 +97,7 @@ function check_status(nlsolver::NLSolver, integrator)
   SlowConvergence
 end  
 
-function norm_of_residuals(nlsolver::NLSolver, integrator)
+function norm_of_residuals(nlsolver::AbstractNLSolver, integrator)
   @unpack t,opts = integrator
   @unpack z,gz = nlsolver
 
@@ -123,7 +105,7 @@ function norm_of_residuals(nlsolver::NLSolver, integrator)
   opts.internalnorm(atmp, t)
 end
 
-function postamble!(nlsolver::NLSolver, integrator)
+function postamble!(nlsolver::AbstractNLSolver, integrator)
   fail_convergence = nlsolvefail(nlsolver)
   if fail_convergence && has_destats(integrator)
       integrator.destats.nnonlinconvfail += 1

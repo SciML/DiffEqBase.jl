@@ -116,6 +116,26 @@ function build_nlsolver(alg,nlalg::Union{NLFunctional,NLAnderson,NLNewton},u,rat
     uTolType(nlalg.fast_convergence_cutoff), nlalg.maxiters, 10_000, Convergence, cache)
 end
 
+## _apply_step!
+
+function _apply_step!(nlsolver::NLSolver{algType,iip}, integrator) where {algType,iip}
+  if nlsolver.iter > 0
+    if iip
+      recursivecopy!(nlsolver.z, nlsolver.gz)
+    else
+      nlsolver.z = nlsolver.gz
+    end
+  end
+
+  # update statistics
+  nlsolver.iter += 1
+  if has_destats(integrator)
+    integrator.destats.nnonliniter += 1
+  end
+
+  nothing
+end
+
 ## norm_of_residuals
 
 function norm_of_residuals(nlsolver::NLSolver{<:Union{NLFunctional,NLAnderson,NLNewton},true},
