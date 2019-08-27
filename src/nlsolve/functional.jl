@@ -18,8 +18,18 @@ end
 ## apply_step!
 
 function apply_step!(nlsolver::NLSolver{<:NLAnderson,false}, integrator)
+  @unpack iter, alg, cache = nlsolver
+  @unpack aa_start = alg
+
   # perform Anderson acceleration
-  nlsolver.gz = anderson(nlsolver.gz, nlsolver.iter, nlsolver.alg.aa_start, nlsolver.cache, integrator)
+  if iter == aa_start
+    # update cached values for next step of Anderson acceleration
+    cache.gzprev = nlsolver.gz
+    cache.dzprev = cache.dz
+  elseif iter > aa_start
+    # actually update the next iterate
+    nlsolver.gz = anderson(nlsolver.gz, cache, integrator)
+  end
 
   # apply step
   _apply_step!(nlsolver, integrator)
@@ -28,8 +38,18 @@ function apply_step!(nlsolver::NLSolver{<:NLAnderson,false}, integrator)
 end
 
 function apply_step!(nlsolver::NLSolver{<:NLAnderson,true}, integrator)
+  @unpack iter, alg, cache = nlsolver
+  @unpack aa_start = alg
+
   # perform Anderson acceleration
-  anderson!(nlsolver.gz, nlsolver.iter, nlsolver.alg.aa_start, nlsolver.cache, integrator)
+  if iter == aa_start
+    # update cached values for next step of Anderson acceleration
+    @.. cache.gzprev = nlsolver.gz
+    @.. cache.dzprev = cache.dz
+  elseif iter > aa_start
+    # actually update the next iterate
+    anderson!(nlsolver.gz, cache, integrator)
+  end
 
   # apply step
   _apply_step!(nlsolver, integrator)
@@ -123,33 +143,32 @@ function Base.resize!(nlcache::Union{NLAndersonCache,NLAndersonConstantCache}, n
 end
 
 function Base.resize!(nlcache::NLAndersonCache, nlalg::NLAnderson, i::Int)
+  @unpack gzprev,Δgzs = nlcache
+
   resize!(nlcache.dz, i)
   resize!(nlcache.k, i)
   resize!(nlcache.atmp, i)
-  resize!(nlcache.gzprev, i)
+  resize!(gzprev, i)
   resize!(nlcache.dzprev, i)
 
-  # determine new maximum history
+  # update history of Anderson cache
   max_history_old = length(Δgzs)
-  max_history = min(nlalg.max_history, nlalg.maxiters, i)
+  resize_anderson_history!(nlcache, nlalg, i)
 
-  resize!(nlcache.γs, max_history)
-  resize!(nlcache.Δgzs, max_history)
+  max_history = length(Δgzs)
   if max_history > max_history_old
     for i in (max_history_old + 1):max_history
-      nlcache.Δgzs[i] = zero(nlcache.gzprev)
+      Δgzs[i] = zero(gzprev)
     end
-  end
-
-  if max_history != max_history_old
-    nlcache.Q = typeof(nlcache.Q)(undef, i, max_history)
-    nlcache.R = typeof(nlcache.R)(undef, max_history, max_history)
   end
 
   nothing
 end
 
-function Base.resize!(nlcache::NLAndersonConstantCache, nlalg::NLAnderson, i::Int)
+Base.resize!(nlcache::NLAndersonConstantCache, nlalg::NLAnderson, i::Int) =
+  resize_anderson_history!(nlcache, nlalg, i)
+
+function resize_anderson_history!(nlcache, nlalg::NLAnderson, i::Int)
   # determine new maximum history
   max_history_old = length(nlcache.Δgzs)
   max_history = min(nlalg.max_history, nlalg.maxiters, i)
