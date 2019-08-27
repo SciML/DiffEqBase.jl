@@ -29,7 +29,7 @@ end
 function preamble!(nlsolver::NLSolver, integrator)
   nlsolver.iter = 0
   if nlsolver.maxiters == 0
-    nlsolver.status = MaxIterReached
+    nlsolver.status = MaxItersReached
     return
   end
   
