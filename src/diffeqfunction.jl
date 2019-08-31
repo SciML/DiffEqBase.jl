@@ -750,16 +750,26 @@ DDEFunction(f::DDEFunction; kwargs...) = f
 
 ########## Existance Functions
 
+# Check that field/property exists (may be nothing)
+__has_jac(f) = isdefined(f, :jac)
+__has_tgrad(f) = isdefined(f, :tgrad)
+__has_Wfact(f) = isdefined(f, :Wfact)
+__has_Wfact_t(f) = isdefined(f, :Wfact_t)
+__has_paramjac(f) = isdefined(f, :paramjac)
+__has_syms(f) = isdefined(f, :syms)
+__has_analytic(f) = isdefined(f, :analytic)
+__has_colorvec(f) = isdefined(f, :colorvec)
+
 # compatibility
 has_invW(f::AbstractDiffEqFunction) = false
-has_analytic(f::AbstractDiffEqFunction) = f.analytic != nothing
-has_jac(f::AbstractDiffEqFunction) = f.jac != nothing
-has_tgrad(f::AbstractDiffEqFunction) = f.tgrad != nothing
-has_Wfact(f::AbstractDiffEqFunction) = f.Wfact != nothing
-has_Wfact_t(f::AbstractDiffEqFunction) = f.Wfact_t != nothing
-has_paramjac(f::AbstractDiffEqFunction) = f.paramjac != nothing
-has_syms(f::AbstractDiffEqFunction) = :syms ∈ fieldnames(typeof(f)) && f.syms != nothing
-has_colorvec(f::AbstractDiffEqFunction) = f.colorvec != nothing
+has_analytic(f::AbstractDiffEqFunction) = __has_analytic(f) && f.analytic !== nothing
+has_jac(f::AbstractDiffEqFunction) = __has_jac(f) && f.jac !== nothing
+has_tgrad(f::AbstractDiffEqFunction) = __has_tgrad(f) && f.tgrad !== nothing
+has_Wfact(f::AbstractDiffEqFunction) = __has_Wfact(f) && f.Wfact !== nothing
+has_Wfact_t(f::AbstractDiffEqFunction) = __has_Wfact_t(f) && f.Wfact_t !== nothing
+has_paramjac(f::AbstractDiffEqFunction) = __has_paramjac(f) && f.paramjac !== nothing
+has_syms(f::AbstractDiffEqFunction) = __has_syms(f) && f.syms !== nothing
+has_colorvec(f::AbstractDiffEqFunction) = __has_colorvec(f) && f.colorvec !== nothing
 
 # TODO: find an appropriate way to check `has_*`
 has_jac(f::Union{SplitFunction,SplitSDEFunction}) = has_jac(f.f1)
