@@ -145,6 +145,12 @@ Check state of `integrator` and return one of the
 function check_error(integrator::DEIntegrator)
   # This implementation is intended to be used for ODEIntegrator and
   # SDEIntegrator.
+  if isnan(integrator.dt)
+    if integrator.opts.verbose
+      @warn("NaN dt detected. Likely a NaN value in the state, parameters, or derivative value caused this outcome.")
+    end
+    return :DtNaN
+  end
   if integrator.iter > integrator.opts.maxiters
     if integrator.opts.verbose
       @warn("Interrupted. Larger maxiters is needed.")
