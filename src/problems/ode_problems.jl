@@ -15,7 +15,7 @@ Defines an ODE problem.
 
 $(FIELDS)
 """
-struct ODEProblem{uType,tType,isinplace,P,F,C,PT} <:
+struct ODEProblem{uType,tType,isinplace,P,F,K,PT} <:
                AbstractODEProblem{uType,tType,isinplace}
   """The function in the ODE."""
   f::F
@@ -26,19 +26,19 @@ struct ODEProblem{uType,tType,isinplace,P,F,C,PT} <:
   """The parameter values of the ODE function."""
   p::P
   """A callback to be applied to every solver which uses the problem."""
-  callback::C
+  kwargs::K
   """TODO"""
   problem_type::PT
   @add_kwonly function ODEProblem{iip}(f::AbstractODEFunction{iip},
                                        u0,tspan,p=NullParameters(),
                                        problem_type=StandardODEProblem();
-                                       callback=nothing) where {iip}
+                                       kwargs...) where {iip}
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(_tspan),
        isinplace(f),typeof(p),typeof(f),
-       typeof(callback),
+       typeof(kwargs),
        typeof(problem_type)}(
-       f,u0,_tspan,p,callback,problem_type)
+       f,u0,_tspan,p,kwargs,problem_type)
   end
 
   """

@@ -1,22 +1,22 @@
 struct StandardBVProblem end
 
-struct BVProblem{uType,tType,isinplace,P,F,bF,PT,CB} <: AbstractBVProblem{uType,tType,isinplace}
+struct BVProblem{uType,tType,isinplace,P,F,bF,PT,K} <: AbstractBVProblem{uType,tType,isinplace}
     f::F
     bc::bF
     u0::uType
     tspan::tType
     p::P
     problem_type::PT
-    callback::CB
+    kwargs::K
     @add_kwonly function BVProblem{iip}(f::AbstractODEFunction,bc,u0,tspan,p=NullParameters(),
                             problem_type=StandardBVProblem();
-                            callback=nothing) where {iip}
+                            kwargs...) where {iip}
         _tspan = promote_tspan(tspan)
         new{typeof(u0),typeof(tspan),iip,typeof(p),
                   typeof(f),typeof(bc),
-                  typeof(problem_type),typeof(callback)}(
+                  typeof(problem_type),typeof(kwargs)}(
                   f,bc,u0,_tspan,p,
-                  problem_type,callback)
+                  problem_type,kwargs)
     end
 
     function BVProblem{iip}(f,bc,u0,tspan,p=NullParameters();kwargs...) where {iip}

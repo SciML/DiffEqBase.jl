@@ -8,16 +8,18 @@ Defines a steady state problem.
 
 $(FIELDS)
 """
-struct SteadyStateProblem{uType,isinplace,P,F} <: AbstractSteadyStateProblem{uType,isinplace}
+struct SteadyStateProblem{uType,isinplace,P,F,K} <: AbstractSteadyStateProblem{uType,isinplace}
   """f: The function in the ODE."""
   f::F
   """The initial guess for the steady state."""
   u0::uType
   """Parameter values for the ODE function."""
   p::P
+  kwargs::K
   @add_kwonly function SteadyStateProblem{iip}(f::AbstractODEFunction{iip},
-                                               u0,p=NullParameters()) where {iip}
-    new{typeof(u0),isinplace(f),typeof(p),typeof(f)}(f,u0,p)
+                                               u0,p=NullParameters();
+                                               kwargs...) where {iip}
+    new{typeof(u0),isinplace(f),typeof(p),typeof(f),typeof(kwargs)}(f,u0,p,kwargs)
   end
 
   """

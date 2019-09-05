@@ -1,14 +1,14 @@
-struct AnalyticalProblem{uType,tType,isinplace,P,F,C} <: AbstractAnalyticalProblem{uType,tType,isinplace}
+struct AnalyticalProblem{uType,tType,isinplace,P,F,K} <: AbstractAnalyticalProblem{uType,tType,isinplace}
   f::F
   u0::uType
   tspan::tType
   p::P
-  callback::C
+  kwargs::K
   @add_kwonly function AnalyticalProblem{iip}(f,u0,tspan,p=NullParameters();
-           callback = nothing) where {iip}
+           kwargs...) where {iip}
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(_tspan),iip,typeof(p),
-        typeof(f),typeof(callback)}(f,u0,_tspan,p,callback)
+        typeof(f),typeof(kwargs)}(f,u0,_tspan,p,kwargs)
   end
 end
 

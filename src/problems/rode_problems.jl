@@ -1,22 +1,22 @@
-mutable struct RODEProblem{uType,tType,isinplace,P,NP,F,C,ND} <: AbstractRODEProblem{uType,tType,isinplace,ND}
+mutable struct RODEProblem{uType,tType,isinplace,P,NP,F,K,ND} <: AbstractRODEProblem{uType,tType,isinplace,ND}
   f::F
   u0::uType
   tspan::tType
   p::P
   noise::NP
-  callback::C
+  kwargs::K
   rand_prototype::ND
   seed::UInt64
   @add_kwonly function RODEProblem{iip}(f::RODEFunction{iip},u0,tspan,p=NullParameters();
                        rand_prototype = nothing,
                        noise= nothing, seed = UInt64(0),
-                       callback=nothing) where {iip}
+                       kwargs...) where {iip}
   _tspan = promote_tspan(tspan)
   new{typeof(u0),typeof(_tspan),
               isinplace(f),typeof(p),
-              typeof(noise),typeof(f),typeof(callback),
+              typeof(noise),typeof(f),typeof(kwargs),
               typeof(rand_prototype)}(
-              f,u0,_tspan,p,noise,callback,
+              f,u0,_tspan,p,noise,kwargs,
               rand_prototype,seed)
   end
   function RODEProblem{iip}(f,u0,tspan,p=NullParameters();kwargs...) where {iip}
