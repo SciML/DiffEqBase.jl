@@ -23,7 +23,6 @@ arguments.
 """
 function remake(thing; kwargs...)
   T = remaker_of(thing)
-  @show (thing.kwargs...,kwargs...)
   if :kwargs ∈ fieldnames(typeof(thing))
     T(; struct_as_namedtuple(thing)...,thing.kwargs...,kwargs...)
   else
