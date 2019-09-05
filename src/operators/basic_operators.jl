@@ -42,13 +42,13 @@ setval!(α::DiffEqScalar, val) = (α.val = val; α)
 is_constant(α::DiffEqScalar) = α.update_func == DEFAULT_UPDATE_FUNC
 
 for op in (:*, :/, :\)
-  @eval Base.$op(α::DiffEqScalar, x::Union{AbstractVecOrMat,Number}) = $op(α.val, x)
-  @eval Base.$op(x::Union{AbstractVecOrMat,Number}, α::DiffEqScalar) = $op(x, α.val)
+  @eval Base.$op(α::DiffEqScalar, x::Union{AbstractArray,Number}) = $op(α.val, x)
+  @eval Base.$op(x::Union{AbstractArray,Number}, α::DiffEqScalar) = $op(x, α.val)
 end
-LinearAlgebra.lmul!(α::DiffEqScalar, B::AbstractVecOrMat) = lmul!(α.val, B)
-LinearAlgebra.rmul!(B::AbstractVecOrMat, α::DiffEqScalar) = rmul!(B, α.val)
-LinearAlgebra.mul!(Y::AbstractVecOrMat, α::DiffEqScalar, B::AbstractVecOrMat) = mul!(Y, α.val, B)
-LinearAlgebra.axpy!(α::DiffEqScalar, X::AbstractVecOrMat, Y::AbstractVecOrMat) = axpy!(α.val, X, Y)
+LinearAlgebra.lmul!(α::DiffEqScalar, B::AbstractArray) = lmul!(α.val, B)
+LinearAlgebra.rmul!(B::AbstractArray, α::DiffEqScalar) = rmul!(B, α.val)
+LinearAlgebra.mul!(Y::AbstractArray, α::DiffEqScalar, B::AbstractArray) = mul!(Y, α.val, B)
+LinearAlgebra.axpy!(α::DiffEqScalar, X::AbstractArray, Y::AbstractArray) = axpy!(α.val, X, Y)
 Base.abs(α::DiffEqScalar) = abs(α.val)
 
 """
