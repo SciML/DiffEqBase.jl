@@ -19,7 +19,7 @@ end
 (sol::RODESolution)(v,t,deriv::Type=Val{0};idxs=nothing,continuity=:left) = sol.interp(v,t,idxs,deriv,sol.prob.p,continuity)
 
 function build_solution(
-        prob::AbstractRODEProblem,
+        prob::Union{AbstractRODEProblem,AbstractSDDEProblem},
         alg,t,u;W=nothing,timeseries_errors = length(u) > 2,
         dense = false,dense_errors=dense,calculate_error=true,
         interp = LinearInterpolation(t,u),

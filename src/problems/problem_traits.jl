@@ -5,6 +5,7 @@ TODO
 """
 is_diagonal_noise(prob::DEProblem) = false
 is_diagonal_noise(prob::AbstractRODEProblem{uType,tType,iip,Nothing}) where {uType,tType,iip} = true
+is_diagonal_noise(prob::AbstractSDDEProblem{uType,tType,lType,iip,Nothing}) where {uType,tType,lType,iip,ND} = true
 
 """
     isinplace(prob::DEProblem)
@@ -19,3 +20,5 @@ isinplace(prob::AbstractDDEProblem{uType,tType,lType,iip}) where {uType,tType,lT
 isinplace(prob::AbstractDAEProblem{uType,duType,tType,iip}) where {uType,duType,tType,iip} = iip
 isinplace(prob::AbstractNoiseProblem) = isinplace(prob.noise)
 isinplace(::SplitFunction{iip}) where iip = iip
+isinplace(prob::AbstractSDDEProblem{uType,tType,lType,iip,ND}) where {uType,tType,lType,iip,ND} = iip
+
