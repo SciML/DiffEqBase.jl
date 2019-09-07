@@ -1,29 +1,29 @@
 struct StandardSDEProblem end
 
-struct SDEProblem{uType,tType,isinplace,P,NP,F,G,C,ND} <: AbstractSDEProblem{uType,tType,isinplace,ND}
+struct SDEProblem{uType,tType,isinplace,P,NP,F,G,K,ND} <: AbstractSDEProblem{uType,tType,isinplace,ND}
   f::F
   g::G
   u0::uType
   tspan::tType
   p::P
   noise::NP
-  callback::C
+  kwargs::K
   noise_rate_prototype::ND
   seed::UInt64
   @add_kwonly function SDEProblem{iip}(f::AbstractSDEFunction{iip},g,u0,
           tspan,p=NullParameters();
           noise_rate_prototype = nothing,
           noise= nothing, seed = UInt64(0),
-          callback = nothing) where {iip}
+          kwargs...) where {iip}
     _tspan = promote_tspan(tspan)
 
     new{typeof(u0),typeof(_tspan),
         isinplace(f),typeof(p),
         typeof(noise),typeof(f),typeof(f.g),
-        typeof(callback),
+        typeof(kwargs),
         typeof(noise_rate_prototype)}(
         f,f.g,u0,_tspan,p,
-        noise,callback,
+        noise,kwargs,
         noise_rate_prototype,seed)
   end
 

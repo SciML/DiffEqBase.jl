@@ -46,14 +46,17 @@ u0 = ones(2)
 tspan = (0,1.0)
 
 # Create a ODEProblem and test remake:
-prob1 = SplitODEProblem(f,f,u0,tspan,Dict())
+prob1 = SplitODEProblem(f,f,u0,tspan,Dict(),callback=nothing)
 prob2 = @inferred remake(prob1; u0 = prob1.u0 .+ 1)
 @test prob1.f === prob2.f
 @test prob1.p === prob2.p
 @test prob1.u0 .+ 1 ≈ prob2.u0
 @test prob1.tspan == prob2.tspan
-@test prob1.callback === prob2.callback
+@test prob1.kwargs[:callback] === prob2.kwargs[:callback]
 @test prob1.problem_type === prob2.problem_type
+
+prob2 = @inferred remake(prob1; u0 = prob1.u0 .+ 1, callback = :test)
+@test prob2.kwargs[:callback] == :test
 
 # Test remake with SplitFunction:
 prob1 = SplitODEProblem((u,p,t) -> u/2, (u,p,t) -> 2u, 1.0, (0.0,1.0))

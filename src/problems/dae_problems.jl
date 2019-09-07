@@ -1,23 +1,23 @@
 # f(t,u,du,res) = 0
-struct DAEProblem{uType,duType,tType,isinplace,P,F,C,D} <: AbstractDAEProblem{uType,duType,tType,isinplace}
+struct DAEProblem{uType,duType,tType,isinplace,P,F,K,D} <: AbstractDAEProblem{uType,duType,tType,isinplace}
   f::F
   du0::duType
   u0::uType
   tspan::tType
   p::P
-  callback::C
+  kwargs::K
   differential_vars::D
   @add_kwonly function DAEProblem{iip}(f::AbstractDAEFunction{iip},
                       du0,u0,tspan,p=NullParameters();
-                      callback = nothing,
-                      differential_vars = nothing) where {iip}
+                      differential_vars = nothing,
+                      kwargs...) where {iip}
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(du0),typeof(_tspan),
                isinplace(f),typeof(p),
-               typeof(f),typeof(callback),
+               typeof(f),typeof(kwargs),
                typeof(differential_vars)}(
                f,du0,u0,_tspan,p,
-               callback,differential_vars)
+               kwargs,differential_vars)
   end
 
   function DAEProblem{iip}(f,du0,u0,tspan,p=NullParameters();kwargs...) where {iip}

@@ -1,5 +1,5 @@
 @generated function struct_as_namedtuple(st)
-  A = ( Expr(:(=), n, :(st.$n)) for n in fieldnames(st))
+  A = (Expr(:(=), n, :(st.$n)) for n in setdiff(fieldnames(st),(:kwargs,)))
   Expr(:tuple, A...)
 end
 
@@ -23,14 +23,18 @@ arguments.
 """
 function remake(thing; kwargs...)
   T = remaker_of(thing)
-  T(; struct_as_namedtuple(thing)...,kwargs...)
+  if :kwargs ∈ fieldnames(typeof(thing))
+    T(; struct_as_namedtuple(thing)...,thing.kwargs...,kwargs...)
+  else
+    T(; struct_as_namedtuple(thing)...,kwargs...)
+  end
 end
 
 isrecompile(prob::ODEProblem{iip}) where {iip} = (prob.f isa ODEFunction) ? !(typeof(prob.f.f) <: FunctionWrapper) : true
 
 function remake(thing::ODEProblem; kwargs...)
   T = remaker_of(thing)
-  tup = merge(struct_as_namedtuple(thing),kwargs)
+  tup = merge(merge(struct_as_namedtuple(thing),thing.kwargs),kwargs)
   if !isrecompile(thing)
     if isinplace(thing)
       f = wrapfun_iip(unwrap_fw(tup.f.f),(tup.u0,tup.u0,tup.p,tup.tspan[1]))

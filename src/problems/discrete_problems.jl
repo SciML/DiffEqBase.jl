@@ -10,7 +10,7 @@ Defines a discrete problem.
 
 $(FIELDS)
 """
-struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{uType,tType,isinplace}
+struct DiscreteProblem{uType,tType,isinplace,P,F,K} <: AbstractDiscreteProblem{uType,tType,isinplace}
   """The function in the map."""
   f::F
   """The initial condition."""
@@ -20,14 +20,14 @@ struct DiscreteProblem{uType,tType,isinplace,P,F,C} <: AbstractDiscreteProblem{u
   """The parameter values of the function."""
   p::P
   """ A callback to be applied to every solver which uses the problem."""
-  callback::C
+  kwargs::K
   @add_kwonly function DiscreteProblem{iip}(f::AbstractDiscreteFunction{iip},
                                             u0,tspan::Tuple,p=NullParameters();
-                                            callback = nothing) where {iip}
+                                            kwargs...) where {iip}
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(_tspan),isinplace(f,4),
         typeof(p),
-        typeof(f),typeof(callback)}(f,u0,_tspan,p,callback)
+        typeof(f),typeof(kwargs)}(f,u0,_tspan,p,kwargs)
   end
 
   function DiscreteProblem{iip}(u0::Nothing,tspan::Nothing,p=NullParameters();
