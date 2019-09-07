@@ -345,10 +345,6 @@ $(TYPEDEF)
 """
 abstract type AbstractSensitivitySolution{T,N} end
 
-"""
-$(TYPEDEF)
-"""
-abstract type AbstractSDDESolution{T,N} <: AbstractRODESolution{T,N} end
 # Misc
 """
 $(TYPEDEF)
