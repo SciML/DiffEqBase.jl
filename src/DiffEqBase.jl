@@ -123,6 +123,18 @@ Base for types which define jump problems.
 """
 abstract type AbstractJumpProblem{P,J} <: DiffEqBase.DEProblem end
 
+"""
+$(TYPEDEF)
+
+Base for types which define SDDE problems.
+"""
+abstract type AbstractSDDEProblem{uType,tType,lType,isinplace,ND} <: DEProblem end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractConstantLagSDDEProblem{uType,tType,lType,isinplace,ND} <:
+                      AbstractSDDEProblem{uType,tType,lType,isinplace,ND} end
 # Algorithms
 """
 $(TYPEDEF)
@@ -164,6 +176,10 @@ $(TYPEDEF)
 """
 abstract type AbstractDDEAlgorithm <: DEAlgorithm end
 
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractSDDEAlgorithm <: DEAlgorithm end
 """
 $(TYPEDEF)
 """
@@ -260,6 +276,11 @@ abstract type AbstractDDEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U,
 $(TYPEDEF)
 """
 abstract type AbstractDAEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractSDDEIntegrator{Alg, IIP, U, T} <: DEIntegrator{Alg, IIP, U, T} end
 
 # Solutions
 """
@@ -391,6 +412,7 @@ include("problems/noise_problems.jl")
 include("problems/bvp_problems.jl")
 include("problems/dae_problems.jl")
 include("problems/dde_problems.jl")
+include("problems/sdde_problems.jl")
 include("problems/problem_traits.jl")
 include("ensemble/ensemble_solutions.jl")
 include("ensemble/ensemble_problems.jl")
@@ -468,6 +490,7 @@ export SplitSDEProblem
 export RODEProblem, RODESolution, SDEProblem
 export DAEProblem, DAESolution
 export DDEProblem
+export SDDEProblem
 
 export BVProblem, TwoPointBVProblem
 
@@ -476,7 +499,7 @@ export remake
 export DEDataArray, DEDataVector, DEDataMatrix
 
 export ODEFunction, DiscreteFunction, SplitFunction, DAEFunction, DDEFunction,
-       SDEFunction, SplitSDEFunction, RODEFunction
+       SDEFunction, SplitSDEFunction, RODEFunction, SDDEFunction
 
 export ContinuousCallback, DiscreteCallback, CallbackSet, VectorContinuousCallback
 
