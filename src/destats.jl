@@ -12,19 +12,19 @@ mutable struct DEStats
   maxeig::Float64
 end
 
-DEStats(x=-1) = DEStats(ntuple(_->x, 10)..., 0.0)
+DEStats(x::Int = -1) = DEStats(x, x, x, x, x, x, x, x, x, x, 0.0)
 
 function Base.show(io::IO, s::DEStats)
   println(io, summary(s))
-  println(io, "Number of function 1 evaluations: $(s.nf)")
-  println(io, "Number of function 2 evaluations: $(s.nf2)")
-  println(io, "Number of W matrix evaluations: $(s.nw)")
-  println(io, "Number of linear solves:        $(s.nsolve)")
-  println(io, "Number of Jacobians created:        $(s.njacs)")
-  println(io, "Number of nonlinear solver iterations:        $(s.nnonliniter)")
-  println(io, "Number of nonlinear solver convergence failures:        $(s.nnonlinconvfail)")
-  println(io, "Number of rootfind condition calls:        $(s.ncondition)")
-  println(io, "Number of accepted steps:       $(s.naccept)")
-  print(io,   "Number of rejected steps:       $(s.nreject)")
-  iszero(s.maxeig) || print(io, "\nMaximum eigenvalue recorded:    $(s.maxeig)")
+  @printf io "%-50s %-d\n" "Number of function 1 evaluations:" s.nf
+  @printf io "%-50s %-d\n" "Number of function 2 evaluations:" s.nf2
+  @printf io "%-50s %-d\n" "Number of W matrix evaluations:" s.nw
+  @printf io "%-50s %-d\n" "Number of linear solves:" s.nsolve
+  @printf io "%-50s %-d\n" "Number of Jacobians created:" s.njacs
+  @printf io "%-50s %-d\n" "Number of nonlinear solver iterations:" s.nnonliniter
+  @printf io "%-50s %-d\n" "Number of nonlinear solver convergence failures:" s.nnonlinconvfail
+  @printf io "%-50s %-d\n" "Number of rootfind condition calls:" s.ncondition
+  @printf io "%-50s %-d\n" "Number of accepted steps:"  s.naccept
+  @printf io "%-50s %-d" "Number of rejected steps:" s.nreject
+  iszero(s.maxeig) || @printf io "\n%-50s %-d" "Maximum eigenvalue recorded:" s.maxeig
 end

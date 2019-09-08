@@ -8,7 +8,7 @@ using Roots # callbacks
 
 using StaticArrays # data arrays
 
-using LinearAlgebra, Statistics
+using LinearAlgebra, Statistics, Printf
 
 using DocStringExtensions
 
