@@ -15,7 +15,7 @@ struct SDDEProblem{uType,tType,lType,lType2,isinplace,P,NP,F,G,H,C,ND} <:
   neutral::Bool
   order_discontinuity_t0::Int
   
-  @add_kwonly function SDDEProblem{iip}(f::AbstractSDDEFunction{iip}, g, u0, h, tspan, p = nothing;
+  @add_kwonly function SDDEProblem{iip}(f::AbstractSDDEFunction{iip}, g, u0, h, tspan, p = NullParameters();
                                        noise_rate_prototype = nothing, noise= nothing, seed = UInt64(0),
                                        constant_lags = (), dependent_lags = (),
                                        neutral = f.mass_matrix !== I && det(f.mass_matrix) != 1,
