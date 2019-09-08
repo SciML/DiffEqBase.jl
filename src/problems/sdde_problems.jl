@@ -27,7 +27,7 @@ struct SDDEProblem{uType,tType,lType,lType2,isinplace,P,NP,F,G,H,C,ND} <:
         f, g, u0, h, _tspan, p, noise, constant_lags, dependent_lags, callback, noise_rate_prototype, seed, neutral, order_discontinuity_t0)
   end
 
-  function SDDEProblem{iip}(f::AbstractSDDEFunction{iip}, g , h, tspan, p = nothing;
+  function SDDEProblem{iip}(f::AbstractSDDEFunction{iip}, g , h, tspan::Tuple, p = NullParameters();
                            order_discontinuity_t0 = 1, kwargs...) where iip
     SDDEProblem{iip}(f, g, h(p, first(tspan)), h, tspan, p;
                     order_discontinuity_t0 = max(1, order_discontinuity_t0), kwargs...)
