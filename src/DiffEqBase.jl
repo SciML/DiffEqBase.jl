@@ -156,11 +156,27 @@ $(TYPEDEF)
 """
 abstract type AbstractConstantLagSDDEProblem{uType,tType,lType,isinplace,ND} <:
                       AbstractSDDEProblem{uType,tType,lType,isinplace,ND} end
+                      
 # Algorithms
 """
 $(TYPEDEF)
 """
 abstract type DEAlgorithm end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractLinearAlgorithm <: DEAlgorithm end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractNonlinearAlgorithm <: DEAlgorithm end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractQuadratureAlgorithm <: DEAlgorithm end
 
 """
 $(TYPEDEF)
