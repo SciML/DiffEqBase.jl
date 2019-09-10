@@ -39,6 +39,27 @@ abstract type DESensitivity end
 """
 $(TYPEDEF)
 
+Base for types which define linear systems.
+"""
+abstract type AbstractLinearProblem{bType,isinplace} <: DEProblem end
+
+"""
+$(TYPEDEF)
+
+Base for types which define nonlinear systems.
+"""
+abstract type AbstractNonlinearProblem{uType,isinplace} <: DEProblem end
+
+"""
+$(TYPEDEF)
+
+Base for types which define integrals suitable for quadrature.
+"""
+abstract type AbstractQuadratureProblem{isinplace} <: DEProblem end
+
+"""
+$(TYPEDEF)
+
 Base for types which define steady state problems for ODE systems.
 """
 abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem end
@@ -405,6 +426,7 @@ include("problems/problem_utils.jl")
 include("problems/discrete_problems.jl")
 include("problems/steady_state_problems.jl")
 include("problems/analytical_problems.jl")
+include("problems/basic_problems.jl")
 include("problems/ode_problems.jl")
 include("problems/rode_problems.jl")
 include("problems/sde_problems.jl")
@@ -478,6 +500,8 @@ export resize!,deleteat!,addat!,get_tmp_cache,
        u_modified!, savevalues!,reinit!, auto_dt_reset!, set_t!,
        set_u!, check_error, change_t_via_interpolation!, addsteps!,
        isdiscrete, reeval_internals_due_to_modification!
+
+export LinearProblem, NonlinearProblem, QuadratureProblem
 
 export DiscreteProblem
 

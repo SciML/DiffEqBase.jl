@@ -1,5 +1,27 @@
 using DiffEqBase, Test
 
+function f_lin(du,u,p,t)
+  du[1] = 0.2u[1] + p[1]*u[2]
+  du[2] = 0.2u[1] - p[2]*u[2]
+end
+p = (0.0,1.0)
+prob = LinearProblem(f_lin,ones(2))
+prob = LinearProblem(rand(2,2),ones(2))
+
+function f_nonlin(du,u,p)
+  du[1] = 0.2u[1] + p[1]*u[2]
+  du[2] = 0.2u[1] - p[2]*u[2]
+end
+p = (0.0,1.0)
+prob = NonlinearProblem(f_nonlin,ones(2),p)
+
+function f_quad(du,u,p)
+  du[1] = 0.2u[1] + p[1]*u[2]
+  du[2] = 0.2u[1] - p[2]*u[2]
+end
+p = (0.0,1.0)
+prob = QuadratureProblem(f_quad,zeros(2),ones(2),p)
+
 function f(du,u,p,t)
   du[1] = 0.2u[1]
   du[2] = 0.4u[2]

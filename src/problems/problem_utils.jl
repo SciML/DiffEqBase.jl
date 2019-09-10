@@ -27,6 +27,37 @@ Base.summary(prob::DEProblem) = string(TYPE_COLOR, nameof(typeof(prob)),
                                        TYPE_COLOR, isinplace(prob),
                                        NO_COLOR)
 
+
+Base.summary(prob::AbstractLinearProblem) = string(TYPE_COLOR, nameof(typeof(prob)),
+                                                   NO_COLOR, ". In-place: ",
+                                                   TYPE_COLOR, isinplace(prob),
+                                                   NO_COLOR)
+function Base.show(io::IO, A::AbstractLinearProblem)
+  show(io,summary(A))
+  print(io,"b: ")
+  show(io, A.b)
+end
+
+Base.summary(prob::AbstractNonlinearProblem) = string(
+                                       TYPE_COLOR, nameof(typeof(prob)),
+                                       NO_COLOR, ". In-place: ",
+                                       TYPE_COLOR, isinplace(prob),
+                                       NO_COLOR)
+function Base.show(io::IO, A::AbstractNonlinearProblem)
+  println(io,summary(A))
+  print(io,"u0: ")
+  show(io, A.u0)
+end
+
+Base.summary(prob::AbstractQuadratureProblem) = string(
+                                                       TYPE_COLOR, nameof(typeof(prob)),
+                                                       NO_COLOR, ". In-place: ",
+                                                       TYPE_COLOR, isinplace(prob),
+                                                       NO_COLOR)
+function Base.show(io::IO, A::AbstractQuadratureProblem)
+  println(io,summary(A))
+end
+
 Base.summary(prob::AbstractSteadyStateProblem{uType,iip}) where {uType,iip} = string(nameof(typeof(prob))," with uType ",uType)
 Base.summary(prob::AbstractNoiseProblem) = string(nameof(typeof(prob))," with WType ",typeof(prob.noise.W[1])," and tType ",typeof(prob.tspan[1]),". In-place: ",isinplace(prob))
 function Base.show(io::IO, A::DEProblem)
