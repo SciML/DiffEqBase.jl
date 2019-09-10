@@ -156,7 +156,7 @@ $(TYPEDEF)
 """
 abstract type AbstractConstantLagSDDEProblem{uType,tType,lType,isinplace,ND} <:
                       AbstractSDDEProblem{uType,tType,lType,isinplace,ND} end
-                      
+
 # Algorithms
 """
 $(TYPEDEF)
@@ -349,6 +349,21 @@ export DESolution
 """
 $(TYPEDEF)
 """
+abstract type AbstractLinearSolution{T,N} <: AbstractNoTimeSolution{T,N} end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractNonlinearSolution{T,N} <: AbstractNoTimeSolution{T,N} end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractQuadratureSolution{T,N} <: AbstractNoTimeSolution{T,N} end
+
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} end
 
 """
@@ -431,6 +446,7 @@ include("diffeqfastbc.jl")
 include("destats.jl")
 include("utils.jl")
 include("calculate_residuals.jl")
+include("solutions/basic_solutions.jl")
 include("solutions/steady_state_solutions.jl")
 include("solutions/ode_solutions.jl")
 include("solutions/rode_solutions.jl")
