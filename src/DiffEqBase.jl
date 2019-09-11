@@ -39,6 +39,27 @@ abstract type DESensitivity end
 """
 $(TYPEDEF)
 
+Base for types which define linear systems.
+"""
+abstract type AbstractLinearProblem{bType,isinplace} <: DEProblem end
+
+"""
+$(TYPEDEF)
+
+Base for types which define nonlinear systems.
+"""
+abstract type AbstractNonlinearProblem{uType,isinplace} <: DEProblem end
+
+"""
+$(TYPEDEF)
+
+Base for types which define integrals suitable for quadrature.
+"""
+abstract type AbstractQuadratureProblem{isinplace} <: DEProblem end
+
+"""
+$(TYPEDEF)
+
 Base for types which define steady state problems for ODE systems.
 """
 abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem end
@@ -135,11 +156,27 @@ $(TYPEDEF)
 """
 abstract type AbstractConstantLagSDDEProblem{uType,tType,lType,isinplace,ND} <:
                       AbstractSDDEProblem{uType,tType,lType,isinplace,ND} end
+
 # Algorithms
 """
 $(TYPEDEF)
 """
 abstract type DEAlgorithm end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractLinearAlgorithm <: DEAlgorithm end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractNonlinearAlgorithm <: DEAlgorithm end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractQuadratureAlgorithm <: DEAlgorithm end
 
 """
 $(TYPEDEF)
@@ -312,6 +349,21 @@ export DESolution
 """
 $(TYPEDEF)
 """
+abstract type AbstractLinearSolution{T,N} <: AbstractNoTimeSolution{T,N} end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractNonlinearSolution{T,N} <: AbstractNoTimeSolution{T,N} end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractQuadratureSolution{T,N} <: AbstractNoTimeSolution{T,N} end
+
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} end
 
 """
@@ -394,6 +446,7 @@ include("diffeqfastbc.jl")
 include("destats.jl")
 include("utils.jl")
 include("calculate_residuals.jl")
+include("solutions/basic_solutions.jl")
 include("solutions/steady_state_solutions.jl")
 include("solutions/ode_solutions.jl")
 include("solutions/rode_solutions.jl")
@@ -405,6 +458,7 @@ include("problems/problem_utils.jl")
 include("problems/discrete_problems.jl")
 include("problems/steady_state_problems.jl")
 include("problems/analytical_problems.jl")
+include("problems/basic_problems.jl")
 include("problems/ode_problems.jl")
 include("problems/rode_problems.jl")
 include("problems/sde_problems.jl")
@@ -478,6 +532,8 @@ export resize!,deleteat!,addat!,get_tmp_cache,
        u_modified!, savevalues!,reinit!, auto_dt_reset!, set_t!,
        set_u!, check_error, change_t_via_interpolation!, addsteps!,
        isdiscrete, reeval_internals_due_to_modification!
+
+export LinearProblem, NonlinearProblem, QuadratureProblem
 
 export DiscreteProblem
 
