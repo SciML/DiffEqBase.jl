@@ -38,11 +38,11 @@ struct QuadratureProblem{isinplace,P,F,L,U,K} <: AbstractQuadratureProblem{isinp
     ub::U
     nout::Int
     p::P
-    batch::Bool
+    batch::Int
     kwargs::K
     @add_kwonly function QuadratureProblem{iip}(f,lb,ub,p=NullParameters();
                                                 nout=1,
-                                                batch = false, kwargs...) where iip
+                                                batch = 0, kwargs...) where iip
         new{iip,typeof(p),typeof(f),typeof(lb),
             typeof(ub),typeof(kwargs)}(f,lb,ub,nout,p,batch,kwargs)
     end
