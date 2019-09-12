@@ -148,7 +148,8 @@ end
       else
         error("error_style not recognized")
       end
-      sim.t,u[i]
+      x := sim.t
+      y := u[i]
     end
   end
 end
