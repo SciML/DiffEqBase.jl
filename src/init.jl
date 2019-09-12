@@ -98,35 +98,35 @@ function __init__()
     @inline ODE_DEFAULT_NORM(u::Unitful.AbstractQuantity,t) = abs(value(u))
   end
 
-  @require Flux="587475ba-b771-5e3f-ad9e-33799f191a9c" begin
-    value(x::Type{Flux.Tracker.TrackedReal{T}}) where T = T
-    value(x::Type{Flux.Tracker.TrackedArray{T,N,A}}) where {T,N,A} = Array{T,N}
-    value(x::Flux.Tracker.TrackedReal)  = x.data
-    value(x::Flux.Tracker.TrackedArray) = x.data
+  @require Tracker="9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c" begin
+    value(x::Type{Tracker.TrackedReal{T}}) where T = T
+    value(x::Type{Tracker.TrackedArray{T,N,A}}) where {T,N,A} = Array{T,N}
+    value(x::Tracker.TrackedReal)  = x.data
+    value(x::Tracker.TrackedArray) = x.data
 
     # Support adaptive with non-tracked time
-    @inline function ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedArray,t) where {N}
+    @inline function ODE_DEFAULT_NORM(u::Tracker.TrackedArray,t) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
     end
-    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Flux.Tracker.TrackedReal,N},t) where {N}
+    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Tracker.TrackedReal,N},t) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
     end
-    @inline function ODE_DEFAULT_NORM(u::Array{<:Flux.Tracker.TrackedReal,N},t) where {N}
+    @inline function ODE_DEFAULT_NORM(u::Array{<:Tracker.TrackedReal,N},t) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
     end
-    @inline ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedReal,t) = abs(value(u))
+    @inline ODE_DEFAULT_NORM(u::Tracker.TrackedReal,t) = abs(value(u))
 
     # Support TrackedReal time, don't drop tracking on the adaptivity there
-    @inline function ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedArray,t::Flux.Tracker.TrackedReal) where {N}
+    @inline function ODE_DEFAULT_NORM(u::Tracker.TrackedArray,t::Tracker.TrackedReal) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,Iterators.repeated(t))) / length(u))
     end
-    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Flux.Tracker.TrackedReal,N},t::Flux.Tracker.TrackedReal) where {N}
+    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Tracker.TrackedReal,N},t::Tracker.TrackedReal) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,Iterators.repeated(t))) / length(u))
     end
-    @inline function ODE_DEFAULT_NORM(u::Array{<:Flux.Tracker.TrackedReal,N},t::Flux.Tracker.TrackedReal) where {N}
+    @inline function ODE_DEFAULT_NORM(u::Array{<:Tracker.TrackedReal,N},t::Tracker.TrackedReal) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,Iterators.repeated(t))) / length(u))
     end
-    @inline ODE_DEFAULT_NORM(u::Flux.Tracker.TrackedReal,t::Flux.Tracker.TrackedReal) = abs(u)
+    @inline ODE_DEFAULT_NORM(u::Tracker.TrackedReal,t::Tracker.TrackedReal) = abs(u)
   end
 
   # Piracy, should get upstreamed
