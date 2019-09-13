@@ -2,7 +2,17 @@ function __solve end
 function __init end
 function solve! end
 
-NO_TSPAN_PROBS = Union{AbstractSteadyStateProblem,AbstractJumpProblem}
+NO_TSPAN_PROBS = Union{AbstractLinearProblem, AbstractNonlinearProblem,
+                       AbstractQuadratureProblem,
+                       AbstractSteadyStateProblem,AbstractJumpProblem}
+
+function init_call(_prob,alg,args...;kwargs...)
+  if :kwargs ∈ propertynames(_prob)
+    __init(_prob,alg,args...;_prob.kwargs...,kwargs...)
+  else
+    __init(_prob,alg,args...;kwargs...)
+  end
+end
 
 function init(prob::DEProblem,args...;kwargs...)
   _prob = get_concrete_problem(prob,kwargs)
@@ -11,15 +21,23 @@ function init(prob::DEProblem,args...;kwargs...)
     isadaptive(alg) &&
     !(typeof(prob) <: NO_TSPAN_PROBS) &&
     adaptive_warn(_prob.u0,_prob.tspan)
-    __init(_prob,alg,args...;prob.kwargs...,kwargs...)
+    init_call(_prob,alg,args...;kwargs...)
   elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
     alg = args[1]
     isadaptive(alg) &&
     !(typeof(prob) <: NO_TSPAN_PROBS) &&
     adaptive_warn(_prob.u0,_prob.tspan)
-    __init(_prob,args...;prob.kwargs...,kwargs...)
+    init_call(_prob,args...;kwargs...)
   else
-    __init(_prob,args...;prob.kwargs...,kwargs...)
+    init_call(_prob,args...;kwargs...)
+  end
+end
+
+function solve_call(_prob,alg,args...;kwargs...)
+  if :kwargs ∈ propertynames(_prob)
+    __solve(_prob,alg,args...;_prob.kwargs...,kwargs...)
+  else
+    __solve(_prob,alg,args...;kwargs...)
   end
 end
 
@@ -30,15 +48,15 @@ function solve(prob::DEProblem,args...;kwargs...)
     isadaptive(alg) &&
     !(typeof(prob) <: NO_TSPAN_PROBS) &&
     adaptive_warn(_prob.u0,_prob.tspan)
-    __solve(_prob,alg,args...;prob.kwargs...,kwargs...)
+    solve_call(_prob,alg,args...;kwargs...)
   elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
     alg = args[1]
     isadaptive(alg) &&
     !(typeof(prob) <: NO_TSPAN_PROBS) &&
     adaptive_warn(_prob.u0,_prob.tspan)
-    __solve(_prob,args...;prob.kwargs...,kwargs...)
+    solve_call(_prob,args...;kwargs...)
   else
-    __solve(_prob,args...;prob.kwargs...,kwargs...)
+    solve_call(_prob,args...;kwargs...)
   end
 end
 
