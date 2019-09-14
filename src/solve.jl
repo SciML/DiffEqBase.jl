@@ -6,11 +6,11 @@ NO_TSPAN_PROBS = Union{AbstractLinearProblem, AbstractNonlinearProblem,
                        AbstractQuadratureProblem,
                        AbstractSteadyStateProblem,AbstractJumpProblem}
 
-function init_call(_prob,alg,args...;kwargs...)
+function init_call(_prob,args...;kwargs...)
   if :kwargs ∈ propertynames(_prob)
-    __init(_prob,alg,args...;_prob.kwargs...,kwargs...)
+    __init(_prob,args...;_prob.kwargs...,kwargs...)
   else
-    __init(_prob,alg,args...;kwargs...)
+    __init(_prob,args...;kwargs...)
   end
 end
 
@@ -33,11 +33,11 @@ function init(prob::DEProblem,args...;kwargs...)
   end
 end
 
-function solve_call(_prob,alg,args...;kwargs...)
+function solve_call(_prob,args...;kwargs...)
   if :kwargs ∈ propertynames(_prob)
-    __solve(_prob,alg,args...;_prob.kwargs...,kwargs...)
+    __solve(_prob,args...;_prob.kwargs...,kwargs...)
   else
-    __solve(_prob,alg,args...;kwargs...)
+    __solve(_prob,args...;kwargs...)
   end
 end
 
