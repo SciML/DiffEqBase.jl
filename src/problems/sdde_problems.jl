@@ -1,4 +1,4 @@
-struct SDDEProblem{uType,tType,lType,lType2,isinplace,P,NP,F,G,H,C,ND} <:
+struct SDDEProblem{uType,tType,lType,lType2,isinplace,P,NP,F,G,H,C,K,ND} <:
                           AbstractSDDEProblem{uType,tType,lType,isinplace,ND}
   f::F
   g::G
@@ -10,27 +10,28 @@ struct SDDEProblem{uType,tType,lType,lType2,isinplace,P,NP,F,G,H,C,ND} <:
   constant_lags::lType
   dependent_lags::lType2
   callback::C
+  kwargs::K
   noise_rate_prototype::ND
   seed::UInt64
   neutral::Bool
-  order_discontinuity_t0::Int
+  order_discontinuity_t0::Rational{Int}
   
   @add_kwonly function SDDEProblem{iip}(f::AbstractSDDEFunction{iip}, g, u0, h, tspan, p = NullParameters();
                                        noise_rate_prototype = nothing, noise= nothing, seed = UInt64(0),
                                        constant_lags = (), dependent_lags = (),
                                        neutral = f.mass_matrix !== I && det(f.mass_matrix) != 1,
-                                       order_discontinuity_t0 = 0,
-                                       callback = nothing) where {iip}
+                                       order_discontinuity_t0 = 0//1,
+                                       callback = nothing, kwargs...) where {iip}
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(_tspan),typeof(constant_lags),typeof(dependent_lags),isinplace(f),
-        typeof(p),typeof(noise),typeof(f),typeof(g),typeof(h),typeof(callback),typeof(noise_rate_prototype)}(
-        f, g, u0, h, _tspan, p, noise, constant_lags, dependent_lags, callback, noise_rate_prototype, seed, neutral, order_discontinuity_t0)
+        typeof(p),typeof(noise),typeof(f),typeof(g),typeof(h),typeof(callback),typeof(kwargs),typeof(noise_rate_prototype)}(
+        f, g, u0, h, _tspan, p, noise, constant_lags, dependent_lags, callback, kwargs, noise_rate_prototype, seed, neutral, order_discontinuity_t0)
   end
 
   function SDDEProblem{iip}(f::AbstractSDDEFunction{iip}, g , h, tspan::Tuple, p = NullParameters();
-                           order_discontinuity_t0 = 1, kwargs...) where iip
+                           order_discontinuity_t0 = 1//1, kwargs...) where iip
     SDDEProblem{iip}(f, g, h(p, first(tspan)), h, tspan, p;
-                    order_discontinuity_t0 = max(1, order_discontinuity_t0), kwargs...)
+                    order_discontinuity_t0 = max(1//1, order_discontinuity_t0), kwargs...)
   end
 
   function SDDEProblem{iip}(f,g, args...; kwargs...) where iip
