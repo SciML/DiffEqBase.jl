@@ -1,4 +1,4 @@
-struct SDDEProblem{uType,tType,lType,lType2,isinplace,P,NP,F,G,H,C,K,ND} <:
+struct SDDEProblem{uType,tType,lType,lType2,isinplace,P,NP,F,G,H,K,ND} <:
                           AbstractSDDEProblem{uType,tType,lType,isinplace,ND}
   f::F
   g::G
@@ -9,7 +9,6 @@ struct SDDEProblem{uType,tType,lType,lType2,isinplace,P,NP,F,G,H,C,K,ND} <:
   noise::NP
   constant_lags::lType
   dependent_lags::lType2
-  callback::C
   kwargs::K
   noise_rate_prototype::ND
   seed::UInt64
@@ -21,11 +20,11 @@ struct SDDEProblem{uType,tType,lType,lType2,isinplace,P,NP,F,G,H,C,K,ND} <:
                                        constant_lags = (), dependent_lags = (),
                                        neutral = f.mass_matrix !== I && det(f.mass_matrix) != 1,
                                        order_discontinuity_t0 = 0//1,
-                                       callback = nothing, kwargs...) where {iip}
+                                       kwargs...) where {iip}
     _tspan = promote_tspan(tspan)
     new{typeof(u0),typeof(_tspan),typeof(constant_lags),typeof(dependent_lags),isinplace(f),
-        typeof(p),typeof(noise),typeof(f),typeof(g),typeof(h),typeof(callback),typeof(kwargs),typeof(noise_rate_prototype)}(
-        f, g, u0, h, _tspan, p, noise, constant_lags, dependent_lags, callback, kwargs, noise_rate_prototype, seed, neutral, order_discontinuity_t0)
+        typeof(p),typeof(noise),typeof(f),typeof(g),typeof(h),typeof(kwargs),typeof(noise_rate_prototype)}(
+        f, g, u0, h, _tspan, p, noise, constant_lags, dependent_lags, kwargs, noise_rate_prototype, seed, neutral, order_discontinuity_t0)
   end
 
   function SDDEProblem{iip}(f::AbstractSDDEFunction{iip}, g , h, tspan::Tuple, p = NullParameters();
