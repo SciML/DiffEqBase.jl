@@ -80,8 +80,9 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          rootfind=true,
                          save_positions=(true,true),
                          interp_points=10,
-                         abstol=10eps(),reltol=0) = ContinuousCallback(
-                              condition,affect!,affect_neg!,initialize,
+                         abstol=10eps(),reltol=0) = VectorContinuousCallback(
+                              condition,affect!,affect_neg!,len,
+                              initialize,
                               idxs,
                               rootfind,interp_points,
                               save_positions,abstol,reltol)
