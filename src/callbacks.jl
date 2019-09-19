@@ -637,7 +637,15 @@ mutable struct CallbackCache{conditionType,signType}
   prev_sign::signType
 end
 
-function CallbackCache(max_len,conditionType::Type,signType::Type)
+function CallbackCache(u,max_len,::Type{conditionType},::Type{signType}) where {conditionType,signType}
+    tmp_condition = similar(u, conditionType, max_len)
+    previous_condition = similar(u, conditionType, max_len)
+    next_sign = similar(u, signType, max_len)
+    prev_sign = similar(u, signType, max_len)
+    CallbackCache{typeof(tmp_condition),typeof(next_sign)}(tmp_condition,previous_condition,next_sign,prev_sign)
+end
+
+function CallbackCache(max_len,::Type{conditionType},::Type{signType}) where {conditionType,signType}
     tmp_condition = zeros(conditionType, max_len)
     previous_condition = zeros(conditionType, max_len)
     next_sign = zeros(signType, max_len)
