@@ -6,6 +6,7 @@ version = "6.2.3"
 [deps]
 ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
+DiffEqDiffTools = "01453d9d-ee7c-5054-8395-0335cb756afa"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 FunctionWrappers = "069b7b12-0de2-55c6-9aab-29f3d0a68a2e"
@@ -29,6 +30,7 @@ TreeViews = "a2a6695c-b41b-5b7d-aed9-dbfdeacea5d7"
 
 [compat]
 ArrayInterface = "1.1"
+DiffEqDiffTools = "1"
 IteratorInterfaceExtensions = "^0.1, ^1"
 MuladdMacro = ">= 0.2.1"
 Parameters = ">= 0.10.0"

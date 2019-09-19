@@ -152,7 +152,7 @@ DiffEqBase.@def iipnlsolve begin
     else
       du1 = zero(rate_prototype)
       # if the algorithm specializes on split problems the use `nf`
-      uf = DiffEqDiffTools.UJacobianWrapper(nf,t,p)
+      uf = UJacobianWrapper(nf,t,p)
       jac_config = build_jac_config(alg,nf,uf,du1,uprev,u,tmp,dz)
       linsolve = alg.linsolve(Val{:init},uf,u)
     end
@@ -185,7 +185,7 @@ DiffEqBase.@def oopnlsolve begin
     nf = nlsolve_f(f, alg)
 
     # only use `nf` if the algorithm specializes on split eqs
-    uf = DiffEqDiffTools.UDerivativeWrapper(nf,t,p)
+    uf = UDerivativeWrapper(nf,t,p)
 
     if islinear(f) || DiffEqBase.has_jac(f)
       # get the operator

@@ -880,6 +880,13 @@ has_Wfact_t(f::DynamicalODEFunction) = has_Wfact_t(f.f1)
 has_paramjac(f::DynamicalODEFunction) = has_paramjac(f.f1)
 has_colorvec(f::DynamicalODEFunction) = has_colorvec(f.f1)
 
+has_jac(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_jac(f.f)
+has_tgrad(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_tgrad(f.f)
+has_Wfact(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_Wfact(f.f)
+has_Wfact_t(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_Wfact_t(f.f)
+has_paramjac(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_paramjac(f.f)
+has_colorvec(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_colorvec(f.f)
+
 ######### Additional traits
 
 islinear(f) = false # fallback

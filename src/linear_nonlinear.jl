@@ -107,7 +107,7 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
 end
 
 function (p::DefaultLinSolve)(::Type{Val{:init}},f,u0_prototype)
-  if has_Wfact(f.f) || has_Wfact_t(f.f)
+  if has_Wfact(f) || has_Wfact_t(f)
     piv = collect(one(LinearAlgebra.BlasInt):convert(LinearAlgebra.BlasInt, length(u0_prototype))) # pivoting vector
     DefaultLinSolve(f, piv)
   else
