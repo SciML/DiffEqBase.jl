@@ -51,7 +51,6 @@ is_constant(α::DiffEqScalar) = α.update_func == DEFAULT_UPDATE_FUNC
 for op in (:*, :/, :\)
   @eval Base.$op(α::DiffEqScalar, x::Union{AbstractArray,Number}) = $op(α.val, x)
   @eval Base.$op(x::Union{AbstractArray,Number}, α::DiffEqScalar) = $op(x, α.val)
-<<<<<<< HEAD
   @eval Base.$op(x::DiffEqScalar, y::DiffEqScalar) = $op(x.val, y.val)
 end
 
@@ -61,9 +60,6 @@ for op in (:-, :+)
   @eval Base.$op(x::DiffEqScalar, y::DiffEqScalar) = $op(x.val, y.val)
 end
 
-=======
-end
->>>>>>> f3aaa94cbba4a45a8aab45d9bbdc74ba3acb7f35
 LinearAlgebra.lmul!(α::DiffEqScalar, B::AbstractArray) = lmul!(α.val, B)
 LinearAlgebra.rmul!(B::AbstractArray, α::DiffEqScalar) = rmul!(B, α.val)
 LinearAlgebra.mul!(Y::AbstractArray, α::DiffEqScalar, B::AbstractArray) = mul!(Y, α.val, B)
