@@ -102,3 +102,11 @@ end
 
 struct NullParameters end
 Base.getindex(::NullParameters,i...) = error("Parameters were indexed but the parameters are `nothing`. You likely forgot to pass in parameters to the DEProblem!")
+
+function Base.show(io::IO, A::PDEProblem)
+  println(io,summary(A.prob))
+  println(io)
+end
+Base.summary(prob::PDEProblem) = string(DiffEqBase.TYPE_COLOR,
+                                        nameof(typeof(prob)),
+                                        DiffEqBase.NO_COLOR)

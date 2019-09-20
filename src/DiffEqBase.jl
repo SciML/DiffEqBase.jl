@@ -224,6 +224,10 @@ $(TYPEDEF)
 """
 abstract type EnsembleAlgorithm <: DiffEqBase.DEAlgorithm end
 
+# PDE Discretizations
+
+abstract type AbstractDiscretization end
+
 # Monte Carlo Simulations
 """
 $(TYPEDEF)
@@ -520,7 +524,7 @@ const MonteCarloSummary = EnsembleSummary
 
 export isinplace
 
-export solve, solve!, init, step!
+export solve, solve!, init, step!, discretize
 
 export tuples, intervals, TimeChoiceIterator
 
@@ -549,6 +553,7 @@ export RODEProblem, RODESolution, SDEProblem
 export DAEProblem, DAESolution
 export DDEProblem
 export SDDEProblem
+export PDEProblem
 
 export BVProblem, TwoPointBVProblem
 

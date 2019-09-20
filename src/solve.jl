@@ -77,6 +77,13 @@ function get_concrete_problem(prob::AbstractEnsembleProblem, kwargs)
   prob
 end
 
+function DiffEqBase.solve(prob::PDEProblem,alg::DiffEqBase.DEAlgorithm,args...;
+                                          kwargs...)
+    solve(prob.prob,alg,args...;kwargs...)
+end
+
+function discretize end
+
 function get_concrete_problem(prob, kwargs)
   tspan = get_concrete_tspan(prob, kwargs)
   u0 = get_concrete_u0(prob, tspan[1], kwargs)
