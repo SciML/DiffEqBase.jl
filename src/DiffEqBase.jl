@@ -159,6 +159,13 @@ $(TYPEDEF)
 abstract type AbstractConstantLagSDDEProblem{uType,tType,lType,isinplace,ND} <:
                       AbstractSDDEProblem{uType,tType,lType,isinplace,ND} end
 
+"""
+$(TYPEDEF)
+
+Base for types which define PDE problems.
+"""
+abstract type AbstractPDEProblem <: DEProblem end
+
 # Algorithms
 """
 $(TYPEDEF)
@@ -473,6 +480,7 @@ include("problems/bvp_problems.jl")
 include("problems/dae_problems.jl")
 include("problems/dde_problems.jl")
 include("problems/sdde_problems.jl")
+include("problems/pde_problems.jl")
 include("problems/problem_traits.jl")
 include("ensemble/ensemble_solutions.jl")
 include("ensemble/ensemble_problems.jl")
