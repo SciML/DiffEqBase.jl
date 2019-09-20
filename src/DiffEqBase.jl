@@ -159,6 +159,13 @@ $(TYPEDEF)
 abstract type AbstractConstantLagSDDEProblem{uType,tType,lType,isinplace,ND} <:
                       AbstractSDDEProblem{uType,tType,lType,isinplace,ND} end
 
+"""
+$(TYPEDEF)
+
+Base for types which define PDE problems.
+"""
+abstract type AbstractPDEProblem <: DEProblem end
+
 # Algorithms
 """
 $(TYPEDEF)
@@ -223,6 +230,10 @@ abstract type AbstractSDDEAlgorithm <: DEAlgorithm end
 $(TYPEDEF)
 """
 abstract type EnsembleAlgorithm <: DiffEqBase.DEAlgorithm end
+
+# PDE Discretizations
+
+abstract type AbstractDiscretization end
 
 # Monte Carlo Simulations
 """
@@ -469,6 +480,7 @@ include("problems/bvp_problems.jl")
 include("problems/dae_problems.jl")
 include("problems/dde_problems.jl")
 include("problems/sdde_problems.jl")
+include("problems/pde_problems.jl")
 include("problems/problem_traits.jl")
 include("ensemble/ensemble_solutions.jl")
 include("ensemble/ensemble_problems.jl")
@@ -520,7 +532,7 @@ const MonteCarloSummary = EnsembleSummary
 
 export isinplace
 
-export solve, solve!, init, step!
+export solve, solve!, init, step!, discretize
 
 export tuples, intervals, TimeChoiceIterator
 
@@ -549,6 +561,7 @@ export RODEProblem, RODESolution, SDEProblem
 export DAEProblem, DAESolution
 export DDEProblem
 export SDDEProblem
+export PDEProblem
 
 export BVProblem, TwoPointBVProblem
 
