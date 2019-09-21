@@ -6,7 +6,7 @@ struct EnsembleProblem{T,T2,T3,T4,T5} <: AbstractEnsembleProblem
   u_init::T5
 end
 
-EnsembleProblem(prob::DEProblem;
+EnsembleProblem(prob;
     output_func = (sol,i)-> (sol,false),
     prob_func= (prob,i,repeat)->prob,
     reduction = (u,data,I)->(append!(u,data),false),
