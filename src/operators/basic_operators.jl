@@ -7,10 +7,16 @@ Base.convert(::Type{AbstractMatrix}, ::DiffEqIdentity{T,N}) where {T,N} =
                                               LinearAlgebra.Diagonal(ones(T,N))
 for op in (:*, :/, :\)
   @eval Base.$op(::DiffEqIdentity{T,N}, x::AbstractVecOrMat) where {T,N} = $op(I, x)
+  @eval Base.$op(::DiffEqIdentity{T,N}, x::AbstractArray) where {T,N} = $op(I, x)
   @eval Base.$op(x::AbstractVecOrMat, ::DiffEqIdentity{T,N}) where {T,N} = $op(x, I)
+  @eval Base.$op(x::AbstractArray, ::DiffEqIdentity{T,N}) where {T,N} = $op(x, I)
+
 end
 LinearAlgebra.mul!(Y::AbstractVecOrMat, ::DiffEqIdentity, B::AbstractVecOrMat) = Y .= B
 LinearAlgebra.ldiv!(Y::AbstractVecOrMat, ::DiffEqIdentity, B::AbstractVecOrMat) = Y .= B
+
+LinearAlgebra.mul!(Y::AbstractArray, ::DiffEqIdentity, B::AbstractArray) = Y .= B
+LinearAlgebra.ldiv!(Y::AbstractArray, ::DiffEqIdentity, B::AbstractArray) = Y .= B
 for pred in (:isreal, :issymmetric, :ishermitian, :isposdef)
   @eval LinearAlgebra.$pred(::DiffEqIdentity) = true
 end
@@ -35,6 +41,7 @@ mutable struct DiffEqScalar{T<:Number,F} <: AbstractDiffEqLinearOperator{T}
 end
 
 Base.convert(::Type{Number}, α::DiffEqScalar) = α.val
+Base.convert(::Type{DiffEqScalar}, α::Number) = DiffEqScalar(α)
 Base.size(::DiffEqScalar) = ()
 Base.size(::DiffEqScalar, ::Integer) = 1
 update_coefficients!(α::DiffEqScalar,u,p,t) = (α.val = α.update_func(α.val,u,p,t); α)
@@ -42,13 +49,21 @@ setval!(α::DiffEqScalar, val) = (α.val = val; α)
 is_constant(α::DiffEqScalar) = α.update_func == DEFAULT_UPDATE_FUNC
 
 for op in (:*, :/, :\)
-  @eval Base.$op(α::DiffEqScalar, x::Union{AbstractVecOrMat,Number}) = $op(α.val, x)
-  @eval Base.$op(x::Union{AbstractVecOrMat,Number}, α::DiffEqScalar) = $op(x, α.val)
+  @eval Base.$op(α::DiffEqScalar, x::Union{AbstractArray,Number}) = $op(α.val, x)
+  @eval Base.$op(x::Union{AbstractArray,Number}, α::DiffEqScalar) = $op(x, α.val)
+  @eval Base.$op(x::DiffEqScalar, y::DiffEqScalar) = $op(x.val, y.val)
 end
-LinearAlgebra.lmul!(α::DiffEqScalar, B::AbstractVecOrMat) = lmul!(α.val, B)
-LinearAlgebra.rmul!(B::AbstractVecOrMat, α::DiffEqScalar) = rmul!(B, α.val)
-LinearAlgebra.mul!(Y::AbstractVecOrMat, α::DiffEqScalar, B::AbstractVecOrMat) = mul!(Y, α.val, B)
-LinearAlgebra.axpy!(α::DiffEqScalar, X::AbstractVecOrMat, Y::AbstractVecOrMat) = axpy!(α.val, X, Y)
+
+for op in (:-, :+)
+  @eval Base.$op(α::DiffEqScalar, x::Number) = $op(α.val, x)
+  @eval Base.$op(x::Number, α::DiffEqScalar) = $op(x, α.val)
+  @eval Base.$op(x::DiffEqScalar, y::DiffEqScalar) = $op(x.val, y.val)
+end
+
+LinearAlgebra.lmul!(α::DiffEqScalar, B::AbstractArray) = lmul!(α.val, B)
+LinearAlgebra.rmul!(B::AbstractArray, α::DiffEqScalar) = rmul!(B, α.val)
+LinearAlgebra.mul!(Y::AbstractArray, α::DiffEqScalar, B::AbstractArray) = mul!(Y, α.val, B)
+LinearAlgebra.axpy!(α::DiffEqScalar, X::AbstractArray, Y::AbstractArray) = axpy!(α.val, X, Y)
 Base.abs(α::DiffEqScalar) = abs(α.val)
 
 """
