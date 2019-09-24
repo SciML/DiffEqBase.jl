@@ -475,7 +475,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
         bottom_θ = typeof(integrator.t)(0)
       end
       if callback.rootfind && !isdiscrete(integrator.alg)
-        minΘ = nextfloat(typeof(integrator.t)(1))
+        minΘ = nextfloat(top_Θ)
         min_event_idx = -1
         for idx in event_idx
           zero_func = (Θ) -> begin
