@@ -1,4 +1,5 @@
-using LinearAlgebra, SparseArrays, SuiteSparse
+using LinearAlgebra, SparseArrays, SuiteSparse, KrylovKit
+
 mutable struct LinSolveFactorize{F}
   factorization::F
   A
@@ -187,6 +188,44 @@ function LinearAlgebra.ldiv!(y, v::ScaleVector, x)
     return @.. y = x / vx
   end
 end
+
+mutable struct LinSolveKrylovKit{F,PL,PR,AR,A}
+  solver::F
+  algo
+  # Preconditioners, not yet in KrylovKit:
+  Pl::PL
+  Pr::PR
+  args::AR
+  kwargs::A
+end
+
+LinSolveKrylovKitGMRES(generate_iterator,args...;
+                         Pl=IterativeSolvers.Identity(),
+                         Pr=IterativeSolvers.Identity(),
+                         kwargs...) =
+                         LinSolveKrylovKit(KrylovKit.linsolve, GMRES(kwargs),
+                         nothing, nothing,
+                         args, kwargs)
+
+LinSolveKrylovKitCG(generate_iterator,args...;
+                        Pl=IterativeSolvers.Identity(),
+                        Pr=IterativeSolvers.Identity(),
+                        kwargs...) =
+                        LinSolveKrylovKit(KrylovKit.linsolve, CG(kwargs),
+                        nothing, nothing,
+                        args, kwargs)
+
+function (f::LinSolveKrylovKitGMRES)(x,A,b,update_matrix=false; Pl=nothing, Pr=nothing, tol=nothing, kwargs...)
+  sol, info = f.generate_iterator(A,b,f.algo,f.args...;
+                                  restart=5,
+                                  maxiter=5,tol=1e-16,
+                                  f.kwargs...,kwargs...)
+  (info.converged == 0) && @warn "GMRES did not converged, $info"
+  copyto!(x, sol)
+
+  return nothing
+end
+
 
 struct ComposePreconditioner{P, S<:Union{ScaleVector,Nothing}}
   P::P
