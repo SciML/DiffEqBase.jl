@@ -74,7 +74,7 @@ function __solve(prob::AbstractEnsembleProblem,
     converged && break
   end
   if typeof(u) <: Vector{Any}
-    _u = convert(Array{typeof(u[1])},u)
+    _u = map(i->u[i],1:length(u))
   else
     _u = u
   end
@@ -115,7 +115,7 @@ function solve_batch(prob,alg,::EnsembleDistributed,I,pmap_batch_size,kwargs...)
       batch_func(i,prob,alg,I,kwargs...)
     end
   end
-  _batch_data = convert(Array{typeof(batch_data[1])},batch_data)
+  map(i->batch_data[i],1:length(batch_data))
 end
 
 function solve_batch(prob,alg,::EnsembleSerial,I,pmap_batch_size,kwargs...)
@@ -124,7 +124,7 @@ function solve_batch(prob,alg,::EnsembleSerial,I,pmap_batch_size,kwargs...)
       batch_func(i,prob,alg,I,kwargs...)
     end
   end
-  _batch_data = convert(Array{typeof(batch_data[1])},batch_data)
+  map(i->batch_data[i],1:length(batch_data))
 end
 
 function solve_batch(prob,alg,::EnsembleThreads,I,pmap_batch_size,kwargs...)
@@ -158,7 +158,7 @@ function solve_batch(prob,alg,::EnsembleThreads,I,pmap_batch_size,kwargs...)
         batch_data[batch_idx] = _x[1]
     end
   end
-  _batch_data = convert(Array{typeof(batch_data[1])},batch_data)
+  map(i->batch_data[i],1:length(batch_data))
 end
 
 function solve_batch(prob,alg,::EnsembleSplitThreads,I,pmap_batch_size,kwargs...)
@@ -208,7 +208,7 @@ function thread_monte(prob,I,alg,procid,kwargs...)
 end
 
 function vector_batch_data_to_arr(batch_data)
-  _batch_data = Vector{typeof(batch_data[1][1])}(undef,sum((length(x) for x in batch_data)))
+  _batch_data = Vector{Any}(undef,sum((length(x) for x in batch_data)))
   idx = 0
   @inbounds for a in batch_data
     for x in a
@@ -216,5 +216,5 @@ function vector_batch_data_to_arr(batch_data)
       _batch_data[idx] = x
     end
   end
-  _batch_data
+  map(i->_batch_data[i],1:length(_batch_data))
 end
