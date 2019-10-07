@@ -55,3 +55,9 @@ u0 = [1.0;0.0;0.0]
 tspan = (0.0,100.0)
 prob_num = ODEProblem(ff2,u0,tspan)
 sol = solve(prob_num,Rosenbrock23(linsolve=LinSolveGPUFactorize()))
+
+# Complex Numbers Adaptivity DifferentialEquations.jl#460
+f_complex(u,nothing,t) = 1/2 .*u
+u0 = cu(rand(32,32).+ 1im*rand(32,32));
+prob = ODEProblem(f_complex,u0,(0.0,1.0))
+sol = solve(prob,Tsit5())
