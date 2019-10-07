@@ -1,12 +1,12 @@
-@inline UNITLESS_ABS2(x) = Real(abs2(x)/(typeof(x)(one(x))*typeof(x)(one(x))))
+@inline UNITLESS_ABS2(x) = real(abs2(x)/(typeof(x)(one(x))*typeof(x)(one(x))))
 
 @inline ODE_DEFAULT_NORM(u::Union{AbstractFloat,Complex},t) = abs(u)
 @inline ODE_DEFAULT_NORM(u::Array{T},t) where T<:Union{AbstractFloat,Complex} =
-                                         @fastmath sqrt(sum(abs2,u) / length(u))
+                                         @fastmath sqrt(real(sum(abs2,u)) / length(u))
 @inline ODE_DEFAULT_NORM(u::RecursiveArrayTools.AbstractVectorOfArray,t) =
-                                        sum(sqrt(sum(UNITLESS_ABS2,_u) / length(_u)) for _u in u.u)
-@inline ODE_DEFAULT_NORM(u::AbstractArray,t) = sqrt(sum(UNITLESS_ABS2,u) / length(u))
-@inline ODE_DEFAULT_NORM(u::AbstractArray{T,N},t) where {T<:AbstractArray,N} = sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,t)) / length(u))
+                                        sum(sqrt(real(sum(UNITLESS_ABS2,_u)) / length(_u)) for _u in u.u)
+@inline ODE_DEFAULT_NORM(u::AbstractArray,t) = sqrt(real(sum(UNITLESS_ABS2,u)) / length(u))
+@inline ODE_DEFAULT_NORM(u::AbstractArray{T,N},t) where {T<:AbstractArray,N} = sqrt(real(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,t))) / length(u))
 @inline ODE_DEFAULT_NORM(u,t) = norm(u)
 
 @inline ODE_DEFAULT_ISOUTOFDOMAIN(u,p,t) = false
