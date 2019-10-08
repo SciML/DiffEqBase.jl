@@ -96,6 +96,7 @@ function __init__()
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
     end
     @inline ODE_DEFAULT_NORM(u::Unitful.AbstractQuantity,t) = abs(value(u))
+    @inline UNITLESS_ABS2(x::Unitful.AbstractQuantity) = real(abs2(x)/oneunit(x)*oneunit(x))
   end
 
   @require Tracker="9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c" begin
