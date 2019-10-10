@@ -301,7 +301,7 @@ end
   next_condition = get_condition(integrator, callback, abst)
   @. next_sign = sign(next_condition)
 
-  event_idx = findall_events(affect!,affect_neg!,prev_sign,next_sign)
+  event_idx = findall_events(callback.affect!,callback.affect_neg!,prev_sign,next_sign)
   if length(event_idx) != 0
     event_occurred = true
     interp_index = callback.interp_points
@@ -310,7 +310,7 @@ end
     for i in 2:length(Θs)
       abst = integrator.tprev+integrator.dt*Θs[i]
       new_sign = get_condition(integrator, callback, abst)
-      _event_idx = findall_events(affect!,affect_neg!,prev_sign,new_sign)
+      _event_idx = findall_events(callback.affect!,callback.affect_neg!,prev_sign,new_sign)
       if length(_event_idx) != 0
         event_occurred = true
         event_idx = _event_idx
