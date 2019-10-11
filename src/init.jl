@@ -136,6 +136,16 @@ function __init__()
     function LinearAlgebra.ldiv!(x::CuArrays.CuArray,_qr::CuArrays.CUSOLVER.CuQR,b::CuArrays.CuArray)
       _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
       x .= vec(_x)
+      CuArrays.CUDAnative.unsafe_free!(_x)
+    end
+    function findall_events(affect!,affect_neg!,prev_sign::CuArrays.CuArray,next_sign::CuArrays.CuArray)
+      hasaffect::Bool = affect! !== nothing
+      hasaffectneg::Bool = affect_neg! !== nothing
+      f = (p,n)-> ((p < 0 && hasaffect) || (p > 0 && hasaffectneg)) && p*n<=0
+      A = map(f,prev_sign,next_sign)
+      out = findall(A)
+      CuArrays.CUDAnative.unsafe_free!(A)
+      out
     end
   end
 end

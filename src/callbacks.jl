@@ -301,7 +301,7 @@ end
   next_condition = get_condition(integrator, callback, abst)
   @. next_sign = sign(next_condition)
 
-  event_idx = findall(x-> ((prev_sign[x] < 0 && callback.affect! !== nothing) || (prev_sign[x] > 0 && callback.affect_neg! !== nothing)) && prev_sign[x]*next_sign[x]<=0, keys(prev_sign))
+  event_idx = findall_events(callback.affect!,callback.affect_neg!,prev_sign,next_sign)
   if length(event_idx) != 0
     event_occurred = true
     interp_index = callback.interp_points
@@ -310,7 +310,7 @@ end
     for i in 2:length(Θs)
       abst = integrator.tprev+integrator.dt*Θs[i]
       new_sign = get_condition(integrator, callback, abst)
-      _event_idx = findall(x -> ((prev_sign[x] < 0 && callback.affect! !== nothing) || (prev_sign[x] > 0 && callback.affect_neg! !== nothing)) && prev_sign[x]*new_sign[x]<0, keys(prev_sign))
+      _event_idx = findall_events(callback.affect!,callback.affect_neg!,prev_sign,new_sign)
       if length(_event_idx) != 0
         event_occurred = true
         event_idx = _event_idx
@@ -396,6 +396,11 @@ end
   event_idx = 1
 
   event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx
+end
+
+## Different definition for GPUs
+function findall_events(affect!,affect_neg,prev_sign,next_sign)
+  findall(x-> ((prev_sign[x] < 0 && affect! !== nothing) || (prev_sign[x] > 0 && affect_neg! !== nothing)) && prev_sign[x]*next_sign[x]<=0, keys(prev_sign))
 end
 
 function find_callback_time(integrator,callback::ContinuousCallback,counter)
