@@ -265,8 +265,7 @@ end
   prev_sign = @view(integrator.callback_cache.prev_sign[1:callback.len])
   next_sign = @view(integrator.callback_cache.next_sign[1:callback.len])
 
-
-  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(previous_condition[ivec],integrator.t)) <= 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
+  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(ArrayInterface.allowed_getindex(previous_condition,ivec),integrator.t)) <= 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
 
     # If there was a previous event, utilize the derivative at the start to
     # chose the previous sign. If the derivative is positive at tprev, then
@@ -322,7 +321,8 @@ end
     end
   end
 
-  event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx
+  event_idx_out = convert(Array,event_idx) # No-op on arrays
+  event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx_out
 end
 
 @inline function determine_event_occurance(integrator,callback::ContinuousCallback,counter)
@@ -399,7 +399,7 @@ end
 end
 
 ## Different definition for GPUs
-function findall_events(affect!,affect_neg,prev_sign,next_sign)
+function findall_events(affect!,affect_neg!,prev_sign,next_sign)
   findall(x-> ((prev_sign[x] < 0 && affect! !== nothing) || (prev_sign[x] > 0 && affect_neg! !== nothing)) && prev_sign[x]*next_sign[x]<=0, keys(prev_sign))
 end
 
@@ -485,7 +485,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
         for idx in event_idx
           zero_func = (Θ) -> begin
             abst = integrator.tprev+integrator.dt*Θ
-            return get_condition(integrator, callback, abst)[idx]
+            return ArrayInterface.allowed_getindex(get_condition(integrator, callback, abst),idx)
           end
           if zero_func(top_Θ) == 0
             Θ = top_Θ
@@ -540,7 +540,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
     min_event_idx = 1
   end
 
-  new_t,prev_sign[min_event_idx],event_occurred,min_event_idx
+  new_t,ArrayInterface.allowed_getindex(prev_sign,min_event_idx),event_occurred,min_event_idx
 end
 
 function apply_callback!(integrator,callback::Union{ContinuousCallback,VectorContinuousCallback},cb_time,prev_sign,event_idx)
