@@ -246,6 +246,14 @@ end
 (f::SDEFunction)(::Type{Val{:Wfact_t}},args...) = f.Wfact_t(args...)
 (f::SDEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
 
+(f::SDEFunction)(args...) = f.f(args...)
+(f::SDEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
+(f::SDEFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
+(f::SDEFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
+(f::SDEFunction)(::Type{Val{:Wfact}},args...) = f.Wfact(args...)
+(f::SDEFunction)(::Type{Val{:Wfact_t}},args...) = f.Wfact_t(args...)
+(f::SDEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
+
 (f::SplitSDEFunction)(u,p,t) = f.f1(u,p,t) + f.f2(u,p,t)
 (f::SplitSDEFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
 function (f::SplitSDEFunction)(du,u,p,t)
