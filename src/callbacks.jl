@@ -435,7 +435,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
-          Θ = prevfloat(find_zero(zero_func, (bottom_θ,top_Θ), Roots.AlefeldPotraShi(), atol = 0))
+          Θ = prevfloat(find_zero(zero_func, (bottom_θ,top_Θ), Roots.AlefeldPotraShi(), atol = 0, rtol = 0))
           sign_bottom_θ = sign(zero_func(bottom_θ))
           prevfloat_idx = 0
           while sign(zero_func(Θ)) != sign_bottom_θ && prevfloat_idx < 10
@@ -510,7 +510,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               end
               iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
-            Θ = prevfloat(find_zero(zero_func, (bottom_θ,top_Θ), Roots.AlefeldPotraShi(), atol = 0))
+            Θ = prevfloat(find_zero(zero_func, (bottom_θ,top_Θ), Roots.AlefeldPotraShi(), atol = 0, rtol = 0))
             sign_bottom_θ = sign(zero_func(bottom_θ))
             prevfloat_idx = 0
             while sign(zero_func(Θ)) != sign_bottom_θ && prevfloat_idx < 10
