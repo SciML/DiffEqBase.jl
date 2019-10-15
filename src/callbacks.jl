@@ -436,13 +436,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
           Θ = prevfloat(find_zero(zero_func, (bottom_θ,top_Θ), atol = 0, rtol = 0, xatol = 0, xrtol = 0))
-          sign_bottom_θ = sign(zero_func(bottom_θ))
-          prevfloat_idx = 0
-          while sign(zero_func(Θ)) != sign_bottom_θ && prevfloat_idx < 10
-            Θ = prevfloat(Θ)
-            prevfloat_idx += 1
-          end
-          prevfloat_idx == 10 && error("Rootfind was inaccurate. Please report the error.")
+          sign(zero_func(Θ)) != sign(zero_func(bottom_θ)) && error("Rootfind was inaccurate. Please report the error.")
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
         end
         #Θ = prevfloat(...)
@@ -511,13 +505,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
             Θ = prevfloat(find_zero(zero_func, (bottom_θ,top_Θ), atol = 0, rtol = 0, xatol = 0, xrtol = 0))
-            sign_bottom_θ = sign(zero_func(bottom_θ))
-            prevfloat_idx = 0
-            while sign(zero_func(Θ)) != sign_bottom_θ && prevfloat_idx < 10
-              Θ = prevfloat(Θ)
-              prevfloat_idx += 1
-            end
-            prevfloat_idx == 10 && error("Rootfind was inaccurate. Please report the error.")
+            sign(zero_func(Θ)) != sign(zero_func(bottom_θ)) && error("Rootfind was inaccurate. Please report the error.")
             if Θ < minΘ
               integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
             end
