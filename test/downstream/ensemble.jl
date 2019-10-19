@@ -19,6 +19,10 @@ sim = solve(prob2,SRIW1(),EnsembleThreads(),dt=1//2^(3),trajectories=10)
 err_sim = DiffEqBase.calculate_ensemble_errors(sim;weak_dense_errors=true)
 @test length(sim) == 10
 
+sim = solve(prob2,SRIW1(),EnsembleThreads(),dt=1//2^(3),trajectories=10,batch_size=2)
+err_sim = DiffEqBase.calculate_ensemble_errors(sim;weak_dense_errors=true)
+@test length(sim) == 10
+
 sim = solve(prob2,SRIW1(),EnsembleThreads(),dt=1//2^(3),adaptive=false,trajectories=10)
 err_sim = DiffEqBase.calculate_ensemble_errors(sim;weak_timeseries_errors=true)
 
