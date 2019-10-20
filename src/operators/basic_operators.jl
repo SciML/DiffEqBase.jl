@@ -46,7 +46,7 @@ Base.size(::DiffEqScalar) = ()
 Base.size(::DiffEqScalar, ::Integer) = 1
 update_coefficients!(α::DiffEqScalar,u,p,t) = (α.val = α.update_func(α.val,u,p,t); α)
 setval!(α::DiffEqScalar, val) = (α.val = val; α)
-is_constant(α::DiffEqScalar) = α.update_func == DEFAULT_UPDATE_FUNC
+isconstant(α::DiffEqScalar) = α.update_func == DEFAULT_UPDATE_FUNC
 
 for op in (:*, :/, :\)
   @eval Base.$op(α::DiffEqScalar, x::Union{AbstractArray,Number}) = $op(α.val, x)
@@ -87,7 +87,7 @@ end
 
 update_coefficients!(L::DiffEqArrayOperator,u,p,t) = (L.update_func(L.A,u,p,t); L)
 setval!(L::DiffEqArrayOperator, A) = (L.A = A; L)
-is_constant(L::DiffEqArrayOperator) = L.update_func == DEFAULT_UPDATE_FUNC
+isconstant(L::DiffEqArrayOperator) = L.update_func == DEFAULT_UPDATE_FUNC
 
 Base.convert(::Type{AbstractMatrix}, L::DiffEqArrayOperator) = L.A
 Base.setindex!(L::DiffEqArrayOperator, v, i::Int) = (L.A[i] = v)
