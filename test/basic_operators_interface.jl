@@ -15,7 +15,7 @@ end
   @test α * u == 2.0u
   lmul!(α, u2); @test u2 == 2.0u
   @test size(α) == ()
-  @test is_constant(α) == true
+  @test isconstant(α) == true
 end
 
 @testset "Array Operators" begin
@@ -29,7 +29,7 @@ end
   @test opnorm(L) == opnorm(A)
   @test exp(L) == exp(A)
   @test L[1,2] == A[1,2]
-  @test is_constant(L) == true
+  @test isconstant(L) == true
 end
 
 @testset "Mutable Array Operators" begin
@@ -37,7 +37,7 @@ end
   update_func = (_A,u,p,t) -> _A .= t * A
   Lt = DiffEqArrayOperator(zeros(2,2); update_func=update_func)
   t = 5.0
-  @test is_constant(Lt) == false
+  @test isconstant(Lt) == false
   @test Lt(u,nothing,t) ≈ (t*A) * u
   Lt(du,u,nothing,t); @test du ≈ (t*A) * u
 end
