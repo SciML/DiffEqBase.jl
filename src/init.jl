@@ -18,6 +18,8 @@ function __init__()
     value(x::Type{ForwardDiff.Dual{T,V,N}}) where {T,V,N} = V
     value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
 
+    @inline fastpow(x::ForwardDiff.Dual, y::ForwardDiff.Dual) = x^y
+
     # Support adaptive with non-dual time
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual,N},t) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
