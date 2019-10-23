@@ -92,7 +92,7 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
 end
 
 """
-interpolation(tvals,t,u,ks)
+$(SIGNATURES)
 
 Get the value at tvals where the solution is known at the
 times t (sorted), with values u and derivatives ks
@@ -146,7 +146,7 @@ times t (sorted), with values u and derivatives ks
 end
 
 """
-interpolation(tval::Number,t,u,ks)
+$(SIGNATURES)
 
 Get the value at tval where the solution is known at the
 times t (sorted), with values u and derivatives ks
@@ -188,7 +188,7 @@ times t (sorted), with values u and derivatives ks
 end
 
 """
-interpolation!(out,tval::Number,t,u,ks)
+$(SIGNATURES)
 
 Get the value at tval where the solution is known at the
 times t (sorted), with values u and derivatives ks

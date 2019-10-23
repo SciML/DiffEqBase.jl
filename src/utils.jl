@@ -1,7 +1,7 @@
 """
-`numparameters(f)`
+$(SIGNATURES)
 
-Returns the number of parameters of `f` for the method which has the most parameters.
+Returns the number of arguments of `f` for the method which has the most arguments.
 """
 function numargs(f)
   typ = Tuple{Any, Val{:analytic}, Vararg}
@@ -33,10 +33,10 @@ end
 
 Check whether a function operates in place by comparing its number of arguments
 to the expected number. The second parameter is optional if `f` is an
-[`AbstractDiffEqFunction`](@ref)
+[`AbstractDiffEqFunction`](@ref DiffEqBase.AbstractDiffEqFunction).
 
 # See also
-* [`numargs`](@Ref)
+* [`numargs`](@ref DiffEqBase.numargs)
 """
 function isinplace(f,inplace_param_number)
   numargs(f)>=inplace_param_number
@@ -104,7 +104,7 @@ warn_compat() =
 
 Define keyword-only version of the `function_definition`.
 
-    @add_kwonly function f(a, b; c=1, d=2)
+    @add_kwonly function f(x; y=1)
         ...
     end
 
@@ -195,7 +195,7 @@ function add_kwonly(::Type{Val{:call}}, default_call::Expr)
 end
 
 """
-    undefined_exports(mod)
+$(SIGNATURES)
 
 List symbols `export`'ed but not actually defined.
 """

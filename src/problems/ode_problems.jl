@@ -68,7 +68,7 @@ end
 """
     ODEProblem(f::ODEFunction,u0,tspan,p=NullParameters(),callback=CallbackSet())
 
-Define an ODE problem from a [`ODEFunction`](@ref).
+Define an ODE problem from an [`ODEFunction`](@ref).
 """
 function ODEProblem(f::AbstractODEFunction,u0,tspan,args...;kwargs...)
   ODEProblem{isinplace(f)}(f,u0,tspan,args...;kwargs...)

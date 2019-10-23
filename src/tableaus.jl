@@ -1,5 +1,5 @@
 """
-`ExplicitRKTableau`
+$(TYPEDEF)
 
 Holds a tableau which defines an explicit Runge-Kutta method.
 """
@@ -18,7 +18,7 @@ ExplicitRKTableau(A::MType,c::VType,α::VType,order;
                   A,c,α,αEEst,length(α),order,adaptiveorder)
 
 """
-`ImplicitRKTableau`
+$(TYPEDEF)
 
 Holds a tableau which defines an implicit Runge-Kutta method.
 """

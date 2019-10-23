@@ -442,6 +442,9 @@ TODO
 """
 abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractDiffEqArray{T,N} end
 
+"""
+Union of all base solution types.
+"""
 const DESolution = Union{AbstractTimeseriesSolution,
                          AbstractNoTimeSolution,
                          AbstractEnsembleSolution,
