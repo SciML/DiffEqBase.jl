@@ -136,10 +136,22 @@ handle_distribution_u0(_u0) = _u0
 eval_u0(u0::Function) = true
 eval_u0(u0) = false
 
+"""
+$(SIGNATURES)
+
+Check whether the values of `u0` and `tspan` are appropriate for use with
+adaptive integrators and emit specific warnings if they are not.
+"""
 function adaptive_warn(u0,tspan)
   adaptive_integer_warn(tspan)
 end
 
+"""
+$(SIGNATURES)
+
+Emit a warning about incompatibility with adaptive integers if `tspan` contains
+integers.
+"""
 function adaptive_integer_warn(tspan)
   if eltype(tspan) <: Integer
     @warn("Integer time values are incompatible with adaptive integrators. Utilize floating point numbers instead of integers in this case, i.e. (0.0,1.0) instead of (0,1).")

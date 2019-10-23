@@ -14,6 +14,11 @@ function numargs(f)
   return (numparam-1) #-1 in v0.5 since it adds f as the first parameter
 end
 
+"""
+$(SIGNATURES)
+
+Get the number of parameters of a Tuple type, i.e. the number of fields.
+"""
 function num_types_in_tuple(sig)
   length(sig.parameters)
 end
@@ -22,6 +27,17 @@ function num_types_in_tuple(sig::UnionAll)
   length(Base.unwrap_unionall(sig).parameters)
 end
 
+"""
+    isinplace(f, inplace_param_number)
+    isinplace(f::AbstractDiffEqFunction[, inplace_param_number])
+
+Check whether a function operates in place by comparing its number of arguments
+to the expected number. The second parameter is optional if `f` is an
+[`AbstractDiffEqFunction`](@ref)
+
+# See also
+* [`numargs`](@Ref)
+"""
 function isinplace(f,inplace_param_number)
   numargs(f)>=inplace_param_number
 end
@@ -29,13 +45,23 @@ end
 isinplace(f::AbstractDiffEqFunction{iip}) where {iip} = iip
 isinplace(f::AbstractDiffEqFunction{iip}, inplace_param_number) where {iip} = iip
 
+"""
+    @CSI_str cmd
+
+Create an ANSI escape sequence string for the CSI command `cmd`.
+"""
 macro CSI_str(str)
     return :(string("\x1b[", $(esc(str)), "m"))
 end
 
-const TYPE_COLOR = CSI"36"
+const TYPE_COLOR = CSI"36"  # Cyan
 const NO_COLOR = CSI"0"
 
+"""
+    @def name definition
+
+TODO
+"""
 macro def(name, definition)
     return quote
         macro $(esc(name))()
@@ -63,6 +89,12 @@ function check_keywords(alg, kwargs, warnlist)
     end
     flg
 end
+
+"""
+$(SIGNATURES)
+
+Emit a warning with a link to the solver compatibility chart in the documenation.
+"""
 warn_compat() =
     @warn("Please see http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html")
 
