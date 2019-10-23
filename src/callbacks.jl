@@ -2,6 +2,12 @@
 # otherwise unnecessary save
 INITIALIZE_DEFAULT(cb,u,t,integrator) = u_modified!(integrator, false)
 
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   condition::F1
   affect!::F2
@@ -51,6 +57,11 @@ function ContinuousCallback(condition,affect!;
 
 end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct VectorContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   condition::F1
   affect!::F2
@@ -103,6 +114,11 @@ function VectorContinuousCallback(condition,affect!,len;
 
 end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct DiscreteCallback{F1,F2,F3} <: AbstractDiscreteCallback
   condition::F1
   affect!::F2
@@ -118,6 +134,11 @@ DiscreteCallback(condition,affect!;
 
 # DiscreteCallback(condition,affect!,save_positions) = DiscreteCallback(condition,affect!,save_positions)
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct CallbackSet{T1<:Tuple,T2<:Tuple} <: DECallback
   continuous_callbacks::T1
   discrete_callbacks::T2
@@ -635,6 +656,11 @@ function max_vector_callback_length(cs::CallbackSet)
   maxlen_cb
 end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 mutable struct CallbackCache{conditionType,signType}
   tmp_condition::conditionType
   previous_condition::conditionType

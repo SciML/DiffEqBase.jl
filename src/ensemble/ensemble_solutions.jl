@@ -1,3 +1,8 @@
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct EnsembleTestSolution{T,N,S} <: AbstractEnsembleSolution{T,N}
   u::S
   errors::Dict{Symbol,Vector{T}}
@@ -14,6 +19,11 @@ function EnsembleTestSolution(u,errors,weak_errors,error_means,error_medians,ela
   EnsembleTestSolution(EnsembleSolution(u,elapsedTime,converged),errors,weak_errors,error_means,error_medians,elapsedTime,converged)
 end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct EnsembleSolution{T,N,S} <: AbstractEnsembleSolution{T,N}
   u::S
   elapsedTime::Float64
@@ -26,6 +36,11 @@ EnsembleSolution(sim,elapsedTime,converged) =
 EnsembleSolution(sim::T,elapsedTime,converged) where T <: AbstractVector{T2} where T2 <: AbstractArray =
              EnsembleSolution(sim, (size(sim[1])..., length(sim)),elapsedTime,converged) # Requires `size` defined on `sim`
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct EnsembleSummary{T,N,Tt,S,S2,S3,S4} <: AbstractEnsembleSolution{T,N}
   t::Tt
   u::S

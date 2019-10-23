@@ -1,5 +1,15 @@
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct StandardBVProblem end
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct BVProblem{uType,tType,isinplace,P,F,bF,PT,K} <: AbstractBVProblem{uType,tType,isinplace}
     f::F
     bc::bF
@@ -43,6 +53,12 @@ function BVProblem(f,bc,initialGuess::T,tspan::AbstractVector,p=NullParameters()
     BVProblem(f,bc,u0,(tspan[1],tspan[end]),p)
 end
 
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct TwoPointBVPFunction{bF}
     bc::bF
 end
@@ -50,6 +66,12 @@ TwoPointBVPFunction(; bc = error("No argument bc")) = TwoPointBVPFunction(bc)
 (f::TwoPointBVPFunction)(residual, ua, ub, p) = f.bc(residual, ua, ub, p)
 (f::TwoPointBVPFunction)(residual, u, p) = f.bc(residual, u[1], u[end], p)
 
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct TwoPointBVProblem{iip} end
 function TwoPointBVProblem(f,bc,u0,tspan,p=NullParameters();kwargs...)
     iip = DiffEqBase.isinplace(f,4)

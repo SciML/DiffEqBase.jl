@@ -237,6 +237,11 @@ end
 
 RecursiveArrayTools.tuples(integrator::DEIntegrator) = IntegratorTuples(integrator)
 
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct IntegratorIntervals{I}
  integrator::I
 end

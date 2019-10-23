@@ -1,7 +1,36 @@
+"""
+$(TYPEDEF)
+
+TODO
+"""
 abstract type BasicEnsembleAlgorithm <: EnsembleAlgorithm end
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct EnsembleThreads <: BasicEnsembleAlgorithm end
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct EnsembleDistributed <: BasicEnsembleAlgorithm end
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct EnsembleSplitThreads <: BasicEnsembleAlgorithm end
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct EnsembleSerial <: BasicEnsembleAlgorithm end
 
 #=

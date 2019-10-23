@@ -1,10 +1,17 @@
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct DiffEqIdentity{T,N} <: AbstractDiffEqLinearOperator{T} end
+
 DiffEqIdentity(u) = DiffEqIdentity{eltype(u),length(u)}()
 Base.size(::DiffEqIdentity{T,N}) where {T,N} = (N,N)
 Base.size(::DiffEqIdentity{T,N}, m::Integer) where {T,N} = (m == 1 || m == 2) ? N : 1
 LinearAlgebra.opnorm(::DiffEqIdentity{T,N}, p::Real=2) where {T,N} = one(T)
 Base.convert(::Type{AbstractMatrix}, ::DiffEqIdentity{T,N}) where {T,N} =
                                               LinearAlgebra.Diagonal(ones(T,N))
+
 for op in (:*, :/, :\)
   @eval Base.$op(::DiffEqIdentity{T,N}, x::AbstractVecOrMat) where {T,N} = $op(I, x)
   @eval Base.$op(::DiffEqIdentity{T,N}, x::AbstractArray) where {T,N} = $op(I, x)
@@ -17,6 +24,7 @@ LinearAlgebra.ldiv!(Y::AbstractVecOrMat, ::DiffEqIdentity, B::AbstractVecOrMat) 
 
 LinearAlgebra.mul!(Y::AbstractArray, ::DiffEqIdentity, B::AbstractArray) = Y .= B
 LinearAlgebra.ldiv!(Y::AbstractArray, ::DiffEqIdentity, B::AbstractArray) = Y .= B
+
 for pred in (:isreal, :issymmetric, :ishermitian, :isposdef)
   @eval LinearAlgebra.$pred(::DiffEqIdentity) = true
 end

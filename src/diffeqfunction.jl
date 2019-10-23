@@ -207,9 +207,16 @@ end
 
 """
 $(TYPEDEF)
+
 TODO
 """
 abstract type AbstractSDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
+
+"""
+$(TYPEDEF)
+
+TODO
+"""
 struct SDDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG,TCV} <: AbstractSDDEFunction{iip}
   f::F
   g::G
