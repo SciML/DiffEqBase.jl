@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct EnsembleTestSolution{T,N,S} <: AbstractEnsembleSolution{T,N}
   u::S
@@ -21,8 +19,6 @@ end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct EnsembleSolution{T,N,S} <: AbstractEnsembleSolution{T,N}
   u::S
@@ -38,8 +34,6 @@ EnsembleSolution(sim::T,elapsedTime,converged) where T <: AbstractVector{T2} whe
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct EnsembleSummary{T,N,Tt,S,S2,S3,S4} <: AbstractEnsembleSolution{T,N}
   t::Tt

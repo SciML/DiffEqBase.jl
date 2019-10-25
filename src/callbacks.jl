@@ -5,8 +5,6 @@ INITIALIZE_DEFAULT(cb,u,t,integrator) = u_modified!(integrator, false)
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   condition::F1
@@ -59,8 +57,6 @@ end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct VectorContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   condition::F1
@@ -116,8 +112,6 @@ end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct DiscreteCallback{F1,F2,F3} <: AbstractDiscreteCallback
   condition::F1
@@ -136,8 +130,6 @@ DiscreteCallback(condition,affect!;
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct CallbackSet{T1<:Tuple,T2<:Tuple} <: DECallback
   continuous_callbacks::T1
@@ -658,8 +650,6 @@ end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 mutable struct CallbackCache{conditionType,signType}
   tmp_condition::conditionType

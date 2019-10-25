@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct NoiseProblem{N<:AbstractNoiseProcess,T,K} <: AbstractNoiseProblem
   noise::N

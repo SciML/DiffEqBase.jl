@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct EnsembleProblem{T,T2,T3,T4,T5} <: AbstractEnsembleProblem
   prob::T

@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct HermiteInterpolation{T1,T2,T3} <: AbstractDiffEqInterpolation
   t::T1
@@ -11,8 +9,6 @@ end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct LinearInterpolation{T1,T2} <: AbstractDiffEqInterpolation
   t::T1
@@ -21,8 +17,6 @@ end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct ConstantInterpolation{T1,T2} <: AbstractDiffEqInterpolation
   t::T1

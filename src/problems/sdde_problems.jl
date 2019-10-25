@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct SDDEProblem{uType,tType,lType,lType2,isinplace,P,NP,F,G,H,K,ND} <:
                           AbstractSDDEProblem{uType,tType,lType,isinplace,ND}

@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct PDEProblem{P,E,S} <: AbstractPDEProblem
   prob::P

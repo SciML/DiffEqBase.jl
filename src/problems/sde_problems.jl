@@ -1,14 +1,10 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct StandardSDEProblem end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct SDEProblem{uType,tType,isinplace,P,NP,F,G,K,ND} <: AbstractSDEProblem{uType,tType,isinplace,ND}
   f::F
@@ -58,15 +54,11 @@ end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 abstract type AbstractSplitSDEProblem end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct SplitSDEProblem{iip} <: AbstractSplitSDEProblem end
 # u' = Au + f

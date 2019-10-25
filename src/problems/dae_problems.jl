@@ -1,8 +1,6 @@
 # f(t,u,du,res) = 0
 """
 $(TYPEDEF)
-
-TODO
 """
 struct DAEProblem{uType,duType,tType,isinplace,P,F,K,D} <: AbstractDAEProblem{uType,duType,tType,isinplace}
   f::F

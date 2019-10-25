@@ -1,14 +1,10 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct StandardBVProblem end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct BVProblem{uType,tType,isinplace,P,F,bF,PT,K} <: AbstractBVProblem{uType,tType,isinplace}
     f::F
@@ -56,8 +52,6 @@ end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct TwoPointBVPFunction{bF}
     bc::bF
@@ -69,8 +63,6 @@ TwoPointBVPFunction(; bc = error("No argument bc")) = TwoPointBVPFunction(bc)
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct TwoPointBVProblem{iip} end
 function TwoPointBVProblem(f,bc,u0,tspan,p=NullParameters();kwargs...)

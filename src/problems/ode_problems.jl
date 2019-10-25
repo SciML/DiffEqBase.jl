@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct StandardODEProblem end
 
@@ -27,7 +25,7 @@ struct ODEProblem{uType,tType,isinplace,P,F,K,PT} <:
   p::P
   """A callback to be applied to every solver which uses the problem."""
   kwargs::K
-  """TODO"""
+  # TODO
   problem_type::PT
   @add_kwonly function ODEProblem{iip}(f::AbstractODEFunction{iip},
                                        u0,tspan,p=NullParameters(),
@@ -80,15 +78,11 @@ end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 abstract type AbstractDynamicalODEProblem end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct DynamicalODEProblem{iip} <: AbstractDynamicalODEProblem end
 # u' = f1(v)
@@ -127,8 +121,6 @@ end
 # u'' = f(t,u,du,ddu)
 """
 $(TYPEDEF)
-
-TODO
 """
 struct SecondOrderODEProblem{iip} <: AbstractDynamicalODEProblem end
 function SecondOrderODEProblem(f,du0,u0,tspan,p=NullParameters();kwargs...)
@@ -185,15 +177,11 @@ end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 abstract type AbstractSplitODEProblem end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct SplitODEProblem{iip} <: AbstractSplitODEProblem end
 # u' = Au + f

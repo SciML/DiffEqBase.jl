@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct DAESolution{T,N,uType,duType,uType2,DType,tType,P,A,ID,DE} <: AbstractDAESolution{T,N}
   u::uType

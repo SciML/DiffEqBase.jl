@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 mutable struct DEStats
   nf::Int

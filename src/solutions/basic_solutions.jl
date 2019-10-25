@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct LinearSolution{T,N,uType,R,P,A} <: AbstractLinearSolution{T,N}
   u::uType

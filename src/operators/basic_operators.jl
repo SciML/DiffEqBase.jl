@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct DiffEqIdentity{T,N} <: AbstractDiffEqLinearOperator{T} end
 

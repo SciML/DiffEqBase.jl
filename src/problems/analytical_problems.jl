@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct AnalyticalProblem{uType,tType,isinplace,P,F,K} <: AbstractAnalyticalProblem{uType,tType,isinplace}
   f::F

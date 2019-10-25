@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct SteadyStateSolution{T,N,uType,R,P,A} <: AbstractSteadyStateSolution{T,N}
   u::uType

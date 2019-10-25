@@ -59,8 +59,6 @@ const NO_COLOR = CSI"0"
 
 """
     @def name definition
-
-TODO
 """
 macro def(name, definition)
     return quote
