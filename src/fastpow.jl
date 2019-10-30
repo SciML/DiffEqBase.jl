@@ -69,7 +69,7 @@ const EXP2FT = (Float32(0x1.6a09e667f3bcdp-1),
     i0 &= TBLSIZE - 1
     t -= redux
     z = x - t
-    twopk = Float32(reinterpret(Float64, UInt(0x3ff00000 + k) << 32))
+    twopk = Float32(reinterpret(Float64, UInt64(0x3ff00000 + k) << 32))
 
     # Compute r = exp2(y) = exp2ft[i0] * p(z).
     tv = EXP2FT[i0+1]
