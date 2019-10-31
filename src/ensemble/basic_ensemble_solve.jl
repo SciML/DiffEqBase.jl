@@ -37,7 +37,7 @@ function __solve(prob::AbstractEnsembleProblem,
         @error "parallel_type value not recognized"
       end
     else
-      ensemblealg = EnsembleSerial()
+      ensemblealg = EnsembleThreads()
     end
     if :num_monte ∈ keys(kwargs)
       @warn "num_monte has been replaced by trajectories"
