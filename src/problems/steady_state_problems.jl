@@ -38,7 +38,7 @@ end
 $(SIGNATURES)
 
 Define a steady state problem using an instance of
-[`AbstractODEFunction`](@ref).
+[`AbstractODEFunction`](@ref DiffEqBase.AbstractODEFunction).
 """
 function SteadyStateProblem(f::AbstractODEFunction,u0,p=NullParameters();kwargs...)
   SteadyStateProblem{isinplace(f)}(f,u0,p;kwargs...)

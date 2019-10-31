@@ -233,6 +233,9 @@ abstract type EnsembleAlgorithm <: DiffEqBase.DEAlgorithm end
 
 # PDE Discretizations
 
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractDiscretization end
 
 # Monte Carlo Simulations
@@ -353,6 +356,9 @@ $(TYPEDEF)
 """
 abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractDiffEqArray{T,N} end
 
+"""
+Union of all base solution types.
+"""
 const DESolution = Union{AbstractTimeseriesSolution,
                          AbstractNoTimeSolution,
                          AbstractEnsembleSolution,
@@ -551,7 +557,6 @@ export resize!,deleteat!,addat!,get_tmp_cache,
 export LinearProblem, NonlinearProblem, QuadratureProblem
 
 export DiscreteProblem
-
 export SteadyStateProblem, SteadyStateSolution
 export NoiseProblem
 export ODEProblem, ODESolution

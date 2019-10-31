@@ -1,3 +1,6 @@
+"""
+$(TYPEDEF)
+"""
 struct LinearProblem{uType,isinplace,F,bType,P,K} <: AbstractLinearProblem{bType,isinplace}
     A::F
     b::bType
@@ -20,6 +23,9 @@ function LinearProblem(A,b,args...;kwargs...)
     end
 end
 
+"""
+$(TYPEDEF)
+"""
 struct NonlinearProblem{uType,isinplace,P,F,K} <: AbstractNonlinearProblem{uType,isinplace}
     f::F
     u0::uType
@@ -32,6 +38,9 @@ end
 
 NonlinearProblem(f,u0,args...;kwargs...) = NonlinearProblem{isinplace(f, 3)}(f,u0,args...;kwargs...)
 
+"""
+$(TYPEDEF)
+"""
 struct QuadratureProblem{isinplace,P,F,L,U,K} <: AbstractQuadratureProblem{isinplace}
     f::F
     lb::L

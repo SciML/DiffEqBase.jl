@@ -1,3 +1,6 @@
+"""
+$(TYPEDEF)
+"""
 struct ODESolution{T,N,uType,uType2,DType,tType,rateType,P,A,IType,DE} <: AbstractODESolution{T,N}
   u::uType
   u_analytic::uType2

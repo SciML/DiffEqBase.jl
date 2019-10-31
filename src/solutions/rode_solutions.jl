@@ -1,5 +1,8 @@
 ### Concrete Types
 
+"""
+$(TYPEDEF)
+"""
 struct RODESolution{T,N,uType,uType2,DType,tType,randType,P,A,IType,DE} <: AbstractRODESolution{T,N}
   u::uType
   u_analytic::uType2
