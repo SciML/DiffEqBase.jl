@@ -586,7 +586,7 @@ export LinSolveFactorize, LinSolveGPUFactorize, DefaultLinSolve, DEFAULT_LINSOLV
        LinSolveGMRES, LinSolveCG, LinSolveBiCGStabl, LinSolveChebyshev,
        LinSolveMINRES, LinSolveIterativeSolvers
 
-export AffineDiffEqOperator, update_coefficients!, update_coefficients, isconstant,
+export AffineDiffEqOperator, update_coefficients!, update_coefficients,
        has_expmv!, has_expmv, has_exp, has_mul, has_mul!, has_ldiv, has_ldiv!
 
 export DiffEqScalar, DiffEqArrayOperator, DiffEqIdentity

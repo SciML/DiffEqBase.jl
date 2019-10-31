@@ -1,4 +1,5 @@
 using DiffEqBase, Random, LinearAlgebra, Test
+using DiffEqBase: isconstant
 
 @testset "Identity Operators" begin
   u = [1.0, 2.0]; du = zeros(2)
