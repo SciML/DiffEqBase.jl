@@ -159,9 +159,9 @@ function check_error(integrator::DEIntegrator)
   end
   if !integrator.opts.force_dtmin && integrator.opts.adaptive &&
      abs(integrator.dt) <= abs(integrator.opts.dtmin) &&
-     (hasproperty(integrator,:opts) && hasproperty(integrator.opts,:tstops)) ?
+     ((hasproperty(integrator,:opts) && hasproperty(integrator.opts,:tstops)) ?
      integrator.t + integrator.dt < integrator.tdir*top(integrator.opts.tstops) :
-     true
+     true)
     if integrator.opts.verbose
       @warn("dt <= dtmin. Aborting. There is either an error in your model specification or the true solution is unstable.")
     end
