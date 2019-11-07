@@ -15,13 +15,13 @@ $(FIELDS)
 """
 struct ODEProblem{uType,tType,isinplace,P,F,K,PT} <:
                AbstractODEProblem{uType,tType,isinplace}
-  """The function in the ODE."""
+  """The ODE is `du/dt = f(u,p,t)`."""
   f::F
-  """The initial condition."""
+  """The initial condition is `u(tspan[1]) = u0`."""
   u0::uType
-  """The timespan for the problem."""
+  """The solution `u(t)` will be computed for `tspan[1] ≤ t ≤ tspan[2]`."""
   tspan::tType
-  """The parameter values of the ODE function."""
+  """Constant parameters to be supplied as the second argument of `f`."""
   p::P
   """A callback to be applied to every solver which uses the problem."""
   kwargs::K
