@@ -3,6 +3,8 @@ cuify(x) = error("To use LinSolveGPUFactorize, you must do `using CuArrays`")
 
 # Piracy, should get upstreamed
 LinearAlgebra.ldiv!(Y::AbstractArray, A::AbstractArray, B::AbstractArray) = (copyto!(Y,B); ldiv!(A,Y))
+LinearAlgebra.ldiv!(Y::AbstractArray, A::AbstractMatrix, B::AbstractArray) = (copyto!(Y,B); ldiv!(A,Y))
+LinearAlgebra.ldiv!(x,A::Diagonal,b) = (x .= A.diag .\ b)
 
 function __init__()
   @require ApproxFun="28f2ccd6-bb30-5033-b560-165f7b14dc2f" begin
