@@ -32,8 +32,7 @@ prob_nojac = ODEProblem(f,u0,tspan)
 @test_broken solve(prob_nojac,Rosenbrock23()).retcode == :Success
 @test solve(prob_nojac,Rosenbrock23(autodiff=false)).retcode == :Success
 @test solve(prob_nojac,Rosenbrock23(autodiff=false,diff_type = Val{:central})).retcode == :Success
-# hits a generic matmul fallback
-@test_broken solve(prob_nojac,Rosenbrock23(autodiff=false,diff_type = Val{:complex})).retcode == :Success
+@test solve(prob_nojac,Rosenbrock23(autodiff=false,diff_type = Val{:complex})).retcode == :Success
 
 prob_nojac_oop = ODEProblem{false}(f,u0,tspan)
 @test_broken solve(prob_nojac_oop,Rosenbrock23()).retcode == :Success
