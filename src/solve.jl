@@ -55,6 +55,10 @@ function solve(prob::DEProblem,args...;kwargs...)
     !(typeof(prob) <: NO_TSPAN_PROBS) &&
     adaptive_warn(_prob.u0,_prob.tspan)
     solve_call(_prob,args...;kwargs...)
+  elseif isempty(args) # Default algorithm handling
+    !(typeof(prob) <: NO_TSPAN_PROBS) &&
+    adaptive_warn(_prob.u0,_prob.tspan)
+    solve_call(_prob,args...;kwargs...)
   else
     solve_call(_prob,args...;kwargs...)
   end
