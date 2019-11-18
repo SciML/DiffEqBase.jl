@@ -31,6 +31,7 @@ TreeViews = "a2a6695c-b41b-5b7d-aed9-dbfdeacea5d7"
 
 [compat]
 ArrayInterface = "1.1"
+Compat = "2.2"
 DiffEqDiffTools = "1"
 IteratorInterfaceExtensions = "^0.1, ^1"
 MuladdMacro = ">= 0.2.1"
