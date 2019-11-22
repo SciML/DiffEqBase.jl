@@ -94,7 +94,7 @@ $(SIGNATURES)
 Emit a warning with a link to the solver compatibility chart in the documenation.
 """
 warn_compat() =
-    @warn("Please see http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html")
+    @warn("Please see http://docs.juliadiffeq.org/dev/basics/compatibility_chart.html")
 
 
 """
