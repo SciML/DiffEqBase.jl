@@ -140,7 +140,7 @@ last_step_failed(integrator::DEIntegrator) = false
     check_error(integrator)
 
 Check state of `integrator` and return one of the
-[Return Codes](http://docs.juliadiffeq.org/latest/basics/solution.html#Return-Codes-(RetCodes)-1)
+[Return Codes](http://docs.juliadiffeq.org/dev/basics/solution.html#Return-Codes-(RetCodes)-1)
 """
 function check_error(integrator::DEIntegrator)
   # This implementation is intended to be used for ODEIntegrator and
