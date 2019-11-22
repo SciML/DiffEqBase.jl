@@ -65,6 +65,14 @@ function solve(prob::DEProblem,args...;kwargs...)
 end
 
 function solve(prob::EnsembleProblem,args...;kwargs...)
+  if isempty(args)
+    __solve(prob,nothing,args...;kwargs...)
+  else
+    __solve(prob,args...;kwargs...)
+  end
+end
+
+function solve(prob::AbstractNoiseProblem,args...;kwargs...)
   __solve(prob,args...;kwargs...)
 end
 
