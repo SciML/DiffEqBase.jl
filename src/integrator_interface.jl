@@ -157,11 +157,15 @@ function check_error(integrator::DEIntegrator)
     end
     return :MaxIters
   end
+
+  # The last part:
+  # If you are close to the end, don't exit: let the user hit the end!
+  # However, if we try that and the step fails, exit instead of infinite loop
   if !integrator.opts.force_dtmin && integrator.opts.adaptive &&
      abs(integrator.dt) <= abs(integrator.opts.dtmin) &&
-     ((hasproperty(integrator,:opts) && hasproperty(integrator.opts,:tstops)) ?
+     (((hasproperty(integrator,:opts) && hasproperty(integrator.opts,:tstops)) ?
      integrator.t + integrator.dt < integrator.tdir*top(integrator.opts.tstops) :
-     true)
+     true) || (hasproperty(integrator,:accept_step) && !integrator.accept_step))
     if integrator.opts.verbose
       @warn("dt <= dtmin. Aborting. There is either an error in your model specification or the true solution is unstable.")
     end
