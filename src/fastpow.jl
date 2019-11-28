@@ -84,7 +84,7 @@ end
     fastpow(x::Real, y::Real) -> Float32
 """
 @inline function fastpow(x::Real, y::Real)
-    if x == zero(x)
+    if iszero(x)
         return 0f0
     elseif isinf(x) && isinf(y)
         return Float32(Inf)
