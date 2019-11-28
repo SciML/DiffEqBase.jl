@@ -86,6 +86,8 @@ end
 @inline function fastpow(x::Real, y::Real)
     if x == zero(x)
         return 0f0
+    elseif isinf(x) && isinf(y)
+        return Float32(Inf)
     else
         return _exp2(Float32(y) * fastlog2(convert(Float32, x)))
     end
