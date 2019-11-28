@@ -83,5 +83,13 @@ end
 """
     fastpow(x::Real, y::Real) -> Float32
 """
-@inline fastpow(x::Real, y::Real) = _exp2(Float32(y) * fastlog2(convert(Float32, x)))
+@inline function fastpow(x::Real, y::Real)
+    if iszero(x)
+        return 0f0
+    elseif isinf(x) && isinf(y)
+        return Float32(Inf)
+    else
+        return _exp2(Float32(y) * fastlog2(convert(Float32, x)))
+    end
+end
 @inline fastpow(x, y) = x^y
