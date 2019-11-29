@@ -19,9 +19,33 @@ Base.axes(A::DEDataArray) = axes(A.x)
 Base.LinearIndices(A::DEDataArray) = LinearIndices(A.x)
 Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
 
+Base.copy(A::DEDataArray) = deepcopy(A)
+
+# zero data arrays
+@generated function Base.zero(A::DEDataArray)
+    assignments = [s == :x ? :(zero(A.x)) :
+                   (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
+                   for s in fieldnames(A)]
+    :(DiffEqBase.parameterless_type(A)($(assignments...)))
+end
+
 # similar data arrays
 @generated function Base.similar(A::DEDataArray, ::Type{T}, dims::NTuple{N,Int}) where {T,N}
     assignments = [s == :x ? :(typeof(A.x) <: StaticArray ? similar(A.x, T, Size(A.x)) : similar(A.x, T, dims)) :
+                   (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
+                   for s in fieldnames(A)]
+    :(DiffEqBase.parameterless_type(A)($(assignments...)))
+end
+
+@generated function Base.similar(A::DEDataArray, ::Type{T}) where {T}
+    assignments = [s == :x ? :(typeof(A.x) <: StaticArray ? similar(A.x, T, Size(A.x)) : similar(A.x, T)) :
+                   (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
+                   for s in fieldnames(A)]
+    :(DiffEqBase.parameterless_type(A)($(assignments...)))
+end
+
+@generated function Base.similar(A::DEDataArray) where {T}
+    assignments = [s == :x ? :(typeof(A.x) <: StaticArray ? similar(A.x) : similar(A.x)) :
                    (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
                    for s in fieldnames(A)]
     :(DiffEqBase.parameterless_type(A)($(assignments...)))
@@ -103,3 +127,34 @@ end
 LinearAlgebra.ldiv!(A::DEDataArray,F::Factorization, B::DEDataArray) = ldiv!(A.x,F,B.x)
 LinearAlgebra.ldiv!(F::Factorization, B::DEDataArray) = ldiv!(F, B.x)
 LinearAlgebra.ldiv!(F::Factorization,A::Base.ReshapedArray{T1,T2,T3,T4}) where {T1,T2,T3<:DEDataArray,T4} = ldiv!(F,vec(A.parent.x))
+
+################# Broadcast ####################################################
+
+const DEDataArrayStyle = Broadcast.ArrayStyle{DEDataArray}
+Base.BroadcastStyle(::Type{<:DEDataArray}) = Broadcast.ArrayStyle{DEDataArray}()
+Base.BroadcastStyle(::Broadcast.ArrayStyle{DEDataArray},::Broadcast.ArrayStyle) = Broadcast.ArrayStyle{DEDataArray}()
+Base.BroadcastStyle(::Broadcast.ArrayStyle,::Broadcast.ArrayStyle{DEDataArray}) = Broadcast.ArrayStyle{DEDataArray}()
+Base.similar(bc::Broadcast.Broadcasted{Broadcast.ArrayStyle{DEDataArray}},::Type{ElType}) where ElType = similar(find_dedata(bc))
+
+find_dedata(bc::Base.Broadcast.Broadcasted) = find_dedata(bc.args)
+function find_dedata(args::Tuple)
+  !isempty(args) && find_dedata(find_dedata(args[1]), Base.tail(args))
+end
+find_dedata(x) = x
+find_dedata(a::DEDataArray, rest) = a
+find_dedata(::Any, rest) = find_dedata(rest)
+
+@inline function Base.copy(bc::Broadcast.Broadcasted{DEDataArrayStyle})
+    out = find_dedata(bc)
+    copy_fields(copy(unpack(bc)), out)
+end
+
+# drop DEData part
+@inline unpack(bc::Broadcast.Broadcasted{Style}) where Style = Broadcast.Broadcasted{Style}(bc.f, unpack_args(bc.args))
+@inline unpack(bc::Broadcast.Broadcasted{DEDataArrayStyle}) = Broadcast.Broadcasted(bc.f, unpack_args(bc.args))
+unpack(x) = x
+unpack(x::DEDataArray) = x.x
+
+@inline unpack_args(args::Tuple) = (unpack(args[1]), unpack_args(Base.tail(args))...)
+unpack_args(args::Tuple{Any}) = (unpack(args[1]),)
+unpack_args(::Any, args::Tuple{}) = ()
