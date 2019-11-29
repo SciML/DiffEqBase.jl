@@ -11,13 +11,13 @@ mutable struct MatrixType{T,S} <: DEDataMatrix{T}
 end
 
 A = [0.0; 1.0]
-B = [1  2; 4  3]
+B = [1.0  2; 4  3]
 
 a = VectorType{Float64}(copy(A), 1.0)
-b = MatrixType{Int,Float64}(2.0, copy(B))
+b = MatrixType{Float64,Float64}(2.0, copy(B))
 
 # basic methods of AbstractArray interface
-@test eltype(a) == Float64 && eltype(b) == Int
+@test eltype(a) == Float64 && eltype(b) == Float64
 
 # size
 @test length(a) == 2 && length(b) == 4
@@ -47,12 +47,13 @@ a[:] = A; b[:, 1] = B[1:2]
 # simple broadcasts
 @test [1//2] .* a == [0.0; 0.5]
 @test b ./ 2 ==  [0.5  1.0; 2.0  1.5]
-@test a .+ b == [1.0  2.0; 5.0  4.0]
+@test b .+ a  == [1.0  2.0; 5.0  4.0]
+@test_broken a .+ b  == [1.0  2.0; 5.0  4.0] # Doesn't find the largest
 
 # similar data arrays
 a2 = similar(a); b2 = similar(b, (1,4)); b3 = similar(b, Float64, (1, 4))
 @test typeof(a2.x) == Vector{Float64} && a2.f == 1.0
-@test typeof(b2.x) == Matrix{Int} && b2.f == 2.0
+@test typeof(b2.x) == Matrix{Float64} && b2.f == 2.0
 @test typeof(b3.x) == Matrix{Float64} && b3.f == 2.0
 
 # copy all fields of data arrays
@@ -76,9 +77,14 @@ a3 = DiffEqBase.copy_fields([1.0; 0.0], a)
 a.f = 0.0
 a .= a2 .+ a3
 @test a == VectorType{Float64}([1.0; 1.0], 0.0)
+@test a == a2 .+ a3
+@test (a2 .+ a3) isa VectorType
 
+old_b = copy(b)
 b .= b .^ 2 .+ a3
 @test b == MatrixType{Int,Float64}(-1.0, [2  5; 16  9])
+@test b == old_b .^ 2 .+ a3
+@test (b .^ 2 .+ a3) isa MatrixType
 
 using StaticArrays
 
@@ -87,5 +93,15 @@ mutable struct SimWorkspace{T} <: DEDataVector{T}
   x::MVector{2,T}
   a::T
 end
-s0   = SimWorkspace{Float64}(MVector{2,Float64}(0,0),1.)
+s0   = SimWorkspace{Float64}(MVector{2,Float64}(1.0,4.0),1.)
 similar(s0,Float64,size(s0))
+s1   = SimWorkspace{Float64}(MVector{2,Float64}(2.0,1.0),1.)
+s0 .+ s1 == SimWorkspace{Float64}(MVector{2,Float64}(3.0,5.0),1.)
+
+mutable struct SimWorkspace2{T} <: DEDataVector{T}
+  x::SVector{2,T}
+  a::T
+end
+s0   = SimWorkspace2{Float64}(SVector{2,Float64}(1.0,4.0),1.)
+s1   = SimWorkspace2{Float64}(SVector{2,Float64}(2.0,1.0),1.)
+s0 .+ s1 == SimWorkspace2{Float64}(SVector{2,Float64}(3.0,5.0),1.)

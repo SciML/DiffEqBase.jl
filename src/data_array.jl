@@ -103,3 +103,19 @@ end
 LinearAlgebra.ldiv!(A::DEDataArray,F::Factorization, B::DEDataArray) = ldiv!(A.x,F,B.x)
 LinearAlgebra.ldiv!(F::Factorization, B::DEDataArray) = ldiv!(F, B.x)
 LinearAlgebra.ldiv!(F::Factorization,A::Base.ReshapedArray{T1,T2,T3,T4}) where {T1,T2,T3<:DEDataArray,T4} = ldiv!(F,vec(A.parent.x))
+
+################# Broadcast ####################################################
+
+const DEDataArrayStyle = Broadcast.ArrayStyle{DEDataArray}
+Base.BroadcastStyle(::Type{<:DEDataArray}) = Broadcast.ArrayStyle{DEDataArray}()
+Base.BroadcastStyle(::Broadcast.ArrayStyle{DEDataArray},::Broadcast.ArrayStyle) = Broadcast.ArrayStyle{DEDataArray}()
+Base.BroadcastStyle(::Broadcast.ArrayStyle,::Broadcast.ArrayStyle{DEDataArray}) = Broadcast.ArrayStyle{DEDataArray}()
+Base.similar(bc::Broadcast.Broadcasted{Broadcast.ArrayStyle{DEDataArray}},::Type{ElType}) where ElType = similar(find_dedata(bc))
+
+find_dedata(bc::Base.Broadcast.Broadcasted) = find_dedata(bc.args)
+function find_dedata(args::Tuple)
+  !isempty(args) && find_dedata(find_dedata(args[1]), Base.tail(args))
+end
+find_dedata(x) = x
+find_dedata(a::DEDataArray, rest) = a
+find_dedata(::Any, rest) = find_dedata(rest)
