@@ -1,6 +1,6 @@
 # https://github.com/JuliaDiffEq/DifferentialEquations.jl/issues/525
 
-using OrdinaryDiffEq, StaticArrays
+using OrdinaryDiffEq, StaticArrays, Test
 
 mutable struct SimType{T} <: DEDataVector{T}
     x::Array{T,1}
@@ -40,11 +40,25 @@ function affect2!(integrator)
   end
 end
 
+function affect!_oop(integrator)
+  integrator.u.f1 = 1.5
+end
+
+function affect2!_oop(integrator)
+  integrator.u.f1 = 1.5
+end
+
 save_positions = (true,true)
 cb = DiscreteCallback(condition, affect!, save_positions=save_positions)
 save_positions = (false,true)
 cb2 = DiscreteCallback(condition2, affect2!, save_positions=save_positions)
 cbs = CallbackSet(cb,cb2)
+
+cb_oop = DiscreteCallback(condition, affect!_oop, save_positions=save_positions)
+save_positions = (false,true)
+cb2_oop = DiscreteCallback(condition2, affect2!_oop, save_positions=save_positions)
+cbs_oop = CallbackSet(cb_oop,cb2_oop)
+
 u0 = SimType([10.0;10.0], 0.0)
 
 prob_inplace = ODEProblem(f!,u0,(0.0,10.0))
@@ -53,7 +67,7 @@ prob = ODEProblem(f,u0,(0.0,10.0))
 const tstop = [5.;8.]
 
 sol = solve(prob_inplace,Tsit5(),callback = cbs, tstops=tstop)
-sol = solve(prob,Tsit5(),callback = cbs, tstops=tstop)
+sol = solve(prob,Tsit5(),callback = cbs_oop, tstops=tstop)
 
 # https://github.com/JuliaDiffEq/DifferentialEquations.jl/issues/336
 
