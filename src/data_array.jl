@@ -143,3 +143,18 @@ end
 find_dedata(x) = x
 find_dedata(a::DEDataArray, rest) = a
 find_dedata(::Any, rest) = find_dedata(rest)
+
+@inline function Base.copy(bc::Broadcast.Broadcasted{DEDataArrayStyle})
+    out = find_dedata(bc)
+    copy_fields(copy(unpack(bc)), out)
+end
+
+# drop DEData part
+@inline unpack(bc::Broadcast.Broadcasted{Style}) where Style = Broadcast.Broadcasted{Style}(bc.f, unpack_args(bc.args))
+@inline unpack(bc::Broadcast.Broadcasted{DEDataArrayStyle}) = Broadcast.Broadcasted(bc.f, unpack_args(bc.args))
+unpack(x) = x
+unpack(x::DEDataArray) = x.x
+
+@inline unpack_args(args::Tuple) = (unpack(args[1]), unpack_args(Base.tail(args))...)
+unpack_args(args::Tuple{Any}) = (unpack(args[1]),)
+unpack_args(::Any, args::Tuple{}) = ()
