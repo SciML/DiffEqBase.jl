@@ -19,9 +19,33 @@ Base.axes(A::DEDataArray) = axes(A.x)
 Base.LinearIndices(A::DEDataArray) = LinearIndices(A.x)
 Base.IndexStyle(::Type{<:DEDataArray}) = Base.IndexLinear()
 
+Base.copy(A::DEDataArray) = deepcopy(A)
+
+# zero data arrays
+@generated function Base.zero(A::DEDataArray)
+    assignments = [s == :x ? :(zero(A.x)) :
+                   (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
+                   for s in fieldnames(A)]
+    :(DiffEqBase.parameterless_type(A)($(assignments...)))
+end
+
 # similar data arrays
 @generated function Base.similar(A::DEDataArray, ::Type{T}, dims::NTuple{N,Int}) where {T,N}
     assignments = [s == :x ? :(typeof(A.x) <: StaticArray ? similar(A.x, T, Size(A.x)) : similar(A.x, T, dims)) :
+                   (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
+                   for s in fieldnames(A)]
+    :(DiffEqBase.parameterless_type(A)($(assignments...)))
+end
+
+@generated function Base.similar(A::DEDataArray, ::Type{T}) where {T}
+    assignments = [s == :x ? :(typeof(A.x) <: StaticArray ? similar(A.x, T, Size(A.x)) : similar(A.x, T)) :
+                   (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
+                   for s in fieldnames(A)]
+    :(DiffEqBase.parameterless_type(A)($(assignments...)))
+end
+
+@generated function Base.similar(A::DEDataArray) where {T}
+    assignments = [s == :x ? :(typeof(A.x) <: StaticArray ? similar(A.x) : similar(A.x)) :
                    (sq = Meta.quot(s); :(deepcopy(getfield(A, $sq))))
                    for s in fieldnames(A)]
     :(DiffEqBase.parameterless_type(A)($(assignments...)))
