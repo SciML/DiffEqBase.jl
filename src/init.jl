@@ -63,6 +63,8 @@ function __init__()
 
     value(x::Type{Measurements.Measurement{T}}) where {T} = T
     value(x::Measurements.Measurement) = Measurements.value(x)
+    
+    @inline fastpow(x::Measurements.Measurement, y::Measurements.Measurement) = x^y
 
     # Support adaptive steps should be errorless
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Measurements.Measurement,N},t) where {N}
@@ -78,6 +80,8 @@ function __init__()
 
     value(x::Type{MonteCarloMeasurements.AbstractParticles{T,N}}) where {T,N} = T
     value(x::MonteCarloMeasurements.AbstractParticles) = mean(x)
+    
+    @inline fastpow(x::MonteCarloMeasurements.AbstractParticles, y::MonteCarloMeasurements.AbstractParticles) = x^y
 
     # Support adaptive steps should be errorless
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:MonteCarloMeasurements.AbstractParticles,N},t) where {N}
@@ -108,6 +112,8 @@ function __init__()
     value(x::Type{Tracker.TrackedArray{T,N,A}}) where {T,N,A} = Array{T,N}
     value(x::Tracker.TrackedReal)  = x.data
     value(x::Tracker.TrackedArray) = x.data
+    
+    @inline fastpow(x::Tracker.TrackedReal, y::Tracker.TrackedReal) = x^y
 
     # Support adaptive with non-tracked time
     @inline function ODE_DEFAULT_NORM(u::Tracker.TrackedArray,t) where {N}
