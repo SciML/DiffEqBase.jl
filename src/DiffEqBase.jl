@@ -5,6 +5,8 @@ using RecipesBase, RecursiveArrayTools, Compat,
       IterativeSolvers, RecursiveFactorization, Distributed, ArrayInterface,
       DataStructures
 
+import ZygoteRules
+
 using Roots # callbacks
 
 using StaticArrays # data arrays
@@ -513,6 +515,7 @@ include("tabletraits.jl")
 include("alg_traits.jl")
 include("remake.jl")
 include("init.jl")
+include("zygote.jl")
 
 """
 $(TYPEDEF)
