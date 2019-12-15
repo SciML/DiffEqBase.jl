@@ -22,6 +22,7 @@ Base.resize!(i::DEIntegrator,ii::Int) = error("resize!: method has not been impl
 
 Shrinks the ODE by deleting the `idxs` components.
 """
+
 Base.deleteat!(i::DEIntegrator,ii) = error("deleteat!: method has not been implemented for the integrator")
 
 """

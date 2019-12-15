@@ -11,7 +11,7 @@ Contains a single callback whose `condition` is a continuous function. The callb
 # Arguments
 - `condition`: This is a function `condition(u,t,integrator)` for declaring when
   the callback should be used. A callback is initiated if the condition hits
-  `0` within the time interval. See the [Integrator Interface](@ref) documentation for information about `integrator`.
+  `0` within the time interval. See the [Integrator Interface](@ref integrator) documentation for information about `integrator`.
 - `affect!`: This is the function `affect!(integrator)` where one is allowed to
   modify the current state of the integrator. If you do not pass an `affect_neg!`
   function, it is called when `condition` is found to be `0` (at a root) and
@@ -19,13 +19,13 @@ Contains a single callback whose `condition` is a continuous function. The callb
   (from positive to negative). You need to explicitly pass `nothing` as the
   `affect_neg!` argument if it should only be called at upcrossings, e.g.
   `ContinuousCallback(condition, affect!, nothing)`. For more information on what can
-  be done, see the [Integrator Interface](@ref) manual page. Modifications to
+  be done, see the [Integrator Interface](@ref integrator) manual page. Modifications to
   `u` are safe in this function.
 - `affect_neg!=affect!`: This is the function `affect_neg!(integrator)` where one is allowed to
   modify the current state of the integrator. This is called when `condition` is
   found to be `0` (at a root) and the cross is an downcrossing (from positive to
   negative). For more information on what can
-  be done, see the [Integrator Interface](@ref) manual page. Modifications to
+  be done, see the [Integrator Interface](@ref integrator) manual page. Modifications to
   `u` are safe in this function.
 - `rootfind=true`: This is a boolean for whether to rootfind the event location. If
   this is set to `true`, the solution will be backtracked to the point where
@@ -178,10 +178,10 @@ $(TYPEDEF)
 
 - `condition`: This is a function `condition(u,t,integrator)` for declaring when
   the callback should be used. A callback is initiated if the condition evaluates
-  to `true`. See the [Integrator Interface](@ref) documentation for information about `integrator`.
+  to `true`. See the [Integrator Interface](@ref integrator) documentation for information about `integrator`.
 - `affect!`: This is the function `affect!(integrator)` where one is allowed to
   modify the current state of the integrator. For more information on what can
-  be done, see the [Integrator Interface](@ref) manual page.
+  be done, see the [Integrator Interface](@ref integrator) manual page.
 - `save_positions`: Boolean tuple for whether to save before and after the `affect!`.
   This saving will occur just before and after the event, only at event times, and
   does not depend on options like `saveat`, `save_everystep`, etc. (i.e. if
