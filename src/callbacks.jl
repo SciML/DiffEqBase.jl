@@ -5,6 +5,52 @@ INITIALIZE_DEFAULT(cb,u,t,integrator) = u_modified!(integrator, false)
 
 """
 $(TYPEDEF)
+
+Contains a single callback whose `condition` is a continuous function. The callback is triggered when this function evaluates to 0.
+
+# Arguments
+- `condition`: This is a function `condition(u,t,integrator)` for declaring when
+  the callback should be used. A callback is initiated if the condition hits
+  `0` within the time interval. See the [Integrator Interface](@ref integrator) documentation for information about `integrator`.
+- `affect!`: This is the function `affect!(integrator)` where one is allowed to
+  modify the current state of the integrator. If you do not pass an `affect_neg!`
+  function, it is called when `condition` is found to be `0` (at a root) and
+  the cross is either an upcrossing (from negative to positive) or a downcrossing
+  (from positive to negative). You need to explicitly pass `nothing` as the
+  `affect_neg!` argument if it should only be called at upcrossings, e.g.
+  `ContinuousCallback(condition, affect!, nothing)`. For more information on what can
+  be done, see the [Integrator Interface](@ref integrator) manual page. Modifications to
+  `u` are safe in this function.
+- `affect_neg!=affect!`: This is the function `affect_neg!(integrator)` where one is allowed to
+  modify the current state of the integrator. This is called when `condition` is
+  found to be `0` (at a root) and the cross is an downcrossing (from positive to
+  negative). For more information on what can
+  be done, see the [Integrator Interface](@ref integrator) manual page. Modifications to
+  `u` are safe in this function.
+- `rootfind=true`: This is a boolean for whether to rootfind the event location. If
+  this is set to `true`, the solution will be backtracked to the point where
+  `condition==0`. Otherwise the systems and the `affect!` will occur at `t+dt`.
+- `interp_points=10`: The number of interpolated points to check the condition. The
+  condition is found by checking whether any interpolation point / endpoint has
+  a different sign. If `interp_points=0`, then conditions will only be noticed if
+  the sign of `condition` is different at `t` than at `t+dt`. This behavior is not
+  robust when the solution is oscillatory, and thus it's recommended that one use
+  some interpolation points (they're cheap to compute!).
+  `0` within the time interval.
+- `save_positions=(true,true)`: Boolean tuple for whether to save before and after the `affect!`.
+  This saving will occur just before and after the event, only at event times, and
+  does not depend on options like `saveat`, `save_everystep`, etc. (i.e. if
+  `saveat=[1.0,2.0,3.0]`, this can still add a save point at `2.1` if true).
+  For discontinuous changes like a modification to `u` to be
+  handled correctly (without error), one should set `save_positions=(true,true)`.
+- `idxs=nothing`: The components which will be interpolated into the condition. Defaults
+  to `nothing` which means `u` will be all components.
+- `initialize`: This is a function (c,u,t,integrator) which can be used to initialize
+  the state of the callback `c`. It should modify the argument `c` and the return is
+  ignored.
+- `abstol=1e-14` & `reltol=0`: These are used to specify a tolerance from zero for the rootfinder:
+  if the starting condition is less than the tolerance from zero, then no root will be detected.
+  This is to stop repeat events happening just after a previously rootfound event.
 """
 struct ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   condition::F1
@@ -57,6 +103,21 @@ end
 
 """
 $(TYPEDEF)
+
+This is also a subtype of `AbstractContinuousCallback`. `CallbackSet` is not feasible when you have a large number of callbacks,
+as it doesn't scale well. For this reason, we have `VectorContinuousCallback` - it allows you to have a single callback for
+multiple events.
+
+# Arguments
+
+- `condition`: This is a function `condition(out, u, t, integrator)` which should save the condition value in the array `out`
+   at the right index. Maximum index of `out` should be specified in the `len` property of callback. So this way you can have
+   a chain of `len` events, which would cause the `i`th event to trigger when `out[i] = 0`.
+- `affect!`: This is a function `affect!(integrator, event_index)` which lets you modify `integrator` and it tells you about 
+   which event occured using `event_idx` i.e. gives you index `i` for which `out[i]` came out to be zero.
+- `len`: Number of callbacks chained. This is compulsory to be specified.
+
+Rest of the arguments have the same meaning as in [`ContinuousCallback`](@ref). 
 """
 struct VectorContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   condition::F1
@@ -112,6 +173,24 @@ end
 
 """
 $(TYPEDEF)
+
+# Arguments
+
+- `condition`: This is a function `condition(u,t,integrator)` for declaring when
+  the callback should be used. A callback is initiated if the condition evaluates
+  to `true`. See the [Integrator Interface](@ref integrator) documentation for information about `integrator`.
+- `affect!`: This is the function `affect!(integrator)` where one is allowed to
+  modify the current state of the integrator. For more information on what can
+  be done, see the [Integrator Interface](@ref integrator) manual page.
+- `save_positions`: Boolean tuple for whether to save before and after the `affect!`.
+  This saving will occur just before and after the event, only at event times, and
+  does not depend on options like `saveat`, `save_everystep`, etc. (i.e. if
+  `saveat=[1.0,2.0,3.0]`, this can still add a save point at `2.1` if true).
+  For discontinuous changes like a modification to `u` to be
+  handled correctly (without error), one should set `save_positions=(true,true)`.
+- `initialize`: This is a function (c,u,t,integrator) which can be used to initialize
+  the state of the callback `c`. It should modify the argument `c` and the return is
+  ignored.
 """
 struct DiscreteCallback{F1,F2,F3} <: AbstractDiscreteCallback
   condition::F1
@@ -126,10 +205,28 @@ end
 DiscreteCallback(condition,affect!;
         initialize = INITIALIZE_DEFAULT,save_positions=(true,true)) = DiscreteCallback(condition,affect!,initialize,save_positions)
 
-# DiscreteCallback(condition,affect!,save_positions) = DiscreteCallback(condition,affect!,save_positions)
-
 """
 $(TYPEDEF)
+
+Multiple callbacks can be chained together to form a `CallbackSet`. A `CallbackSet`
+is constructed by passing the constructor `ContinuousCallback`, `DiscreteCallback`,
+`VectorContinuousCallback` or other `CallbackSet` instances:
+
+    CallbackSet(cb1,cb2,cb3)
+
+You can pass as many callbacks as you like. When the solvers encounter multiple
+callbacks, the following rules apply:
+
+* `ContinuousCallback`s and `VectorContinuousCallback`s are applied before `DiscreteCallback`s. (This is because
+  they often implement event-finding that will backtrack the timestep to smaller
+  than `dt`).
+* For `ContinuousCallback`s and `VectorContinuousCallback`s, the event times are found by rootfinding and only
+  the first `ContinuousCallback` or `VectorContinuousCallback` affect is applied.
+* The `DiscreteCallback`s are then applied in order. Note that the ordering only
+  matters for the conditions: if a previous callback modifies `u` in such a way
+  that the next callback no longer evaluates condition to `true`, its `affect`
+  will not be applied.
+
 """
 struct CallbackSet{T1<:Tuple,T2<:Tuple} <: DECallback
   continuous_callbacks::T1
@@ -144,6 +241,11 @@ CallbackSet(cb::Nothing) = CallbackSet()
 # For Varargs, use recursion to make it type-stable
 CallbackSet(callbacks::Union{DECallback,Nothing}...) = CallbackSet(split_callbacks((), (), callbacks...)...)
 
+"""
+    split_callbacks(cs, ds, args...)
+
+Split comma seperated callbacks into sets of continous and discrete callbacks.
+"""
 @inline split_callbacks(cs, ds) = cs, ds
 @inline split_callbacks(cs, ds, c::Nothing, args...) = split_callbacks(cs, ds, args...)
 @inline split_callbacks(cs, ds, c::AbstractContinuousCallback, args...) = split_callbacks((cs..., c), ds, args...)
@@ -152,7 +254,11 @@ CallbackSet(callbacks::Union{DECallback,Nothing}...) = CallbackSet(split_callbac
   split_callbacks((cs...,d.continuous_callbacks...), (ds..., d.discrete_callbacks...), args...)
 end
 
-# Recursively apply initialize! and return whether any modified u
+"""
+    initialize!(cb::CallbackSet,u,t,integrator::DEIntegrator)
+
+Recursively apply `initialize!` and return whether any modified u
+"""
 function initialize!(cb::CallbackSet,u,t,integrator::DEIntegrator)
   initialize!(u,t,integrator,false,cb.continuous_callbacks...,cb.discrete_callbacks...)
 end
