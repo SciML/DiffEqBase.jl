@@ -63,7 +63,7 @@ function __init__()
 
     value(x::Type{Measurements.Measurement{T}}) where {T} = T
     value(x::Measurements.Measurement) = Measurements.value(x)
-    
+
     @inline fastpow(x::Measurements.Measurement, y::Measurements.Measurement) = x^y
 
     # Support adaptive steps should be errorless
@@ -80,7 +80,7 @@ function __init__()
 
     value(x::Type{MonteCarloMeasurements.AbstractParticles{T,N}}) where {T,N} = T
     value(x::MonteCarloMeasurements.AbstractParticles) = mean(x)
-    
+
     @inline fastpow(x::MonteCarloMeasurements.AbstractParticles, y::MonteCarloMeasurements.AbstractParticles) = x^y
 
     # Support adaptive steps should be errorless
@@ -112,7 +112,7 @@ function __init__()
     value(x::Type{Tracker.TrackedArray{T,N,A}}) where {T,N,A} = Array{T,N}
     value(x::Tracker.TrackedReal)  = x.data
     value(x::Tracker.TrackedArray) = x.data
-    
+
     @inline fastpow(x::Tracker.TrackedReal, y::Tracker.TrackedReal) = x^y
 
     # Support adaptive with non-tracked time
@@ -157,5 +157,11 @@ function __init__()
       CuArrays.unsafe_free!(A)
       out
     end
+  end
+
+  @require GeneralizedGenerated="6b9d7cbe-bcb9-11e9-073f-15a7a543e2eb" begin
+    get_args(::GeneralizedGenerated.RuntimeFn{Args}) where Args = Args
+    numargs(ff::GeneralizedGenerated.RuntimeFn) = _get_numargs(get_args(ff),0)
+    _get_numargs(T,i) = length(T.parameters) >= 3 ? _get_numargs(T.parameters[3],i+1) : i
   end
 end
