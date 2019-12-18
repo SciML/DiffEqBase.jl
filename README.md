@@ -14,7 +14,7 @@ functionality in full should check out [DifferentialEquations.jl](https://github
 
 The documentation for the interfaces here can be found in [DiffEqDocs.jl](https://juliadiffeq.github.io/DiffEqDocs.jl/dev/) and [DiffEqDevDocs.jl](https://juliadiffeq.github.io/DiffEqDevDocs.jl/dev/). Specific parts to note are:
 
-- [Overview](https://juliadiffeq.github.io/DiffEqDevDocs.jl/dev/contributing/ecosystem_overview.html)
-- [Developing a Problem](https://juliadiffeq.github.io/DiffEqDevDocs.jl/dev/contributing/defining_problems.html)
-- [The Common Solver Options](https://juliadiffeq.github.io/DiffEqDocs.jl/dev/basics/common_solver_opts.html)
-- [Performance Overloads Interface](https://juliadiffeq.github.io/DiffEqDocs.jl/dev/features/performance_overloads.html)
+- [Overview](https://juliadiffeq.github.io/DiffEqDevDocs.jl/dev/contributing/ecosystem_overview/index.html)
+- [Developing a Problem](https://juliadiffeq.github.io/DiffEqDevDocs.jl/dev/contributing/defining_problems/index.html)
+- [The Common Solver Options](https://juliadiffeq.github.io/DiffEqDocs.jl/dev/basics/common_solver_opts/index.html)
+- [Performance Overloads Interface](https://juliadiffeq.github.io/DiffEqDocs.jl/dev/features/performance_overloads/index.html)
