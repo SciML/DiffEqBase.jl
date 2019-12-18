@@ -157,6 +157,16 @@ function __init__()
       CuArrays.unsafe_free!(A)
       out
     end
+
+    @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
+      @inline function ODE_DEFAULT_NORM(u::CuArrays.CuArray{<:ForwardDiff.Dual},t)
+        sqrt(sum(abs2,value.(u)) / length(u))
+      end
+
+      @inline function ODE_DEFAULT_NORM(u::CuArrays.CuArray{<:ForwardDiff.Dual},t::ForwardDiff.Dual)
+        sqrt(sum(abs2,u) / length(u))
+      end
+    end
   end
 
   @require GeneralizedGenerated="6b9d7cbe-bcb9-11e9-073f-15a7a543e2eb" begin
