@@ -170,8 +170,6 @@ function __init__()
   end
 
   @require GeneralizedGenerated="6b9d7cbe-bcb9-11e9-073f-15a7a543e2eb" begin
-    get_args(::GeneralizedGenerated.RuntimeFn{Args}) where Args = Args
-    numargs(ff::GeneralizedGenerated.RuntimeFn) = _get_numargs(get_args(ff),0)
-    _get_numargs(T,i) = length(T.parameters) >= 3 ? _get_numargs(T.parameters[3],i+1) : i
+    numargs(::GeneralizedGenerated.RuntimeFn{Args}) where Args = GeneralizedGenerated.from_type(Args) |> length
   end
 end
