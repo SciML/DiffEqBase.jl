@@ -368,7 +368,7 @@ ODEFunction(f::ODEFunction; kwargs...) = f
               typeof(cache),typeof(analytic),typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp),
               typeof(jac_prototype),
               typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
-              typeof(colorvec)}(f1,f2,mass_matrix,cache,analytic,tgrad,jac,
+              typeof(colorvec)}(f1,f2,mass_matrix,cache,analytic,tgrad,jac,jvp,vjp,
               jac_prototype,Wfact,Wfact_t,paramjac,syms,colorvec)
 end
 function SplitFunction{iip,true}(f1,f2;
