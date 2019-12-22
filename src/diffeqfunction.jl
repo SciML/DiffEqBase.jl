@@ -8,12 +8,14 @@ abstract type AbstractODEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
+struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
   f::F
   mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jvp::JVP
+  vjp::VJP
   jac_prototype::JP
   Wfact::TW
   Wfact_t::TWt
@@ -25,7 +27,7 @@ end
 """
 $(TYPEDEF)
 """
-struct SplitFunction{iip,F1,F2,TMM,C,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
+struct SplitFunction{iip,F1,F2,TMM,C,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
   f1::F1
   f2::F2
   mass_matrix::TMM
@@ -33,6 +35,8 @@ struct SplitFunction{iip,F1,F2,TMM,C,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractOD
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jvp::JVP
+  vjp::VJP
   jac_prototype::JP
   Wfact::TW
   Wfact_t::TWt
@@ -59,12 +63,14 @@ abstract type AbstractDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractDDEFunction{iip}
+struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractDDEFunction{iip}
   f::F
   mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jvp::JVP
+  vjp::VJP
   jac_prototype::JP
   Wfact::TW
   Wfact_t::TWt
@@ -95,13 +101,15 @@ abstract type AbstractSDEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG,TCV} <: AbstractSDEFunction{iip}
+struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,GG,TCV} <: AbstractSDEFunction{iip}
   f::F
   g::G
   mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jvp::JVP
+  vjp::VJP
   jac_prototype::JP
   Wfact::TW
   Wfact_t::TWt
@@ -114,7 +122,7 @@ end
 """
 $(TYPEDEF)
 """
-struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractSDEFunction{iip}
+struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractSDEFunction{iip}
   f1::F1
   f2::F2
   g::G
@@ -123,6 +131,8 @@ struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: Abstr
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jvp::JVP
+  vjp::VJP
   jac_prototype::JP
   Wfact::TW
   Wfact_t::TWt
@@ -139,12 +149,14 @@ abstract type AbstractRODEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractRODEFunction{iip}
+struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractRODEFunction{iip}
   f::F
   mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jvp::JVP
+  vjp::VJP
   jac_prototype::JP
   Wfact::TW
   Wfact_t::TWt
@@ -161,11 +173,13 @@ abstract type AbstractDAEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct DAEFunction{iip,F,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,TCV} <: AbstractDAEFunction{iip}
+struct DAEFunction{iip,F,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractDAEFunction{iip}
   f::F
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jvp::JVP
+  vjp::VJP
   jac_prototype::JP
   Wfact::TW
   Wfact_t::TWt
@@ -183,13 +197,15 @@ abstract type AbstractSDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct SDDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JP,TW,TWt,TPJ,S,GG,TCV} <: AbstractSDDEFunction{iip}
+struct SDDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,GG,TCV} <: AbstractSDDEFunction{iip}
   f::F
   g::G
   mass_matrix::TMM
   analytic::Ta
   tgrad::Tt
   jac::TJ
+  jvp::JVP
+  vjp::VJP
   jac_prototype::JP
   Wfact::TW
   Wfact_t::TWt
@@ -271,6 +287,8 @@ function ODEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jvp=nothing,
+                 vjp=nothing,
                  jac_prototype=nothing,
                  Wfact=nothing,
                  Wfact_t=nothing,
@@ -297,9 +315,9 @@ function ODEFunction{iip,true}(f;
                  end
 
                  ODEFunction{iip,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+                 typeof(jac),typeof(jvp),typeof(vjp)typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
                  typeof(paramjac),typeof(syms),typeof(_colorvec)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+                 f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
 end
 function ODEFunction{iip,false}(f;
@@ -307,6 +325,8 @@ function ODEFunction{iip,false}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jvp=nothing,
+                 vjp=nothing,
                  jac_prototype=nothing,
                  Wfact=nothing,
                  Wfact_t=nothing,
@@ -331,7 +351,7 @@ function ODEFunction{iip,false}(f;
                  ODEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms),typeof(_colorvec)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+                 f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
 end
 ODEFunction{iip}(f; kwargs...) where iip = ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
@@ -345,7 +365,7 @@ ODEFunction(f::ODEFunction; kwargs...) = f
   f1 = typeof(f1) <: AbstractDiffEqOperator ? f1 : ODEFunction(f1)
   f2 = ODEFunction(f2)
   SplitFunction{isinplace(f2),typeof(f1),typeof(f2),typeof(mass_matrix),
-              typeof(cache),typeof(analytic),typeof(tgrad),typeof(jac),
+              typeof(cache),typeof(analytic),typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp)
               typeof(jac_prototype),
               typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
               typeof(colorvec)}(f1,f2,mass_matrix,cache,analytic,tgrad,jac,
@@ -364,10 +384,10 @@ function SplitFunction{iip,true}(f1,f2;
                                  colorvec = nothing) where iip
   SplitFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),
                 typeof(_func_cache),typeof(analytic),
-                typeof(tgrad),typeof(jac),typeof(jac_prototype),
+                typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp)typeof(jac_prototype),
                 typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
                 typeof(colorvec)}(
-                f1,f2,mass_matrix,_func_cache,analytic,tgrad,jac,jac_prototype,
+                f1,f2,mass_matrix,_func_cache,analytic,tgrad,jac,jvp,vjp,jac_prototype,
                 Wfact,Wfact_t,paramjac,syms,colorvec)
 end
 function SplitFunction{iip,false}(f1,f2; mass_matrix=I,
@@ -382,7 +402,7 @@ function SplitFunction{iip,false}(f1,f2; mass_matrix=I,
                                   colorvec = nothing) where iip
   SplitFunction{iip,Any,Any,Any,Any,Any,Any,Any,
                 Any,Any,Any,Any,Any}(
-                f1,f2,mass_matrix,_func_cache,analytic,tgrad,jac,jac_prototype,
+                f1,f2,mass_matrix,_func_cache,analytic,tgrad,jac,jvp,vjp,jac_prototype,
                 Wfact,Wfact_t,paramjac,syms,colorvec)
 end
 SplitFunction(f1,f2; kwargs...) = SplitFunction{isinplace(f2, 4)}(f1, f2; kwargs...)
@@ -424,6 +444,8 @@ function SDEFunction{iip,true}(f,g;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jvp=nothing,
+                 vjp=nothing,
                  jac_prototype=nothing,
                  Wfact=nothing,
                  Wfact_t=nothing,
@@ -448,10 +470,10 @@ function SDEFunction{iip,true}(f,g;
 
                  SDEFunction{iip,typeof(f),typeof(g),
                  typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+                 typeof(jac),typeof(jvp),typeof(vjp)typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
                  typeof(paramjac),typeof(syms),
                  typeof(ggprime),typeof(_colorvec)}(
-                 f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+                 f,g,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,Wfact,Wfact_t,
                  paramjac,ggprime,syms,_colorvec)
 end
 function SDEFunction{iip,false}(f,g;
@@ -459,6 +481,8 @@ function SDEFunction{iip,false}(f,g;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jvp=nothing,
+                 vjp=nothing,
                  jac_prototype=nothing,
                  Wfact=nothing,
                  Wfact_t=nothing,
@@ -484,7 +508,7 @@ function SDEFunction{iip,false}(f,g;
                  SDEFunction{iip,Any,Any,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms),Any,typeof(_colorvec)}(
-                 f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+                 f,g,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,Wfact,Wfact_t,
                  paramjac,ggprime,syms,_colorvec)
 end
 SDEFunction{iip}(f,g; kwargs...) where iip = SDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
@@ -498,7 +522,7 @@ SDEFunction(f::SDEFunction; kwargs...) = f
   f1 = typeof(f1) <: AbstractDiffEqOperator ? f1 : SDEFunction(f1)
   f2 = SDEFunction(f2)
   SplitFunction{isinplace(f2),typeof(f1),typeof(f2),typeof(g),typeof(mass_matrix),
-              typeof(cache),typeof(analytic),typeof(tgrad),typeof(jac),
+              typeof(cache),typeof(analytic),typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp)
               typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
               typeof(colorvec)}(f1,f2,mass_matrix,cache,analytic,tgrad,jac,
               jac_prototype,Wfact,Wfact_t,paramjac,syms,colorvec)
@@ -517,10 +541,10 @@ function SplitSDEFunction{iip,true}(f1,f2,g; mass_matrix=I,
   SplitSDEFunction{iip,typeof(f1),typeof(f2),typeof(g),
               typeof(mass_matrix),typeof(_func_cache),
               typeof(analytic),
-              typeof(tgrad),typeof(jac),typeof(jac_prototype),
+              typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp)typeof(jac_prototype),
               typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
               typeof(colorvec)}(f1,f2,g,mass_matrix,_func_cache,analytic,
-              tgrad,jac,jac_prototype,
+              tgrad,jac,jvp,vjp,jac_prototype,
               Wfact,Wfact_t,paramjac,syms,colorvec)
 end
 function SplitSDEFunction{iip,false}(f1,f2,g; mass_matrix=I,
@@ -537,7 +561,7 @@ function SplitSDEFunction{iip,false}(f1,f2,g; mass_matrix=I,
                    Any,Any,Any,
                    Any,Any,Any,Any,Any}(
                    f1,f2,g,mass_matrix,_func_cache,analytic,
-                   tgrad,jac,jac_prototype,
+                   tgrad,jac,jvp,vjp,jac_prototype,
                    Wfact,Wfact_t,paramjac,syms,colorvec)
 end
 SplitSDEFunction(f1,f2,g; kwargs...) = SplitSDEFunction{isinplace(f2, 4)}(f1, f2, g; kwargs...)
@@ -550,6 +574,8 @@ function RODEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jvp=nothing,
+                 vjp=nothing,
                  jac_prototype=nothing,
                  Wfact=nothing,
                  Wfact_t=nothing,
@@ -573,9 +599,9 @@ function RODEFunction{iip,true}(f;
 
                  RODEFunction{iip,typeof(f),typeof(mass_matrix),
                  typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+                 typeof(jac),typeof(jvp),typeof(vjp)typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
                  typeof(paramjac),typeof(syms),typeof(_colorvec)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+                 f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
 end
 function RODEFunction{iip,false}(f;
@@ -583,6 +609,8 @@ function RODEFunction{iip,false}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jvp=nothing,
+                 vjp=nothing,
                  Wfact=nothing,
                  Wfact_t=nothing,
                  paramjac = nothing,
@@ -606,7 +634,7 @@ function RODEFunction{iip,false}(f;
                  RODEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms),typeof(_colorvec)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+                 f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
 end
 RODEFunction{iip}(f; kwargs...) where iip = RODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
@@ -618,6 +646,8 @@ function DAEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jvp=nothing,
+                 vjp=nothing,
                  jac_prototype=nothing,
                  Wfact=nothing,
                  Wfact_t=nothing,
@@ -640,15 +670,17 @@ function DAEFunction{iip,true}(f;
                  end
 
                  DAEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+                 typeof(jac),typeof(jvp),typeof(vjp)typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
                  typeof(paramjac),typeof(syms),typeof(_colorvec)}(
-                 f,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+                 f,analytic,tgrad,jac,jvp,vjp,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
 end
 function DAEFunction{iip,false}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jvp=nothing,
+                 vjp=nothing,
                  jac_prototype=nothing,
                  Wfact=nothing,
                  Wfact_t=nothing,
@@ -673,7 +705,7 @@ function DAEFunction{iip,false}(f;
                  DAEFunction{iip,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms),typeof(_colorvec)}(
-                 f,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+                 f,analytic,tgrad,jac,jvp,vjp,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
 end
 DAEFunction{iip}(f; kwargs...) where iip = DAEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
@@ -686,6 +718,8 @@ function DDEFunction{iip,true}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jvp=nothing,
+                 vjp=nothing,
                  jac_prototype=nothing,
                  Wfact=nothing,
                  Wfact_t=nothing,
@@ -708,9 +742,9 @@ function DDEFunction{iip,true}(f;
                  end
 
                  DDEFunction{iip,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+                 typeof(jac),typeof(jvp),typeof(vjp)typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
                  typeof(paramjac),typeof(syms),typeof(_colorvec)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+                 f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
 end
 function DDEFunction{iip,false}(f;
@@ -718,6 +752,8 @@ function DDEFunction{iip,false}(f;
                  analytic=nothing,
                  tgrad=nothing,
                  jac=nothing,
+                 jvp=nothing,
+                 vjp=nothing,
                  jac_prototype=nothing,
                  Wfact=nothing,
                  Wfact_t=nothing,
@@ -742,7 +778,7 @@ function DDEFunction{iip,false}(f;
                  DDEFunction{iip,Any,Any,Any,Any,
                  Any,Any,Any,Any,
                  Any,typeof(syms),typeof(_colorvec)}(
-                 f,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+                 f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
 end
 DDEFunction{iip}(f; kwargs...) where iip = DDEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
@@ -755,6 +791,8 @@ function SDDEFunction{iip,true}(f,g;
   analytic=nothing,
   tgrad=nothing,
   jac=nothing,
+                 jvp=nothing,
+                 vjp=nothing,
   jac_prototype=nothing,
   Wfact=nothing,
   Wfact_t=nothing,
@@ -778,10 +816,10 @@ function SDDEFunction{iip,true}(f,g;
 
   SDDEFunction{iip,typeof(f),typeof(g),
   typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-  typeof(jac),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+  typeof(jac),typeof(jvp),typeof(vjp)typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
   typeof(paramjac),typeof(syms),
   typeof(ggprime),typeof(_colorvec)}(
-  f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+  f,g,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,Wfact,Wfact_t,
   paramjac,ggprime,syms,_colorvec)
 end
 
@@ -790,6 +828,8 @@ function SDDEFunction{iip,false}(f,g;
   analytic=nothing,
   tgrad=nothing,
   jac=nothing,
+                 jvp=nothing,
+                 vjp=nothing,
   jac_prototype=nothing,
   Wfact=nothing,
   Wfact_t=nothing,
@@ -815,7 +855,7 @@ function SDDEFunction{iip,false}(f,g;
   SDDEFunction{iip,Any,Any,Any,Any,Any,
   Any,Any,Any,Any,
   Any,typeof(syms),Any,typeof(_colorvec)}(
-  f,g,mass_matrix,analytic,tgrad,jac,jac_prototype,Wfact,Wfact_t,
+  f,g,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,Wfact,Wfact_t,
   paramjac,ggprime,syms,_colorvec)
 end
 SDDEFunction{iip}(f,g; kwargs...) where iip = SDDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
@@ -827,6 +867,8 @@ SDDEFunction(f::SDDEFunction; kwargs...) = f
 
 # Check that field/property exists (may be nothing)
 __has_jac(f) = isdefined(f, :jac)
+__has_jvp(f) = isdefined(f, :jvp)
+__has_vjp(f) = isdefined(f, :vjp)
 __has_tgrad(f) = isdefined(f, :tgrad)
 __has_Wfact(f) = isdefined(f, :Wfact)
 __has_Wfact_t(f) = isdefined(f, :Wfact_t)
@@ -839,6 +881,8 @@ __has_colorvec(f) = isdefined(f, :colorvec)
 has_invW(f::AbstractDiffEqFunction) = false
 has_analytic(f::AbstractDiffEqFunction) = __has_analytic(f) && f.analytic !== nothing
 has_jac(f::AbstractDiffEqFunction) = __has_jac(f) && f.jac !== nothing
+has_jvp(f::AbstractDiffEqFunction) = __has_jvp(f) && f.jvp !== nothing
+has_vjp(f::AbstractDiffEqFunction) = __has_vjp(f) && f.vjp !== nothing
 has_tgrad(f::AbstractDiffEqFunction) = __has_tgrad(f) && f.tgrad !== nothing
 has_Wfact(f::AbstractDiffEqFunction) = __has_Wfact(f) && f.Wfact !== nothing
 has_Wfact_t(f::AbstractDiffEqFunction) = __has_Wfact_t(f) && f.Wfact_t !== nothing
@@ -848,6 +892,8 @@ has_colorvec(f::AbstractDiffEqFunction) = __has_colorvec(f) && f.colorvec !== no
 
 # TODO: find an appropriate way to check `has_*`
 has_jac(f::Union{SplitFunction,SplitSDEFunction}) = has_jac(f.f1)
+has_jvp(f::Union{SplitFunction,SplitSDEFunction}) = has_jvp(f.f1)
+has_vjp(f::Union{SplitFunction,SplitSDEFunction}) = has_vjp(f.f1)
 has_tgrad(f::Union{SplitFunction,SplitSDEFunction}) = has_tgrad(f.f1)
 has_Wfact(f::Union{SplitFunction,SplitSDEFunction}) = has_Wfact(f.f1)
 has_Wfact_t(f::Union{SplitFunction,SplitSDEFunction}) = has_Wfact_t(f.f1)
@@ -855,6 +901,8 @@ has_paramjac(f::Union{SplitFunction,SplitSDEFunction}) = has_paramjac(f.f1)
 has_colorvec(f::Union{SplitFunction,SplitSDEFunction}) = has_colorvec(f.f1)
 
 has_jac(f::DynamicalODEFunction) = has_jac(f.f1)
+has_jvp(f::DynamicalODEFunction) = has_jvp(f.f1)
+has_vjp(f::DynamicalODEFunction) = has_vjp(f.f1)
 has_tgrad(f::DynamicalODEFunction) = has_tgrad(f.f1)
 has_Wfact(f::DynamicalODEFunction) = has_Wfact(f.f1)
 has_Wfact_t(f::DynamicalODEFunction) = has_Wfact_t(f.f1)
@@ -862,6 +910,8 @@ has_paramjac(f::DynamicalODEFunction) = has_paramjac(f.f1)
 has_colorvec(f::DynamicalODEFunction) = has_colorvec(f.f1)
 
 has_jac(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_jac(f.f)
+has_jvp(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_jvp(f.f)
+has_vjp(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_vjp(f.f)
 has_tgrad(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_tgrad(f.f)
 has_Wfact(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_Wfact(f.f)
 has_Wfact_t(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_Wfact_t(f.f)
@@ -888,6 +938,16 @@ function Base.convert(::Type{ODEFunction}, f)
   else
     jac = nothing
   end
+  if __has_jvp(f)
+    jvp = f.jvp
+  else
+    jvp = nothing
+  end
+  if __has_vjp(f)
+    vjp = f.vjp
+  else
+    vjp = nothing
+  end
   if __has_tgrad(f)
     tgrad = f.tgrad
   else
@@ -918,7 +978,7 @@ function Base.convert(::Type{ODEFunction}, f)
   else
     colorvec = nothing
   end
-  ODEFunction(f;analytic=analytic,tgrad=tgrad,jac=jac,Wfact=Wfact,
+  ODEFunction(f;analytic=analytic,tgrad=tgrad,jac=jac,jvp=jvp,vjp=vjp,Wfact=Wfact,
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
 function Base.convert(::Type{ODEFunction{iip}},f) where iip
@@ -932,6 +992,16 @@ function Base.convert(::Type{ODEFunction{iip}},f) where iip
   else
     jac = nothing
   end
+  if __has_jvp(f)
+    jvp = f.jvp
+  else
+    jvp = nothing
+  end
+  if __has_vjp(f)
+    vjp = f.vjp
+  else
+    vjp = nothing
+  end
   if __has_tgrad(f)
     tgrad = f.tgrad
   else
@@ -962,7 +1032,7 @@ function Base.convert(::Type{ODEFunction{iip}},f) where iip
   else
     colorvec = nothing
   end
-  ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic,tgrad=tgrad,jac=jac,Wfact=Wfact,
+  ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic,tgrad=tgrad,jac=jac,jvp=jvp,vjp=vjp,Wfact=Wfact,
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
 
@@ -1004,6 +1074,16 @@ function Base.convert(::Type{DAEFunction},f)
   else
     jac = nothing
   end
+  if __has_jvp(f)
+    jvp = f.jvp
+  else
+    jvp = nothing
+  end
+  if __has_vjp(f)
+    vjp = f.vjp
+  else
+    vjp = nothing
+  end
   if __has_tgrad(f)
     tgrad = f.tgrad
   else
@@ -1034,7 +1114,7 @@ function Base.convert(::Type{DAEFunction},f)
   else
     colorvec = nothing
   end
-  DAEFunction(f;analytic=analytic,tgrad=tgrad,jac=jac,Wfact=Wfact,
+  DAEFunction(f;analytic=analytic,tgrad=tgrad,jac=jac,jvp=jvp,vjp=vjp,Wfact=Wfact,
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
 function Base.convert(::Type{DAEFunction{iip}},f) where iip
@@ -1048,6 +1128,16 @@ function Base.convert(::Type{DAEFunction{iip}},f) where iip
   else
     jac = nothing
   end
+  if __has_jvp(f)
+    jvp = f.jvp
+  else
+    jvp = nothing
+  end
+  if __has_vjp(f)
+    vjp = f.vjp
+  else
+    vjp = nothing
+  end
   if __has_tgrad(f)
     tgrad = f.tgrad
   else
@@ -1078,7 +1168,7 @@ function Base.convert(::Type{DAEFunction{iip}},f) where iip
   else
     colorvec = nothing
   end
-  DAEFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic,tgrad=tgrad,jac=jac,Wfact=Wfact,
+  DAEFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic,tgrad=tgrad,jac=jac,jvp=jvp,vjp=vjp,Wfact=Wfact,
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
 
@@ -1130,6 +1220,16 @@ function Base.convert(::Type{SDEFunction},f,g)
   else
     jac = nothing
   end
+  if __has_jvp(f)
+    jvp = f.jvp
+  else
+    jvp = nothing
+  end
+  if __has_vjp(f)
+    vjp = f.vjp
+  else
+    vjp = nothing
+  end
   if __has_tgrad(f)
     tgrad = f.tgrad
   else
@@ -1160,7 +1260,7 @@ function Base.convert(::Type{SDEFunction},f,g)
   else
     colorvec = nothing
   end
-  SDEFunction(f,g;analytic=analytic,tgrad=tgrad,jac=jac,Wfact=Wfact,
+  SDEFunction(f,g;analytic=analytic,tgrad=tgrad,jac=jac,jvp=jvp,vjp=vjp,Wfact=Wfact,
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
 function Base.convert(::Type{SDEFunction{iip}},f,g) where iip
@@ -1173,6 +1273,16 @@ function Base.convert(::Type{SDEFunction{iip}},f,g) where iip
     jac = f.jac
   else
     jac = nothing
+  end
+  if __has_jvp(f)
+    jvp = f.jvp
+  else
+    jvp = nothing
+  end
+  if __has_vjp(f)
+    vjp = f.vjp
+  else
+    vjp = nothing
   end
   if __has_tgrad(f)
     tgrad = f.tgrad
@@ -1205,7 +1315,7 @@ function Base.convert(::Type{SDEFunction{iip}},f,g) where iip
     colorvec = nothing
   end
   SDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g;analytic=analytic,
-              tgrad=tgrad,jac=jac,Wfact=Wfact,
+              tgrad=tgrad,jac=jac,jvp=jvp,vjp=vjp,Wfact=Wfact,
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
 
@@ -1219,6 +1329,16 @@ function Base.convert(::Type{RODEFunction},f)
     jac = f.jac
   else
     jac = nothing
+  end
+  if __has_jvp(f)
+    jvp = f.jvp
+  else
+    jvp = nothing
+  end
+  if __has_vjp(f)
+    vjp = f.vjp
+  else
+    vjp = nothing
   end
   if __has_tgrad(f)
     tgrad = f.tgrad
@@ -1250,7 +1370,7 @@ function Base.convert(::Type{RODEFunction},f)
   else
     colorvec = nothing
   end
-  RODEFunction(f;analytic=analytic,tgrad=tgrad,jac=jac,Wfact=Wfact,
+  RODEFunction(f;analytic=analytic,tgrad=tgrad,jac=jac,jvp=jvp,vjp=vjp,Wfact=Wfact,
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
 function Base.convert(::Type{RODEFunction{iip}},f) where iip
@@ -1263,6 +1383,16 @@ function Base.convert(::Type{RODEFunction{iip}},f) where iip
     jac = f.jac
   else
     jac = nothing
+  end
+  if __has_jvp(f)
+    jvp = f.jvp
+  else
+    jvp = nothing
+  end
+  if __has_vjp(f)
+    vjp = f.vjp
+  else
+    vjp = nothing
   end
   if __has_tgrad(f)
     tgrad = f.tgrad
@@ -1295,7 +1425,7 @@ function Base.convert(::Type{RODEFunction{iip}},f) where iip
     colorvec = nothing
   end
   RODEFunction{iip,RECOMPILE_BY_DEFAULT}(f;analytic=analytic,
-              tgrad=tgrad,jac=jac,Wfact=Wfact,
+              tgrad=tgrad,jac=jac,jvp=jvp,vjp=vjp,Wfact=Wfact,
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
 
@@ -1309,6 +1439,16 @@ function Base.convert(::Type{SDDEFunction},f,g)
     jac = f.jac
   else
     jac = nothing
+  end
+  if __has_jvp(f)
+    jvp = f.jvp
+  else
+    jvp = nothing
+  end
+  if __has_vjp(f)
+    vjp = f.vjp
+  else
+    vjp = nothing
   end
   if __has_tgrad(f)
     tgrad = f.tgrad
@@ -1340,7 +1480,7 @@ function Base.convert(::Type{SDDEFunction},f,g)
   else
     colorvec = nothing
   end
-  SDDEFunction(f,g;analytic=analytic,tgrad=tgrad,jac=jac,Wfact=Wfact,
+  SDDEFunction(f,g;analytic=analytic,tgrad=tgrad,jac=jac,jvp=jvp,vjp=vjp,Wfact=Wfact,
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
 
@@ -1354,6 +1494,16 @@ function Base.convert(::Type{SDDEFunction{iip}},f,g) where iip
     jac = f.jac
   else
     jac = nothing
+  end
+  if __has_jvp(f)
+    jvp = f.jvp
+  else
+    jvp = nothing
+  end
+  if __has_vjp(f)
+    vjp = f.vjp
+  else
+    vjp = nothing
   end
   if __has_tgrad(f)
     tgrad = f.tgrad
@@ -1386,6 +1536,6 @@ function Base.convert(::Type{SDDEFunction{iip}},f,g) where iip
     colorvec = nothing
   end
   SDDEFunction{iip,RECOMPILE_BY_DEFAULT}(f,g;analytic=analytic,
-              tgrad=tgrad,jac=jac,Wfact=Wfact,
+              tgrad=tgrad,jac=jac,jvp=jvp,vjp=vjp,Wfact=Wfact,
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
