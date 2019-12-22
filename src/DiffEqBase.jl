@@ -237,7 +237,7 @@ abstract type EnsembleAlgorithm <: DiffEqBase.DEAlgorithm end
 """
 $(TYPEDEF)
 """
-abstract type AbstractSensitivityAlgorithm <: DiffEqBase.DEAlgorithm end
+abstract type AbstractSensitivityAlgorithm{CS,AD,FDT} <: DiffEqBase.DEAlgorithm end
 
 # PDE Discretizations
 
