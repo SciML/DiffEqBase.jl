@@ -376,6 +376,8 @@ function SplitFunction{iip,true}(f1,f2;
                                  analytic=nothing,
                                  tgrad = nothing,
                                  jac = nothing,
+                                 jvp=nothing,
+                                 vjp=nothing,
                                  jac_prototype = nothing,
                                  Wfact = nothing,
                                  Wfact_t = nothing,
@@ -394,6 +396,8 @@ function SplitFunction{iip,false}(f1,f2; mass_matrix=I,
                                   _func_cache=nothing,analytic=nothing,
                                   tgrad = nothing,
                                   jac = nothing,
+                                  jvp=nothing,
+                                  vjp=nothing,
                                   jac_prototype = nothing,
                                   Wfact = nothing,
                                   Wfact_t = nothing,
@@ -551,6 +555,8 @@ function SplitSDEFunction{iip,false}(f1,f2,g; mass_matrix=I,
                             _func_cache=nothing,analytic=nothing,
                             tgrad = nothing,
                             jac = nothing,
+                            jvp=nothing,
+                            vjp=nothing,
                             jac_prototype = nothing,
                             Wfact = nothing,
                             Wfact_t = nothing,
@@ -787,19 +793,19 @@ DDEFunction(f; kwargs...) = DDEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f;
 DDEFunction(f::DDEFunction; kwargs...) = f
 
 function SDDEFunction{iip,true}(f,g;
-  mass_matrix=I,
-  analytic=nothing,
-  tgrad=nothing,
-  jac=nothing,
-                 jvp=nothing,
-                 vjp=nothing,
-  jac_prototype=nothing,
-  Wfact=nothing,
-  Wfact_t=nothing,
-  paramjac = nothing,
-  ggprime = nothing,
-  syms = nothing,
-  colorvec = nothing)  where iip
+                                mass_matrix=I,
+                                analytic=nothing,
+                                tgrad=nothing,
+                                jac=nothing,
+                                jvp=nothing,
+                                vjp=nothing,
+                                jac_prototype=nothing,
+                                Wfact=nothing,
+                                Wfact_t=nothing,
+                                paramjac = nothing,
+                                ggprime = nothing,
+                                syms = nothing,
+                                colorvec = nothing)  where iip
   if jac === nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
    if iip
      jac = update_coefficients! #(J,u,p,t)
@@ -824,19 +830,19 @@ function SDDEFunction{iip,true}(f,g;
 end
 
 function SDDEFunction{iip,false}(f,g;
-  mass_matrix=I,
-  analytic=nothing,
-  tgrad=nothing,
-  jac=nothing,
-                 jvp=nothing,
-                 vjp=nothing,
-  jac_prototype=nothing,
-  Wfact=nothing,
-  Wfact_t=nothing,
-  paramjac = nothing,
-  ggprime = nothing,
-  syms = nothing,
-  colorvec = nothing) where iip
+                                 mass_matrix=I,
+                                 analytic=nothing,
+                                 tgrad=nothing,
+                                 jac=nothing,
+                                 jvp=nothing,
+                                 vjp=nothing,
+                                 jac_prototype=nothing,
+                                 Wfact=nothing,
+                                 Wfact_t=nothing,
+                                 paramjac = nothing,
+                                 ggprime = nothing,
+                                 syms = nothing,
+                                 colorvec = nothing) where iip
 
   if jac === nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
    if iip
