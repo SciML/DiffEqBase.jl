@@ -5,7 +5,7 @@ using RecipesBase, RecursiveArrayTools, Compat,
       IterativeSolvers, RecursiveFactorization, Distributed, ArrayInterface,
       DataStructures
 
-import ZygoteRules
+import ZygoteRules, ChainRulesCore
 
 using Roots # callbacks
 
