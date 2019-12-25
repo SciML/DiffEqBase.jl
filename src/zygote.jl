@@ -1,4 +1,4 @@
-function ZygoteRules.@adjoint ODESolution(u,args...)
+ZygoteRules.@adjoint function ODESolution(u,args...)
   function ODESolutionAdjoint(ȳ)
     (ȳ,ntuple(_->nothing, length(args))...)
   end
