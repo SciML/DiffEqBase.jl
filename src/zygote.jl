@@ -66,4 +66,5 @@ function ChainRulesCore.rrule(f::ODEFunction,u,p,t)
     ChainRulesCore.rrule(f.f,u,p,t)
   else
     f.vjp(u,p,t)
+  end
 end
