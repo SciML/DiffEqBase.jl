@@ -35,13 +35,9 @@ end
 
 ZygoteRules.@adjoint function (f::ODEFunction)(u,p,t)
   if f.vjp === nothing
-    out = f.f(u,p,t)
     ZygoteRules.adjoint(f.f,u,p,t)
   else
-    function ode_vjp(d)
-      f.vjp(d,u,p,t)
-    end
-    return out,ode_vjp
+    f.vjp(u,p,t)
   end
 end
 
@@ -50,10 +46,6 @@ ZygoteRules.@adjoint! function (f::ODEFunction)(du,u,p,t)
     ZygoteRules.adjoint!(f.f,du,u,p,t)
   else
     f.f(du,u,p,t)
-    function ode_vjp(d)
-      f.vjp(du,d,u,p,t)
-    end
-    return nothing,ode_vjp
   end
 end
 
@@ -73,8 +65,5 @@ ChainRulesCore.rrule(f::ODEFunction,u,p,t)
   if f.vjp === nothing
     ChainRulesCore.rrule(f.f,u,p,t)
   else
-    function ode_vjp(f,d)
-      f.vjp(d,u,p,t)
-    end
-    f.f(u,p,t),ode_jvp
+    f.vjp(u,p,t)
 end
