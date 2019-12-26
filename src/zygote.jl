@@ -61,7 +61,7 @@ ChainRulesCore.frule(f::ODEFunction,u,p,t)
 end
 =#
 
-ChainRulesCore.rrule(f::ODEFunction,u,p,t)
+function ChainRulesCore.rrule(f::ODEFunction,u,p,t)
   if f.vjp === nothing
     ChainRulesCore.rrule(f.f,u,p,t)
   else
