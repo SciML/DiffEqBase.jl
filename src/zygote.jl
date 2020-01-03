@@ -33,10 +33,9 @@ ZygoteRules.@adjoint function getindex(sol::DESolution, i, j...)
   sol[i,j...],DESolution_getindex_adjoint
 end
 
-#=
 ZygoteRules.@adjoint function (f::ODEFunction)(u,p,t)
   if f.vjp === nothing
-    ZygoteRules.adjoint(f.f,u,p,t)
+    ZygoteRules._pullback(f.f,u,p,t)
   else
     f.vjp(u,p,t)
   end
@@ -44,12 +43,11 @@ end
 
 ZygoteRules.@adjoint! function (f::ODEFunction)(du,u,p,t)
   if f.vjp === nothing
-    ZygoteRules.adjoint!(f.f,du,u,p,t)
+    ZygoteRules._pullback(f.f,du,u,p,t)
   else
     f.f(du,u,p,t)
   end
 end
-=#
 
 #=
 ChainRulesCore.frule(f::ODEFunction,u,p,t)
