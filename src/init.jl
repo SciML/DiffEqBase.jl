@@ -1,7 +1,7 @@
 value(x) = x
 cuify(x) = error("To use LinSolveGPUFactorize, you must do `using CuArrays`")
 
-if VERSION < v"1.4"
+if VERSION < v"1.4.0-DEV.635"
   # Piracy, should get upstreamed
   LinearAlgebra.ldiv!(Y::AbstractArray, A::AbstractArray, B::AbstractArray) = (copyto!(Y,B); ldiv!(A,Y))
   LinearAlgebra.ldiv!(Y::AbstractArray, A::AbstractMatrix, B::AbstractArray) = (copyto!(Y,B); ldiv!(A,Y))
