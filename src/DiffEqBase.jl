@@ -467,6 +467,7 @@ $(TYPEDEF)
 """
 abstract type AbstractReactionNetwork <: Function end
 
+include("function_wrappers.jl")
 include("fastpow.jl")
 include("diffeqfastbc.jl")
 include("destats.jl")
@@ -519,7 +520,6 @@ include("alg_traits.jl")
 include("remake.jl")
 include("init.jl")
 include("zygote.jl")
-include("function_wrappers.jl")
 
 """
 $(TYPEDEF)
