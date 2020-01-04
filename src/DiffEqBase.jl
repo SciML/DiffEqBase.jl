@@ -19,8 +19,6 @@ using FunctionWrappers: FunctionWrapper
 
 using MuladdMacro, Parameters
 
-using DiffEqDiffTools: UDerivativeWrapper, UJacobianWrapper
-
 # Problems
 """
 $(TYPEDEF)
