@@ -521,6 +521,7 @@ include("alg_traits.jl")
 include("remake.jl")
 include("init.jl")
 include("zygote.jl")
+include("function_wrappers.jl")
 
 """
 $(TYPEDEF)
