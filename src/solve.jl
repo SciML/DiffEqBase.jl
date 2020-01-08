@@ -170,6 +170,14 @@ function adaptive_integer_warn(tspan)
   end
 end
 
+function __solve(prob::DEProblem,args...;default_set=false,kwargs...)
+  if length(args) > 0 && !(typeof(args[1]) <: DEAlgorithm)
+    error("Inappropiate solve command. The arguments do not make sense. Likely, you gave an algorithm which does not actually exist (or does not `<:DiffEqBase.DEAlgorithm`)")
+  else
+    __solve(prob::DEProblem,nothing,args...;default_set=false,kwargs...)
+  end
+end
+
 ################### Concrete Solve
 
 function _concrete_solve end
