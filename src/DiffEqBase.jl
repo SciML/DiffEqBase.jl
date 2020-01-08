@@ -352,17 +352,17 @@ abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N} end
 """
 $(TYPEDEF)
 """
-abstract type AbstractTimeseriesSolution{T,N} <: AbstractDiffEqArray{T,N} end
+abstract type AbstractTimeseriesSolution{T,N,A} <: AbstractDiffEqArray{T,N,A} end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractEnsembleSolution{T,N} <: AbstractVectorOfArray{T,N} end
+abstract type AbstractEnsembleSolution{T,N,A} <: AbstractVectorOfArray{T,N,A} end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractDiffEqArray{T,N} end
+abstract type AbstractNoiseProcess{T,N,A,isinplace} <: AbstractDiffEqArray{T,N,A} end
 
 """
 Union of all base solution types.

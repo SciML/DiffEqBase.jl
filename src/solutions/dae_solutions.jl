@@ -1,7 +1,7 @@
 """
 $(TYPEDEF)
 """
-struct DAESolution{T,N,uType,duType,uType2,DType,tType,P,A,ID,DE} <: AbstractDAESolution{T,N}
+struct DAESolution{T,N,uType,duType,uType2,DType,tType,P,A,ID,DE} <: AbstractDAESolution{T,N,uType}
   u::uType
   du::duType
   u_analytic::uType2

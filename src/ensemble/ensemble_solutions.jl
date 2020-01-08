@@ -1,7 +1,7 @@
 """
 $(TYPEDEF)
 """
-struct EnsembleTestSolution{T,N,S} <: AbstractEnsembleSolution{T,N}
+struct EnsembleTestSolution{T,N,S} <: AbstractEnsembleSolution{T,N,S}
   u::S
   errors::Dict{Symbol,Vector{T}}
   weak_errors::Dict{Symbol,T}
@@ -20,7 +20,7 @@ end
 """
 $(TYPEDEF)
 """
-struct EnsembleSolution{T,N,S} <: AbstractEnsembleSolution{T,N}
+struct EnsembleSolution{T,N,S} <: AbstractEnsembleSolution{T,N,S}
   u::S
   elapsedTime::Float64
   converged::Bool
@@ -35,7 +35,7 @@ EnsembleSolution(sim::T,elapsedTime,converged) where T <: AbstractVector{T2} whe
 """
 $(TYPEDEF)
 """
-struct EnsembleSummary{T,N,Tt,S,S2,S3,S4} <: AbstractEnsembleSolution{T,N}
+struct EnsembleSummary{T,N,Tt,S,S2,S3,S4} <: AbstractEnsembleSolution{T,N,S}
   t::Tt
   u::S
   v::S2

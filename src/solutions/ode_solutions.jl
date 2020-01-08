@@ -1,7 +1,7 @@
 """
 $(TYPEDEF)
 """
-struct ODESolution{T,N,uType,uType2,DType,tType,rateType,P,A,IType,DE} <: AbstractODESolution{T,N}
+struct ODESolution{T,N,uType,uType2,DType,tType,rateType,P,A,IType,DE} <: AbstractODESolution{T,N,uType}
   u::uType
   u_analytic::uType2
   errors::DType
