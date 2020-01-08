@@ -396,33 +396,33 @@ abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} en
 """
 $(TYPEDEF)
 """
-abstract type AbstractAnalyticalSolution{T,N} <: AbstractTimeseriesSolution{T,N} end
+abstract type AbstractAnalyticalSolution{T,N,S} <: AbstractTimeseriesSolution{T,N,S} end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
+abstract type AbstractODESolution{T,N,S} <: AbstractTimeseriesSolution{T,N,S} end
 
 # Needed for plot recipes
 """
 $(TYPEDEF)
 """
-abstract type AbstractDDESolution{T,N} <: AbstractODESolution{T,N} end
+abstract type AbstractDDESolution{T,N,S} <: AbstractODESolution{T,N,S} end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractRODESolution{T,N} <: AbstractODESolution{T,N} end
+abstract type AbstractRODESolution{T,N,S} <: AbstractODESolution{T,N,S} end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractDAESolution{T,N} <: AbstractODESolution{T,N} end
+abstract type AbstractDAESolution{T,N,S} <: AbstractODESolution{T,N,S} end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractSensitivitySolution{T,N} end
+abstract type AbstractSensitivitySolution{T,N,S} <: AbstractTimeseriesSolution{T,N,S} end
 
 # Misc
 """
