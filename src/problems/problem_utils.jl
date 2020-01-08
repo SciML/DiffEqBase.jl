@@ -4,11 +4,7 @@
 Convert the `tspan` field of a `DEProblem` to a `(tmin, tmax)` tuple, where both
 elements are of the same type. If `tspan` is a function, returns it as-is.
 """
-promote_tspan(tspan::Tuple{T,T}) where T = tspan
-function promote_tspan(tspan::Tuple{T1,T2}) where {T1,T2}
-  T = promote_type(map(typeof,tspan)...)
-  (map(T,tspan)...,)
-end
+promote_tspan((t1,t2)::Tuple{T,S}) where {T,S} = promote(t1, t2)
 promote_tspan(tspan::Number) = (zero(tspan),tspan)
 promote_tspan(tspan::Nothing) = (nothing,nothing)
 promote_tspan(tspan::Function) = tspan
