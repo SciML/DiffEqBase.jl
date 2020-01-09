@@ -204,6 +204,6 @@ function _concrete_solve_adjoint(args...;kwargs...)
   error("No adjoint rules exist. Check that you added `using DiffEqSensitivity`")
 end
 
-function _concrete_solve_forward
+function _concrete_solve_forward(args...;kwargs...)
   error("No sensitivity rules exist. Check that you added `using DiffEqSensitivity`")
 end
