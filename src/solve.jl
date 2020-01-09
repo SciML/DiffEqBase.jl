@@ -173,8 +173,6 @@ end
 ################### Concrete Solve
 
 function _concrete_solve end
-function _concrete_solve_adjoint end
-function _concrete_solve_forward end
 
 function concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,
                         u0=prob.u0,p=prob.p,args...;kwargs...)
@@ -200,4 +198,12 @@ end
 ZygoteRules.@adjoint function concrete_solve(prob,alg,u0,p,args...;
                                              sensealg=nothing,kwargs...)
   _concrete_solve_adjoint(prob,alg,sensealg,u0,p,args...;kwargs...)
+end
+
+function _concrete_solve_adjoint(args...;kwargs...)
+  error("No adjoint rules exist. Check that you added `using DiffEqSensitivity`")
+end
+
+function _concrete_solve_forward
+  error("No sensitivity rules exist. Check that you added `using DiffEqSensitivity`")
 end
