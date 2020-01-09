@@ -169,3 +169,35 @@ function adaptive_integer_warn(tspan)
     @warn("Integer time values are incompatible with adaptive integrators. Utilize floating point numbers instead of integers in this case, i.e. (0.0,1.0) instead of (0,1).")
   end
 end
+
+################### Concrete Solve
+
+function _concrete_solve end
+function _concrete_solve_adjoint end
+function _concrete_solve_forward end
+
+function concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,
+                        u0=prob.u0,p=prob.p,args...;kwargs...)
+  _concrete_solve(prob,alg,u0,p,args...;kwargs...)
+end
+
+function _concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,
+                        u0=prob.u0,p=prob.p,args...;kwargs...)
+  sol = solve(remake(prob,u0=u0,p=p),alg,args...;kwargs...)
+  RecursiveArrayTools.DiffEqArray(sol.u,sol.t)
+end
+
+function ChainRulesCore.frule(::typeof(concrete_solve),prob,alg,u0,p,args...;
+                     sensealg=nothing,kwargs...)
+  _concrete_solve_forward(prob,alg,sensealg,u0,p,args...;kwargs...)
+end
+
+function ChainRulesCore.rrule(::typeof(concrete_solve),prob,alg,u0,p,args...;
+                     sensealg=nothing,kwargs...)
+  _concrete_solve_adjoint(prob,alg,sensealg,u0,p,args...;kwargs...)
+end
+
+ZygoteRules.@adjoint function concrete_solve(prob,alg,u0,p,args...;
+                                             sensealg=nothing,kwargs...)
+  _concrete_solve_adjoint(prob,alg,sensealg,u0,p,args...;kwargs...)
+end

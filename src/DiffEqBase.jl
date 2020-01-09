@@ -548,7 +548,7 @@ const MonteCarloSummary = EnsembleSummary
 
 export isinplace
 
-export solve, solve!, init, step!, discretize
+export solve, solve!, init, step!, discretize, concrete_solve
 
 export tuples, intervals, TimeChoiceIterator
 
