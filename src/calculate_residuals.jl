@@ -11,12 +11,13 @@ Calculate element-wise residuals
     ũ / (α + max(internalnorm(u₀,t), internalnorm(u₁,t)) * ρ)
 end
 
-@inline @generated function calculate_residuals(ũ::StaticArray{Size,T,1},
+@generated function calculate_residuals(ũ::StaticArray{Size,T,1},
                                                 u₀::StaticArray{Size,T,1},
                                                 u₁::StaticArray{Size,T,1},
                                                 α, ρ, internalnorm,t) where {Size,T}
     exs = [:((ũ[$i]) / (α + max(internalnorm(u₀[$i],t), internalnorm(u₁[$i],t)) * ρ)) for i in 1:length(u₀)]
     out = quote
+        Base.@_inline_meta
         StaticArrays.similar_type(typeof(u₀), eltype(u₀))($(exs...))
     end
 end
@@ -59,10 +60,11 @@ end
   @.. calculate_residuals(u₀, u₁, α, ρ, internalnorm,t)
 end
 
-@inline @generated function calculate_residuals(u₀::StaticArray{Size,T,1}, u₁::StaticArray{Size,T,1},
+@generated function calculate_residuals(u₀::StaticArray{Size,T,1}, u₁::StaticArray{Size,T,1},
                                         α, ρ, internalnorm,t) where {Size,T}
     exs = [:((u₁[$i] - u₀[$i]) / (α + max(internalnorm(u₀[$i],t), internalnorm(u₁[$i],t)) * ρ)) for i in 1:length(u₀)]
     out = quote
+        Base.@_inline_meta
         StaticArrays.similar_type(typeof(u₀), eltype(u₀))($(exs...))
     end
 end
