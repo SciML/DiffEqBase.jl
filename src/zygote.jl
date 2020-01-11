@@ -45,7 +45,7 @@ ZygoteRules.@adjoint! function (f::ODEFunction)(du,u,p,t)
   if f.vjp === nothing
     ZygoteRules._pullback(f.f,du,u,p,t)
   else
-    f.f(du,u,p,t)
+    f.vjp(du,u,p,t)
   end
 end
 
