@@ -70,8 +70,9 @@ end
 
 using Compat.TypeUtils: typename
 
-Base.@pure parameterless_type(T::Type) = typename(T).wrapper
-Base.@pure parameterless_type(x) = parameterless_type(typeof(x))
+Base.@pure __parameterless_type(T) = typename(T).wrapper
+parameterless_type(x) = parameterless_type(typeof(x))
+parameterless_type(x::Type) = __parameterless_type(x)
 
 # support functions
 export check_keywords, warn_compat
