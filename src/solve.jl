@@ -170,11 +170,13 @@ function adaptive_integer_warn(tspan)
   end
 end
 
-function __solve(prob::DEProblem,args...;default_set=false,kwargs...)
-  if length(args) > 0 && !(typeof(args[1]) <: Union{Nothing,DEAlgorithm})
+function __solve(prob::DEProblem,args...;default_set=false,second_time=false,kwargs...)
+  if second_time
+    error("Default algorithm choices require DifferentialEquations.jl. Please specify an algorithm or import DifferentialEquations directly.")
+  elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing,DEAlgorithm})
     error("Inappropiate solve command. The arguments do not make sense. Likely, you gave an algorithm which does not actually exist (or does not `<:DiffEqBase.DEAlgorithm`)")
   else
-    __solve(prob::DEProblem,nothing,args...;default_set=false,kwargs...)
+    __solve(prob::DEProblem,nothing,args...;default_set=false,second_time=true,kwargs...)
   end
 end
 
