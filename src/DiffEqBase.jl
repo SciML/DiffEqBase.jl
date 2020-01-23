@@ -19,8 +19,6 @@ using FunctionWrappers: FunctionWrapper
 
 using MuladdMacro, Parameters
 
-using DiffEqDiffTools: UDerivativeWrapper, UJacobianWrapper
-
 # Problems
 """
 $(TYPEDEF)
@@ -481,6 +479,7 @@ include("solutions/rode_solutions.jl")
 include("solutions/dae_solutions.jl")
 include("solutions/solution_interface.jl")
 include("tableaus.jl")
+include("function_wrappers.jl")
 include("diffeqfunction.jl")
 include("problems/problem_utils.jl")
 include("problems/discrete_problems.jl")
