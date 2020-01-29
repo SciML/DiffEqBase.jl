@@ -4,7 +4,6 @@ using Test
 using InteractiveUtils
 using MuladdMacro
 function foo9(a, b, c, d, e, f, g, h, i)
-    a = DiffEqBase.diffeqbc(a)
     @.. a = b + 0.1 * (0.2c + 0.3d + 0.4e + 0.5f + 0.6g + 0.6h + 0.6i)
     nothing
 end
