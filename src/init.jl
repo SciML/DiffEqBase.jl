@@ -116,10 +116,11 @@ function __init__()
     value(x::Tracker.TrackedArray) = x.data
 
     @inline fastpow(x::Tracker.TrackedReal, y::Tracker.TrackedReal) = x^y
+    @inline Base.any(f::Function,x::Tracker.TrackedArray) = any(f,Tracker.data(x))
 
     # Support adaptive with non-tracked time
     @inline function ODE_DEFAULT_NORM(u::Tracker.TrackedArray,t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
+      sqrt(sum(abs2,value(u)) / length(u))
     end
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Tracker.TrackedReal,N},t) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
@@ -131,7 +132,7 @@ function __init__()
 
     # Support TrackedReal time, don't drop tracking on the adaptivity there
     @inline function ODE_DEFAULT_NORM(u::Tracker.TrackedArray,t::Tracker.TrackedReal) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,Iterators.repeated(t))) / length(u))
+      sqrt(sum(abs2,u) / length(u))
     end
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Tracker.TrackedReal,N},t::Tracker.TrackedReal) where {N}
       sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,Iterators.repeated(t))) / length(u))
