@@ -155,7 +155,7 @@ function solve_batch(prob,alg,::EnsembleThreads,I,pmap_batch_size,kwargs...)
         new_prob = prob.prob_func(deepcopy(prob.prob),i,iter)
         x = prob.output_func(solve(new_prob,alg;kwargs...),i)
         if !(typeof(x) <: Tuple)
-            warn("output_func should return (out,rerun). See docs for updated details")
+            @warn("output_func should return (out,rerun). See docs for updated details")
             _x = (x,false)
         else
           _x = x
@@ -167,7 +167,7 @@ function solve_batch(prob,alg,::EnsembleThreads,I,pmap_batch_size,kwargs...)
             new_prob = prob.prob_func(deepcopy(prob.prob),i,iter)
             x = prob.output_func(solve(new_prob,alg;kwargs...),i)
             if !(typeof(x) <: Tuple)
-                warn("output_func should return (out,rerun). See docs for updated details")
+                @warn("output_func should return (out,rerun). See docs for updated details")
                 _x = (x,false)
             else
               _x = x
@@ -202,7 +202,7 @@ function thread_monte(prob,I,alg,procid,kwargs...)
       rerun = true
       x = prob.output_func(solve(new_prob,alg;kwargs...),i)
       if !(typeof(x) <: Tuple)
-          warn("output_func should return (out,rerun). See docs for updated details")
+          @warn("output_func should return (out,rerun). See docs for updated details")
           _x = (x,false)
       else
         _x = x
@@ -213,7 +213,7 @@ function thread_monte(prob,I,alg,procid,kwargs...)
           new_prob = prob.prob_func(deepcopy(prob.prob),i,iter)
           x = prob.output_func(solve(new_prob,alg;kwargs...),i)
           if !(typeof(x) <: Tuple)
-              warn("output_func should return (out,rerun). See docs for updated details")
+              @warn("output_func should return (out,rerun). See docs for updated details")
               _x = (x,false)
           else
             _x = x
