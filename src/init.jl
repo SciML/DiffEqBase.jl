@@ -175,4 +175,37 @@ function __init__()
   @require GeneralizedGenerated="6b9d7cbe-bcb9-11e9-073f-15a7a543e2eb" begin
     numargs(::GeneralizedGenerated.RuntimeFn{Args}) where Args = GeneralizedGenerated.from_type(Args) |> length
   end
+
+  @require Pardiso="46dd5b70-b6fb-5a00-ae2d-e8fea33afaf2" begin
+    mutable struct MKLPardisoFactorize
+      A
+      ps::Pardiso.MKLPardisoSolver
+      verbose::Bool
+      firsttime::Bool
+    end
+    MKLPardisoFactorize(;verbose=false) = MKLPardisoFactorize(nothing,Pardiso.MKLPardisoSolver(),verbose,true)
+    function (p::MKLPardisoFactorize)(x,A,b,update_matrix=false;kwargs...)
+      if p.firsttime
+        Pardiso.set_phase!(p.ps, Pardiso.ANALYSIS)
+        Pardiso.pardiso(p.ps, x, A, b)
+        p.firsttime = false
+      end
+
+      if update_matrix
+        Pardiso.set_phase!(p.ps, Pardiso.NUM_FACT)
+        Pardiso.pardiso(p.ps, x, A, b)
+        p.A = A
+      end
+
+      Pardiso.set_phase!(p.ps, Pardiso.SOLVE_ITERATIVE_REFINE)
+      Pardiso.pardiso(p.ps, x, A, b)
+    end
+    function (p::MKLPardisoFactorize)(::Type{Val{:init}},f,u0_prototype)
+      Pardiso.set_matrixtype!(p.ps, Pardiso.REAL_NONSYM)
+      if p.verbose
+          Pardiso.set_msglvl!(p.ps, Pardiso.MESSAGE_LEVEL_ON)
+      end
+      MKLPardisoFactorize(nothing,p.ps,p.verbose,true)
+    end
+  end
 end
