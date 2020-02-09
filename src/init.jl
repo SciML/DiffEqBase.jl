@@ -207,5 +207,72 @@ function __init__()
       end
       MKLPardisoFactorize(nothing,p.ps,p.verbose,true)
     end
+
+    mutable struct PardisoFactorize
+      A
+      ps::Pardiso.PardisoSolver
+      verbose::Bool
+      firsttime::Bool
+    end
+    PardisoFactorize(;verbose=false) = PardisoFactorize(nothing,Pardiso.PardisoSolver(),verbose,true)
+    function (p::PardisoFactorize)(x,A,b,update_matrix=false;kwargs...)
+      if p.firsttime
+        Pardiso.set_phase!(p.ps, Pardiso.ANALYSIS)
+        Pardiso.pardiso(p.ps, x, A, b)
+        p.firsttime = false
+      end
+
+      if update_matrix
+        Pardiso.set_phase!(p.ps, Pardiso.NUM_FACT)
+        Pardiso.pardiso(p.ps, x, A, b)
+        p.A = A
+      end
+
+      Pardiso.set_phase!(p.ps, Pardiso.SOLVE_ITERATIVE_REFINE)
+      Pardiso.pardiso(p.ps, x, A, b)
+    end
+    function (p::PardisoFactorize)(::Type{Val{:init}},f,u0_prototype)
+      Pardiso.set_matrixtype!(p.ps, Pardiso.REAL_NONSYM)
+      if p.verbose
+          Pardiso.set_msglvl!(p.ps, Pardiso.MESSAGE_LEVEL_ON)
+      end
+      PardisoFactorize(nothing,p.ps,p.verbose,true)
+    end
+
+    mutable struct PardisoIterate
+      A
+      ps::Pardiso.PardisoSolver
+      verbose::Bool
+      firsttime::Bool
+    end
+    PardisoIterate(;verbose=false) = PardisoIterate(nothing,Pardiso.PardisoSolver(),verbose,true)
+    function (p::PardisoIterate)(x,A,b,update_matrix=false;kwargs...)
+      if p.firsttime
+        Pardiso.set_phase!(p.ps, Pardiso.ANALYSIS)
+        Pardiso.pardiso(p.ps, x, A, b)
+        p.firsttime = false
+      end
+
+      #=
+      # Pardiso iterative solver doesn't need a separate factorization phase
+      # It will auto-update as it needs to.
+      if update_matrix
+        Pardiso.set_phase!(p.ps, Pardiso.NUM_FACT)
+        Pardiso.pardiso(p.ps, x, A, b)
+        p.A = A
+      end
+      =#
+
+      Pardiso.set_phase!(ps, Pardiso.NUM_FACT_SOLVE_REFINE)
+      Pardiso.pardiso(ps, X, A, B)
+    end
+    function (p::PardisoIterate)(::Type{Val{:init}},f,u0_prototype)
+      Pardiso.set_matrixtype!(p.ps, Pardiso.REAL_NONSYM)
+      Pardiso.set_solver!(ps, Pardiso.ITERATIVE_SOLVER)
+      if p.verbose
+          Pardiso.set_msglvl!(p.ps, Pardiso.MESSAGE_LEVEL_ON)
+      end
+      PardisoIterate(nothing,p.ps,p.verbose,true)
+    end
   end
 end
