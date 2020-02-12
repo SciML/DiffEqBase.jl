@@ -48,11 +48,21 @@ end
 """
 $(TYPEDEF)
 """
-struct DynamicalODEFunction{iip,F1,F2,TMM,Ta} <: AbstractODEFunction{iip}
+struct DynamicalODEFunction{iip,F1,F2,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
   f1::F1
   f2::F2
   mass_matrix::TMM
   analytic::Ta
+  tgrad::Tt
+  jac::TJ
+  jvp::JVP
+  vjp::VJP
+  jac_prototype::JP
+  Wfact::TW
+  Wfact_t::TWt
+  paramjac::TPJ
+  syms::S
+  colorvec::TCV
 end
 
 """
@@ -414,15 +424,60 @@ SplitFunction{iip}(f1,f2; kwargs...) where iip =
 SplitFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction(f1),ODEFunction{iip}(f2); kwargs...)
 SplitFunction(f::SplitFunction; kwargs...) = f
 
-@add_kwonly function DynamicalODEFunction{iip}(f1,f2,mass_matrix,analytic) where iip
-  f1 = ODEFunction(f1)
-  f2 != nothing && (f2 = ODEFunction(f2))
-  DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(analytic)}(f1,f2,mass_matrix,analytic)
+@add_kwonly function DynamicalODEFunction{iip}(f1,f2,mass_matrix,analytic,tgrad,jac,jvp,vjp,
+                                   jac_prototype,Wfact,Wfact_t,paramjac,
+                                   syms,colorvec) where iip
+  f1 = typeof(f1) <: AbstractDiffEqOperator ? f1 : ODEFunction(f1)
+  f2 = ODEFunction(f2)
+  DynamicalODEFunction{isinplace(f2),typeof(f1),typeof(f2),typeof(mass_matrix),
+              typeof(analytic),typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp),
+              typeof(jac_prototype),
+              typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
+              typeof(colorvec)}(f1,f2,mass_matrix,analytic,tgrad,jac,jvp,vjp,
+              jac_prototype,Wfact,Wfact_t,paramjac,syms,colorvec)
 end
-DynamicalODEFunction{iip,true}(f1,f2;mass_matrix=(I,I),analytic=nothing) where iip =
-DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),typeof(analytic)}(f1,f2,mass_matrix,analytic)
-DynamicalODEFunction{iip,false}(f1,f2;mass_matrix=(I,I),analytic=nothing) where iip =
-DynamicalODEFunction{iip,Any,Any,Any,Any}(f1,f2,mass_matrix,analytic)
+
+function DynamicalODEFunction{iip,true}(f1,f2;mass_matrix=(I,I),
+                                        analytic=nothing,
+                                        tgrad=nothing,
+                                        jac=nothing,
+                                        jvp=nothing,
+                                        vjp=nothing,
+                                        jac_prototype=nothing,
+                                        Wfact=nothing,
+                                        Wfact_t=nothing,
+                                        paramjac = nothing,
+                                        syms = nothing,
+                                        colorvec = nothing) where iip
+  DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),
+                typeof(analytic),
+                typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),
+                typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
+                typeof(colorvec)}(
+                f1,f2,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,
+                Wfact,Wfact_t,paramjac,syms,colorvec)
+end
+
+
+function DynamicalODEFunction{iip,false}(f1,f2;mass_matrix=(I,I),
+                                         analytic=nothing,
+                                         tgrad=nothing,
+                                         jac=nothing,
+                                         jvp=nothing,
+                                         vjp=nothing,
+                                         jac_prototype=nothing,
+                                         Wfact=nothing,
+                                         Wfact_t=nothing,
+                                         paramjac = nothing,
+                                         syms = nothing,
+                                         colorvec = nothing) where iip
+       DynamicalODEFunction{iip,Any,Any,Any,Any,Any,Any,
+                            Any,Any,Any,Any,Any}(
+                            f1,f2,mass_matrix,analytic,tgrad,
+                            jac,jvp,vjp,jac_prototype,
+                            Wfact,Wfact_t,paramjac,syms,colorvec)
+end
+
 DynamicalODEFunction(f1,f2=nothing; kwargs...) = DynamicalODEFunction{isinplace(f1, 5)}(f1, f2; kwargs...)
 DynamicalODEFunction{iip}(f1,f2; kwargs...) where iip =
 DynamicalODEFunction{iip,RECOMPILE_BY_DEFAULT}(ODEFunction{iip}(f1), ODEFunction{iip}(f2); kwargs...)
