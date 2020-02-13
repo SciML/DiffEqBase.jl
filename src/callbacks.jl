@@ -522,6 +522,32 @@ function findall_events(affect!,affect_neg!,prev_sign,next_sign)
   findall(x-> ((prev_sign[x] < 0 && affect! !== nothing) || (prev_sign[x] > 0 && affect_neg! !== nothing)) && prev_sign[x]*next_sign[x]<=0, keys(prev_sign))
 end
 
+function find_zero_bracket(fs, x0; kwargs...)
+
+    x = Roots.adjust_bracket(x0)
+    T = eltype(x[1])
+    F = Roots.callable_function(fs)
+    method = Roots.Bisection()
+    state = Roots.init_state(method, F, x)
+    options = Roots.init_options(method, state; kwargs...)
+
+    # check if tolerances are exactly 0
+    # iszero_tol = iszero(options.xabstol) && iszero(options.xreltol) && iszero(options.abstol) && iszero(options.reltol)
+
+    # if iszero_tol
+    #     if T <: FloatNN
+    #         return Roots.find_zero(F, x, Roots.BisectionExact(); kwargs...)
+    #     else
+    #         return find_zero(F, x, Roots.A42(); kwargs...)
+    #     end
+    # end
+
+    find_zero(method, F, options, state, Roots.NullTracks())
+
+    state.xn0, state.xn1
+
+end
+
 function find_callback_time(integrator,callback::ContinuousCallback,counter)
   event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx = determine_event_occurance(integrator,callback,counter)
   if event_occurred
@@ -559,14 +585,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
-          Θ = prevfloat(find_zero(zero_func, (bottom_θ,top_Θ), atol = 0, rtol = 0, xatol = 0, xrtol = 0))
-          sign_bottom_θ = sign(zero_func(bottom_θ))
-          prevfloat_idx = 0
-          while sign(zero_func(Θ)) != sign_bottom_θ && prevfloat_idx < 10
-            Θ = prevfloat(Θ)
-            prevfloat_idx += 1
-          end
-          prevfloat_idx == 10 && error("Rootfind was inaccurate. Please report the error.")
+          Θ, _ = find_zero_bracket(zero_func, (bottom_θ,top_Θ), atol = callback.abstol/100)
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
         end
         #Θ = prevfloat(...)
@@ -634,14 +653,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               end
               iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
-            Θ = prevfloat(find_zero(zero_func, (bottom_θ,top_Θ), atol = 0, rtol = 0, xatol = 0, xrtol = 0))
-            sign_bottom_θ = sign(zero_func(bottom_θ))
-            prevfloat_idx = 0
-            while sign(zero_func(Θ)) != sign_bottom_θ && prevfloat_idx < 10
-              Θ = prevfloat(Θ)
-              prevfloat_idx += 1
-            end
-            prevfloat_idx == 10 && error("Rootfind was inaccurate. Please report the error.")
+            Θ, _ = find_zero_bracket(zero_func, (bottom_θ,top_Θ), atol = callback.abstol/100)
             if Θ < minΘ
               integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
             end
