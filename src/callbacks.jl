@@ -528,10 +528,11 @@ function find_zero_bracket(fs, x0; kwargs...)
 
     x = Roots.adjust_bracket(x0)
     F = Roots.callable_function(fs)
+    method = Roots.Bisection()
     state = Roots.init_state(method, F, x)
     options = Roots.init_options(method, state; kwargs...)
 
-    find_zero(Roots.Bisection(), F, options, state, Roots.NullTracks())
+    find_zero(method, F, options, state, Roots.NullTracks())
 
     state.xn0, state.xn1
 end
