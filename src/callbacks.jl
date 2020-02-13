@@ -522,30 +522,18 @@ function findall_events(affect!,affect_neg!,prev_sign,next_sign)
   findall(x-> ((prev_sign[x] < 0 && affect! !== nothing) || (prev_sign[x] > 0 && affect_neg! !== nothing)) && prev_sign[x]*next_sign[x]<=0, keys(prev_sign))
 end
 
+# Ugly implemetation of find_zero that returns the final bracket instead of upper limit
+# until this gets included in Roots.jl
 function find_zero_bracket(fs, x0; kwargs...)
 
     x = Roots.adjust_bracket(x0)
-    T = eltype(x[1])
     F = Roots.callable_function(fs)
-    method = Roots.Bisection()
     state = Roots.init_state(method, F, x)
     options = Roots.init_options(method, state; kwargs...)
 
-    # check if tolerances are exactly 0
-    # iszero_tol = iszero(options.xabstol) && iszero(options.xreltol) && iszero(options.abstol) && iszero(options.reltol)
-
-    # if iszero_tol
-    #     if T <: FloatNN
-    #         return Roots.find_zero(F, x, Roots.BisectionExact(); kwargs...)
-    #     else
-    #         return find_zero(F, x, Roots.A42(); kwargs...)
-    #     end
-    # end
-
-    find_zero(method, F, options, state, Roots.NullTracks())
+    find_zero(Roots.Bisection(), F, options, state, Roots.NullTracks())
 
     state.xn0, state.xn1
-
 end
 
 function find_callback_time(integrator,callback::ContinuousCallback,counter)
