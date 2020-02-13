@@ -70,4 +70,4 @@ function ChainRulesCore.rrule(f::ODEFunction,u,p,t)
 end
 
 ZygoteRules.@adjoint numargs(f) = (numargs(f),df->(nothing,))
-ChainRulesCore.@adjoint numargs(f) = (numargs(f),df->(nothing,))
+ChainRulesCore.rrule(::typeof(numargs),f) = (numargs(f),df->(nothing,))
