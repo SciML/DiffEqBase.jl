@@ -68,3 +68,6 @@ function ChainRulesCore.rrule(f::ODEFunction,u,p,t)
     f.vjp(u,p,t)
   end
 end
+
+ZygoteRules.@adjoint numargs(f) = (numargs(f),df->(nothing,))
+ChainRulesCore.rrule(::typeof(numargs),f) = (numargs(f),df->(nothing,))
