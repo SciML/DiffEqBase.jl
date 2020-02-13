@@ -1,3 +1,6 @@
+"""
+$(TYPEDEF)
+"""
 mutable struct DEStats
   nf::Int
   nf2::Int

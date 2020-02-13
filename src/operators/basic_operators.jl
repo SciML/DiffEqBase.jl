@@ -1,10 +1,15 @@
+"""
+$(TYPEDEF)
+"""
 struct DiffEqIdentity{T,N} <: AbstractDiffEqLinearOperator{T} end
+
 DiffEqIdentity(u) = DiffEqIdentity{eltype(u),length(u)}()
 Base.size(::DiffEqIdentity{T,N}) where {T,N} = (N,N)
 Base.size(::DiffEqIdentity{T,N}, m::Integer) where {T,N} = (m == 1 || m == 2) ? N : 1
 LinearAlgebra.opnorm(::DiffEqIdentity{T,N}, p::Real=2) where {T,N} = one(T)
 Base.convert(::Type{AbstractMatrix}, ::DiffEqIdentity{T,N}) where {T,N} =
                                               LinearAlgebra.Diagonal(ones(T,N))
+
 for op in (:*, :/, :\)
   @eval Base.$op(::DiffEqIdentity{T,N}, x::AbstractVecOrMat) where {T,N} = $op(I, x)
   @eval Base.$op(::DiffEqIdentity{T,N}, x::AbstractArray) where {T,N} = $op(I, x)
@@ -17,6 +22,7 @@ LinearAlgebra.ldiv!(Y::AbstractVecOrMat, ::DiffEqIdentity, B::AbstractVecOrMat) 
 
 LinearAlgebra.mul!(Y::AbstractArray, ::DiffEqIdentity, B::AbstractArray) = Y .= B
 LinearAlgebra.ldiv!(Y::AbstractArray, ::DiffEqIdentity, B::AbstractArray) = Y .= B
+
 for pred in (:isreal, :issymmetric, :ishermitian, :isposdef)
   @eval LinearAlgebra.$pred(::DiffEqIdentity) = true
 end
@@ -46,7 +52,7 @@ Base.size(::DiffEqScalar) = ()
 Base.size(::DiffEqScalar, ::Integer) = 1
 update_coefficients!(α::DiffEqScalar,u,p,t) = (α.val = α.update_func(α.val,u,p,t); α)
 setval!(α::DiffEqScalar, val) = (α.val = val; α)
-is_constant(α::DiffEqScalar) = α.update_func == DEFAULT_UPDATE_FUNC
+isconstant(α::DiffEqScalar) = α.update_func == DEFAULT_UPDATE_FUNC
 
 for op in (:*, :/, :\)
   @eval Base.$op(α::DiffEqScalar, x::Union{AbstractArray,Number}) = $op(α.val, x)
@@ -87,7 +93,7 @@ end
 
 update_coefficients!(L::DiffEqArrayOperator,u,p,t) = (L.update_func(L.A,u,p,t); L)
 setval!(L::DiffEqArrayOperator, A) = (L.A = A; L)
-is_constant(L::DiffEqArrayOperator) = L.update_func == DEFAULT_UPDATE_FUNC
+isconstant(L::DiffEqArrayOperator) = L.update_func == DEFAULT_UPDATE_FUNC
 
 Base.convert(::Type{AbstractMatrix}, L::DiffEqArrayOperator) = L.A
 Base.setindex!(L::DiffEqArrayOperator, v, i::Int) = (L.A[i] = v)

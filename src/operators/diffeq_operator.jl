@@ -33,7 +33,7 @@ has_ldiv!(L::AbstractDiffEqOperator) = false # ldiv!(du, L, u)
 2. Can absorb under multiplication by a scalar. In all algorithms things like
    dt*L show up all the time, so the linear operator must be able to absorb
    such constants.
-4. is_constant(A) trait for whether the operator is constant or not.
+4. isconstant(A) trait for whether the operator is constant or not.
 5. Optional: diagonal, symmetric, etc traits from LinearMaps.jl.
 6. Optional: exp(A). Required for simple exponential integration.
 7. Optional: expmv(A,u,p,t) = exp(t*A)*u and expmv!(v,A::DiffEqOperator,u,p,t)
@@ -45,7 +45,7 @@ has_ldiv!(L::AbstractDiffEqOperator) = false # ldiv!(du, L, u)
 
 # Extra standard assumptions
 isconstant(::AbstractDiffEqLinearOperator) = true
-islinear(::AbstractDiffEqLinearOperator) = true
+islinear(o::AbstractDiffEqLinearOperator) = isconstant(o)
 
 # Other ones from LinearMaps.jl
 # Generic fallbacks

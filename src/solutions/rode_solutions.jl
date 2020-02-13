@@ -1,6 +1,9 @@
 ### Concrete Types
 
-struct RODESolution{T,N,uType,uType2,DType,tType,randType,P,A,IType,DE} <: AbstractRODESolution{T,N}
+"""
+$(TYPEDEF)
+"""
+struct RODESolution{T,N,uType,uType2,DType,tType,randType,P,A,IType,DE} <: AbstractRODESolution{T,N,uType}
   u::uType
   u_analytic::uType2
   errors::DType

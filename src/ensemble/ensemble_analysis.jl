@@ -62,9 +62,10 @@ function timeseries_steps_quantile(sim,q)
   DiffEqArray([timestep_quantile(sim,q,i) for i in 1:length(sim[1])],sim[1].t)
 end
 function timeseries_steps_meanvar(sim)
-  means = typeof(sim[1][1])[]
-  vars = typeof(sim[1][1])[]
-  for i in 1:length(sim[1])
+  m,v = timestep_meanvar(sim,1)
+  means = [m]
+  vars = [v]
+  for i in 2:length(sim[1])
     m,v = timestep_meanvar(sim,i)
     push!(means,m)
     push!(vars,v)
@@ -129,9 +130,10 @@ function timeseries_point_quantile(sim,q,ts)
   DiffEqArray([timepoint_quantile(sim,q,t) for t in ts],ts)
 end
 function timeseries_point_meanvar(sim,ts)
-  means = typeof(sim[1][1])[]
-  vars = typeof(sim[1][1])[]
-  for t in ts
+  m,v = timepoint_meanvar(sim,first(ts))
+  means = [m]
+  vars = [v]
+  for t in Iterators.drop(ts,1)
     m,v = timepoint_meanvar(sim,t)
     push!(means,m)
     push!(vars,v)

@@ -1,4 +1,7 @@
 # f(t,u,du,res) = 0
+"""
+$(TYPEDEF)
+"""
 struct DAEProblem{uType,duType,tType,isinplace,P,F,K,D} <: AbstractDAEProblem{uType,duType,tType,isinplace}
   f::F
   du0::duType

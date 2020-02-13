@@ -1,7 +1,26 @@
+"""
+$(TYPEDEF)
+"""
 abstract type BasicEnsembleAlgorithm <: EnsembleAlgorithm end
+
+"""
+$(TYPEDEF)
+"""
 struct EnsembleThreads <: BasicEnsembleAlgorithm end
+
+"""
+$(TYPEDEF)
+"""
 struct EnsembleDistributed <: BasicEnsembleAlgorithm end
+
+"""
+$(TYPEDEF)
+"""
 struct EnsembleSplitThreads <: BasicEnsembleAlgorithm end
+
+"""
+$(TYPEDEF)
+"""
 struct EnsembleSerial <: BasicEnsembleAlgorithm end
 
 #=
@@ -37,7 +56,7 @@ function __solve(prob::AbstractEnsembleProblem,
         @error "parallel_type value not recognized"
       end
     else
-      ensemblealg = EnsembleSerial()
+      ensemblealg = EnsembleThreads()
     end
     if :num_monte ∈ keys(kwargs)
       @warn "num_monte has been replaced by trajectories"
@@ -74,7 +93,7 @@ function __solve(prob::AbstractEnsembleProblem,
     converged && break
   end
   if typeof(u) <: Vector{Any}
-    _u = convert(Array{typeof(u[1])},u)
+    _u = map(i->u[i],1:length(u))
   else
     _u = u
   end
@@ -115,7 +134,7 @@ function solve_batch(prob,alg,::EnsembleDistributed,I,pmap_batch_size,kwargs...)
       batch_func(i,prob,alg,I,kwargs...)
     end
   end
-  _batch_data = convert(Array{typeof(batch_data[1])},batch_data)
+  map(i->batch_data[i],1:length(batch_data))
 end
 
 function solve_batch(prob,alg,::EnsembleSerial,I,pmap_batch_size,kwargs...)
@@ -124,7 +143,7 @@ function solve_batch(prob,alg,::EnsembleSerial,I,pmap_batch_size,kwargs...)
       batch_func(i,prob,alg,I,kwargs...)
     end
   end
-  _batch_data = convert(Array{typeof(batch_data[1])},batch_data)
+  map(i->batch_data[i],1:length(batch_data))
 end
 
 function solve_batch(prob,alg,::EnsembleThreads,I,pmap_batch_size,kwargs...)
@@ -136,7 +155,7 @@ function solve_batch(prob,alg,::EnsembleThreads,I,pmap_batch_size,kwargs...)
         new_prob = prob.prob_func(deepcopy(prob.prob),i,iter)
         x = prob.output_func(solve(new_prob,alg;kwargs...),i)
         if !(typeof(x) <: Tuple)
-            warn("output_func should return (out,rerun). See docs for updated details")
+            @warn("output_func should return (out,rerun). See docs for updated details")
             _x = (x,false)
         else
           _x = x
@@ -148,7 +167,7 @@ function solve_batch(prob,alg,::EnsembleThreads,I,pmap_batch_size,kwargs...)
             new_prob = prob.prob_func(deepcopy(prob.prob),i,iter)
             x = prob.output_func(solve(new_prob,alg;kwargs...),i)
             if !(typeof(x) <: Tuple)
-                warn("output_func should return (out,rerun). See docs for updated details")
+                @warn("output_func should return (out,rerun). See docs for updated details")
                 _x = (x,false)
             else
               _x = x
@@ -158,7 +177,7 @@ function solve_batch(prob,alg,::EnsembleThreads,I,pmap_batch_size,kwargs...)
         batch_data[batch_idx] = _x[1]
     end
   end
-  _batch_data = convert(Array{typeof(batch_data[1])},batch_data)
+  map(i->batch_data[i],1:length(batch_data))
 end
 
 function solve_batch(prob,alg,::EnsembleSplitThreads,I,pmap_batch_size,kwargs...)
@@ -183,7 +202,7 @@ function thread_monte(prob,I,alg,procid,kwargs...)
       rerun = true
       x = prob.output_func(solve(new_prob,alg;kwargs...),i)
       if !(typeof(x) <: Tuple)
-          warn("output_func should return (out,rerun). See docs for updated details")
+          @warn("output_func should return (out,rerun). See docs for updated details")
           _x = (x,false)
       else
         _x = x
@@ -194,7 +213,7 @@ function thread_monte(prob,I,alg,procid,kwargs...)
           new_prob = prob.prob_func(deepcopy(prob.prob),i,iter)
           x = prob.output_func(solve(new_prob,alg;kwargs...),i)
           if !(typeof(x) <: Tuple)
-              warn("output_func should return (out,rerun). See docs for updated details")
+              @warn("output_func should return (out,rerun). See docs for updated details")
               _x = (x,false)
           else
             _x = x
@@ -208,7 +227,7 @@ function thread_monte(prob,I,alg,procid,kwargs...)
 end
 
 function vector_batch_data_to_arr(batch_data)
-  _batch_data = Vector{typeof(batch_data[1][1])}(undef,sum((length(x) for x in batch_data)))
+  _batch_data = Vector{Any}(undef,sum((length(x) for x in batch_data)))
   idx = 0
   @inbounds for a in batch_data
     for x in a
@@ -216,5 +235,5 @@ function vector_batch_data_to_arr(batch_data)
       _batch_data[idx] = x
     end
   end
-  _batch_data
+  map(i->_batch_data[i],1:length(_batch_data))
 end

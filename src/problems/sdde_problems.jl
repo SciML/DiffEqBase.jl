@@ -1,3 +1,6 @@
+"""
+$(TYPEDEF)
+"""
 struct SDDEProblem{uType,tType,lType,lType2,isinplace,P,NP,F,G,H,K,ND} <:
                           AbstractSDDEProblem{uType,tType,lType,isinplace,ND}
   f::F
@@ -14,7 +17,7 @@ struct SDDEProblem{uType,tType,lType,lType2,isinplace,P,NP,F,G,H,K,ND} <:
   seed::UInt64
   neutral::Bool
   order_discontinuity_t0::Rational{Int}
-  
+
   @add_kwonly function SDDEProblem{iip}(f::AbstractSDDEFunction{iip}, g, u0, h, tspan, p = NullParameters();
                                        noise_rate_prototype = nothing, noise= nothing, seed = UInt64(0),
                                        constant_lags = (), dependent_lags = (),

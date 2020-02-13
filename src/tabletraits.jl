@@ -59,7 +59,7 @@ Base.eltype(::Type{DESolutionIterator{T,TS}}) where {T,TS} = T
     quote
         if state > length(iter)
             return nothing
-        else        
+        else
             return $(T)(($(columns...),)), state+1
         end
     end

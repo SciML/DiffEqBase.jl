@@ -78,7 +78,6 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
   tdir = sign(sol.t[end]-sol.t[1])
   xflip --> tdir < 0
   seriestype --> :path
-  linewidth --> 3
 
   # Special case labels when vars = (:x,:y,:z) or (:x) or [:x,:y] ...
   if typeof(vars) <: Tuple && (typeof(vars[1]) == Symbol && typeof(vars[2]) == Symbol)

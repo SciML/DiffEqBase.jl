@@ -65,7 +65,7 @@ prob2 = remake(prob1;  # prob1 is a ODEProblem
     f2 = (u,p,t) -> 3u))
 
 # Test remake with NoiseProblem (a struct w/o isinplace type parameter):
-struct DummyNoiseProcess <: DiffEqBase.AbstractNoiseProcess{Int,1,true}
+struct DummyNoiseProcess <: DiffEqBase.AbstractNoiseProcess{Int,1,Nothing,true}
     dummy
 end
 tspan1 = (0.0, 1.0)

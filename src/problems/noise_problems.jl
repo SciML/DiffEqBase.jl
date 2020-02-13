@@ -1,3 +1,6 @@
+"""
+$(TYPEDEF)
+"""
 struct NoiseProblem{N<:AbstractNoiseProcess,T,K} <: AbstractNoiseProblem
   noise::N
   tspan::T

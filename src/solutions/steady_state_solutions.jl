@@ -1,3 +1,6 @@
+"""
+$(TYPEDEF)
+"""
 struct SteadyStateSolution{T,N,uType,R,P,A} <: AbstractSteadyStateSolution{T,N}
   u::uType
   resid::R
@@ -12,6 +15,6 @@ function build_solution(prob::AbstractSteadyStateProblem,
 
   T = eltype(eltype(u))
   N = length((size(prob.u0)...,))
-  
+
   SteadyStateSolution{T,N,typeof(u),typeof(resid),typeof(prob),typeof(alg)}(u,resid,prob,alg,retcode)
 end

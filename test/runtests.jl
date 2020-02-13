@@ -6,6 +6,7 @@ const is_TRAVIS = haskey(ENV,"TRAVIS")
 
 @time begin
 if GROUP == "All" || GROUP == "Core"
+    @time @safetestset "Fast Power" begin include("fastpow.jl") end
     @time @safetestset "Fast Broadcast" begin include("fastbc.jl") end
     @time @safetestset "Number of Parameters Calculation" begin include("numargs_test.jl") end
     @time @safetestset "Data Arrays" begin include("data_array_tests.jl") end
@@ -23,6 +24,7 @@ if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Internal Euler" begin include("internal_euler_test.jl") end
     @time @safetestset "Numargs" begin include("numargs_test.jl") end
     @time @safetestset "Basic Operators Interface" begin include("basic_operators_interface.jl") end
+    @time @safetestset "Norm" begin include("norm.jl") end
 end
 
 if !is_APPVEYOR && GROUP == "Downstream"
@@ -40,6 +42,7 @@ if !is_APPVEYOR && GROUP == "Downstream"
     @time @safetestset "Event Detection Tests" begin include("downstream/event_detection_tests.jl") end
     @time @safetestset "PSOS and Energy Conservation Event Detection" begin include("downstream/psos_and_energy_conservation.jl") end
     @time @safetestset "DE stats" begin include("downstream/destats_tests.jl") end
+    @time @safetestset "DEDataArray" begin include("downstream/data_array_regression_tests.jl") end
 end
 
 if !is_APPVEYOR && GROUP == "GPU"

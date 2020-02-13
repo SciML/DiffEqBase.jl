@@ -1,3 +1,6 @@
+"""
+$(TYPEDEF)
+"""
 mutable struct RODEProblem{uType,tType,isinplace,P,NP,F,K,ND} <: AbstractRODEProblem{uType,tType,isinplace,ND}
   f::F
   u0::uType

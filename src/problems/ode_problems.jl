@@ -1,7 +1,5 @@
 """
 $(TYPEDEF)
-
-TODO
 """
 struct StandardODEProblem end
 
@@ -17,17 +15,17 @@ $(FIELDS)
 """
 struct ODEProblem{uType,tType,isinplace,P,F,K,PT} <:
                AbstractODEProblem{uType,tType,isinplace}
-  """The function in the ODE."""
+  """The ODE is `du/dt = f(u,p,t)`."""
   f::F
-  """The initial condition."""
+  """The initial condition is `u(tspan[1]) = u0`."""
   u0::uType
-  """The timespan for the problem."""
+  """The solution `u(t)` will be computed for `tspan[1] ≤ t ≤ tspan[2]`."""
   tspan::tType
-  """The parameter values of the ODE function."""
+  """Constant parameters to be supplied as the second argument of `f`."""
   p::P
   """A callback to be applied to every solver which uses the problem."""
   kwargs::K
-  """TODO"""
+  # TODO
   problem_type::PT
   @add_kwonly function ODEProblem{iip}(f::AbstractODEFunction{iip},
                                        u0,tspan,p=NullParameters(),
@@ -68,7 +66,7 @@ end
 """
     ODEProblem(f::ODEFunction,u0,tspan,p=NullParameters(),callback=CallbackSet())
 
-Define an ODE problem from a [`ODEFunction`](@ref).
+Define an ODE problem from an [`ODEFunction`](@ref).
 """
 function ODEProblem(f::AbstractODEFunction,u0,tspan,args...;kwargs...)
   ODEProblem{isinplace(f)}(f,u0,tspan,args...;kwargs...)
@@ -80,15 +78,11 @@ end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 abstract type AbstractDynamicalODEProblem end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct DynamicalODEProblem{iip} <: AbstractDynamicalODEProblem end
 # u' = f1(v)
@@ -127,8 +121,6 @@ end
 # u'' = f(t,u,du,ddu)
 """
 $(TYPEDEF)
-
-TODO
 """
 struct SecondOrderODEProblem{iip} <: AbstractDynamicalODEProblem end
 function SecondOrderODEProblem(f,du0,u0,tspan,p=NullParameters();kwargs...)
@@ -185,15 +177,11 @@ end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 abstract type AbstractSplitODEProblem end
 
 """
 $(TYPEDEF)
-
-TODO
 """
 struct SplitODEProblem{iip} <: AbstractSplitODEProblem end
 # u' = Au + f

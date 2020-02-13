@@ -2,7 +2,10 @@ module DiffEqBase
 
 using RecipesBase, RecursiveArrayTools, Compat,
       Requires, TableTraits, IteratorInterfaceExtensions, TreeViews,
-      IterativeSolvers, RecursiveFactorization, Distributed, ArrayInterface
+      IterativeSolvers, RecursiveFactorization, Distributed, ArrayInterface,
+      DataStructures
+
+import ZygoteRules, ChainRulesCore
 
 using Roots # callbacks
 
@@ -15,8 +18,6 @@ using DocStringExtensions
 using FunctionWrappers: FunctionWrapper
 
 using MuladdMacro, Parameters
-
-using DiffEqDiffTools: UDerivativeWrapper, UJacobianWrapper
 
 # Problems
 """
@@ -231,8 +232,16 @@ $(TYPEDEF)
 """
 abstract type EnsembleAlgorithm <: DiffEqBase.DEAlgorithm end
 
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractSensitivityAlgorithm{CS,AD,FDT} <: DiffEqBase.DEAlgorithm end
+
 # PDE Discretizations
 
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractDiscretization end
 
 # Monte Carlo Simulations
@@ -341,18 +350,21 @@ abstract type AbstractNoTimeSolution{T,N} <: AbstractArray{T,N} end
 """
 $(TYPEDEF)
 """
-abstract type AbstractTimeseriesSolution{T,N} <: AbstractDiffEqArray{T,N} end
+abstract type AbstractTimeseriesSolution{T,N,A} <: AbstractDiffEqArray{T,N,A} end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractEnsembleSolution{T,N} <: AbstractVectorOfArray{T,N} end
+abstract type AbstractEnsembleSolution{T,N,A} <: AbstractVectorOfArray{T,N,A} end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractNoiseProcess{T,N,isinplace} <: AbstractDiffEqArray{T,N} end
+abstract type AbstractNoiseProcess{T,N,A,isinplace} <: AbstractDiffEqArray{T,N,A} end
 
+"""
+Union of all base solution types.
+"""
 const DESolution = Union{AbstractTimeseriesSolution,
                          AbstractNoTimeSolution,
                          AbstractEnsembleSolution,
@@ -382,33 +394,33 @@ abstract type AbstractSteadyStateSolution{T,N} <: AbstractNoTimeSolution{T,N} en
 """
 $(TYPEDEF)
 """
-abstract type AbstractAnalyticalSolution{T,N} <: AbstractTimeseriesSolution{T,N} end
+abstract type AbstractAnalyticalSolution{T,N,S} <: AbstractTimeseriesSolution{T,N,S} end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractODESolution{T,N} <: AbstractTimeseriesSolution{T,N} end
+abstract type AbstractODESolution{T,N,S} <: AbstractTimeseriesSolution{T,N,S} end
 
 # Needed for plot recipes
 """
 $(TYPEDEF)
 """
-abstract type AbstractDDESolution{T,N} <: AbstractODESolution{T,N} end
+abstract type AbstractDDESolution{T,N,S} <: AbstractODESolution{T,N,S} end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractRODESolution{T,N} <: AbstractODESolution{T,N} end
+abstract type AbstractRODESolution{T,N,S} <: AbstractODESolution{T,N,S} end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractDAESolution{T,N} <: AbstractODESolution{T,N} end
+abstract type AbstractDAESolution{T,N,S} <: AbstractODESolution{T,N,S} end
 
 """
 $(TYPEDEF)
 """
-abstract type AbstractSensitivitySolution{T,N} end
+abstract type AbstractSensitivitySolution{T,N,S} <: AbstractTimeseriesSolution{T,N,S} end
 
 # Misc
 """
@@ -455,6 +467,7 @@ $(TYPEDEF)
 """
 abstract type AbstractReactionNetwork <: Function end
 
+include("fastpow.jl")
 include("diffeqfastbc.jl")
 include("destats.jl")
 include("utils.jl")
@@ -466,6 +479,7 @@ include("solutions/rode_solutions.jl")
 include("solutions/dae_solutions.jl")
 include("solutions/solution_interface.jl")
 include("tableaus.jl")
+include("function_wrappers.jl")
 include("diffeqfunction.jl")
 include("problems/problem_utils.jl")
 include("problems/discrete_problems.jl")
@@ -505,6 +519,7 @@ include("tabletraits.jl")
 include("alg_traits.jl")
 include("remake.jl")
 include("init.jl")
+include("zygote.jl")
 
 """
 $(TYPEDEF)
@@ -532,7 +547,7 @@ const MonteCarloSummary = EnsembleSummary
 
 export isinplace
 
-export solve, solve!, init, step!, discretize
+export solve, solve!, init, step!, discretize, concrete_solve
 
 export tuples, intervals, TimeChoiceIterator
 
@@ -550,7 +565,6 @@ export resize!,deleteat!,addat!,get_tmp_cache,
 export LinearProblem, NonlinearProblem, QuadratureProblem
 
 export DiscreteProblem
-
 export SteadyStateProblem, SteadyStateSolution
 export NoiseProblem
 export ODEProblem, ODESolution
@@ -580,7 +594,7 @@ export LinSolveFactorize, LinSolveGPUFactorize, DefaultLinSolve, DEFAULT_LINSOLV
        LinSolveGMRES, LinSolveCG, LinSolveBiCGStabl, LinSolveChebyshev,
        LinSolveMINRES, LinSolveIterativeSolvers
 
-export AffineDiffEqOperator, update_coefficients!, update_coefficients, isconstant,
+export AffineDiffEqOperator, update_coefficients!, update_coefficients,
        has_expmv!, has_expmv, has_exp, has_mul, has_mul!, has_ldiv, has_ldiv!
 
 export DiffEqScalar, DiffEqArrayOperator, DiffEqIdentity

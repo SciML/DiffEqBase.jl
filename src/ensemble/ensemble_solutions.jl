@@ -1,4 +1,7 @@
-struct EnsembleTestSolution{T,N,S} <: AbstractEnsembleSolution{T,N}
+"""
+$(TYPEDEF)
+"""
+struct EnsembleTestSolution{T,N,S} <: AbstractEnsembleSolution{T,N,S}
   u::S
   errors::Dict{Symbol,Vector{T}}
   weak_errors::Dict{Symbol,T}
@@ -14,7 +17,10 @@ function EnsembleTestSolution(u,errors,weak_errors,error_means,error_medians,ela
   EnsembleTestSolution(EnsembleSolution(u,elapsedTime,converged),errors,weak_errors,error_means,error_medians,elapsedTime,converged)
 end
 
-struct EnsembleSolution{T,N,S} <: AbstractEnsembleSolution{T,N}
+"""
+$(TYPEDEF)
+"""
+struct EnsembleSolution{T,N,S} <: AbstractEnsembleSolution{T,N,S}
   u::S
   elapsedTime::Float64
   converged::Bool
@@ -26,7 +32,10 @@ EnsembleSolution(sim,elapsedTime,converged) =
 EnsembleSolution(sim::T,elapsedTime,converged) where T <: AbstractVector{T2} where T2 <: AbstractArray =
              EnsembleSolution(sim, (size(sim[1])..., length(sim)),elapsedTime,converged) # Requires `size` defined on `sim`
 
-struct EnsembleSummary{T,N,Tt,S,S2,S3,S4} <: AbstractEnsembleSolution{T,N}
+"""
+$(TYPEDEF)
+"""
+struct EnsembleSummary{T,N,Tt,S,S2,S3,S4} <: AbstractEnsembleSolution{T,N,S}
   t::Tt
   u::S
   v::S2
@@ -148,8 +157,7 @@ end
       else
         error("error_style not recognized")
       end
-      x := sim.t
-      y := u[i]
+      sim.t,u[i]
     end
   end
 end

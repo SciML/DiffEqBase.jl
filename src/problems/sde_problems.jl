@@ -1,5 +1,11 @@
+"""
+$(TYPEDEF)
+"""
 struct StandardSDEProblem end
 
+"""
+$(TYPEDEF)
+"""
 struct SDEProblem{uType,tType,isinplace,P,NP,F,G,K,ND} <: AbstractSDEProblem{uType,tType,isinplace,ND}
   f::F
   g::G
@@ -46,7 +52,14 @@ function SDEProblem(f,g,u0,tspan,p=NullParameters();kwargs...)
   SDEProblem(convert(SDEFunction,f,g),g,u0,tspan,p;kwargs...)
 end
 
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractSplitSDEProblem end
+
+"""
+$(TYPEDEF)
+"""
 struct SplitSDEProblem{iip} <: AbstractSplitSDEProblem end
 # u' = Au + f
 function SplitSDEProblem(f1,f2,g,u0,tspan,p=NullParameters();kwargs...)

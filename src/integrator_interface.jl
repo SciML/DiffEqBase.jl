@@ -8,25 +8,126 @@ passed to the optional third argument, the integrator advances exactly
 `dt`.
 """
 function step!(d::DEIntegrator) error("Integrator stepping is not implemented") end
+
+"""
+    resize(integrator::DEIntegrator,k::Int)
+
+Resizes the DE to a size `k`. This chops off the end of the array, or adds blank values at the end, depending on whether
+`k > length(integrator.u)`.
+"""
 Base.resize!(i::DEIntegrator,ii::Int) = error("resize!: method has not been implemented for the integrator")
+
+"""
+    deleteat!(integrator::DEIntegrator,idxs)
+
+Shrinks the ODE by deleting the `idxs` components.
+"""
+
 Base.deleteat!(i::DEIntegrator,ii) = error("deleteat!: method has not been implemented for the integrator")
-addat!(i::DEIntegrator,ii,val=zeros(length(idxs))) = error("addat!: method has not been implemented for the integrator")
+
+"""
+    addat!(integrator::DEIntegrator,idxs,val)
+
+Grows the ODE by adding the `idxs` components. Must be contiguous indices.
+"""
+addat!(i::DEIntegrator,idxs,val=zeros(length(idxs))) = error("addat!: method has not been implemented for the integrator")
+
+"""
+    get_tmp_cache(i::DEIntegrator)
+
+Returns a tuple of internal cache vectors which are safe to use as temporary arrays. This should be used 
+for integrator interface and callbacks which need arrays to write into in order to be non-allocating.
+The length of the tuple is dependent on the method.
+"""
 get_tmp_cache(i::DEIntegrator) = error("get_tmp_cache!: method has not been implemented for the integrator")
 user_cache(i::DEIntegrator) = error("user_cache: method has not been implemented for the integrator")
 u_cache(i::DEIntegrator) = error("u_cache: method has not been implemented for the integrator")
 du_cache(i::DEIntegrator) = error("du_cache: method has not been implemented for the integrator")
 ratenoise_cache(i::DEIntegrator) = ()
 rand_cache(i::DEIntegrator) = ()
+
+"""
+    full_cache(i::DEIntegrator)
+
+Returns an iterator over the cache arrays of the method. This can be used to change internal values as needed.
+"""
 full_cache(i::DEIntegrator) = error("full_cache: method has not been implemented for the integrator")
+
+"""
+    resize_non_user_cache!(integrator::DEIntegrator,k::Int)
+
+Resizes the non-user facing caches to be compatible with a DE of size `k`. This includes resizing Jacobian caches.
+
+!!! note
+    In many cases, [`resize!`](@ref) simply resizes [`full_cache`](@ref) variables and then
+    calls this function. This finer control is required for some `AbstractArray`
+    operations.
+"""
 resize_non_user_cache!(i::DEIntegrator,ii::Int) = error("resize_non_user_cache!: method has not been implemented for the integrator")
+
+"""
+    deleteat_non_user_cache!(integrator::DEIntegrator,idxs)
+
+[`deleteat!`](@ref)s the non-user facing caches at indices `idxs`. This includes resizing Jacobian caches. 
+
+!!! note
+    In many cases, `deleteat!` simply `deleteat!`s [`full_cache`](@ref) variables and then
+    calls this function. This finer control is required for some `AbstractArray`
+    operations.
+"""
 deleteat_non_user_cache!(i::DEIntegrator,idxs) = error("deleteat_non_user_cache!: method has not been implemented for the integrator")
+
+"""
+    addat_non_user_cache!(i::DEIntegrator,idxs)
+
+[`addat!`](@ref)s the non-user facing caches at indices `idxs`. This includes resizing Jacobian caches. 
+!!! note
+    In many cases, `addat!` simply `addat!`s [`full_cache`](@ref) variables and then
+    calls this function. This finer control is required for some `AbstractArray`
+    operations.
+"""
 addat_non_user_cache!(i::DEIntegrator,idxs) = error("addat_non_user_cache!: method has not been implemented for the integrator")
+
+"""
+    terminate!(i::DEIntegrator[, retcode = :Terminated])
+
+Terminates the integrator by emptying `tstops`. This can be used in events and callbacks to immediately
+end the solution process.  Optionally, `retcode` may be specified (see: [Return Codes (RetCodes)](@ref retcodes)).
+"""
 terminate!(i::DEIntegrator) = error("terminate!: method has not been implemented for the integrator")
+
+"""
+    get_du(i::DEIntegrator)
+
+Returns the derivative at `t`.
+"""
 get_du(i::DEIntegrator) = error("get_du: method has not been implemented for the integrator")
+
+"""
+    get_du!(out,i::DEIntegrator)
+
+Write the current derivative at `t` into `out`.
+"""
 get_du!(out,i::DEIntegrator) = error("get_du: method has not been implemented for the integrator")
 get_dt(i::DEIntegrator) = error("get_dt: method has not been implemented for the integrator")
+
+"""
+    get_proposed_dt(i::DEIntegrator)
+
+Gets the proposed `dt` for the next timestep.
+"""
 get_proposed_dt(i::DEIntegrator) = error("get_proposed_dt: method has not been implemented for the integrator")
+
+"""
+    set_proposed_dt(i::DEIntegrator,dt)
+    set_proposed_dt(i::DEIntegrator,i2::DEIntegrator)
+
+Sets the proposed `dt` for the next timestep. If second argument isa `DEIntegrator` then it sets the timestepping of
+first argument to match that of second one. Note that due to PI control and step acceleration this is more than matching
+the factors in most cases.
+"""
 set_proposed_dt!(i::DEIntegrator) = error("modify_proposed_dt!: method has not been implemented for the integrator")
+
 """
     savevalues!(integrator::DEIntegrator,
       force_save=false) -> Tuple{Bool, Bool}
@@ -43,17 +144,79 @@ The saving priority/order is as follows:
     - `force_save`
     - `save_everystep`
 """
-u_modified!(i::DEIntegrator,bool) = error("u_modified!: method has not been implemented for the integrator")
 savevalues!(i::DEIntegrator) = error("savevalues!: method has not been implemented for the integrator")
+
+"""
+    u_modified!(i::DEIntegrator,bool)
+
+Sets `bool` which states whether a change to `u` occurred, allowing the solver to handle the discontinuity. By default, 
+this is assumed to be true if a callback is used. This will result in the re-calculation of the derivative at 
+`t+dt`, which is not necessary if the algorithm is FSAL and `u` does not experience a discontinuous change at the
+end of the interval. Thus if `u` is unmodified in a callback, a single call to the derivative calculation can be 
+eliminated by `u_modified!(integrator,false)`. 
+"""
+u_modified!(i::DEIntegrator,bool) = error("u_modified!: method has not been implemented for the integrator")
+
+"""
+    add_tstop!(i::DEIntegrator,t)
+
+Adds a `tstop` at time `t`.
+"""
 add_tstop!(i::DEIntegrator,t) = error("add_tstop!: method has not been implemented for the integrator")
+
+"""
+    add_saveat!(i::DEIntegrator,t)
+
+Adds a `saveat` time point at `t`.
+"""
 add_saveat!(i::DEIntegrator,t) = error("add_saveat!: method has not been implemented for the integrator")
+
 set_abstol!(i::DEIntegrator,t) = error("set_abstol!: method has not been implemented for the integrator")
 set_reltol!(i::DEIntegrator,t) = error("set_reltol!: method has not been implemented for the integrator")
+
+"""
+    reinit!(integrator::DEIntegrator,args...; kwargs...)
+
+The reinit function lets you restart the integration at a new value.
+
+# Arguments
+
+- `u0`: Value of `u` to start at. Default value is `integrator.sol.prob.u0`
+
+# Keyword Arguments
+- `t0`: Starting timepoint. Default value is `integrator.sol.prob.tspan[1]`
+- `tf`: Ending timepoint. Default value is `integrator.sol.prob.tspan[2]`
+- `erase_sol=true`: Whether to start with no other values in the solution, or keep the previous solution.
+- `tstops`, `d_discontinuities`, & `saveat`: Cache where these are stored. Default is the original cache.
+- `reset_dt`: Set whether to reset the current value of `dt` using the automatic `dt` determination algorithm. Default is
+  `(integrator.dtcache == zero(integrator.dt)) && integrator.opts.adaptive`
+- `reinit_callbacks`: Set whether to run the callback initializations again (and `initialize_save` is for that). Default is `true`.
+- `reinit_cache`: Set whether to re-run the cache initialization function (i.e. resetting FSAL, not allocating vectors)
+  which should usually be true for correctness. Default is `true`.
+
+Additionally, once can access [`auto_dt_reset!`](@ref) which will run the auto `dt` initialization algorithm.
+"""
 reinit!(integrator::DEIntegrator,args...; kwargs...) =
        error("reinit!: method has not been implemented for the integrator")
+
+"""
+    auto_dt_reset!(integrator::DEIntegrator)
+
+Run the auto `dt` initialization algorithm.
+"""
 auto_dt_reset!(integrator::DEIntegrator) = error("auto_dt_reset!: method has not been implemented for the integrator")
+
+"""
+    change_t_via_interpolation!(integrator::DEIntegrator,t,modify_save_endpoint=Val{false})
+
+Modifies the current `t` and changes all of the corresponding values using the local interpolation. If the current solution
+has already been saved, one can provide the optional value `modify_save_endpoint` to also modify the endpoint of `sol` in the
+same manner.
+"""
 change_t_via_interpolation!(i::DEIntegrator,args...) = error("change_t_via_interpolation!: method has not been implemented for the integrator")
+
 addsteps!(i::DEIntegrator,args...) = nothing
+
 """
     reeval_internals_due_to_modification!(integrator::DDEIntegrator)
 
@@ -140,7 +303,7 @@ last_step_failed(integrator::DEIntegrator) = false
     check_error(integrator)
 
 Check state of `integrator` and return one of the
-[Return Codes](http://docs.juliadiffeq.org/latest/basics/solution.html#Return-Codes-(RetCodes)-1)
+[Return Codes](http://docs.juliadiffeq.org/dev/basics/solution.html#Return-Codes-(RetCodes)-1)
 """
 function check_error(integrator::DEIntegrator)
   # This implementation is intended to be used for ODEIntegrator and
@@ -157,7 +320,15 @@ function check_error(integrator::DEIntegrator)
     end
     return :MaxIters
   end
-  if !integrator.opts.force_dtmin && integrator.opts.adaptive && abs(integrator.dt) <= abs(integrator.opts.dtmin)
+
+  # The last part:
+  # If you are close to the end, don't exit: let the user hit the end!
+  # However, if we try that and the step fails, exit instead of infinite loop
+  if !integrator.opts.force_dtmin && integrator.opts.adaptive &&
+     abs(integrator.dt) <= abs(integrator.opts.dtmin) &&
+     (((hasproperty(integrator,:opts) && hasproperty(integrator.opts,:tstops)) ?
+     integrator.t + integrator.dt < integrator.tdir*top(integrator.opts.tstops) :
+     true) || (hasproperty(integrator,:accept_step) && !integrator.accept_step))
     if integrator.opts.verbose
       @warn("dt <= dtmin. Aborting. There is either an error in your model specification or the true solution is unstable.")
     end
@@ -237,6 +408,9 @@ end
 
 RecursiveArrayTools.tuples(integrator::DEIntegrator) = IntegratorTuples(integrator)
 
+"""
+$(TYPEDEF)
+"""
 struct IntegratorIntervals{I}
  integrator::I
 end

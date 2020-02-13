@@ -55,12 +55,24 @@ function solve(prob::DEProblem,args...;kwargs...)
     !(typeof(prob) <: NO_TSPAN_PROBS) &&
     adaptive_warn(_prob.u0,_prob.tspan)
     solve_call(_prob,args...;kwargs...)
+  elseif isempty(args) # Default algorithm handling
+    !(typeof(prob) <: NO_TSPAN_PROBS) &&
+    adaptive_warn(_prob.u0,_prob.tspan)
+    solve_call(_prob,args...;kwargs...)
   else
     solve_call(_prob,args...;kwargs...)
   end
 end
 
 function solve(prob::EnsembleProblem,args...;kwargs...)
+  if isempty(args)
+    __solve(prob,nothing,args...;kwargs...)
+  else
+    __solve(prob,args...;kwargs...)
+  end
+end
+
+function solve(prob::AbstractNoiseProblem,args...;kwargs...)
   __solve(prob,args...;kwargs...)
 end
 
@@ -136,12 +148,72 @@ handle_distribution_u0(_u0) = _u0
 eval_u0(u0::Function) = true
 eval_u0(u0) = false
 
+"""
+$(SIGNATURES)
+
+Check whether the values of `u0` and `tspan` are appropriate for use with
+adaptive integrators and emit specific warnings if they are not.
+"""
 function adaptive_warn(u0,tspan)
   adaptive_integer_warn(tspan)
 end
 
+"""
+$(SIGNATURES)
+
+Emit a warning about incompatibility with adaptive integers if `tspan` contains
+integers.
+"""
 function adaptive_integer_warn(tspan)
   if eltype(tspan) <: Integer
     @warn("Integer time values are incompatible with adaptive integrators. Utilize floating point numbers instead of integers in this case, i.e. (0.0,1.0) instead of (0,1).")
   end
+end
+
+function __solve(prob::DEProblem,args...;default_set=false,second_time=false,kwargs...)
+  if second_time
+    error("Default algorithm choices require DifferentialEquations.jl. Please specify an algorithm or import DifferentialEquations directly.")
+  elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing,DEAlgorithm})
+    error("Inappropiate solve command. The arguments do not make sense. Likely, you gave an algorithm which does not actually exist (or does not `<:DiffEqBase.DEAlgorithm`)")
+  else
+    __solve(prob::DEProblem,nothing,args...;default_set=false,second_time=true,kwargs...)
+  end
+end
+
+################### Concrete Solve
+
+function _concrete_solve end
+
+function concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,
+                        u0=prob.u0,p=prob.p,args...;kwargs...)
+  _concrete_solve(prob,alg,u0,p,args...;kwargs...)
+end
+
+function _concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,
+                        u0=prob.u0,p=prob.p,args...;kwargs...)
+  sol = solve(remake(prob,u0=u0,p=p),alg,args...;kwargs...)
+  RecursiveArrayTools.DiffEqArray(sol.u,sol.t)
+end
+
+function ChainRulesCore.frule(::typeof(concrete_solve),prob,alg,u0,p,args...;
+                     sensealg=nothing,kwargs...)
+  _concrete_solve_forward(prob,alg,sensealg,u0,p,args...;kwargs...)
+end
+
+function ChainRulesCore.rrule(::typeof(concrete_solve),prob,alg,u0,p,args...;
+                     sensealg=nothing,kwargs...)
+  _concrete_solve_adjoint(prob,alg,sensealg,u0,p,args...;kwargs...)
+end
+
+ZygoteRules.@adjoint function concrete_solve(prob,alg,u0,p,args...;
+                                             sensealg=nothing,kwargs...)
+  _concrete_solve_adjoint(prob,alg,sensealg,u0,p,args...;kwargs...)
+end
+
+function _concrete_solve_adjoint(args...;kwargs...)
+  error("No adjoint rules exist. Check that you added `using DiffEqSensitivity`")
+end
+
+function _concrete_solve_forward(args...;kwargs...)
+  error("No sensitivity rules exist. Check that you added `using DiffEqSensitivity`")
 end
