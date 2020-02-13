@@ -524,11 +524,10 @@ end
 
 # Ugly implemetation of find_zero that returns the final bracket instead of upper limit
 # until this gets included in Roots.jl
-function find_zero_bracket(fs, x0; kwargs...)
+function find_zero_bracket(fs, x0, method; kwargs...)
 
     x = Roots.adjust_bracket(x0)
     F = Roots.callable_function(fs)
-    method = Roots.Bisection()
     state = Roots.init_state(method, F, x)
     options = Roots.init_options(method, state; kwargs...)
 
@@ -574,7 +573,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
-          Θ, _ = find_zero_bracket(zero_func, (bottom_θ,top_Θ), atol = 0, rtol = 0, xatol = 0, xrtol = 0)
+          Θ, _ = find_zero_bracket(zero_func, (bottom_θ,top_Θ), Roots.AlefeldPotraShi(); atol = 0, rtol = 0, xatol = 0, xrtol = 0)
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
         end
         #Θ = prevfloat(...)
@@ -642,7 +641,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               end
               iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
-            Θ, _ = find_zero_bracket(zero_func, (bottom_θ,top_Θ), atol = 0, rtol = 0, xatol = 0, xrtol = 0)
+            Θ, _ = find_zero_bracket(zero_func, (bottom_θ,top_Θ), Roots.AlefeldPotraShi(); atol = 0, rtol = 0, xatol = 0, xrtol = 0)
             if Θ < minΘ
               integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
             end
