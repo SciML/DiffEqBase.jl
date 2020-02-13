@@ -25,22 +25,12 @@ function __init__()
     @inline fastpow(x::ForwardDiff.Dual, y::ForwardDiff.Dual) = x^y
 
     # Support adaptive with non-dual time
-    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual,N},t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
-    end
-    @inline function ODE_DEFAULT_NORM(u::Array{<:ForwardDiff.Dual,N},t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
-    end
-    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,t) = abs(value(u))
+    @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual},::Any) = sqrt(sum(UNITLESS_ABS2∘value,u) / length(u))
+    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,::Any) = abs(value(u))
 
     # When time is dual, it shouldn't drop the duals for adaptivity
-    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual,N},t::ForwardDiff.Dual) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((x for x in u),Iterators.repeated(t))) / length(u))
-    end
-    @inline function ODE_DEFAULT_NORM(u::Array{<:ForwardDiff.Dual,N},t::ForwardDiff.Dual) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((x for x in u),Iterators.repeated(t))) / length(u))
-    end
-    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,t::ForwardDiff.Dual) = abs(u)
+    @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual},::ForwardDiff.Dual) = sqrt(sum(UNITLESS_ABS2,u) / length(u))
+    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,::ForwardDiff.Dual) = abs(u)
 
     # Type piracy. Should upstream
     Base.nextfloat(d::ForwardDiff.Dual{T,V,N}) where {T,V,N} = ForwardDiff.Dual{T}(nextfloat(d.value), d.partials)
