@@ -585,7 +585,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
-          Θ, _ = find_zero_bracket(zero_func, (bottom_θ,top_Θ), atol = callback.abstol/100)
+          Θ, _ = find_zero_bracket(zero_func, (bottom_θ,top_Θ), atol = 0, rtol = 0, xatol = 0, xrtol = 0)
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
         end
         #Θ = prevfloat(...)
@@ -653,7 +653,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               end
               iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
-            Θ, _ = find_zero_bracket(zero_func, (bottom_θ,top_Θ), atol = callback.abstol/100)
+            Θ, _ = find_zero_bracket(zero_func, (bottom_θ,top_Θ), atol = 0, rtol = 0, xatol = 0, xrtol = 0)
             if Θ < minΘ
               integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
             end
