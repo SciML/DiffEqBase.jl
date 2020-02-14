@@ -242,7 +242,7 @@ function prob2dtmin(tspan, ::AbstractFloat)
   # handle eps(Inf) -> NaN
   t1f, t2f = map(isfinite, tspan)
   !t1f && throw(ArgumentError("t0 in the tspan `(t0, t1)` must be finite"))
-  return t1f & t2f ? max(eps(t1), eps(t2)) : eps(t1)
+  return t1f & t2f ? max(eps(t1), eps(t2)) : max(eps(typeof(t1)), eps(t1))
 end
 prob2dtmin(tspan, ::Integer) = 0
 prob2dtmin(tspan, ::Any) = convert(eltype(tspan), 1//10^(10))
