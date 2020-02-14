@@ -25,6 +25,7 @@ if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Numargs" begin include("numargs_test.jl") end
     @time @safetestset "Basic Operators Interface" begin include("basic_operators_interface.jl") end
     @time @safetestset "Norm" begin include("norm.jl") end
+    @time @safetestset "Utils" begin include("utils.jl") end
 end
 
 if !is_APPVEYOR && GROUP == "Downstream"
