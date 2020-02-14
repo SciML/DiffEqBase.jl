@@ -522,20 +522,6 @@ function findall_events(affect!,affect_neg!,prev_sign,next_sign)
   findall(x-> ((prev_sign[x] < 0 && affect! !== nothing) || (prev_sign[x] > 0 && affect_neg! !== nothing)) && prev_sign[x]*next_sign[x]<=0, keys(prev_sign))
 end
 
-# Ugly implemetation of find_zero that returns the final bracket instead of upper limit
-# until this gets included in Roots.jl
-function find_zero_bracket(fs, x0, method; kwargs...)
-
-    x = Roots.adjust_bracket(x0)
-    F = Roots.callable_function(fs)
-    state = Roots.init_state(method, F, x)
-    options = Roots.init_options(method, state; kwargs...)
-
-    find_zero(method, F, options, state, Roots.NullTracks())
-
-    state.xn0, state.xn1
-end
-
 function find_callback_time(integrator,callback::ContinuousCallback,counter)
   event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx = determine_event_occurance(integrator,callback,counter)
   if event_occurred
@@ -550,31 +536,31 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
         bottom_θ = typeof(integrator.t)(0)
       end
       if callback.rootfind && !isdiscrete(integrator.alg)
-        zero_func = (Θ) -> begin
-          abst = integrator.tprev+integrator.dt*Θ
+        zero_func = (Θnot) -> begin
+          abst = integrator.tprev+integrator.dt*(1-Θnot)
           return get_condition(integrator, callback, abst)
         end
-        if zero_func(top_Θ) == 0
+        if zero_func(1-top_Θ) == 0
           Θ = top_Θ
         else
           if integrator.event_last_time == counter &&
-            abs(zero_func(bottom_θ)) < 100abs(integrator.last_event_error) &&
+            abs(zero_func(1-bottom_θ)) < 100abs(integrator.last_event_error) &&
             prev_sign_index == 1
 
             # Determined that there is an event by derivative
             # But floating point error may make the end point negative
 
-            sign_top = sign(zero_func(top_Θ))
+            sign_top = sign(zero_func(1-top_Θ))
             bottom_θ += 2eps(typeof(bottom_θ))
             iter = 1
-            while sign(zero_func(bottom_θ)) == sign_top && iter < 12
+            while sign(zero_func(1-bottom_θ)) == sign_top && iter < 12
               bottom_θ *= 5
               iter += 1
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
-          Θ, _ = find_zero_bracket(zero_func, (bottom_θ,top_Θ), Roots.AlefeldPotraShi(); atol = 0, rtol = 0, xatol = 0, xrtol = 0)
-          integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
+          Θ = 1 - find_zero(zero_func, (1-top_Θ, 1-bottom_θ), Roots.Bisection())
+          integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(1-Θ),integrator.t+integrator.dt*Θ)
         end
         #Θ = prevfloat(...)
         # prevfloat guerentees that the new time is either 1 floating point
@@ -617,33 +603,33 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
         minΘ = nextfloat(top_Θ)
         min_event_idx = -1
         for idx in event_idx
-          zero_func = (Θ) -> begin
-            abst = integrator.tprev+integrator.dt*Θ
+          zero_func = (Θnot) -> begin
+            abst = integrator.tprev+integrator.dt*(1-Θnot)
             return ArrayInterface.allowed_getindex(get_condition(integrator, callback, abst),idx)
           end
-          if zero_func(top_Θ) == 0
+          if zero_func(1-top_Θ) == 0
             Θ = top_Θ
           else
             if integrator.event_last_time == counter &&
               (callback isa VectorContinuousCallback ? integrator.vector_event_last_time == event_idx : true) &&
-              abs(zero_func(bottom_θ)) < 100abs(integrator.last_event_error) &&
+              abs(zero_func(1-bottom_θ)) < 100abs(integrator.last_event_error) &&
               prev_sign_index == 1
 
               # Determined that there is an event by derivative
               # But floating point error may make the end point negative
 
-              sign_top = sign(zero_func(top_Θ))
+              sign_top = sign(zero_func(1-top_Θ))
               bottom_θ += 2eps(typeof(bottom_θ))
               iter = 1
-              while sign(zero_func(bottom_θ)) == sign_top && iter < 12
+              while sign(zero_func(1-bottom_θ)) == sign_top && iter < 12
                 bottom_θ *= 5
                 iter += 1
               end
               iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
-            Θ, _ = find_zero_bracket(zero_func, (bottom_θ,top_Θ), Roots.AlefeldPotraShi(); atol = 0, rtol = 0, xatol = 0, xrtol = 0)
+            Θ = 1 - find_zero(zero_func, (1-top_Θ,1-bottom_θ), Roots.Bisection())
             if Θ < minΘ
-              integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ),integrator.t+integrator.dt*Θ)
+              integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(1-Θ),integrator.t+integrator.dt*Θ)
             end
           end
           if Θ < minΘ
