@@ -234,3 +234,15 @@ end
 
 # Overloaded in other repositories
 function unwrap_cache end
+
+# TODO: would be good to have dtmin a function of dt
+prob2dtmin(prob) = prob2dtmin(prob.tspan, one(eltype(prob.tspan)))
+function prob2dtmin(tspan, ::AbstractFloat)
+  t1, t2 = tspan
+  # handle eps(Inf) -> NaN
+  t1f, t2f = map(isfinite, tspan)
+  !t1f && throw(ArgumentError("t0 in the tspan `(t0, t1)` must be finite"))
+  return t1f & t2f ? max(eps(t1), eps(t2)) : eps(t1)
+end
+prob2dtmin(tspan, ::Integer) = 0
+prob2dtmin(tspan, ::Any) = convert(eltype(tspan), 1//10^(10))
