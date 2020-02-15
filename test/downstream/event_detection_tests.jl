@@ -46,6 +46,7 @@ function condition(u,t,integrator) # Event when event_f(u,t) == 0
   u[1]
 end
 function affect!(integrator)
+  @test integrator.u[1] >= 0
   integrator.u[2] = -integrator.u[2]
 end
 cb2 = ContinuousCallback(condition,affect!)
@@ -55,3 +56,74 @@ p = 9.8
 prob = ODEProblem(f,u0,tspan,p)
 sol = solve(prob,Tsit5(),callback=cb2)
 @test minimum(sol') > -40
+
+function vcondition!(out,u,t,integrator)
+  out[1] = u[1]
+  out[2] = u[2]
+end
+
+function vaffect!(integrator, event_idx)
+  @test integrator.u[1] >= 0.0
+  if event_idx == 1
+    integrator.u[2] = -integrator.u[2]
+  else
+    integrator.p = 0.0
+  end
+end
+
+u0 = [50.0,0.0]
+tspan = (0.0,15.0)
+p = 9.8
+prob = ODEProblem(f,u0,tspan,p)
+Vcb = VectorContinuousCallback(vcondition!,vaffect!, 2 , save_positions=(true,true))
+sol = solve(prob,Tsit5(), callback=Vcb)
+
+f = function (du,u,p,t)
+  du[1] = u[2]
+  du[2] = -9.81
+end
+
+function condition(u,t,integrator) # Event when event_f(u,t) == 0
+  u[1]    # Event when height crosses from positive to negative
+end
+
+function affect_neg(integrator)
+  @test integrator.u[1] >= 0.0
+  integrator.u[2] = -0.8*integrator.u[2]
+end
+
+cb = ContinuousCallback(condition,nothing,affect_neg! = affect_neg)
+
+u0 = [1.0,0.0]
+tspan = (0.0, 3.0)
+prob = ODEProblem(f,u0,tspan)
+sol = solve(prob,Tsit5(),saveat=0.01,callback=cb)
+
+f! = function (du,u,p,t)
+  du[1] = u[2]
+  du[2] = -p
+end
+
+function condition!(out,u,t,integrator) 
+  out[1] = u[1]
+  out[2] = u[2]
+end
+
+function affect!(integrator, event_idx)
+  if event_idx == 1
+    integrator.u[2] = -integrator.u[2]
+  else
+    integrator.p = 0.0
+  end
+end
+
+u0 = [50.0,0.0]
+tspan = (0.0,15.0)
+
+begin
+    p = 9.8
+    prob = ODEProblem(f!,u0,tspan,p)
+    Vcb = VectorContinuousCallback(condition!,affect!, 2 , save_positions=(true,true))
+    sol = solve(prob,Tsit5(), callback=Vcb)
+end
+
