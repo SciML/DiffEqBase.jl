@@ -191,7 +191,12 @@ function __init__()
       Pardiso.pardiso(p.ps, x, A, b)
     end
     function (p::MKLPardisoFactorize)(::Type{Val{:init}},f,u0_prototype)
-      Pardiso.set_matrixtype!(p.ps, Pardiso.REAL_NONSYM)
+      if eltype(u0) <: Complex
+        mattype = Pardiso.Complex_NONSYM
+      else
+        mattype = Pardiso.REAL_NONSYM
+      end
+      Pardiso.set_matrixtype!(p.ps, mattype)
       if p.verbose
           Pardiso.set_msglvl!(p.ps, Pardiso.MESSAGE_LEVEL_ON)
       end
@@ -222,7 +227,12 @@ function __init__()
       Pardiso.pardiso(p.ps, x, A, b)
     end
     function (p::PardisoFactorize)(::Type{Val{:init}},f,u0_prototype)
-      Pardiso.set_matrixtype!(p.ps, Pardiso.REAL_NONSYM)
+      if eltype(u0) <: Complex
+        mattype = Pardiso.Complex_NONSYM
+      else
+        mattype = Pardiso.REAL_NONSYM
+      end
+      Pardiso.set_matrixtype!(p.ps, mattype)
       if p.verbose
           Pardiso.set_msglvl!(p.ps, Pardiso.MESSAGE_LEVEL_ON)
       end
@@ -257,7 +267,12 @@ function __init__()
       Pardiso.pardiso(ps, X, A, B)
     end
     function (p::PardisoIterate)(::Type{Val{:init}},f,u0_prototype)
-      Pardiso.set_matrixtype!(p.ps, Pardiso.REAL_NONSYM)
+      if eltype(u0) <: Complex
+        mattype = Pardiso.Complex_NONSYM
+      else
+        mattype = Pardiso.REAL_NONSYM
+      end
+      Pardiso.set_matrixtype!(p.ps, mattype)
       Pardiso.set_solver!(ps, Pardiso.ITERATIVE_SOLVER)
       if p.verbose
           Pardiso.set_msglvl!(p.ps, Pardiso.MESSAGE_LEVEL_ON)
