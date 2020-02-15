@@ -191,8 +191,8 @@ function __init__()
       Pardiso.pardiso(p.ps, x, A, b)
     end
     function (p::MKLPardisoFactorize)(::Type{Val{:init}},f,u0_prototype)
-      if eltype(u0) <: Complex
-        mattype = Pardiso.Complex_NONSYM
+      if eltype(u0_prototype) <: Complex
+        mattype = Pardiso.COMPLEX_NONSYM
       else
         mattype = Pardiso.REAL_NONSYM
       end
@@ -227,8 +227,8 @@ function __init__()
       Pardiso.pardiso(p.ps, x, A, b)
     end
     function (p::PardisoFactorize)(::Type{Val{:init}},f,u0_prototype)
-      if eltype(u0) <: Complex
-        mattype = Pardiso.Complex_NONSYM
+      if eltype(u0_prototype) <: Complex
+        mattype = Pardiso.COMPLEX_NONSYM
       else
         mattype = Pardiso.REAL_NONSYM
       end
@@ -267,8 +267,8 @@ function __init__()
       Pardiso.pardiso(ps, X, A, B)
     end
     function (p::PardisoIterate)(::Type{Val{:init}},f,u0_prototype)
-      if eltype(u0) <: Complex
-        mattype = Pardiso.Complex_NONSYM
+      if eltype(u0_prototype) <: Complex
+        mattype = Pardiso.COMPLEX_NONSYM
       else
         mattype = Pardiso.REAL_NONSYM
       end
