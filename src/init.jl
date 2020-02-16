@@ -151,6 +151,8 @@ function __init__()
       out
     end
 
+    ODE_DEFAULT_NORM(u::CuArrays.CuArray,t) = sqrt(real(sum(abs2,u))/length(u))
+
     @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
       @inline function ODE_DEFAULT_NORM(u::CuArrays.CuArray{<:ForwardDiff.Dual},t)
         sqrt(sum(abs2,value.(u)) / length(u))
