@@ -33,9 +33,9 @@ function init(prob::DEProblem,args...;kwargs...)
   end
 end
 
-function solve_call(_prob,args...;kwargs...)
+function solve_call(_prob,args...;merge_callbacks = true,kwargs...)
   if :kwargs ∈ propertynames(_prob)
-    if haskey(_prob.kwargs,:callback) && haskey(kwargs, :callback)
+    if merge_callbacks && haskey(_prob.kwargs,:callback) && haskey(kwargs, :callback)
       kwargs_temp = NamedTuple{Base.diff_names(Base._nt_names(
       values(kwargs)), (:callback,))}(values(kwargs))
       callbacks = NamedTuple{(:callback,)}( [DiffEqBase.CallbackSet(_prob.kwargs.callback, values(kwargs).callback )] )
