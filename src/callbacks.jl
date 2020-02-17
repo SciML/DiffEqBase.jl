@@ -4,7 +4,26 @@ INITIALIZE_DEFAULT(cb,u,t,integrator) = u_modified!(integrator, false)
 
 
 """
-$(TYPEDEF)
+```julia
+ContinuousCallback(condition,affect!,affect_neg!;
+                   initialize = INITIALIZE_DEFAULT,
+                   idxs = nothing,
+                   rootfind=true,
+                   save_positions=(true,true),
+                   interp_points=10,
+                   abstol=10eps(),reltol=0)
+```
+
+```julia
+function ContinuousCallback(condition,affect!;
+                   initialize = INITIALIZE_DEFAULT,
+                   idxs = nothing,
+                   rootfind=true,
+                   save_positions=(true,true),
+                   affect_neg! = affect!,
+                   interp_points=10,
+                   abstol=10eps(),reltol=0)
+```
 
 Contains a single callback whose `condition` is a continuous function. The callback is triggered when this function evaluates to 0.
 
@@ -102,7 +121,26 @@ function ContinuousCallback(condition,affect!;
 end
 
 """
-$(TYPEDEF)
+```julia
+VectorContinuousCallback(condition,affect!,affect_neg!,len;
+                         initialize = INITIALIZE_DEFAULT,
+                         idxs = nothing,
+                         rootfind=true,
+                         save_positions=(true,true),
+                         interp_points=10,
+                         abstol=10eps(),reltol=0)
+```
+
+```julia
+VectorContinuousCallback(condition,affect!,len;
+                   initialize = INITIALIZE_DEFAULT,
+                   idxs = nothing,
+                   rootfind=true,
+                   save_positions=(true,true),
+                   affect_neg! = affect!,
+                   interp_points=10,
+                   abstol=10eps(),reltol=0)
+```
 
 This is also a subtype of `AbstractContinuousCallback`. `CallbackSet` is not feasible when you have a large number of callbacks,
 as it doesn't scale well. For this reason, we have `VectorContinuousCallback` - it allows you to have a single callback for
@@ -172,7 +210,11 @@ function VectorContinuousCallback(condition,affect!,len;
 end
 
 """
-$(TYPEDEF)
+```julia
+DiscreteCallback(condition,affect!;
+                 initialize = INITIALIZE_DEFAULT,
+                 save_positions=(true,true))
+```
 
 # Arguments
 
