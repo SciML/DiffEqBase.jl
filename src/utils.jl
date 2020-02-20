@@ -236,13 +236,20 @@ end
 function unwrap_cache end
 
 # TODO: would be good to have dtmin a function of dt
-prob2dtmin(prob) = prob2dtmin(prob.tspan, one(eltype(prob.tspan)))
-function prob2dtmin(tspan, ::AbstractFloat)
+prob2dtmin(prob; use_end_time=true) = prob2dtmin(prob.tspan, one(eltype(prob.tspan)), use_end_time)
+function prob2dtmin(tspan, ::AbstractFloat, use_end_time)
   t1, t2 = tspan
   # handle eps(Inf) -> NaN
   t1f, t2f = map(isfinite, tspan)
   !t1f && throw(ArgumentError("t0 in the tspan `(t0, t1)` must be finite"))
-  return t1f & t2f ? max(eps(t1), eps(t2)) : max(eps(typeof(t1)), eps(t1))
+  dtmin = max(eps(typeof(t1)), eps(t1))
+  if use_end_time
+    dtmin = t1f & t2f ? max(eps(t1), eps(t2)) : max(eps(typeof(t1)), eps(t1))
+  end
+  return dtmin
 end
-prob2dtmin(tspan, ::Integer) = 0
-prob2dtmin(tspan, ::Any) = convert(eltype(tspan), 1//10^(10))
+prob2dtmin(tspan, ::Integer, ::Any) = 0
+prob2dtmin(tspan, ::Any, ::Any) = convert(eltype(tspan), 1//10^(10))
+
+timedepentdtmin(integrator::DEIntegrator) = timedepentdtmin(integrator.t, integrator.opts.dtmin)
+timedepentdtmin(t, dtmin) = abs(max(eps(t), dtmin))
