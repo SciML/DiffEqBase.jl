@@ -249,7 +249,8 @@ function prob2dtmin(tspan, ::AbstractFloat, use_end_time)
   return dtmin
 end
 prob2dtmin(tspan, ::Integer, ::Any) = 0
-prob2dtmin(tspan, ::Any, ::Any) = convert(eltype(tspan), 1//10^(10))
+# Multiplication is for putting the right units on the constant!
+prob2dtmin(tspan, onet, ::Any) = onet*1//10^(10)
 
 timedepentdtmin(integrator::DEIntegrator) = timedepentdtmin(integrator.t, integrator.opts.dtmin)
 timedepentdtmin(t::AbstractFloat, dtmin) = abs(max(eps(t), dtmin))
