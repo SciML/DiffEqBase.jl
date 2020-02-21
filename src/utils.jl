@@ -236,7 +236,7 @@ end
 function unwrap_cache end
 
 # TODO: would be good to have dtmin a function of dt
-prob2dtmin(prob; use_end_time=true) = prob2dtmin(prob.tspan, one(eltype(prob.tspan)), use_end_time)
+prob2dtmin(prob; use_end_time=true) = prob2dtmin(prob.tspan, oneunit(eltype(prob.tspan)), use_end_time)
 function prob2dtmin(tspan, ::AbstractFloat, use_end_time)
   t1, t2 = tspan
   # handle eps(Inf) -> NaN
