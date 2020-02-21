@@ -252,4 +252,5 @@ prob2dtmin(tspan, ::Integer, ::Any) = 0
 prob2dtmin(tspan, ::Any, ::Any) = convert(eltype(tspan), 1//10^(10))
 
 timedepentdtmin(integrator::DEIntegrator) = timedepentdtmin(integrator.t, integrator.opts.dtmin)
-timedepentdtmin(t, dtmin) = abs(max(eps(t), dtmin))
+timedepentdtmin(t::AbstractFloat, dtmin) = abs(max(eps(t), dtmin))
+timedepentdtmin(::Any, dtmin) = abs(dtmin)
