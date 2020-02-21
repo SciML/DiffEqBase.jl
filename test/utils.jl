@@ -15,4 +15,5 @@ using DiffEqBase: prob2dtmin, timedepentdtmin
   @test_throws ArgumentError tspan2dtmin((Inf, 100.0))
   @test tspan2dtmin((0f0, 1f5); use_end_time=false) === eps(1f0)
   @test timedepentdtmin(10f0, eps(1f0)) === eps(10f0)
+  @test timedepentdtmin(10, eps(1f0)) === eps(1f0)
 end
