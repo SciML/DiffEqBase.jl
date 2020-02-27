@@ -68,7 +68,7 @@ macro def(name, definition)
     end
 end
 
-using Compat.TypeUtils: typename
+using Base: typename
 
 Base.@pure __parameterless_type(T) = typename(T).wrapper
 parameterless_type(x) = parameterless_type(typeof(x))
