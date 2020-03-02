@@ -1,5 +1,15 @@
 const RECOMPILE_BY_DEFAULT = true
 
+Base.summary(prob::AbstractDiffEqFunction) = string(TYPE_COLOR, nameof(typeof(prob)),
+                                                   NO_COLOR, ". In-place: ",
+                                                   TYPE_COLOR, isinplace(prob),
+                                                   NO_COLOR)
+TreeViews.hastreeview(x::DiffEqBase.AbstractDiffEqFunction) = true
+function TreeViews.treelabel(io::IO,x::DiffEqBase.AbstractDiffEqFunction,
+                             mime::MIME"text/plain" = MIME"text/plain"())
+  show(io,mime,Base.Text(Base.summary(x)))
+end
+
 """
 $(TYPEDEF)
 """
