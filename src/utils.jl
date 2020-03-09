@@ -255,3 +255,6 @@ prob2dtmin(tspan, onet, ::Any) = onet*1//10^(10)
 timedepentdtmin(integrator::DEIntegrator) = timedepentdtmin(integrator.t, integrator.opts.dtmin)
 timedepentdtmin(t::AbstractFloat, dtmin) = abs(max(eps(t), dtmin))
 timedepentdtmin(::Any, dtmin) = abs(dtmin)
+
+maybe_with_logger(f, logger) = logger === nothing ? f() : with_logger(f, logger)
+default_logger() = Juno.isactive() ? nothing : TerminalLogger()

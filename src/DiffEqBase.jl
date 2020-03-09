@@ -3,7 +3,7 @@ module DiffEqBase
 using RecipesBase, RecursiveArrayTools,
       Requires, TableTraits, IteratorInterfaceExtensions, TreeViews,
       IterativeSolvers, RecursiveFactorization, Distributed, ArrayInterface,
-      DataStructures
+      DataStructures, Logging, TerminalLoggers, Juno
 
 import ZygoteRules, ChainRulesCore
 
