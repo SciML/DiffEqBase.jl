@@ -256,5 +256,21 @@ timedepentdtmin(integrator::DEIntegrator) = timedepentdtmin(integrator.t, integr
 timedepentdtmin(t::AbstractFloat, dtmin) = abs(max(eps(t), dtmin))
 timedepentdtmin(::Any, dtmin) = abs(dtmin)
 
-maybe_with_logger(f, logger) = logger === nothing ? f() : with_logger(f, logger)
-default_logger() = Juno.isactive() ? nothing : TerminalLogger()
+maybe_with_logger(f, logger) = logger === nothing ? f() : Logging.with_logger(f, logger)
+
+function default_logger(logger)
+  Logging.min_enabled_level(logger) ≤ Logging.LogLevel(-1) && return nothing
+
+  if Sys.iswindows() || (isdefined(:Main, :IJulia) && Main.IJulia.inited)
+    progresslogger = ConsoleProgressMonitor.ProgressLogger()
+  else
+    progresslogger = TerminalLoggers.TerminalLogger()
+  end
+
+  logger1 = LoggingExtras.EarlyFilteredLogger(progresslogger) do log
+    log.level == Logging.LogLevel(-1)
+  end
+  logger2 = LoggingExtras.MinLevelLogger(logger, Logging.LogLevel(0))
+
+  LoggingExtras.TeeLogger(logger1, logger2)
+end
