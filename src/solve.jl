@@ -41,9 +41,13 @@ function solve_call(_prob,args...;merge_callbacks = true,kwargs...)
       callbacks = NamedTuple{(:callback,)}( [DiffEqBase.CallbackSet(_prob.kwargs.callback, values(kwargs).callback )] )
       kwargs = merge(kwargs_temp, callbacks)
     end
-    __solve(_prob,args...;_prob.kwargs...,kwargs...)
+    maybe_with_logger(default_logger()) do
+      __solve(_prob,args...;_prob.kwargs...,kwargs...)
+    end
   else
-    __solve(_prob,args...;kwargs...)
+    maybe_with_logger(default_logger()) do
+      __solve(_prob,args...;kwargs...)
+    end
   end
 end
 
