@@ -47,7 +47,7 @@ function solve_call(_prob,args...;merge_callbacks = true,
       __solve(_prob,args...;_prob.kwargs...,kwargs...)
     end
   else
-    maybe_with_logger(default_logger(logger)) do
+    maybe_with_logger(logger) do
       __solve(_prob,args...;kwargs...)
     end
   end
