@@ -259,7 +259,7 @@ timedepentdtmin(::Any, dtmin) = abs(dtmin)
 maybe_with_logger(f, logger) = logger === nothing ? f() : Logging.with_logger(f, logger)
 
 function default_logger(logger)
-  Logging.min_enabled_level(logger) ≤ Logging.LogLevel(-1) && return nothing
+  Logging.min_enabled_level(logger) ≤ ProgressLogging.ProgressLevel && return nothing
 
   if Sys.iswindows() || (isdefined(:Main, :IJulia) && Main.IJulia.inited)
     progresslogger = ConsoleProgressMonitor.ProgressLogger()
@@ -268,9 +268,11 @@ function default_logger(logger)
   end
 
   logger1 = LoggingExtras.EarlyFilteredLogger(progresslogger) do log
-    log.level == Logging.LogLevel(-1)
+    log.level == ProgressLogging.ProgressLevel
   end
-  logger2 = LoggingExtras.MinLevelLogger(logger, Logging.LogLevel(0))
+  logger2 = LoggingExtras.EarlyFilteredLogger(logger) do log
+    log.level != ProgressLogging.ProgressLevel
+  end
 
   LoggingExtras.TeeLogger(logger1, logger2)
 end
