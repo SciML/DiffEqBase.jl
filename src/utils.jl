@@ -261,7 +261,7 @@ maybe_with_logger(f, logger) = logger === nothing ? f() : Logging.with_logger(f,
 function default_logger(logger)
   Logging.min_enabled_level(logger) ≤ ProgressLogging.ProgressLevel && return nothing
 
-  if Sys.iswindows() || (isdefined(:Main, :IJulia) && Main.IJulia.inited)
+  if Sys.iswindows() || (isdefined(Main, :IJulia) && Main.IJulia.inited)
     progresslogger = ConsoleProgressMonitor.ProgressLogger()
   else
     progresslogger = TerminalLoggers.TerminalLogger()
