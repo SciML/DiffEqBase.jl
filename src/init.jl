@@ -1,5 +1,7 @@
 value(x) = x
 cuify(x) = error("To use LinSolveGPUFactorize, you must do `using CuArrays`")
+promote_u0(u0,p,t0) = u0
+promote_tspan(u0,p,tspan,prob,kwargs) = tspan
 
 if VERSION < v"1.4.0-DEV.635"
   # Piracy, should get upstreamed
@@ -18,6 +20,19 @@ function __init__()
   end
 
   @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
+
+    promote_u0(u0::AbstractArray{<:ForwardDiff.Dual},p::AbstractArray{<:ForwardDiff.Dual},t0) = u0
+    promote_u0(u0,p::AbstractArray{<:ForwardDiff.Dual},t0) = eltype(p).(u0)
+
+    function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual},p,tspan,prob,kwargs)
+      if (haskey(kwargs,:callback) && has_continuous_callback(kwargs.callback)) ||
+         (haskey(prob.kwargs,:callback) && has_continuous_callback(prob.kwargs.callback))
+
+        return typeof(u0).(tspan)
+      else
+        return tspan
+      end
+    end
 
     value(x::Type{ForwardDiff.Dual{T,V,N}}) where {T,V,N} = V
     value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
@@ -53,6 +68,9 @@ function __init__()
 
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
 
+    promote_u0(u0::AbstractArray{<:Measurements.Measurement},p::AbstractArray{<:Measurements.Measurement},t0) = u0
+    promote_u0(u0,p::AbstractArray{<:Measurements.Measurement},t0) = eltype(p).(u0)
+
     value(x::Type{Measurements.Measurement{T}}) where {T} = T
     value(x::Measurements.Measurement) = Measurements.value(x)
 
@@ -69,6 +87,9 @@ function __init__()
   end
 
   @require MonteCarloMeasurements="0987c9cc-fe09-11e8-30f0-b96dd679fdca" begin
+
+    promote_u0(u0::AbstractArray{<:MonteCarloMeasurements.AbstractParticles},p::AbstractArray{<:MonteCarloMeasurements.AbstractParticles},t0) = u0
+    promote_u0(u0,p::AbstractArray{<:MonteCarloMeasurements.AbstractParticles},t0) = eltype(p).(u0)
 
     value(x::Type{MonteCarloMeasurements.AbstractParticles{T,N}}) where {T,N} = T
     value(x::MonteCarloMeasurements.AbstractParticles) = mean(x)
