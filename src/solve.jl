@@ -110,7 +110,7 @@ function get_concrete_problem(prob, kwargs)
   tspan = get_concrete_tspan(prob, kwargs)
   u0 = get_concrete_u0(prob, tspan[1], kwargs)
   u0 = promote_u0(u0, prob.p, tspan[1])
-  tspan = promote_tspan(u0, prob.p, tspan, prob, kwargs)
+  tspan = promote_tspan(u0, prob.p, tspan, prob; kwargs...)
   remake(prob; u0 = u0, tspan = tspan)
 end
 
@@ -126,7 +126,7 @@ function get_concrete_problem(prob::DDEProblem, kwargs)
   end
 
   u0 = promote_u0(u0, prob.p, tspan[1])
-  tspan = promote_tspan(u0, prob.p, tspan, prob, kwargs)
+  tspan = promote_tspan(u0, prob.p, tspan, prob; kwargs...)
 
   remake(prob; u0 = u0, tspan = tspan, constant_lags = constant_lags)
 end
