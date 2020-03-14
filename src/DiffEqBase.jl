@@ -239,6 +239,11 @@ $(TYPEDEF)
 """
 abstract type AbstractSensitivityAlgorithm{CS,AD,FDT} <: DiffEqBase.DEAlgorithm end
 
+"""
+$(TYPEDEF)
+"""
+abstract type DAEInitializationAlgorithm end
+
 # PDE Discretizations
 
 """
