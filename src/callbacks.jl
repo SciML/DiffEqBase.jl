@@ -151,11 +151,11 @@ multiple events.
 - `condition`: This is a function `condition(out, u, t, integrator)` which should save the condition value in the array `out`
    at the right index. Maximum index of `out` should be specified in the `len` property of callback. So this way you can have
    a chain of `len` events, which would cause the `i`th event to trigger when `out[i] = 0`.
-- `affect!`: This is a function `affect!(integrator, event_index)` which lets you modify `integrator` and it tells you about 
+- `affect!`: This is a function `affect!(integrator, event_index)` which lets you modify `integrator` and it tells you about
    which event occured using `event_idx` i.e. gives you index `i` for which `out[i]` came out to be zero.
 - `len`: Number of callbacks chained. This is compulsory to be specified.
 
-Rest of the arguments have the same meaning as in [`ContinuousCallback`](@ref). 
+Rest of the arguments have the same meaning as in [`ContinuousCallback`](@ref).
 """
 struct VectorContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   condition::F1
@@ -320,6 +320,10 @@ end
 Base.isempty(cb::CallbackSet) = isempty(cb.continuous_callbacks) && isempty(cb.discrete_callbacks)
 Base.isempty(cb::AbstractContinuousCallback) = false
 Base.isempty(cb::AbstractDiscreteCallback) = false
+
+has_continuous_callback(cb::DiscreteCallback) = false
+has_continuous_callback(cb::ContinuousCallback) = true
+has_continuous_callback(cb::CallbackSet) = !isempty(cb.continuous_callbacks)
 
 #======================================================#
 # Callback handling
