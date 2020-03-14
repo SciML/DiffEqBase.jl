@@ -35,7 +35,7 @@ addat!(i::DEIntegrator,idxs,val=zeros(length(idxs))) = error("addat!: method has
 """
     get_tmp_cache(i::DEIntegrator)
 
-Returns a tuple of internal cache vectors which are safe to use as temporary arrays. This should be used 
+Returns a tuple of internal cache vectors which are safe to use as temporary arrays. This should be used
 for integrator interface and callbacks which need arrays to write into in order to be non-allocating.
 The length of the tuple is dependent on the method.
 """
@@ -68,7 +68,7 @@ resize_non_user_cache!(i::DEIntegrator,ii::Int) = error("resize_non_user_cache!:
 """
     deleteat_non_user_cache!(integrator::DEIntegrator,idxs)
 
-[`deleteat!`](@ref)s the non-user facing caches at indices `idxs`. This includes resizing Jacobian caches. 
+[`deleteat!`](@ref)s the non-user facing caches at indices `idxs`. This includes resizing Jacobian caches.
 
 !!! note
     In many cases, `deleteat!` simply `deleteat!`s [`full_cache`](@ref) variables and then
@@ -80,7 +80,7 @@ deleteat_non_user_cache!(i::DEIntegrator,idxs) = error("deleteat_non_user_cache!
 """
     addat_non_user_cache!(i::DEIntegrator,idxs)
 
-[`addat!`](@ref)s the non-user facing caches at indices `idxs`. This includes resizing Jacobian caches. 
+[`addat!`](@ref)s the non-user facing caches at indices `idxs`. This includes resizing Jacobian caches.
 !!! note
     In many cases, `addat!` simply `addat!`s [`full_cache`](@ref) variables and then
     calls this function. This finer control is required for some `AbstractArray`
@@ -149,11 +149,11 @@ savevalues!(i::DEIntegrator) = error("savevalues!: method has not been implement
 """
     u_modified!(i::DEIntegrator,bool)
 
-Sets `bool` which states whether a change to `u` occurred, allowing the solver to handle the discontinuity. By default, 
-this is assumed to be true if a callback is used. This will result in the re-calculation of the derivative at 
+Sets `bool` which states whether a change to `u` occurred, allowing the solver to handle the discontinuity. By default,
+this is assumed to be true if a callback is used. This will result in the re-calculation of the derivative at
 `t+dt`, which is not necessary if the algorithm is FSAL and `u` does not experience a discontinuous change at the
-end of the interval. Thus if `u` is unmodified in a callback, a single call to the derivative calculation can be 
-eliminated by `u_modified!(integrator,false)`. 
+end of the interval. Thus if `u` is unmodified in a callback, a single call to the derivative calculation can be
+eliminated by `u_modified!(integrator,false)`.
 """
 u_modified!(i::DEIntegrator,bool) = error("u_modified!: method has not been implemented for the integrator")
 
@@ -198,6 +198,16 @@ Additionally, once can access [`auto_dt_reset!`](@ref) which will run the auto `
 """
 reinit!(integrator::DEIntegrator,args...; kwargs...) =
        error("reinit!: method has not been implemented for the integrator")
+
+"""
+initialize_dae!(integrator::DEIntegrator,initializealg = integrator.initializealg)
+
+Runs the DAE initialization to find a consistent state vector. The optional
+argument `initializealg` can be used to specify a different initialization
+algorithm to use.
+"""
+initialize_dae!(integrator::DEIntegrator) =
+       error("initialize_dae!: method has not been implemented for the integrator")
 
 """
     auto_dt_reset!(integrator::DEIntegrator)
