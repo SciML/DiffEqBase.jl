@@ -8,10 +8,10 @@ os:
 #  - osx
 julia:
   - 1
-  - nightly
-matrix:
-  allow_failures:
-    - julia: nightly
+#  - nightly
+#matrix:
+#  allow_failures:
+#    - julia: nightly
 env:
   - GROUP=Core
   - GROUP=Downstream
