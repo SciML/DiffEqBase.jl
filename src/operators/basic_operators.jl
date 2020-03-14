@@ -99,6 +99,13 @@ Base.convert(::Type{AbstractMatrix}, L::DiffEqArrayOperator) = L.A
 Base.setindex!(L::DiffEqArrayOperator, v, i::Int) = (L.A[i] = v)
 Base.setindex!(L::DiffEqArrayOperator, v, I::Vararg{Int, N}) where {N} = (L.A[I...] = v)
 
+Base.eachcol(L::DiffEqArrayOperator) = eachcol(L.A)
+Base.eachrow(L::DiffEqArrayOperator) = eachrow(L.A)
+Base.length(L::DiffEqArrayOperator) = length(L.A)
+Base.iterate(L::DiffEqArrayOperator,args...) = iterate(L.A,args...)
+Base.axes(L::DiffEqArrayOperator) = axes(L.A)
+Base.IndexStyle(::Type{<:DiffEqArrayOperator{T,AType}}) where {T,AType} = Base.IndexStyle(AType)
+
 """
     FactorizedDiffEqArrayOperator(F)
 
@@ -116,6 +123,7 @@ Base.size(L::FactorizedDiffEqArrayOperator, args...) = size(L.F, args...)
 LinearAlgebra.ldiv!(Y::AbstractVecOrMat, L::FactorizedDiffEqArrayOperator, B::AbstractVecOrMat) = ldiv!(Y, L.F, B)
 LinearAlgebra.ldiv!(L::FactorizedDiffEqArrayOperator, B::AbstractVecOrMat) = ldiv!(L.F, B)
 Base.:\(L::FactorizedDiffEqArrayOperator, x::AbstractVecOrMat) = L.F \ x
+LinearAlgebra.issuccess(L::FactorizedDiffEqArrayOperator) = issuccess(L.F)
 
 # The (u,p,t) and (du,u,p,t) interface
 for T in [DiffEqScalar, DiffEqArrayOperator, FactorizedDiffEqArrayOperator, DiffEqIdentity]

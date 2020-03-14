@@ -21,12 +21,17 @@ LinearAlgebra.ldiv!(Y::AbstractVecOrMat, L::AbstractDiffEqLinearOperator, B::Abs
 for pred in (:isreal, :issymmetric, :ishermitian, :isposdef)
   @eval LinearAlgebra.$pred(L::AbstractDiffEqLinearOperator) = $pred(convert(AbstractArray, L))
 end
+for op in (:sum,:prod)
+  @eval LinearAlgebra.$op(L::AbstractDiffEqLinearOperator; kwargs...) = $op(convert(AbstractArray, L); kwargs...)
+end
 LinearAlgebra.factorize(L::AbstractDiffEqLinearOperator) =
   FactorizedDiffEqArrayOperator(factorize(convert(AbstractMatrix, L)))
 for fact in (:lu, :lu!, :qr, :qr!, :cholesky, :cholesky!, :ldlt, :ldlt!,
   :bunchkaufman, :bunchkaufman!, :lq, :lq!, :svd, :svd!)
   @eval LinearAlgebra.$fact(L::AbstractDiffEqLinearOperator, args...) =
     FactorizedDiffEqArrayOperator($fact(convert(AbstractMatrix, L), args...))
+  @eval LinearAlgebra.$fact(L::AbstractDiffEqLinearOperator; kwargs...) =
+    FactorizedDiffEqArrayOperator($fact(convert(AbstractMatrix, L); kwargs...))
 end
 
 # Routines that use the full matrix representation
