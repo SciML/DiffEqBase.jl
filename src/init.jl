@@ -24,11 +24,15 @@ function __init__()
     promote_u0(u0::AbstractArray{<:ForwardDiff.Dual},p::AbstractArray{<:ForwardDiff.Dual},t0) = u0
     promote_u0(u0,p::AbstractArray{<:ForwardDiff.Dual},t0) = eltype(p).(u0)
 
+    function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual},p,tspan::Tuple{<:ForwardDiff.Dual,<:ForwardDiff.Dual},prob,kwargs)
+      return tspan
+    end
+
     function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual},p,tspan,prob,kwargs)
       if (haskey(kwargs,:callback) && has_continuous_callback(kwargs[:callback])) ||
          (haskey(prob.kwargs,:callback) && has_continuous_callback(prob.kwargs[:callback]))
 
-        return typeof(u0).(tspan)
+        return eltype(u0).(tspan)
       else
         return tspan
       end
