@@ -21,6 +21,8 @@ using FunctionWrappers: FunctionWrapper
 
 using MuladdMacro, Parameters
 
+using Compat # for eachrow eachcol on v1.0
+
 # Problems
 """
 $(TYPEDEF)
