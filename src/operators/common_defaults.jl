@@ -7,7 +7,7 @@ update_coefficients!(L::AbstractDiffEqLinearOperator,u,p,t) = L
 Base.convert(::Type{AbstractArray}, L::AbstractDiffEqLinearOperator) = convert(AbstractMatrix, L)
 Base.size(L::AbstractDiffEqLinearOperator, args...) = size(convert(AbstractMatrix,L), args...)
 LinearAlgebra.opnorm(L::AbstractDiffEqLinearOperator, p::Real=2) = opnorm(convert(AbstractMatrix,L), p)
-Base.getindex(L::AbstractDiffEqLinearOperator, i::Int) = convert(AbstractMatrix,L)[i]
+Base.@propagate_inbounds Base.getindex(L::AbstractDiffEqLinearOperator, I::Vararg{Any,N}) where {N} = convert(AbstractMatrix,L)[I...]
 Base.getindex(L::AbstractDiffEqLinearOperator, I::Vararg{Int, N}) where {N} =
   convert(AbstractMatrix,L)[I...]
 for op in (:*, :/, :\)

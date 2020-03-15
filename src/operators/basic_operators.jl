@@ -95,9 +95,10 @@ update_coefficients!(L::DiffEqArrayOperator,u,p,t) = (L.update_func(L.A,u,p,t); 
 setval!(L::DiffEqArrayOperator, A) = (L.A = A; L)
 isconstant(L::DiffEqArrayOperator) = L.update_func == DEFAULT_UPDATE_FUNC
 
-Base.convert(::Type{AbstractMatrix}, L::DiffEqArrayOperator) = L.A
-Base.setindex!(L::DiffEqArrayOperator, v, i::Int) = (L.A[i] = v)
-Base.setindex!(L::DiffEqArrayOperator, v, I::Vararg{Int, N}) where {N} = (L.A[I...] = v)
+# propagate_inbounds here for the getindex fallback
+Base.@propagate_inbounds Base.convert(::Type{AbstractMatrix}, L::DiffEqArrayOperator) = L.A
+Base.@propagate_inbounds Base.setindex!(L::DiffEqArrayOperator, v, i::Int) = (L.A[i] = v)
+Base.@propagate_inbounds Base.setindex!(L::DiffEqArrayOperator, v, I::Vararg{Int, N}) where {N} = (L.A[I...] = v)
 
 Base.eachcol(L::DiffEqArrayOperator) = eachcol(L.A)
 Base.eachrow(L::DiffEqArrayOperator) = eachrow(L.A)
