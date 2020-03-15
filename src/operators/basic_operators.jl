@@ -105,6 +105,7 @@ Base.length(L::DiffEqArrayOperator) = length(L.A)
 Base.iterate(L::DiffEqArrayOperator,args...) = iterate(L.A,args...)
 Base.axes(L::DiffEqArrayOperator) = axes(L.A)
 Base.IndexStyle(::Type{<:DiffEqArrayOperator{T,AType}}) where {T,AType} = Base.IndexStyle(AType)
+Base.copyto!(A::DiffEqArrayOperator, rhs) = copyto!(A.A, rhs)
 
 """
     FactorizedDiffEqArrayOperator(F)

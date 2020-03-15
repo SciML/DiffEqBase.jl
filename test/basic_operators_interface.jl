@@ -31,6 +31,8 @@ end
   @test exp(L) == exp(A)
   @test L[1,2] == A[1,2]
   @test isconstant(L) == true
+  L .= 0
+  @test all(iszero, L)
 end
 
 @testset "Mutable Array Operators" begin
