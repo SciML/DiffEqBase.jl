@@ -1,5 +1,5 @@
 using DiffEqBase, Random, LinearAlgebra, Test
-using DiffEqBase: isconstant
+using DiffEqBase: isconstant, @..
 
 @testset "Identity Operators" begin
   u = [1.0, 2.0]; du = zeros(2)
@@ -33,6 +33,12 @@ end
   @test isconstant(L) == true
   L .= 0
   @test all(iszero, L)
+  tmp = rand(size(L)...)
+  @.. L = muladd(1, tmp, 0)
+  @test L.A == tmp
+  rand!(tmp)
+  @.. tmp = muladd(1, L, 0)
+  @test L.A == tmp
 end
 
 @testset "Mutable Array Operators" begin
