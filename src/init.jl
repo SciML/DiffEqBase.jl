@@ -1,7 +1,7 @@
 value(x) = x
 cuify(x) = error("To use LinSolveGPUFactorize, you must do `using CuArrays`")
 promote_u0(u0,p,t0) = u0
-promote_tspan(u0,p,tspan,prob;kwargs...) = tspan
+promote_tspan(u0,p,tspan,prob,kwargs) = tspan
 
 if VERSION < v"1.4.0-DEV.635"
   # Piracy, should get upstreamed
@@ -24,9 +24,9 @@ function __init__()
     promote_u0(u0::AbstractArray{<:ForwardDiff.Dual},p::AbstractArray{<:ForwardDiff.Dual},t0) = u0
     promote_u0(u0,p::AbstractArray{<:ForwardDiff.Dual},t0) = eltype(p).(u0)
 
-    function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual},p,tspan,prob;callback=nothing,kwargs...)
-      if (callback !== nothing && has_continuous_callback(kwargs.callback)) ||
-         (haskey(prob.kwargs,:callback) && has_continuous_callback(prob.kwargs.callback))
+    function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual},p,tspan,prob,kwargs)
+      if (haskey(kwargs,:callback) && has_continuous_callback(kwargs[:callback])) ||
+         (haskey(prob.kwargs,:callback) && has_continuous_callback(prob.kwargs[:callback]))
 
         return typeof(u0).(tspan)
       else
