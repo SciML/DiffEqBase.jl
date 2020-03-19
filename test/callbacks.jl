@@ -1,4 +1,4 @@
-using DiffEqBase, OrdinaryDiffEq, Test
+using DiffEqBase, Test
 
 condtion= function (u,t,integrator) # Event when event_f(u,t,k) == 0
   t - 2.95
@@ -50,20 +50,3 @@ cbs5 = CallbackSet(cbs1,cbs2)
 
 @test length(cbs5.discrete_callbacks) == 1
 @test length(cbs5.continuous_callbacks) == 2
-
-# Auto callback merging
-
-do_nothing = DiscreteCallback(
-     (u,t,integrator) -> true,
-     integrator -> nothing
- )
-problem = ODEProblem(
-   (u,p,t)->-u,
-   1.0, (0.0,1.0),
-   callback = do_nothing
-)
-solve(
-   problem, Euler(),
-   dt = 0.1,
-   callback = do_nothing
-)
