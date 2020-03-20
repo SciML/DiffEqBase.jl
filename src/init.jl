@@ -68,6 +68,8 @@ function __init__()
 
     get_tmp(dc::DiffCache, u::AbstractArray{T}) where T<:ForwardDiff.Dual = reinterpret(T, dc.dual_du)
     get_tmp(dc::DiffCache, u::AbstractArray) = dc.du
+
+    bisection(f, tup::Tuple{T,T}, tdir) where {T<:ForwardDiff.Dual} = find_zero(f, tup, Roots.AlefeldPotraShi())
   end
 
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
