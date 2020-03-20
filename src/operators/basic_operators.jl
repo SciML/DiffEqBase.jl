@@ -99,8 +99,13 @@ Base.convert(::Type{AbstractMatrix}, L::DiffEqArrayOperator) = L.A
 Base.setindex!(L::DiffEqArrayOperator, v, i::Int) = (L.A[i] = v)
 Base.setindex!(L::DiffEqArrayOperator, v, I::Vararg{Int, N}) where {N} = (L.A[I...] = v)
 
-Base.eachcol(L::DiffEqArrayOperator) = eachcol(L.A)
-Base.eachrow(L::DiffEqArrayOperator) = eachrow(L.A)
+if VERSION < v"1.1.0-DEV.792"
+  Compat.eachcol(L::DiffEqArrayOperator) = eachcol(L.A)
+  Compat.eachrow(L::DiffEqArrayOperator) = eachrow(L.A)
+else
+  Base.eachcol(L::DiffEqArrayOperator) = eachcol(L.A)
+  Base.eachrow(L::DiffEqArrayOperator) = eachrow(L.A)
+end
 Base.length(L::DiffEqArrayOperator) = length(L.A)
 Base.iterate(L::DiffEqArrayOperator,args...) = iterate(L.A,args...)
 Base.axes(L::DiffEqArrayOperator) = axes(L.A)
