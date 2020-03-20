@@ -414,7 +414,7 @@ end
   if callback.interp_points!=0
     addsteps!(integrator)
   end
-  Θs = range(typeof(integrator.t)(0), stop=typeof(integrator.t)(1), length=callback.interp_points)
+  ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
   interp_index = 0
   # Check if the event occured
   previous_condition = @views(integrator.callback_cache.previous_condition[1:callback.len])
@@ -471,8 +471,8 @@ end
     interp_index = callback.interp_points
   end
   if callback.interp_points!=0 && !isdiscrete(integrator.alg) && length(prev_sign) != length(event_idx) # Use the interpolants for safety checking
-    for i in 2:length(Θs)
-      abst = integrator.tprev+integrator.dt*Θs[i]
+    for i in 2:length(ts)
+      abst = ts[i]
       new_sign = get_condition(integrator, callback, abst)
       _event_idx = findall_events(callback.affect!,callback.affect_neg!,prev_sign,new_sign)
       if length(_event_idx) != 0
@@ -487,7 +487,7 @@ end
   end
 
   event_idx_out = convert(Array,event_idx) # No-op on arrays
-  event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx_out
+  event_occurred,interp_index,ts,prev_sign,prev_sign_index,event_idx_out
 end
 
 @inline function determine_event_occurance(integrator,callback::ContinuousCallback,counter)
@@ -661,55 +661,54 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
 end
 
 function find_callback_time(integrator,callback::VectorContinuousCallback,counter)
-  event_occurred,interp_index,Θs,prev_sign,prev_sign_index,event_idx = determine_event_occurance(integrator,callback,counter)
+  event_occurred,interp_index,ts,prev_sign,prev_sign_index,event_idx = determine_event_occurance(integrator,callback,counter)
   if event_occurred
     if callback.condition === nothing
       new_t = zero(typeof(integrator.t))
       min_event_idx = event_idx[1]
     else
       if callback.interp_points!=0
-        top_Θ = Θs[interp_index] # Top at the smallest
-        bottom_θ = Θs[prev_sign_index]
+        top_t = ts[interp_index] # Top at the smallest
+        bottom_t = ts[prev_sign_index]
       else
-        top_Θ = typeof(integrator.t)(1)
-        bottom_θ = typeof(integrator.t)(0)
+        top_t = integrator.t
+        bottom_t = integrator.tprev
       end
       if callback.rootfind && !isdiscrete(integrator.alg)
-        minΘ = nextfloat(top_Θ)
+        min_t = nextfloat(top_t)
         min_event_idx = -1
         for idx in event_idx
-          zero_func = (Θnot) -> begin
-            abst = integrator.tprev+integrator.dt*(1-Θnot)
-            return ArrayInterface.allowed_getindex(get_condition(integrator, callback, abst),idx)
-          end
-          if zero_func(1-top_Θ) == 0
-            Θ = top_Θ
+          zero_func(abst) = ArrayInterface.allowed_getindex(get_condition(integrator, callback, abst),idx)
+          if zero_func(top_t) == 0
+            Θ = top_t
           else
             if integrator.event_last_time == counter &&
-              (callback isa VectorContinuousCallback ? integrator.vector_event_last_time == event_idx : true) &&
-              abs(zero_func(1-bottom_θ)) < 100abs(integrator.last_event_error) &&
+              integrator.vector_event_last_time == event_idx &&
+              abs(zero_func(bottom_t)) < 100abs(integrator.last_event_error) &&
               prev_sign_index == 1
 
               # Determined that there is an event by derivative
               # But floating point error may make the end point negative
 
-              sign_top = sign(zero_func(1-top_Θ))
-              bottom_θ += 2eps(typeof(bottom_θ))
+              sign_top = sign(zero_func(top_t))
+              diff_t = integrator.tdir * 2eps(typeof(bottom_t))
+              bottom_t += diff_t
               iter = 1
-              while sign(zero_func(1-bottom_θ)) == sign_top && iter < 12
-                bottom_θ *= 5
+              while sign(zero_func(bottom_t)) == sign_top && iter < 12
+                diff_t *= 5
+                bottom_t = integrator.tprev + diff_t
                 iter += 1
               end
               iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
-            Θ = 1 - find_zero(zero_func, (1-top_Θ,1-bottom_θ), Roots.Bisection())
-            if Θ < minΘ
-              integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(1-Θ),integrator.t+integrator.dt*Θ)
+            Θ = bisection(zero_func, (bottom_t,top_t), integrator.tdir)
+            if integrator.tdir * Θ < integrator.tdir * min_t
+              integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
             end
           end
-          if Θ < minΘ
+          if integrator.tdir * Θ < integrator.tdir * min_t
             min_event_idx = idx
-            minΘ = Θ
+            min_t = Θ
           end
         end
         #Θ = prevfloat(...)
@@ -720,9 +719,9 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
         # The item never leaves the domain. Otherwise Roots.jl can return
         # a float which is slightly after, making it out of the domain, causing
         # havoc.
-        new_t = integrator.dt*minΘ
+        new_t = min_t -integrator.tprev
       elseif interp_index != callback.interp_points && !isdiscrete(integrator.alg)
-        new_t = integrator.dt*Θs[interp_index]
+        new_t = ts[interp_index] - integrator.tprev
         min_event_idx = event_idx[1]
       else
         # If no solve and no interpolants, just use endpoint
