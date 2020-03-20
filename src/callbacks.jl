@@ -571,15 +571,15 @@ function bisection(f, tup, tdir)
   @assert f(x0) * f(x1) < 0.0
   left = x0
   right = x1
-  prevfloat_tdir = (tdir === 1.0 ? prevfloat : nextfloat)
+  prevfloat_tdir = isone(tdir) ? prevfloat : nextfloat
   while true
     @assert f(left) * f(right) < 0.0
     mid = (left + right) / 2
     y = f(mid)
-    if y === 0.0
+    if iszero(y)
       # we are in the region of zero
       mid = prevfloat_tdir(mid)
-      while f(mid) === 0.0
+      while iszero(f(mid))
         mid = prevfloat_tdir(mid)
       end
       return mid
