@@ -566,20 +566,21 @@ end
 # rough implementation, needs multiple type handling
 # always ensures that if r = bisection(f, (x0, x1))
 # then either f(nextfloat(r)) == 0 or f(nextfloat(r)) * f(r) < 0
-function bisection(f, tup)
+function bisection(f, tup, tdir)
   x0, x1 = tup
   @assert f(x0) * f(x1) < 0.0
   left = x0
   right = x1
+  prevfloat_tdir = (tdir === 1.0 ? prevfloat : nextfloat)
   while true
     @assert f(left) * f(right) < 0.0
     mid = (left + right) / 2
     y = f(mid)
-    if y === 0
+    if y === 0.0
       # we are in the region of zero
-      mid = prevfloat(mid)
+      mid = prevfloat_tdir(mid)
       while f(mid) === 0.0
-        mid = prevfloat(mid)
+        mid = prevfloat_tdir(mid)
       end
       return mid
     end
@@ -623,7 +624,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             # But floating point error may make the end point negative
 
             sign_top = sign(zero_func(top_t))
-            diff_t = 2eps(typeof(bottom_t))
+            diff_t = integrator.tdir*2eps(typeof(bottom_t))
             bottom_t += diff_t
             iter = 1
             while sign(zero_func(bottom_t)) == sign_top && iter < 12
@@ -633,7 +634,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
-          Θ = bisection(zero_func, (bottom_t, top_t))
+          Θ = bisection(zero_func, (bottom_t, top_t), integrator.tdir)
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
         end
         #Θ = prevfloat(...)
