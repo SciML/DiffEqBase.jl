@@ -566,25 +566,38 @@ end
 # rough implementation, needs multiple type handling
 # always ensures that if r = bisection(f, (x0, x1))
 # then either f(nextfloat(r)) == 0 or f(nextfloat(r)) * f(r) < 0
-function bisection(f, tup, tdir)
+function bisection(f, tup, tdir; maxiters=100)
   x0, x1 = tup
-  @assert f(x0) * f(x1) < 0.0
+  (f(x0) * f(x1) >= 0.0) && error("Non bracketing interval passed in bisection method. Please report the error in DiffEqBase.")
   left = x0
   right = x1
   prevfloat_tdir = isone(tdir) ? prevfloat : nextfloat
+  iter = 0
   while true
-    @assert f(left) * f(right) < 0.0
+    iter += 1
+    iter == maxiters && error("Maxiters exceeded in bisection. Please report the error in DiffEqBase")
+    f(left) * f(right) >= 0.0 && error("Unexpected values in bisection. Please report the error in DiffEqBase.")
     mid = (left + right) / 2
     y = f(mid)
     if iszero(y)
-      # we are in the region of zero
-      mid = prevfloat_tdir(mid)
-      while iszero(f(mid))
-        mid = prevfloat_tdir(mid)
+      # we are in the region of zero, inner loop
+      right = mid
+      while true
+        iter += 1
+        iter == maxiters && error("Maxiters exceeded in bisection. Please report the error in DiffEqBase")
+        mid = (left + right) / 2
+        (left === mid || right === mid) && return left
+        if iszero(f(mid)) && !iszero(f(prevfloat_tdir(mid)))
+          return prevfloat_tdir(mid)
+        end
+        if iszero(f(mid))
+          right = mid
+        else
+          left = mid
+        end
       end
-      return mid
     end
-    (left === mid || right === mid #= i dont think second condition would happen =#) && return left
+    (left === mid || right === mid) && return left
     if sign(y) === sign(f(left))
       left = mid
     else
@@ -629,7 +642,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             iter = 1
             while sign(zero_func(bottom_t)) == sign_top && iter < 12
               diff_t *= 5
-              bottom_t += diff_t
+              bottom_t = integrator.tprev + diff_t
               iter += 1
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")

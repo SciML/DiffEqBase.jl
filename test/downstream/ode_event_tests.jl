@@ -233,3 +233,44 @@ sol1 = solve(prob,Tsit5(),callback = cb,tstops=tstop,saveat=tstop)
 sol2 = solve(prob,Tsit5(),callback = cb,tstops=tstop,saveat=prevfloat.(tstop))
 @test count(x->x==tstop[1], sol2.t) == 2
 @test count(x->x==tstop[2], sol2.t) == 2
+
+function model(du, u, p, t)
+    du[1] = 0.
+    for i in 2:(length(du)-1)
+        du[i] = p[i] * (u[i-1] - u[i])
+    end
+    du[end] = p[end] * (p[1] * u[end-1] - u[end])
+    return nothing
+end
+
+perror = [1.0, 0.02222434508140991, 0.017030281542289794, 0.015917011145559996, 0.1608874463597176, 0.13128016561792297, 0.11056834258380167, 0.5222141958458832, 1.0711942201995688, 0.2672878398678257, 8.900058706990183, 0.010760065201065117, 0.016319181296867765, 2.2693845639611925, 0.2152216345154439, 0.029186712540925457, 0.21419429135100806, 0.029177617589788596, 0.03064986043089549, 0.023280222517122397, 6.931251277770224]
+y_max = 0.002604806609572015
+u0 = [1, zeros(length(perror) - 1)...]
+tspan = (0., 5000.)
+
+condition(u, t, i) = (t == 1.)
+affect!(i) = (i.u[1] = 0.)
+
+condition2(u, t, i) = u[end] - y_max / 2.
+t_half_1 = 0.
+function affect2!(i)
+  println("here!!!")
+  global t_half_1 = i.t
+end
+
+prob = ODEProblem(model, u0, tspan, perror)
+integrator = init(
+    prob,
+    Rosenbrock23(); 
+    callback=CallbackSet(
+        PositiveDomain(),
+        DiscreteCallback(condition, affect!),
+        ContinuousCallback(condition2, affect2!, terminate!),
+    ),
+    tstops = [1.],
+    force_dtmin=true,
+    progress=true
+)
+
+sol = solve!(integrator)
+
