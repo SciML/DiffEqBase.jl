@@ -109,6 +109,7 @@ Base.IndexStyle(::Type{<:DiffEqArrayOperator{T,AType}}) where {T,AType} = Base.I
 Base.copyto!(L::DiffEqArrayOperator, rhs) = (copyto!(L.A, rhs); L)
 Base.Broadcast.broadcastable(L::DiffEqArrayOperator) = L
 Base.ndims(::Type{<:DiffEqArrayOperator{T,AType}}) where {T,AType} = ndims(AType)
+ArrayInterface.issingular(L::DiffEqArrayOperator) = ArrayInterface.issingular(L.A)
 
 """
     FactorizedDiffEqArrayOperator(F)
