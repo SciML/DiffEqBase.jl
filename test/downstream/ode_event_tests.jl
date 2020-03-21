@@ -248,13 +248,12 @@ y_max = 0.002604806609572015
 u0 = [1, zeros(length(perror) - 1)...]
 tspan = (0., 5000.)
 
-condition(u, t, i) = (t == 1.)
-affect!(i) = (i.u[1] = 0.)
+condition = (u, t, i) -> (t == 1.)
+affect! = (i) -> (i.u[1] = 0.)
 
-condition2(u, t, i) = u[end] - y_max / 2.
+condition2 = (u, t, i) -> (u[end] - y_max / 2.)
 t_half_1 = 0.
-function affect2!(i)
-  println("here!!!")
+affect2! = function (i)
   global t_half_1 = i.t
 end
 
