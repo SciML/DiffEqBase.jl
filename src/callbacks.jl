@@ -569,7 +569,8 @@ end
 function bisection(f, tup, tdir; maxiters=100)
   x0, x1 = tup
   fx0x1 = f(x0) * f(x1)
-  (fx0x1 >= zero(fx0x1)) && error("Non bracketing interval passed in bisection method. Please report the error in DiffEqBase.")
+  fzero = zero(fx0x1)
+  (fx0x1 >= fzero) && error("Non bracketing interval passed in bisection method. Please report the error in DiffEqBase.")
   left = x0
   right = x1
   prevfloat_tdir = isone(tdir) ? prevfloat : nextfloat
@@ -577,7 +578,7 @@ function bisection(f, tup, tdir; maxiters=100)
   while true
     iter += 1
     iter == maxiters && error("Maxiters exceeded in bisection. Please report the error in DiffEqBase")
-    f(left) * f(right) >= zero(fx0x1) && error("Unexpected values in bisection. Please report the error in DiffEqBase.")
+    f(left) * f(right) >= fzero && error("Unexpected values in bisection. Please report the error in DiffEqBase.")
     mid = (left + right) / 2
     y = f(mid)
     if iszero(y)
