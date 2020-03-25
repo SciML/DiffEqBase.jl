@@ -324,6 +324,7 @@ Base.isempty(cb::AbstractDiscreteCallback) = false
 has_continuous_callback(cb::DiscreteCallback) = false
 has_continuous_callback(cb::ContinuousCallback) = true
 has_continuous_callback(cb::CallbackSet) = !isempty(cb.continuous_callbacks)
+has_continuous_callback(cb::Nothing) = false
 
 #======================================================#
 # Callback handling
