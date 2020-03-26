@@ -48,6 +48,10 @@ if !is_APPVEYOR && GROUP == "Downstream"
 end
 
 if !is_APPVEYOR && GROUP == "GPU"
+  using Pkg
+  Pkg.activate("gpu")
+  Pkg.develop(PackageSpec(path=joinpath(pwd(), "..")))
+  Pkg.instantiate()
   @time @safetestset "Simple GPU" begin include("gpu/simple_gpu.jl") end
 end
 
