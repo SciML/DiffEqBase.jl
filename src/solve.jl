@@ -200,8 +200,9 @@ end
 function _concrete_solve end
 
 function concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,
-                        u0=prob.u0,p=prob.p,args...;kwargs...)
-  _concrete_solve(prob,alg,u0,p,args...;kwargs...)
+                        u0=prob.u0,p=prob.p,args...; save_idxs = nothing, kwargs...)
+  sol = _concrete_solve(prob,alg,u0,p,args...;kwargs...)
+  isnothing(save_idxs) ? sol : sol[save_idxs, :]
 end
 
 function _concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,
