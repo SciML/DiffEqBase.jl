@@ -210,6 +210,11 @@ function _concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,
   RecursiveArrayTools.DiffEqArray(sol.u,sol.t)
 end
 
+function DiffEqBase._concrete_solve(prob::DiffEqBase.AbstractSteadyStateProblem,
+  alg::DiffEqBase.DEAlgorithm, u0 = prob.u0, p = prob.p, args...; kwargs...)
+  solve(remake(prob, u0 = u0, p = p), alg, args...; kwargs...)
+end
+
 function ChainRulesCore.frule(::typeof(concrete_solve),prob,alg,u0,p,args...;
                      sensealg=nothing,kwargs...)
   _concrete_solve_forward(prob,alg,sensealg,u0,p,args...;kwargs...)
