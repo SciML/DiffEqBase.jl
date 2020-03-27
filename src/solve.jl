@@ -200,9 +200,8 @@ end
 function _concrete_solve end
 
 function concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,
-                        u0=prob.u0,p=prob.p,args...; save_idxs = nothing, kwargs...)
-  sol = _concrete_solve(prob,alg,u0,p,args...;kwargs...)
-  isnothing(save_idxs) ? sol : sol[save_idxs, :]
+                        u0=prob.u0,p=prob.p,args...;kwargs...)
+  _concrete_solve(prob,alg,u0,p,args...;kwargs...)
 end
 
 function _concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,
@@ -222,13 +221,17 @@ function ChainRulesCore.frule(::typeof(concrete_solve),prob,alg,u0,p,args...;
 end
 
 function ChainRulesCore.rrule(::typeof(concrete_solve),prob,alg,u0,p,args...;
-                     sensealg=nothing,kwargs...)
-  _concrete_solve_adjoint(prob,alg,sensealg,u0,p,args...;kwargs...)
+                     sensealg=nothing,save_idxs=nothing,kwargs...)
+  y, back = _concrete_solve_adjoint(prob,alg,sensealg,u0,p,args...;kwargs...)
+  isnothing(save_idxs) && return y, back
+  y[save_idxs, :], Δ -> (Δ′ = zero(y); Δ′[save_idxs, :] .= Δ; back(Δ′))
 end
 
 ZygoteRules.@adjoint function concrete_solve(prob,alg,u0,p,args...;
-                                             sensealg=nothing,kwargs...)
-  _concrete_solve_adjoint(prob,alg,sensealg,u0,p,args...;kwargs...)
+                      sensealg=nothing,save_idxs=nothing,kwargs...)
+  y, back = _concrete_solve_adjoint(prob,alg,sensealg,u0,p,args...;kwargs...)
+  isnothing(save_idxs) && return y, back
+  y[save_idxs, :], Δ -> (Δ′ = zero(y); Δ′[save_idxs, :] .= Δ; back(Δ′))
 end
 
 function _concrete_solve_adjoint(args...;kwargs...)
