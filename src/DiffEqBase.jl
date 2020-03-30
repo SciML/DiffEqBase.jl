@@ -3,7 +3,7 @@ module DiffEqBase
 using RecipesBase, RecursiveArrayTools,
       Requires, TableTraits, IteratorInterfaceExtensions, TreeViews,
       IterativeSolvers, RecursiveFactorization, Distributed, ArrayInterface,
-      DataStructures
+      DataStructures, ThreadsX
 
 import Logging, LoggingExtras, TerminalLoggers, ConsoleProgressMonitor, ProgressLogging
 

@@ -149,7 +149,7 @@ end
 function solve_batch(prob,alg,::EnsembleThreads,I,pmap_batch_size,kwargs...)
   batch_data = Vector{Any}(undef,length(I))
   let
-    Threads.@threads for batch_idx in axes(batch_data, 1)
+    ThreadsX.foreach(eachindex(axes(batch_data, 1))) do batch_idx
         i = I[batch_idx]
         iter = 1
         new_prob = prob.prob_func(deepcopy(prob.prob),i,iter)
