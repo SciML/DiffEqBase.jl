@@ -15,7 +15,7 @@ ff = ODEFunction(f,jac=jac)
 CuArrays.allowscalar(false)
 A = cu(-rand(3,3))
 u0 = cu([1.0;0.0;0.0])
-tspan = (0.0,100.0)
+tspan = (0f0,100f0)
 
 prob = ODEProblem(ff,u0,tspan)
 sol = solve(prob,Tsit5())
