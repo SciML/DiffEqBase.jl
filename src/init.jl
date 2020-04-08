@@ -2,6 +2,7 @@ value(x) = x
 cuify(x) = error("To use LinSolveGPUFactorize, you must do `using CuArrays`")
 promote_u0(u0,p,t0) = u0
 promote_tspan(u0,p,tspan,prob,kwargs) = tspan
+get_tmp(x) = nothing
 
 if VERSION < v"1.4.0-DEV.635"
   # Piracy, should get upstreamed
@@ -61,12 +62,21 @@ function __init__()
     end
 
     function DiffCache(u::AbstractArray{T}, siz, ::Type{Val{chunk_size}}) where {T, chunk_size}
-        DiffCache(u, zeros(ForwardDiff.Dual{nothing,T,chunk_size}, siz...))
+        x = ArrayInterface.restructure(u,zeros(ForwardDiff.Dual{nothing,T,chunk_size}, siz...))
+        DiffCache(u, x)
     end
 
     dualcache(u::AbstractArray, N=Val{ForwardDiff.pickchunksize(length(u))}) = DiffCache(u, size(u), N)
 
-    get_tmp(dc::DiffCache, u::AbstractArray{T}) where T<:ForwardDiff.Dual = reinterpret(T, dc.dual_du)
+    function get_tmp(dc::DiffCache, u::AbstractArray{T}) where T<:ForwardDiff.Dual
+      x = reinterpret(T, dc.dual_du)
+    end
+
+    function DiffEqBase.get_tmp(dc::DiffEqBase.DiffCache, u::LabelledArrays.LArray{T,N,D,Syms}) where {T,N,D,Syms}
+      x = reinterpret(T, dc.dual_du.__x)
+      LArray{T,N,D,Syms}(x)
+    end
+
     get_tmp(dc::DiffCache, u::AbstractArray) = dc.du
 
     bisection(f, tup::Tuple{T,T}, tdir) where {T<:ForwardDiff.Dual} = find_zero(f, tup, Roots.AlefeldPotraShi())

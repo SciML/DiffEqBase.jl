@@ -69,11 +69,12 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
                    tspan = nothing, axis_safety = 0.1,
                    vars=nothing)
 
-  int_vars = interpret_vars(vars,sol)
+  syms = getsyms(sol)
+  int_vars = interpret_vars(vars,sol,syms)
   tscale = get(plotattributes, :xscale, :identity)
   plot_vecs,labels = diffeq_to_arrays(sol,plot_analytic,denseplot,
                                       plotdensity,tspan,axis_safety,
-                                      vars,int_vars,tscale)
+                                      vars,int_vars,tscale,syms)
 
   tdir = sign(sol.t[end]-sol.t[1])
   xflip --> tdir < 0
@@ -146,7 +147,17 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
   (plot_vecs...,)
 end
 
-function diffeq_to_arrays(sol,plot_analytic,denseplot,plotdensity,tspan,axis_safety,vars,int_vars,tscale)
+function getsyms(sol)
+  if has_syms(sol.prob.f)
+    return sol.prob.f.syms
+  elseif typeof(sol.u[1]) <: Union{LabelledArrays.LArray,LabelledArrays.SLArray}
+    return LabelledArrays.symnames(typeof(sol.u[1]))
+  else
+    return nothing
+  end
+end
+
+function diffeq_to_arrays(sol,plot_analytic,denseplot,plotdensity,tspan,axis_safety,vars,int_vars,tscale,syms)
   if tspan === nothing
     if sol.tslocation == 0
       end_idx = length(sol)
@@ -217,21 +228,21 @@ function diffeq_to_arrays(sol,plot_analytic,denseplot,plotdensity,tspan,axis_saf
     @assert length(var) == dims
   end
   # Should check that all have the same dims!
-  plot_vecs,labels = solplot_vecs_and_labels(dims,int_vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries)
+  plot_vecs,labels = solplot_vecs_and_labels(dims,int_vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries,syms)
 end
 
-function interpret_vars(vars,sol)
-  if vars !== nothing && has_syms(sol.prob.f)
+function interpret_vars(vars,sol,syms)
+  if vars !== nothing && syms !== nothing
     # Do syms conversion
     tmp_vars = []
     for var in vars
       if typeof(var) <: Symbol
-        var_int = something(findfirst(isequal(var), sol.prob.f.syms), 0)
+        var_int = something(findfirst(isequal(var), syms), 0)
       elseif typeof(var) <: Union{Tuple,AbstractArray} #eltype(var) <: Symbol # Some kind of iterable
         tmp = []
         for x in var
           if typeof(x) <: Symbol
-            push!(tmp,something(findfirst(isequal(x), sol.prob.f.syms), 0))
+            push!(tmp,something(findfirst(isequal(x), syms), 0))
           else
             push!(tmp,x)
           end
@@ -314,14 +325,14 @@ function interpret_vars(vars,sol)
   vars
 end
 
-function add_labels!(labels,x,dims,sol)
+function add_labels!(labels,x,dims,sol,syms)
   lys = []
   for j in 3:dims
     if x[j] == 0
       push!(lys,"t,")
     else
-      if has_syms(sol.prob.f)
-        push!(lys,"$(sol.prob.f.syms[x[j]]),")
+      if syms !== nothing
+        push!(lys,"$(syms[x[j]]),")
       else
         push!(lys,"u$(x[j]),")
       end
@@ -331,8 +342,8 @@ function add_labels!(labels,x,dims,sol)
   if x[2] == 0 && dims == 3
     tmp_lab = "$(lys...)(t)"
   else
-    if has_syms(sol.prob.f) && x[2] != 0
-      tmp = sol.prob.f.syms[x[2]]
+    if syms !== nothing && x[2] != 0
+      tmp = syms[x[2]]
       tmp_lab = "($tmp,$(lys...))"
     else
       if x[2] == 0
@@ -350,14 +361,14 @@ function add_labels!(labels,x,dims,sol)
   labels
 end
 
-function add_analytic_labels!(labels,x,dims,sol)
+function add_analytic_labels!(labels,x,dims,sol,syms)
   lys = []
   for j in 3:dims
     if x[j] == 0 && dims == 3
       push!(lys,"t,")
     else
-      if has_syms(sol.prob.f)
-        push!(lys,string("True ",sol.prob.f.syms[x[j]],","))
+      if syms !== nothing
+        push!(lys,string("True ",syms[x[j]],","))
       else
         push!(lys,"True u$(x[j]),")
       end
@@ -367,8 +378,8 @@ function add_analytic_labels!(labels,x,dims,sol)
   if x[2] == 0
     tmp_lab = "$(lys...)(t)"
   else
-    if has_syms(sol.prob.f)
-      tmp = string("True ",sol.prob.f.syms[x[2]])
+    if syms !== nothing
+      tmp = string("True ",syms[x[2]])
       tmp_lab = "($tmp,$(lys...))"
     else
       tmp_lab = "(True u$(x[2]),$(lys...))"
@@ -396,7 +407,7 @@ function u_n(timeseries::AbstractArray, n::Int,sol,plott,plot_timeseries)
   end
 end
 
-function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries)
+function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries,syms)
   plot_vecs = []
   labels = String[]
   for x in vars
@@ -416,7 +427,7 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
       end
       push!(plot_vecs[i],tmp[i])
     end
-    add_labels!(labels,x,dims,sol)
+    add_labels!(labels,x,dims,sol,syms)
   end
 
 
@@ -434,7 +445,7 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
       for i in eachindex(tmp)
         push!(plot_vecs[i],tmp[i])
       end
-      add_analytic_labels!(labels,x,dims,sol)
+      add_analytic_labels!(labels,x,dims,sol,syms)
     end
   end
   plot_vecs = [hcat(x...) for x in plot_vecs]
