@@ -15,3 +15,14 @@ differential_vars = LVector(x=true, y=true, z=false)
 prob = DAEProblem(f,du₀,u₀,tspan,differential_vars=differential_vars)
 
 sol = solve(prob, DImplicitEuler())
+
+function f1(du,u,p,t)
+   du.x .= -1 .* u.x .* u.y .* p[1]
+   du.y .= -1 .* u.y .* p[2]
+end
+const n = 1000
+u_0 = @LArray  fill(1000.0,2*n) (x = (1:n),y = (n+1:2*n))
+p = [0.1,0.1]
+prob1 = ODEProblem(f1,u_0,(0,100.0),p)
+sol = solve(prob1, Rodas5())
+sol = solve(prob1, Rodas5(autodiff=false))

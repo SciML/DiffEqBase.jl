@@ -74,7 +74,7 @@ function __init__()
 
     function DiffEqBase.get_tmp(dc::DiffEqBase.DiffCache, u::LabelledArrays.LArray{T,N,D,Syms}) where {T,N,D,Syms}
       x = reinterpret(T, dc.dual_du.__x)
-      LArray{T,N,D,Syms}(x)
+      LabelledArrays.LArray{T,N,D,Syms}(x)
     end
 
     get_tmp(dc::DiffCache, u::AbstractArray) = dc.du
