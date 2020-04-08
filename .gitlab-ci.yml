@@ -7,9 +7,6 @@ variables:
 stages:
   - build
   - test
-
-job:
-  cache: {}
   
 build:
   stage: build
