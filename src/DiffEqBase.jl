@@ -7,7 +7,7 @@ using RecipesBase, RecursiveArrayTools,
 
 import Logging, LoggingExtras, TerminalLoggers, ConsoleProgressMonitor, ProgressLogging
 
-import ZygoteRules, ChainRulesCore
+import ZygoteRules, ChainRulesCore, LabelledArrays
 
 using Roots # callbacks
 
