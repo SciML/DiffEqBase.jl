@@ -567,7 +567,7 @@ end
 # rough implementation, needs multiple type handling
 # always ensures that if r = bisection(f, (x0, x1))
 # then either f(nextfloat(r)) == 0 or f(nextfloat(r)) * f(r) < 0
-function bisection(f, tup, tdir; maxiters=100)
+function bisection(f, tup, tdir; maxiters=100, noleft=false)
   x0, x1 = tup
   fx0x1 = f(x0) * f(x1)
   fzero = zero(fx0x1)
@@ -600,7 +600,7 @@ function bisection(f, tup, tdir; maxiters=100)
         end
       end
     end
-    (left === mid || right === mid) && return left
+    (left === mid || right === mid) && return ((left === tup[1]) && noleft ? right : left)
     if sign(y) === sign(f(left))
       left = mid
     else
@@ -650,7 +650,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
-          Θ = bisection(zero_func, (bottom_t, top_t), integrator.tdir)
+          Θ = bisection(zero_func, (bottom_t, top_t), integrator.tdir; noleft=(bottom_t==integrator.tprev))
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
         end
         #Θ = prevfloat(...)
@@ -717,7 +717,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               end
               iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
-            Θ = bisection(zero_func, (bottom_t,top_t), integrator.tdir)
+            Θ = bisection(zero_func, (bottom_t,top_t), integrator.tdir; noleft=(bottom_t==integrator.tprev))
             if integrator.tdir * Θ < integrator.tdir * min_t
               integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
             end
