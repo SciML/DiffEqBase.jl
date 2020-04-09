@@ -717,7 +717,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               end
               iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
-            Θ = bisection(zero_func, (bottom_t,top_t), integrator.tdir)
+            Θ = bisection(zero_func, (bottom_t,top_t), integrator.tdir; noleft=(bottom_t==integrator.tprev))
             if integrator.tdir * Θ < integrator.tdir * min_t
               integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
             end
