@@ -65,6 +65,13 @@ abstract type AbstractQuadratureProblem{isinplace} <: DEProblem end
 """
 $(TYPEDEF)
 
+Base for types which define equations for optimization
+"""
+abstract type AbstractOptimizationProblem{isinplace} <: DEProblem end
+
+"""
+$(TYPEDEF)
+
 Base for types which define steady state problems for ODE systems.
 """
 abstract type AbstractSteadyStateProblem{uType,isinplace} <: DEProblem end
@@ -569,7 +576,7 @@ export resize!,deleteat!,addat!,get_tmp_cache,
        set_u!, check_error, change_t_via_interpolation!, addsteps!,
        isdiscrete, reeval_internals_due_to_modification!
 
-export LinearProblem, NonlinearProblem, QuadratureProblem
+export LinearProblem, NonlinearProblem, QuadratureProblem, OptimizationProblem
 
 export DiscreteProblem
 export SteadyStateProblem, SteadyStateSolution
