@@ -62,7 +62,7 @@ QuadratureProblem(f,lb,ub,args...;kwargs...) = QuadratureProblem{isinplace(f, 3)
 """
 $(TYPEDEF)
 """
-struct OptimizationProblem{isinplace} <: AbstractOptimizationProblem{isinplace}
+struct OptimizationProblem{isinplace,F,uType,BType,P,K} <: AbstractOptimizationProblem{isinplace}
     f::F
     u0::uType
     lb::BType
@@ -75,7 +75,7 @@ struct OptimizationProblem{isinplace} <: AbstractOptimizationProblem{isinplace}
                                                   lb = nothing,
                                                   ub = nothing,
                                                   kwargs...) where iip
-        new{iip,typeof(f),typeof(u0),typeof(lb),typeof(ub),typeof(p),
+        new{iip,typeof(f),typeof(u0),typeof(lb),typeof(p),
             typeof(kwargs)}(f,u0,lb,ub,p,kwargs)
     end
 end
