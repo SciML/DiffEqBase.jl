@@ -58,3 +58,26 @@ struct QuadratureProblem{isinplace,P,F,L,U,K} <: AbstractQuadratureProblem{isinp
 end
 
 QuadratureProblem(f,lb,ub,args...;kwargs...) = QuadratureProblem{isinplace(f, 3)}(f,lb,ub,args...;kwargs...)
+
+"""
+$(TYPEDEF)
+"""
+struct OptimizationProblem{isinplace,F,uType,BType,P,K} <: AbstractOptimizationProblem{isinplace}
+    f::F
+    u0::uType
+    lb::BType
+    ub::BType
+    p::P
+    kwargs::K
+
+    @add_kwonly function OptimizationProblem{iip}(f,p=NullParameters();
+                                                  u0 = nothing,
+                                                  lb = nothing,
+                                                  ub = nothing,
+                                                  kwargs...) where iip
+        new{iip,typeof(f),typeof(u0),typeof(lb),typeof(p),
+            typeof(kwargs)}(f,u0,lb,ub,p,kwargs)
+    end
+end
+
+OptimizationProblem(f,args...;kwargs...) = OptimizationProblem{false}(f,args...;kwargs...)
