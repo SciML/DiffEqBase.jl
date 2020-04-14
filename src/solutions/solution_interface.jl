@@ -163,7 +163,8 @@ cleansyms(syms::Nothing) = nothing
 cleansyms(syms::Vector{Symbol}) = cleansym.(syms)
 function cleansym(sym::Symbol)
   str = String(sym)
-  replace(str,"₊"=>".") # Fix MTK component syntax
+  str = replace(str,"₊"=>".") # Fix MTK component syntax
+  #unicode2latex(str)
 end
 
 function diffeq_to_arrays(sol,plot_analytic,denseplot,plotdensity,tspan,axis_safety,vars,int_vars,tscale,strs)

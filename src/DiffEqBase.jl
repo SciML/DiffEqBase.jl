@@ -481,6 +481,7 @@ $(TYPEDEF)
 """
 abstract type AbstractReactionNetwork <: Function end
 
+include("unicode2latex.jl")
 include("fastpow.jl")
 include("diffeqfastbc.jl")
 include("destats.jl")
