@@ -83,7 +83,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
   seriestype --> :path
 
   # Special case labels when vars = (:x,:y,:z) or (:x) or [:x,:y] ...
-  if typeof(vars) <: Tuple && (typeof(vars[1]) == Symbol && typeof(vars[2]) == Symbol)
+  if typeof(vars) <: Tuple && (issymbollike(vars[1]) && issymbollike(vars[2])) 
     xguide --> strs[int_vars[1][2]]
     yguide --> strs[int_vars[1][3]]
     if length(vars) > 2
@@ -165,6 +165,7 @@ function cleansym(sym::Symbol)
   str = String(sym)
   replace(str,"₊"=>".") # Fix MTK component syntax
 end
+issymbollike(x) = typeof(x) <: Symbol || Symbol(typeof(x)) == :Operation || Symbol(typeof(x)) == :Variable
 
 function diffeq_to_arrays(sol,plot_analytic,denseplot,plotdensity,tspan,axis_safety,vars,int_vars,tscale,strs)
   if tspan === nothing
@@ -248,7 +249,7 @@ function interpret_vars(vars,sol,syms)
       if typeof(var) <: Union{Tuple,AbstractArray} #eltype(var) <: Symbol # Some kind of iterable
         tmp = []
         for x in var
-          if typeof(x) <: Symbol || Symbol(typeof(x)) == :Operation || Symbol(typeof(x)) == :Variable
+          if issymbollike(x)
             push!(tmp,something(findfirst(isequal(Symbol(x)), syms), 0))
           else
             push!(tmp,x)
@@ -259,7 +260,7 @@ function interpret_vars(vars,sol,syms)
         else
           var_int = tmp
         end
-      elseif typeof(var) <: Symbol || Symbol(typeof(var)) == :Operation || Symbol(typeof(var)) == :Variable
+      elseif issymbollike(var)
         var_int = something(findfirst(isequal(Symbol(var)), syms), 0)
       else
         var_int = var
