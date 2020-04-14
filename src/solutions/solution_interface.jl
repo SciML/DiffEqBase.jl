@@ -248,10 +248,10 @@ function interpret_vars(vars,sol,syms)
       if typeof(var) <: Union{Tuple,AbstractArray} #eltype(var) <: Symbol # Some kind of iterable
         tmp = []
         for x in var
-          if typeof(x) <: Integer
-            push!(tmp,x)
-          else
+          if typeof(x) <: Symbol || Symbol(typeof(x)) == :Operation || Symbol(typeof(x)) == :Variable
             push!(tmp,something(findfirst(isequal(Symbol(x)), syms), 0))
+          else
+            push!(tmp,x)
           end
         end
         if typeof(var) <: Tuple
@@ -259,10 +259,10 @@ function interpret_vars(vars,sol,syms)
         else
           var_int = tmp
         end
-      elseif typeof(var) <: Integer
-        var_int = var
-      else
+      elseif typeof(var) <: Symbol || Symbol(typeof(var)) == :Operation || Symbol(typeof(var)) == :Variable
         var_int = something(findfirst(isequal(Symbol(var)), syms), 0)
+      else
+        var_int = var
       end
       push!(tmp_vars,var_int)
     end
