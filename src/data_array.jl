@@ -128,6 +128,9 @@ LinearAlgebra.ldiv!(A::DEDataArray,F::Factorization, B::DEDataArray) = ldiv!(A.x
 LinearAlgebra.ldiv!(F::Factorization, B::DEDataArray) = ldiv!(F, B.x)
 LinearAlgebra.ldiv!(F::Factorization,A::Base.ReshapedArray{T1,T2,T3,T4}) where {T1,T2,T3<:DEDataArray,T4} = ldiv!(F,vec(A.parent.x))
 
+Base.unsafe_convert(::Type{Ptr{T}}, a::DEDataArray{T}) where {T} = Base.unsafe_convert(Ptr{T}, getfield(a,:x))
+ArrayInterface.zeromatrix(x::DEDataArray) = ArrayInterface.zeromatrix(x.x)
+
 ################# Broadcast ####################################################
 
 const DEDataArrayStyle = Broadcast.ArrayStyle{DEDataArray}
