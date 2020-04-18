@@ -24,11 +24,6 @@ build:
   - tags
   - external
   - pushes
-  artifacts:
-    untracked: true
-    paths:
-      - .julia/**/*
-      - julia-1.3.0/**/*
 
 test-GPU:
   stage: test
@@ -50,8 +45,3 @@ test-GPU:
   - tags
   - external
   - pushes
-  artifacts:
-    untracked: true
-    paths:
-      - .julia/**/*
-      - julia-1.3.0/**/*
