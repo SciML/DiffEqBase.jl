@@ -110,7 +110,7 @@ end
       xlims --> (-Inf,Inf)
       ylims --> (-Inf,Inf)
       zlims --> (-Inf,Inf)
-      zcolor --> zcolors[i]
+      marker_z --> zcolors[i]
       sim[i]
     end
   end
