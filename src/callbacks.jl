@@ -447,7 +447,7 @@ end
     end
 
     # Evaluate condition slightly in future
-    abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(integrator.t))
+    abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(typeof(integrator.t)))
     tmp_condition = get_condition(integrator, callback, abst)
 
     # Sometimes users may "switch off" the condition after crossing
@@ -525,7 +525,7 @@ end
     end
 
     # Evaluate condition slightly in future
-    abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(integrator.t))
+    abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(typeof(integrator.t)))
     tmp_condition = get_condition(integrator, callback, abst)
 
     # Sometimes users may "switch off" the condition after crossing
@@ -633,7 +633,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
           Θ = top_t
         else
           if integrator.event_last_time == counter &&
-            abs(zero_func(bottom_t)) < 100abs(integrator.last_event_error) &&
+            abs(zero_func(bottom_t)) <= 100abs(integrator.last_event_error) &&
             prev_sign_index == 1
 
             # Determined that there is an event by derivative
@@ -700,7 +700,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
           else
             if integrator.event_last_time == counter &&
               integrator.vector_event_last_time == event_idx &&
-              abs(zero_func(bottom_t)) < 100abs(integrator.last_event_error) &&
+              abs(zero_func(bottom_t)) <= 100abs(integrator.last_event_error) &&
               prev_sign_index == 1
 
               # Determined that there is an event by derivative
@@ -754,10 +754,11 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
 end
 
 function apply_callback!(integrator,callback::Union{ContinuousCallback,VectorContinuousCallback},cb_time,prev_sign,event_idx)
-  if cb_time == zero(typeof(integrator.t))
-    error("Event repeated at the same time. Please report this error")
-  end
+
   change_t_via_interpolation!(integrator,integrator.tprev+cb_time)
+  if integrator.opts.adaptive
+    integrator.dtpropose = integrator.dt/10
+  end
 
   # handle saveat
   _, savedexactly = savevalues!(integrator)
