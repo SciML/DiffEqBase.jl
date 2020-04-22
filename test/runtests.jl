@@ -46,6 +46,7 @@ if !is_APPVEYOR && GROUP == "Downstream"
     @time @safetestset "PSOS and Energy Conservation Event Detection" begin include("downstream/psos_and_energy_conservation.jl") end
     @time @safetestset "DE stats" begin include("downstream/destats_tests.jl") end
     @time @safetestset "DEDataArray" begin include("downstream/data_array_regression_tests.jl") end
+    @time @safetestset "Concrete_solve Tests" begin include("downstream/concrete_solve_tests.jl") end
 end
 
 if !is_APPVEYOR && GROUP == "GPU"
