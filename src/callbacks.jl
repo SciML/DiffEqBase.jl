@@ -447,7 +447,7 @@ end
     end
 
     # Evaluate condition slightly in future
-    abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(typeof(integrator.t)))
+    abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(integrator.t))
     tmp_condition = get_condition(integrator, callback, abst)
 
     # Sometimes users may "switch off" the condition after crossing
@@ -525,7 +525,7 @@ end
     end
 
     # Evaluate condition slightly in future
-    abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(typeof(integrator.t)))
+    abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(integrator.t))
     tmp_condition = get_condition(integrator, callback, abst)
 
     # Sometimes users may "switch off" the condition after crossing
