@@ -756,9 +756,6 @@ end
 function apply_callback!(integrator,callback::Union{ContinuousCallback,VectorContinuousCallback},cb_time,prev_sign,event_idx)
 
   change_t_via_interpolation!(integrator,integrator.tprev+cb_time)
-  if integrator.opts.adaptive
-    integrator.dtpropose = integrator.dt/10
-  end
 
   # handle saveat
   _, savedexactly = savevalues!(integrator)
