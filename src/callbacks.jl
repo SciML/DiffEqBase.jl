@@ -99,7 +99,7 @@ ContinuousCallback(condition,affect!,affect_neg!;
                    rootfind=true,
                    save_positions=(true,true),
                    interp_points=10,
-                   dtrelax=1.0,
+                   dtrelax=1,
                    abstol=10eps(),reltol=0) = ContinuousCallback(
                               condition,affect!,affect_neg!,initialize,
                               idxs,
@@ -114,7 +114,7 @@ function ContinuousCallback(condition,affect!;
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
-                   dtrelax=1.0,
+                   dtrelax=1,
                    abstol=10eps(),reltol=0)
 
  ContinuousCallback(
@@ -192,7 +192,7 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          rootfind=true,
                          save_positions=(true,true),
                          interp_points=10,
-                         dtrelax=1.0,
+                         dtrelax=1,
                          abstol=10eps(),reltol=0) = VectorContinuousCallback(
                               condition,affect!,affect_neg!,len,
                               initialize,
@@ -208,7 +208,7 @@ function VectorContinuousCallback(condition,affect!,len;
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
-                   dtrelax=1.0,
+                   dtrelax=1,
                    abstol=10eps(),reltol=0)
 
  VectorContinuousCallback(
