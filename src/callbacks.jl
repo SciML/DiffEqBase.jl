@@ -71,7 +71,7 @@ Contains a single callback whose `condition` is a continuous function. The callb
   if the starting condition is less than the tolerance from zero, then no root will be detected.
   This is to stop repeat events happening just after a previously rootfound event.
 """
-struct ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
+struct ContinuousCallback{F1,F2,F3,F4,T,T2,I,R} <: AbstractContinuousCallback
   condition::F1
   affect!::F2
   affect_neg!::F3
@@ -80,16 +80,17 @@ struct ContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
   rootfind::Bool
   interp_points::Int
   save_positions::BitArray{1}
+  dtrelax::R
   abstol::T
   reltol::T2
   ContinuousCallback(condition::F1,affect!::F2,affect_neg!::F3,
                      initialize::F4,idxs::I,rootfind,
-                     interp_points,save_positions,abstol::T,reltol::T2) where {F1,F2,F3,F4,T,T2,I} =
-                       new{F1,F2,F3,F4,T,T2,I}(condition,
+                     interp_points,save_positions,dtrelax::R,abstol::T,reltol::T2) where {F1,F2,F3,F4,T,T2,I,R} =
+                       new{F1,F2,F3,F4,T,T2,I,R}(condition,
                                                affect!,affect_neg!,
                                                initialize,idxs,rootfind,interp_points,
                                                BitArray(collect(save_positions)),
-                                               abstol,reltol)
+                                               dtrelax,abstol,reltol)
 end
 
 ContinuousCallback(condition,affect!,affect_neg!;
@@ -98,11 +99,13 @@ ContinuousCallback(condition,affect!,affect_neg!;
                    rootfind=true,
                    save_positions=(true,true),
                    interp_points=10,
+                   dtrelax=1,
                    abstol=10eps(),reltol=0) = ContinuousCallback(
                               condition,affect!,affect_neg!,initialize,
                               idxs,
                               rootfind,interp_points,
-                              save_positions,abstol,reltol)
+                              save_positions,
+                              dtrelax,abstol,reltol)
 
 function ContinuousCallback(condition,affect!;
                    initialize = INITIALIZE_DEFAULT,
@@ -111,12 +114,14 @@ function ContinuousCallback(condition,affect!;
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
+                   dtrelax=1,
                    abstol=10eps(),reltol=0)
 
  ContinuousCallback(
             condition,affect!,affect_neg!,initialize,idxs,
             rootfind,interp_points,
-            collect(save_positions),abstol,reltol)
+            collect(save_positions),
+            dtrelax,abstol,reltol)
 
 end
 
@@ -157,7 +162,7 @@ multiple events.
 
 Rest of the arguments have the same meaning as in [`ContinuousCallback`](@ref).
 """
-struct VectorContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallback
+struct VectorContinuousCallback{F1,F2,F3,F4,T,T2,I,R} <: AbstractContinuousCallback
   condition::F1
   affect!::F2
   affect_neg!::F3
@@ -167,17 +172,18 @@ struct VectorContinuousCallback{F1,F2,F3,F4,T,T2,I} <: AbstractContinuousCallbac
   rootfind::Bool
   interp_points::Int
   save_positions::BitArray{1}
+  dtrelax::R
   abstol::T
   reltol::T2
   VectorContinuousCallback(condition::F1,affect!::F2,affect_neg!::F3,len::Int,
                            initialize::F4,idxs::I,rootfind,
-                           interp_points,save_positions,
-                           abstol::T,reltol::T2) where {F1,F2,F3,F4,T,T2,I} =
-                       new{F1,F2,F3,F4,T,T2,I}(condition,
+                           interp_points,save_positions,dtrelax::R,
+                           abstol::T,reltol::T2) where {F1,F2,F3,F4,T,T2,I,R} =
+                       new{F1,F2,F3,F4,T,T2,I,R}(condition,
                                                affect!,affect_neg!,len,
                                                initialize,idxs,rootfind,interp_points,
                                                BitArray(collect(save_positions)),
-                                               abstol,reltol)
+                                               dtrelax,abstol,reltol)
 end
 
 VectorContinuousCallback(condition,affect!,affect_neg!,len;
@@ -186,12 +192,14 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          rootfind=true,
                          save_positions=(true,true),
                          interp_points=10,
+                         dtrelax=1,
                          abstol=10eps(),reltol=0) = VectorContinuousCallback(
                               condition,affect!,affect_neg!,len,
                               initialize,
                               idxs,
                               rootfind,interp_points,
-                              save_positions,abstol,reltol)
+                              save_positions,dtrelax,
+                              abstol,reltol)
 
 function VectorContinuousCallback(condition,affect!,len;
                    initialize = INITIALIZE_DEFAULT,
@@ -200,12 +208,14 @@ function VectorContinuousCallback(condition,affect!,len;
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
+                   dtrelax=1,
                    abstol=10eps(),reltol=0)
 
  VectorContinuousCallback(
             condition,affect!,affect_neg!,len,initialize,idxs,
             rootfind,interp_points,
-            collect(save_positions),abstol,reltol)
+            collect(save_positions),
+            dtrelax,abstol,reltol)
 
 end
 
@@ -633,7 +643,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
           Θ = top_t
         else
           if integrator.event_last_time == counter &&
-            abs(zero_func(bottom_t)) < 100abs(integrator.last_event_error) &&
+            abs(zero_func(bottom_t)) <= 100abs(integrator.last_event_error) &&
             prev_sign_index == 1
 
             # Determined that there is an event by derivative
@@ -700,7 +710,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
           else
             if integrator.event_last_time == counter &&
               integrator.vector_event_last_time == event_idx &&
-              abs(zero_func(bottom_t)) < 100abs(integrator.last_event_error) &&
+              abs(zero_func(bottom_t)) <= 100abs(integrator.last_event_error) &&
               prev_sign_index == 1
 
               # Determined that there is an event by derivative
@@ -754,10 +764,12 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
 end
 
 function apply_callback!(integrator,callback::Union{ContinuousCallback,VectorContinuousCallback},cb_time,prev_sign,event_idx)
-  if cb_time == zero(typeof(integrator.t))
-    error("Event repeated at the same time. Please report this error")
-  end
+
   change_t_via_interpolation!(integrator,integrator.tprev+cb_time)
+
+  if integrator.opts.adaptive
+    set_proposed_dt!(integrator, max(integrator.opts.dtmin+eps(integrator.dt), callback.dtrelax * integrator.dt))
+  end
 
   # handle saveat
   _, savedexactly = savevalues!(integrator)
