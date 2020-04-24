@@ -574,3 +574,10 @@ function step!(integ::DEIntegrator, dt::Real, stop_at_tdt = false)
 end
 
 has_destats(i::DEIntegrator) = false
+
+"""
+    is_integrator_adaptive(i::DEIntegrator)
+
+Checks if the integrator is adaptive
+"""
+is_integrator_adaptive(integrator::DEIntegrator) = integrator.opts.adaptive
