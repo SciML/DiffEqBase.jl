@@ -580,4 +580,5 @@ has_destats(i::DEIntegrator) = false
 
 Checks if the integrator is adaptive
 """
-is_integrator_adaptive(integrator::DEIntegrator) = integrator.opts.adaptive
+isadaptive(integrator::DEIntegrator) =
+        isdefined(integrator.opts, :adaptive) ? integrator.opts.adaptive : false
