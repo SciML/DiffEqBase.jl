@@ -15,7 +15,10 @@ diffeqbc(x::Array) = DiffEqBC(x)
 diffeqbc(x) = x
 
 # Ensure inlining
-@inline combine_axes(A, B) = broadcast_shape(broadcast_axes(A), broadcast_axes(B)) # Julia 1.0 compatible
+@static if VERSION < v"1.5.0-DEV.634"
+    @inline combine_axes(A, B) = broadcast_shape(broadcast_axes(A), broadcast_axes(B)) # Julia 1.0 compatible
+end
+
 @inline check_broadcast_axes(shp, A::Union{Number, Array, Broadcasted}) = check_broadcast_shape(shp, axes(A))
 
 @noinline throwfastbc(axesA, axesB) = throw(DimensionMismatch("DiffEq's fast broadcast cannot broadcast $axesA with $axesB"))

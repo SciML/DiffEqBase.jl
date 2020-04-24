@@ -126,7 +126,7 @@ Sets the proposed `dt` for the next timestep. If second argument isa `DEIntegrat
 first argument to match that of second one. Note that due to PI control and step acceleration this is more than matching
 the factors in most cases.
 """
-set_proposed_dt!(i::DEIntegrator) = error("modify_proposed_dt!: method has not been implemented for the integrator")
+set_proposed_dt!(i::DEIntegrator,dt) = error("set_proposed_dt!: method has not been implemented for the integrator")
 
 """
     savevalues!(integrator::DEIntegrator,
