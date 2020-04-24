@@ -765,11 +765,11 @@ end
 
 function apply_callback!(integrator,callback::Union{ContinuousCallback,VectorContinuousCallback},cb_time,prev_sign,event_idx)
 
-  change_t_via_interpolation!(integrator,integrator.tprev+cb_time)
-
   if integrator.opts.adaptive
-    set_proposed_dt!(integrator, max(integrator.opts.dtmin+eps(integrator.dt), callback.dtrelax * integrator.dt))
+    set_proposed_dt!(integrator, max(nextfloat(integrator.opts.dtmin), callback.dtrelax * integrator.dt))
   end
+
+  change_t_via_interpolation!(integrator,integrator.tprev+cb_time)
 
   # handle saveat
   _, savedexactly = savevalues!(integrator)
