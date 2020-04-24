@@ -765,7 +765,7 @@ end
 
 function apply_callback!(integrator,callback::Union{ContinuousCallback,VectorContinuousCallback},cb_time,prev_sign,event_idx)
 
-  if integrator.opts.adaptive
+  if isadaptive(integrator)
     set_proposed_dt!(integrator, max(nextfloat(integrator.opts.dtmin), callback.dtrelax * integrator.dt))
   end
 
