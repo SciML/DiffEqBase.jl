@@ -12,6 +12,10 @@ Base.@propagate_inbounds _broadcast_getindex(b::DiffEqBC{<:AbstractArray{<:Any,0
 Base.@propagate_inbounds _broadcast_getindex(b::DiffEqBC{<:AbstractVector}, i) = b.x[i[1]]
 Base.@propagate_inbounds _broadcast_getindex(b::DiffEqBC{<:AbstractArray}, i) = b.x[i]
 diffeqbc(x::Array) = DiffEqBC(x)
+diffeqbc(x::LabelledArrays.LArray) = DiffEqBC(x)
+diffeqbc(x::Adjoint{<:Array}) = DiffEqBC(x)
+diffeqbc(x::Transpose{<:Array}) = DiffEqBC(x)
+diffeqbc(x::MArray) = DiffEqBC(x)
 diffeqbc(x) = x
 
 # Ensure inlining
