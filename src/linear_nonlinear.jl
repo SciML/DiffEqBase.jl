@@ -1,4 +1,8 @@
 using LinearAlgebra, SparseArrays, SuiteSparse
+
+# This is only used for oop stiff solvers
+default_factorize(A) = lu(A)
+
 mutable struct LinSolveFactorize{F}
   factorization::F
   A
