@@ -83,7 +83,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
   seriestype --> :path
 
   # Special case labels when vars = (:x,:y,:z) or (:x) or [:x,:y] ...
-  if typeof(vars) <: Tuple && (issymbollike(vars[1]) && issymbollike(vars[2])) 
+  if typeof(vars) <: Tuple && (issymbollike(vars[1]) && issymbollike(vars[2]))
     xguide --> strs[int_vars[1][2]]
     yguide --> strs[int_vars[1][3]]
     if length(vars) > 2
@@ -160,6 +160,7 @@ function getsyms(sol)
 end
 
 cleansyms(syms::Nothing) = nothing
+cleansyms(syms::Tuple) = collect(cleansym(sym) for sym in syms)
 cleansyms(syms::Vector{Symbol}) = cleansym.(syms)
 function cleansym(sym::Symbol)
   str = String(sym)
