@@ -183,7 +183,11 @@ function __init__()
       _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
       x .= vec(_x)
       CuArrays.unsafe_free!(_x)
+      return x
     end
+    # make `\` work
+    LinearAlgebra.ldiv!(F::CuArrays.CUSOLVER.CuQR, b::CuArrays.CuArray) = (x = similar(b); ldiv!(x, F, b); x)
+    default_factorize(A::CuArrays.CuArray) = qr(A)
     function findall_events(affect!,affect_neg!,prev_sign::CuArrays.CuArray,next_sign::CuArrays.CuArray)
       hasaffect::Bool = affect! !== nothing
       hasaffectneg::Bool = affect_neg! !== nothing
