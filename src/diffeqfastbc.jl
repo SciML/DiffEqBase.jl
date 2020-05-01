@@ -42,21 +42,23 @@ preprocess_args(f::typeof(diffeqbc), dest, args::Tuple{}) = ()
 
 # Performance optimization for the common identity scalar case: dest .= val
 @inline copyto!(dest::DiffEqBC, bc::Broadcasted{<:AbstractArrayStyle{0}}) = copyto!(dest.x, bc)
-@inline function copyto!(dest::DiffEqBC, bc::Broadcasted)
-    axes(dest) == axes(bc) || throwdm(axes(dest), axes(bc))
-    dest′ = dest.x
-    # Performance optimization: broadcast!(identity, dest, A) is equivalent to copyto!(dest, A) if indices match
-    if bc.f === identity && bc.args isa Tuple{AbstractArray} # only a single input argument to broadcast!
-        A = bc.args[1]
-        if axes(dest) == axes(A)
-            return copyto!(dest′, A)
-        end
-    end
-    bcs′ = preprocess(diffeqbc, dest, bc)
-    @simd ivdep for I in eachindex(bcs′)
-        @inbounds dest′[I] = bcs′[I]
-    end
-    return dest′ # return the original array without the wrapper
+for B in (Broadcasted, Broadcasted{<:StaticArrays.StaticArrayStyle}) # fix ambiguity
+  @eval @inline function copyto!(dest::DiffEqBC, bc::$B)
+      axes(dest) == axes(bc) || throwdm(axes(dest), axes(bc))
+      dest′ = dest.x
+      # Performance optimization: broadcast!(identity, dest, A) is equivalent to copyto!(dest, A) if indices match
+      if bc.f === identity && bc.args isa Tuple{AbstractArray} # only a single input argument to broadcast!
+          A = bc.args[1]
+          if axes(dest) == axes(A)
+              return copyto!(dest′, A)
+          end
+      end
+      bcs′ = preprocess(diffeqbc, dest, bc)
+      @simd ivdep for I in eachindex(bcs′)
+          @inbounds dest′[I] = bcs′[I]
+      end
+      return dest′ # return the original array without the wrapper
+  end
 end
 
 # Forcing `broadcasted` to inline is not necessary, since `Vern9` plays well
