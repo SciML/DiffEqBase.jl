@@ -182,21 +182,26 @@ end
 
 function solve_batch(prob,alg,::EnsembleSplitThreads,I,pmap_batch_size,kwargs...)
   wp=CachingPool(workers())
+  N = nworkers()
+  batch_size = length(I)÷N
   batch_data = let
-    pmap(wp,1:nprocs(),batch_size=pmap_batch_size) do i
-      thread_monte(prob,I,alg,i,kwargs...)
+    pmap(wp,1:N,batch_size=pmap_batch_size) do i
+      if i == N
+        I_local = I[(batch_size*(i-1)+1):end]
+      else
+        I_local = I[(batch_size*(i-1)+1):(batch_size*i)]
+      end
+      thread_monte(prob,I_local,alg,i,kwargs...)
     end
   end
   _batch_data = vector_batch_data_to_arr(batch_data)
 end
 
 function thread_monte(prob,I,alg,procid,kwargs...)
-  start = I[1]+(procid-1)*length(I)
-  stop = I[1]+procid*length(I)-1
-  portion = start:stop
-  batch_data = Vector{Any}(undef,length(portion))
+  batch_data = Vector{Any}(undef,length(I))
+  @show I
   let
-    Threads.@threads for i in portion
+    Threads.@threads for i in I
       iter = 1
       new_prob = prob.prob_func(deepcopy(prob.prob),i,iter)
       rerun = true
