@@ -1,4 +1,6 @@
 using OrdinaryDiffEq, CuArrays, LinearAlgebra, Test
+Base.:+(A::CuArray,I::UniformScaling) = A + CuArray(I,size(A,1),size(A,2))
+Base.:-(A::CuArray,I::UniformScaling) = A + CuArray(I,size(A,1),size(A,2))
 function f(u,p,t)
     A*u
 end
@@ -11,7 +13,13 @@ end
 function jac(u,p,t)
     A
 end
-ff = ODEFunction(f,jac=jac)
+function tgrad(du,u,p,t)
+    du .= 0
+end
+function tgrad(u,p,t)
+    zero(u)
+end
+ff = ODEFunction(f,jac=jac,tgrad=tgrad)
 CuArrays.allowscalar(false)
 A = cu(-rand(3,3))
 u0 = cu([1.0;0.0;0.0])
@@ -19,27 +27,26 @@ tspan = (0f0,100f0)
 
 prob = ODEProblem(ff,u0,tspan)
 sol = solve(prob,Tsit5())
-@test_broken solve(prob,Rosenbrock23()).retcode == :Success
+@test solve(prob,Rosenbrock23()).retcode == :Success
 solve(prob,Rosenbrock23(autodiff=false))
 
 prob_oop = ODEProblem{false}(ff,u0,tspan)
 CuArrays.allowscalar(false)
 sol = solve(prob_oop,Tsit5())
-@test_broken solve(prob_oop,Rosenbrock23()).retcode == :Success
-@test_broken solve(prob_oop,Rosenbrock23(autodiff=false))
+@test solve(prob_oop,Rosenbrock23()).retcode == :Success
+@test solve(prob_oop,Rosenbrock23(autodiff=false)).retcode == :Success
 
 prob_nojac = ODEProblem(f,u0,tspan)
-@test_broken solve(prob_nojac,Rosenbrock23()).retcode == :Success
+@test solve(prob_nojac,Rosenbrock23()).retcode == :Success
 @test solve(prob_nojac,Rosenbrock23(autodiff=false)).retcode == :Success
 @test solve(prob_nojac,Rosenbrock23(autodiff=false,diff_type = Val{:central})).retcode == :Success
 @test solve(prob_nojac,Rosenbrock23(autodiff=false,diff_type = Val{:complex})).retcode == :Success
 
 prob_nojac_oop = ODEProblem{false}(f,u0,tspan)
-@test_broken solve(prob_nojac_oop,Rosenbrock23()).retcode == :Success
-@test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=false)).retcode == :Success
-@test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=false,diff_type = Val{:central})).retcode == :Success
-# hits a generic matmul fallback
-@test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=false,diff_type = Val{:complex})).retcode == :Success
+@test solve(prob_nojac_oop,Rosenbrock23()).retcode == :Success
+@test solve(prob_nojac_oop,Rosenbrock23(autodiff=false)).retcode == :Success
+@test solve(prob_nojac_oop,Rosenbrock23(autodiff=false,diff_type = Val{:central})).retcode == :Success
+@test solve(prob_nojac_oop,Rosenbrock23(autodiff=false,diff_type = Val{:complex})).retcode == :Success
 
 # Test auto-offload
 _A = -rand(3,3)
