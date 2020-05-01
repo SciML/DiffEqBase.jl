@@ -79,12 +79,12 @@ macro ..(x)
     expr = Base.Broadcast.__dot__(x)
     if expr.head in (:(.=), :(.+=), :(.-=), :(.*=), :(./=), :(.\=), :(.^=)) # we exclude `÷=` `%=` `&=` `|=` `⊻=` `>>>=` `>>=` `<<=` because they are for integers
       name = gensym()
-      dest = :(DiffEqBase.diffeqbc($(expr.args[1])))
+      dest = :(diffeqbc($(esc(expr.args[1]))))
       expr.args[1] = name
-      return esc(quote
-                  $name = $dest
-                  $expr
-                 end)
+      return quote
+        $(esc(name)) = $dest
+        $(esc(expr))
+      end
     else
       return esc(expr)
     end
