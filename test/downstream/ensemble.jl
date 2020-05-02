@@ -73,7 +73,9 @@ reduction = function (u,batch,I)
   u,((var(u)/sqrt(last(I)))/mean(u)<0.5) ? true : false
 end
 
-prob2 = EnsembleProblem(prob,prob_func=prob_func,output_func=output_func,reduction=reduction,u_init=Vector{Float64}())
+prob2 = EnsembleProblem(prob,prob_func=prob_func,output_func=output_func,
+                        reduction=reduction,u_init=Vector{Float64}(),
+                        safetycopy=false)
 sim = solve(prob2,Tsit5(),trajectories=10000,batch_size=20)
 @test sim.converged == true
 
