@@ -1,4 +1,4 @@
-using SafeTestsets
+using SafeTestsets, Test
 
 const GROUP = get(ENV, "GROUP", "All")
 const is_APPVEYOR = ( Sys.iswindows() && haskey(ENV,"APPVEYOR") )
@@ -48,6 +48,7 @@ if !is_APPVEYOR && GROUP == "Downstream"
     @time @safetestset "DEDataArray" begin include("downstream/data_array_regression_tests.jl") end
     @time @safetestset "Concrete_solve Tests" begin include("downstream/concrete_solve_tests.jl") end
     @time @safetestset "AD Tests" begin include("downstream/ad_tests.jl") end
+    @time @testset "Distributed Ensemble Tests" begin include("downstream/distributed_ensemble.jl") end
 end
 
 if !is_APPVEYOR && GROUP == "GPU"
