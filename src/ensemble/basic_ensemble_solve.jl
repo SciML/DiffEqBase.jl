@@ -55,6 +55,10 @@ function __solve(prob::AbstractEnsembleProblem,
       else
         @error "parallel_type value not recognized"
       end
+    elseif alg isa EnsembleAlgorithm
+      # Assume DifferentialEquations.jl is being used, so default alg
+      ensemblealg = alg
+      alg = nothing
     else
       ensemblealg = EnsembleThreads()
     end
