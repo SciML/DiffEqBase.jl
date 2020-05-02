@@ -199,9 +199,10 @@ end
 
 function thread_monte(prob,I,alg,procid,kwargs...)
   batch_data = Vector{Any}(undef,length(I))
-  @show I
   let
+    j = 0
     Threads.@threads for i in I
+      j += 1
       iter = 1
       new_prob = prob.prob_func(deepcopy(prob.prob),i,iter)
       rerun = true
@@ -225,7 +226,7 @@ function thread_monte(prob,I,alg,procid,kwargs...)
           end
           rerun = _x[2]
       end
-      batch_data[i - start + 1] = _x[1]
+      batch_data[j] = _x[1]
     end
   end
   batch_data
