@@ -104,9 +104,9 @@ function __solve(prob::AbstractEnsembleProblem,
   return EnsembleSolution(_u,elapsed_time,converged)
 end
 
-function batch_func(i,prob,alg,I,safetycopy,kwargs...)
+function batch_func(i,prob,alg,I,kwargs...)
   iter = 1
-  _prob = safetycopy ? deepcopy(prob.prob) : prob.prob
+  _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
   new_prob = prob.prob_func(_prob,i,iter)
   rerun = true
   x = prob.output_func(solve(new_prob,alg;kwargs...),i)
@@ -119,7 +119,7 @@ function batch_func(i,prob,alg,I,safetycopy,kwargs...)
   rerun = _x[2]
   while rerun
       iter += 1
-      _prob = safetycopy ? deepcopy(prob.prob) : prob.prob
+      _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
       new_prob = prob.prob_func(_prob,i,iter)
       x = prob.output_func(solve(new_prob,alg;kwargs...),i)
       if !(typeof(x) <: Tuple)
@@ -137,7 +137,7 @@ function solve_batch(prob,alg,ensemblealg::EnsembleDistributed,I,pmap_batch_size
   wp=CachingPool(workers())
   batch_data = let
     pmap(wp,I,batch_size=pmap_batch_size) do i
-      batch_func(i,prob,alg,I,ensemblealg.safetycopy,kwargs...)
+      batch_func(i,prob,alg,I,kwargs...)
     end
   end
   map(i->batch_data[i],1:length(batch_data))
@@ -158,7 +158,7 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,I,pmap_batch_size,kwa
     Threads.@threads for batch_idx in axes(batch_data, 1)
         i = I[batch_idx]
         iter = 1
-        _prob = ensemblealg.safetycopy ? deepcopy(prob.prob) : prob.prob
+        _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
         new_prob = prob.prob_func(_prob,i,iter)
         x = prob.output_func(solve(new_prob,alg;kwargs...),i)
         if !(typeof(x) <: Tuple)
@@ -171,7 +171,7 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,I,pmap_batch_size,kwa
 
         while rerun
             iter += 1
-            _prob = ensemblealg.safetycopy ? deepcopy(prob.prob) : prob.prob
+            _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
             new_prob = prob.prob_func(_prob,i,iter)
             x = prob.output_func(solve(new_prob,alg;kwargs...),i)
             if !(typeof(x) <: Tuple)
@@ -199,20 +199,20 @@ function solve_batch(prob,alg,::EnsembleSplitThreads,I,pmap_batch_size,kwargs...
       else
         I_local = I[(batch_size*(i-1)+1):(batch_size*i)]
       end
-      thread_monte(prob,I_local,alg,i,ensemblealg.safetycopy,kwargs...)
+      thread_monte(prob,I_local,alg,i,kwargs...)
     end
   end
   _batch_data = vector_batch_data_to_arr(batch_data)
 end
 
-function thread_monte(prob,I,alg,procid,safetycopy,kwargs...)
+function thread_monte(prob,I,alg,procid,kwargs...)
   batch_data = Vector{Any}(undef,length(I))
   let
     j = 0
     Threads.@threads for i in I
       j += 1
       iter = 1
-      _prob = safetycopy ? deepcopy(prob.prob) : prob.prob
+      _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
       new_prob = prob.prob_func(_prob,i,iter)
       rerun = true
       x = prob.output_func(solve(new_prob,alg;kwargs...),i)
@@ -225,7 +225,7 @@ function thread_monte(prob,I,alg,procid,safetycopy,kwargs...)
       rerun = _x[2]
       while rerun
           iter += 1
-          _prob = safetycopy ? deepcopy(prob.prob) : prob.prob
+          _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
           new_prob = prob.prob_func(_prob,i,iter)
           x = prob.output_func(solve(new_prob,alg;kwargs...),i)
           if !(typeof(x) <: Tuple)
