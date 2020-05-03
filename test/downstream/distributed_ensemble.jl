@@ -12,3 +12,30 @@ end
 
 ensemble_prob = EnsembleProblem(prob, prob_func=prob_func)
 sim = solve(ensemble_prob,Tsit5(),EnsembleSplitThreads(),trajectories=2)
+
+@everywhere function lorenz!(du,u,p,t)
+    du[1] = 10.0*(u[2]-u[1])
+    du[2] = u[1]*(28.0-u[3]) - u[2]
+    du[3] = u[1]*u[2] - (8/3)*u[3]
+end
+
+u0 = [1.0, 0.0, 0.0]
+tspan = (0.0, 100.0)
+p = [1, 2.0, 3]
+prob = ODEProblem(lorenz!, u0, tspan, p)
+
+@everywhere function prob_func(prob,i,repeat)
+    prob = remake(prob, tspan=(rand(), 100.0), p=rand(3))
+    return prob
+end
+
+ensemble_prob = EnsembleProblem(prob, prob_func = prob_func, safetycopy=true)
+
+println("Running EnsembleSerial()")
+@test length(solve(ensemble_prob, Tsit5(), EnsembleSerial(), trajectories=100)) == 100
+println("Running EnsembleThreads()")
+@test length(solve(ensemble_prob, Tsit5(), EnsembleThreads(), trajectories=100)) == 100
+println("Running EnsembleDistributed()")
+@test length(solve(ensemble_prob, Tsit5(), EnsembleDistributed(), trajectories=100)) == 100
+println("Running EnsembleSplitThreads()")
+@test length(solve(ensemble_prob, Tsit5(), EnsembleSplitThreads(), trajectories=100)) == 100

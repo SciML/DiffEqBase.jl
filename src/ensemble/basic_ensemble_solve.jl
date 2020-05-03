@@ -208,9 +208,8 @@ end
 function thread_monte(prob,I,alg,procid,kwargs...)
   batch_data = Vector{Any}(undef,length(I))
   let
-    j = 0
-    Threads.@threads for i in I
-      j += 1
+    Threads.@threads for j in 1:length(I)
+      i = I[j]
       iter = 1
       _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
       new_prob = prob.prob_func(_prob,i,iter)
