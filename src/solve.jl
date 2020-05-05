@@ -213,7 +213,7 @@ end
 function _concrete_solve(prob::DiffEqBase.SteadyStateProblem,alg::DiffEqBase.DEAlgorithm,
                         u0=prob.u0,p=prob.p,args...;kwargs...)
   sol = solve(remake(prob,u0=u0,p=p),alg,args...;kwargs...)
-  RecursiveArrayTools.VectorOfArray(sol.u)
+  sol.u
 end
 
 function ChainRulesCore.frule(::typeof(concrete_solve),prob,alg,u0,p,args...;
