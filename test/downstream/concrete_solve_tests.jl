@@ -13,6 +13,6 @@ probSS = SteadyStateProblem(f!,u0,p)
 solODE = concrete_solve(probODE,Tsit5(), abstol=1e-14,reltol=1e-14)
 solSS = concrete_solve(probSS,DynamicSS(Rodas5()))
 
-@test solSS.u ≈ solODE.u[end] rtol = 1e-8
+@test solSS ≈ solODE.u[end] rtol = 1e-8
 @test length(fieldnames(typeof(solODE))) == 2
-@test length(fieldnames(typeof(solSS))) == 1
+@test length(fieldnames(typeof(solSS))) == 0
