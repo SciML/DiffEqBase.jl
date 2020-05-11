@@ -62,7 +62,12 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
   if update_matrix
     if typeof(A) <: Matrix
       blasvendor = BLAS.vendor()
-      if (blasvendor === :openblas || blasvendor === :openblas64) && size(A,1) <= 500 && ArrayInterface.can_setindex(x) # if the user doesn't use OpenBLAS, we assume that is a much better BLAS implementation like MKL
+      # if the user doesn't use OpenBLAS, we assume that is a better BLAS
+      # implementation like MKL
+      #
+      # RecursiveFactorization seems to be consistantly winning below 100
+      # https://discourse.julialang.org/t/ann-recursivefactorization-jl/39213
+      if ArrayInterface.can_setindex(x) && (size(A,1) <= 100 || ((blasvendor === :openblas || blasvendor === :openblas64) && size(A,1) <= 500))
         p.A = RecursiveFactorization.lu!(A)
       else
         p.A = lu!(A)
