@@ -398,7 +398,7 @@ ODEFunction(f::ODEFunction; kwargs...) = f
   f2 = ODEFunction(f2)
   SplitFunction{isinplace(f2),typeof(f1),typeof(f2),typeof(mass_matrix),
               typeof(cache),typeof(analytic),typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp),
-              typeof(jac_prototype),
+              typeof(jac_prototype),typeof(sparsity),
               typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
               typeof(colorvec)}(f1,f2,mass_matrix,cache,analytic,tgrad,jac,jvp,vjp,
               jac_prototype,sparsity,Wfact,Wfact_t,paramjac,syms,colorvec)
