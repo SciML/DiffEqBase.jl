@@ -18,7 +18,7 @@ abstract type AbstractODEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
+struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
   f::F
   mass_matrix::TMM
   analytic::Ta
@@ -27,7 +27,7 @@ struct ODEFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractOD
   jvp::JVP
   vjp::VJP
   jac_prototype::JP
-  sparsity::JP
+  sparsity::SP
   Wfact::TW
   Wfact_t::TWt
   paramjac::TPJ
@@ -38,7 +38,7 @@ end
 """
 $(TYPEDEF)
 """
-struct SplitFunction{iip,F1,F2,TMM,C,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
+struct SplitFunction{iip,F1,F2,TMM,C,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
   f1::F1
   f2::F2
   mass_matrix::TMM
@@ -49,7 +49,7 @@ struct SplitFunction{iip,F1,F2,TMM,C,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: Ab
   jvp::JVP
   vjp::VJP
   jac_prototype::JP
-  sparsity::JP
+  sparsity::SP
   Wfact::TW
   Wfact_t::TWt
   paramjac::TPJ
@@ -60,7 +60,7 @@ end
 """
 $(TYPEDEF)
 """
-struct DynamicalODEFunction{iip,F1,F2,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
+struct DynamicalODEFunction{iip,F1,F2,TMM,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,S,TCV} <: AbstractODEFunction{iip}
   f1::F1
   f2::F2
   mass_matrix::TMM
@@ -70,7 +70,7 @@ struct DynamicalODEFunction{iip,F1,F2,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} 
   jvp::JVP
   vjp::VJP
   jac_prototype::JP
-  sparsity::JP
+  sparsity::SP
   Wfact::TW
   Wfact_t::TWt
   paramjac::TPJ
@@ -86,7 +86,7 @@ abstract type AbstractDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractDDEFunction{iip}
+struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,S,TCV} <: AbstractDDEFunction{iip}
   f::F
   mass_matrix::TMM
   analytic::Ta
@@ -95,7 +95,7 @@ struct DDEFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractDD
   jvp::JVP
   vjp::VJP
   jac_prototype::JP
-  sparsity::JP
+  sparsity::SP
   Wfact::TW
   Wfact_t::TWt
   paramjac::TPJ
@@ -125,7 +125,7 @@ abstract type AbstractSDEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,GG,TCV} <: AbstractSDEFunction{iip}
+struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,S,GG,TCV} <: AbstractSDEFunction{iip}
   f::F
   g::G
   mass_matrix::TMM
@@ -135,7 +135,7 @@ struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,GG,TCV} <: Abstr
   jvp::JVP
   vjp::VJP
   jac_prototype::JP
-  sparsity::JP
+  sparsity::SP
   Wfact::TW
   Wfact_t::TWt
   paramjac::TPJ
@@ -147,7 +147,7 @@ end
 """
 $(TYPEDEF)
 """
-struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractSDEFunction{iip}
+struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,S,TCV} <: AbstractSDEFunction{iip}
   f1::F1
   f2::F2
   g::G
@@ -159,7 +159,7 @@ struct SplitSDEFunction{iip,F1,F2,G,TMM,C,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} 
   jvp::JVP
   vjp::VJP
   jac_prototype::JP
-  sparsity::JP
+  sparsity::SP
   Wfact::TW
   Wfact_t::TWt
   paramjac::TPJ
@@ -175,7 +175,7 @@ abstract type AbstractRODEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractRODEFunction{iip}
+struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,S,TCV} <: AbstractRODEFunction{iip}
   f::F
   mass_matrix::TMM
   analytic::Ta
@@ -184,7 +184,7 @@ struct RODEFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractR
   jvp::JVP
   vjp::VJP
   jac_prototype::JP
-  sparsity::JP
+  sparsity::SP
   Wfact::TW
   Wfact_t::TWt
   paramjac::TPJ
@@ -200,7 +200,7 @@ abstract type AbstractDAEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct DAEFunction{iip,F,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractDAEFunction{iip}
+struct DAEFunction{iip,F,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,S,TCV} <: AbstractDAEFunction{iip}
   f::F
   analytic::Ta
   tgrad::Tt
@@ -208,7 +208,7 @@ struct DAEFunction{iip,F,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,TCV} <: AbstractDAEFun
   jvp::JVP
   vjp::VJP
   jac_prototype::JP
-  sparsity::JP
+  sparsity::SP
   Wfact::TW
   Wfact_t::TWt
   paramjac::TPJ
@@ -225,7 +225,7 @@ abstract type AbstractSDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct SDDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,GG,TCV} <: AbstractSDDEFunction{iip}
+struct SDDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,S,GG,TCV} <: AbstractSDDEFunction{iip}
   f::F
   g::G
   mass_matrix::TMM
@@ -235,7 +235,7 @@ struct SDDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,TW,TWt,TPJ,S,GG,TCV} <: Abst
   jvp::JVP
   vjp::VJP
   jac_prototype::JP
-  sparsity::JP
+  sparsity::SP
   Wfact::TW
   Wfact_t::TWt
   paramjac::TPJ
@@ -345,7 +345,8 @@ function ODEFunction{iip,true}(f;
                  end
 
                  ODEFunction{iip,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+                 typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),
+                 typeof(Wfact),typeof(Wfact_t),
                  typeof(paramjac),typeof(syms),typeof(_colorvec)}(
                  f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
@@ -380,7 +381,7 @@ function ODEFunction{iip,false}(f;
                  end
 
                  ODEFunction{iip,Any,Any,Any,Any,
-                 Any,Any,Any,Any,
+                 Any,Any,Any,Any,Any,
                  Any,typeof(syms),typeof(_colorvec)}(
                  f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
@@ -418,7 +419,7 @@ function SplitFunction{iip,true}(f1,f2;
                                  colorvec = nothing) where iip
   SplitFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),
                 typeof(_func_cache),typeof(analytic),
-                typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),
+                typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),
                 typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
                 typeof(colorvec)}(
                 f1,f2,mass_matrix,_func_cache,analytic,tgrad,jac,jvp,vjp,jac_prototype,
@@ -437,7 +438,7 @@ function SplitFunction{iip,false}(f1,f2; mass_matrix=I,
                                   paramjac = nothing,
                                   syms = nothing,
                                   colorvec = nothing) where iip
-  SplitFunction{iip,Any,Any,Any,Any,Any,Any,Any,
+  SplitFunction{iip,Any,Any,Any,Any,Any,Any,Any,Any
                 Any,Any,Any,Any,Any}(
                 f1,f2,mass_matrix,_func_cache,analytic,tgrad,jac,jvp,vjp,jac_prototype,
                 sparsity,Wfact,Wfact_t,paramjac,syms,colorvec)
@@ -475,7 +476,7 @@ function DynamicalODEFunction{iip,true}(f1,f2;mass_matrix=(I,I),
                                         colorvec = nothing) where iip
   DynamicalODEFunction{iip,typeof(f1),typeof(f2),typeof(mass_matrix),
                 typeof(analytic),
-                typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),
+                typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),
                 typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
                 typeof(colorvec)}(
                 f1,f2,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,
@@ -496,7 +497,7 @@ function DynamicalODEFunction{iip,false}(f1,f2;mass_matrix=(I,I),
                                          paramjac = nothing,
                                          syms = nothing,
                                          colorvec = nothing) where iip
-       DynamicalODEFunction{iip,Any,Any,Any,Any,Any,Any,
+       DynamicalODEFunction{iip,Any,Any,Any,Any,Any,Any,Any,
                             Any,Any,Any,Any,Any}(
                             f1,f2,mass_matrix,analytic,tgrad,
                             jac,jvp,vjp,jac_prototype,sparsity,
@@ -555,7 +556,7 @@ function SDEFunction{iip,true}(f,g;
 
                  SDEFunction{iip,typeof(f),typeof(g),
                  typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+                 typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),typeof(Wfact),typeof(Wfact_t),
                  typeof(paramjac),typeof(syms),
                  typeof(ggprime),typeof(_colorvec)}(
                  f,g,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
@@ -592,7 +593,7 @@ function SDEFunction{iip,false}(f,g;
                  end
 
                  SDEFunction{iip,Any,Any,Any,Any,Any,
-                 Any,Any,Any,Any,
+                 Any,Any,Any,Any,Any,
                  Any,typeof(syms),Any,typeof(_colorvec)}(
                  f,g,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
                  paramjac,ggprime,syms,_colorvec)
@@ -630,7 +631,7 @@ function SplitSDEFunction{iip,true}(f1,f2,g; mass_matrix=I,
   SplitSDEFunction{iip,typeof(f1),typeof(f2),typeof(g),
               typeof(mass_matrix),typeof(_func_cache),
               typeof(analytic),
-              typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),
+              typeof(tgrad),typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),
               typeof(Wfact),typeof(Wfact_t),typeof(paramjac),typeof(syms),
               typeof(colorvec)}(f1,f2,g,mass_matrix,_func_cache,analytic,
               tgrad,jac,jvp,vjp,jac_prototype,sparsity,
@@ -650,7 +651,7 @@ function SplitSDEFunction{iip,false}(f1,f2,g; mass_matrix=I,
                             syms = nothing,
                             colorvec = nothing) where iip
   SplitSDEFunction{iip,Any,Any,Any,Any,Any,
-                   Any,Any,Any,
+                   Any,Any,Any,Any,
                    Any,Any,Any,Any,Any}(
                    f1,f2,g,mass_matrix,_func_cache,analytic,
                    tgrad,jac,jvp,vjp,jac_prototype,sparsity,
@@ -692,7 +693,7 @@ function RODEFunction{iip,true}(f;
 
                  RODEFunction{iip,typeof(f),typeof(mass_matrix),
                  typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+                 typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),typeof(Wfact),typeof(Wfact_t),
                  typeof(paramjac),typeof(syms),typeof(_colorvec)}(
                  f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
@@ -727,7 +728,7 @@ function RODEFunction{iip,false}(f;
                  end
 
                  RODEFunction{iip,Any,Any,Any,Any,
-                 Any,Any,Any,Any,
+                 Any,Any,Any,Any,Any,
                  Any,typeof(syms),typeof(_colorvec)}(
                  f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
@@ -766,7 +767,7 @@ function DAEFunction{iip,true}(f;
                  end
 
                  DAEFunction{iip,typeof(f),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+                 typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),typeof(Wfact),typeof(Wfact_t),
                  typeof(paramjac),typeof(syms),typeof(_colorvec)}(
                  f,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
@@ -800,7 +801,7 @@ function DAEFunction{iip,false}(f;
                  end
 
                  DAEFunction{iip,Any,Any,Any,
-                 Any,Any,Any,Any,
+                 Any,Any,Any,Any,Any,
                  Any,typeof(syms),typeof(_colorvec)}(
                  f,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
@@ -840,7 +841,7 @@ function DDEFunction{iip,true}(f;
                  end
 
                  DDEFunction{iip,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+                 typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),typeof(Wfact),typeof(Wfact_t),
                  typeof(paramjac),typeof(syms),typeof(_colorvec)}(
                  f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
@@ -875,7 +876,7 @@ function DDEFunction{iip,false}(f;
                  end
 
                  DDEFunction{iip,Any,Any,Any,Any,
-                 Any,Any,Any,Any,
+                 Any,Any,Any,Any,Any,
                  Any,typeof(syms),typeof(_colorvec)}(
                  f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
                  paramjac,syms,_colorvec)
@@ -916,7 +917,7 @@ function SDDEFunction{iip,true}(f,g;
 
   SDDEFunction{iip,typeof(f),typeof(g),
   typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-  typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(Wfact),typeof(Wfact_t),
+  typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),typeof(Wfact),typeof(Wfact_t),
   typeof(paramjac),typeof(syms),
   typeof(ggprime),typeof(_colorvec)}(
   f,g,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
@@ -954,7 +955,7 @@ function SDDEFunction{iip,false}(f,g;
   end
 
   SDDEFunction{iip,Any,Any,Any,Any,Any,
-  Any,Any,Any,Any,
+  Any,Any,Any,Any,Any,
   Any,typeof(syms),Any,typeof(_colorvec)}(
   f,g,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
   paramjac,ggprime,syms,_colorvec)
