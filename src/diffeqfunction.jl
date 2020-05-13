@@ -438,7 +438,7 @@ function SplitFunction{iip,false}(f1,f2; mass_matrix=I,
                                   paramjac = nothing,
                                   syms = nothing,
                                   colorvec = nothing) where iip
-  SplitFunction{iip,Any,Any,Any,Any,Any,Any,Any,Any
+  SplitFunction{iip,Any,Any,Any,Any,Any,Any,Any,Any,
                 Any,Any,Any,Any,Any}(
                 f1,f2,mass_matrix,_func_cache,analytic,tgrad,jac,jvp,vjp,jac_prototype,
                 sparsity,Wfact,Wfact_t,paramjac,syms,colorvec)
