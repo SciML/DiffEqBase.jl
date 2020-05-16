@@ -6,10 +6,10 @@ const is_TRAVIS = haskey(ENV,"TRAVIS")
 
 @time begin
 if GROUP == "All" || GROUP == "Core"
+    @time @safetestset "Data Arrays" begin include("data_array_tests.jl") end
     @time @safetestset "Fast Power" begin include("fastpow.jl") end
     @time @safetestset "Fast Broadcast" begin include("fastbc.jl") end
     @time @safetestset "Number of Parameters Calculation" begin include("numargs_test.jl") end
-    @time @safetestset "Data Arrays" begin include("data_array_tests.jl") end
     @time @safetestset "Existence functions" begin include("existence_functions.jl") end
     @time @safetestset "Callbacks" begin include("callbacks.jl") end
     @time @safetestset "Plot Variables" begin include("plot_vars.jl") end
