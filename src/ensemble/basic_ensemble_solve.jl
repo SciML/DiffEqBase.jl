@@ -89,7 +89,7 @@ function __solve(prob::AbstractEnsembleProblem,
   num_batches * batch_size != trajectories && (num_batches += 1)
 
   function batch_function(I)
-    batch_data = map(x->x.u, solve_batch(prob,alg,ensemblealg,I,pmap_batch_size;kwargs...))
+    batch_data = solve_batch(prob,alg,ensemblealg,I,pmap_batch_size;kwargs...)
   end
 
   if num_batches == 1 && prob.reduction === DEFAULT_REDUCTION
