@@ -6,8 +6,11 @@ NO_TSPAN_PROBS = Union{AbstractLinearProblem, AbstractNonlinearProblem,
                        AbstractQuadratureProblem,
                        AbstractSteadyStateProblem,AbstractJumpProblem}
 
+has_kwargs(_prob::DEProblem) = has_kwargs(typeof(_prob))
+Base.@pure has_kwargs(::Type{T}) where T = :kwargs ∈ fieldnames(T)
+
 function init_call(_prob,args...;kwargs...)
-  if :kwargs ∈ propertynames(_prob)
+  if has_kwargs(_prob)
     __init(_prob,args...;_prob.kwargs...,kwargs...)
   else
     __init(_prob,args...;kwargs...)
@@ -34,7 +37,7 @@ function init(prob::DEProblem,args...;kwargs...)
 end
 
 function solve_call(_prob,args...;merge_callbacks = true, kwargs...)
-  if :kwargs ∈ propertynames(_prob)
+  if has_kwargs(_prob)
     if merge_callbacks && haskey(_prob.kwargs,:callback) && haskey(kwargs, :callback)
       kwargs_temp = NamedTuple{Base.diff_names(Base._nt_names(
       values(kwargs)), (:callback,))}(values(kwargs))
@@ -44,10 +47,19 @@ function solve_call(_prob,args...;merge_callbacks = true, kwargs...)
     kwargs = merge(values(_prob.kwargs), kwargs)
   end
 
-  logger = get(kwargs, :progress, false) ? default_logger(Logging.current_logger()) : nothing
-  maybe_with_logger(logger) do
-    __solve(_prob,args...; kwargs...)
+  T = Core.Compiler.return_type(__solve,Tuple{typeof(_prob),map(typeof, args)...})
+
+  progress = get(kwargs, :progress, false)
+  if progress
+    logger = default_logger(Logging.current_logger())
+    x = maybe_with_logger(logger) do
+      __solve(_prob,args...; kwargs...)
+    end
+    return x::T
+  else
+    __solve(_prob,args...; kwargs...)::T
   end
+
 end
 
 function solve(prob::DEProblem,args...;kwargs...)

@@ -80,7 +80,10 @@ sim = solve(prob2,Tsit5(),trajectories=10000,batch_size=20)
 @test sim.converged == true
 
 
-Random.seed!(100)
+prob_func = function (prob,i,repeat)
+  ODEProblem(prob.f,(1 + i/100)*prob.u0,prob.tspan,1.01)
+end
+
 reduction = function (u,batch,I)
   u = append!(u,batch)
   u,false
@@ -90,7 +93,6 @@ prob2 = EnsembleProblem(prob,prob_func=prob_func,output_func=output_func,reducti
 sim = solve(prob2,Tsit5(),trajectories=100,batch_size=20)
 @test sim.converged == false
 
-Random.seed!(100)
 reduction = function (u,batch,I)
   u+sum(batch),false
 end
@@ -105,4 +107,4 @@ output_func = function (sol,i)
 end
 prob2 = EnsembleProblem(prob,prob_func=prob_func,output_func=output_func)
 sim2 = solve(prob2,Tsit5(),trajectories=2)
-@test !sim2.converged && typeof(sim2.u) == Vector{SomeUserType}
+@test sim2.converged && typeof(sim2.u) == Vector{SomeUserType}
