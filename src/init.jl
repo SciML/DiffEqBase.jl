@@ -3,6 +3,7 @@ cuify(x) = error("To use LinSolveGPUFactorize, you must do `using CuArrays`")
 promote_u0(u0,p,t0) = u0
 promote_tspan(u0,p,tspan,prob,kwargs) = tspan
 get_tmp(x) = nothing
+isdistribution(u0) = false
 
 if VERSION < v"1.4.0-DEV.635"
   # Piracy, should get upstreamed
@@ -18,6 +19,7 @@ function __init__()
 
   @require Distributions="31c24e10-a181-5473-b8eb-7969acd0382f" begin
     handle_distribution_u0(_u0::Distributions.Sampleable) = rand(_u0)
+    isdistribution(_u0::Distributions.Sampleable) = true
   end
 
   @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
@@ -54,7 +56,7 @@ function __init__()
 
     @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{<:Any,<:ForwardDiff.Dual}},::ForwardDiff.Dual) = sqrt(sum(UNITLESS_ABS2∘value,u) / length(u))
     @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual{<:Any,ForwardDiff.Dual},::ForwardDiff.Dual) = abs(value(u))
-    
+
     @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{<:Any,<:ForwardDiff.Dual}},::ForwardDiff.Dual{<:Any,ForwardDiff.Dual}) = sqrt(sum(UNITLESS_ABS2,u) / length(u))
     @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual{<:Any,ForwardDiff.Dual},::ForwardDiff.Dual{<:Any,ForwardDiff.Dual}) = abs(u)
 
