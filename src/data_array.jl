@@ -162,3 +162,8 @@ unpack(x::DEDataArray) = x.x
 @inline unpack_args(args::Tuple) = (unpack(args[1]), unpack_args(Base.tail(args))...)
 unpack_args(args::Tuple{Any}) = (unpack(args[1]),)
 unpack_args(::Any, args::Tuple{}) = ()
+
+# Broadcasting checks for aliasing with Base.dataids but the fallback
+# for AbstractArrays is very slow. Instead, we just call dataids on the
+# wrapped buffer
+Base.dataids(A::DEDataArray) = Base.dataids(A.__x)
