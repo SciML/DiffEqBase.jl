@@ -12,12 +12,12 @@ end
 
 DEFAULT_PROB_FUNC(prob,i,repeat) = prob
 DEFAULT_OUTPUT_FUNC(sol,i) = (sol,false)
-DEFAULT_REDUCTION(u,data,I) = (append!(u,data),false)
+DEFAULT_REDUCTION(u,data,I) = (reduce(vcat,(u,data)),false)
 EnsembleProblem(prob;
     output_func = DEFAULT_OUTPUT_FUNC,
     prob_func= DEFAULT_PROB_FUNC,
     reduction = DEFAULT_REDUCTION,
-    u_init = [],
+    u_init = nothing,
     safetycopy = prob_func !== DEFAULT_PROB_FUNC) =
     EnsembleProblem(prob,prob_func,output_func,reduction,u_init,safetycopy)
 
@@ -25,5 +25,5 @@ EnsembleProblem(;prob,
     output_func = DEFAULT_OUTPUT_FUNC,
     prob_func= DEFAULT_PROB_FUNC,
     reduction = DEFAULT_REDUCTION,
-    u_init = [], p = nothing, safetycopy = prob_func !== DEFAULT_PROB_FUNC) =
+    u_init = nothing, p = nothing, safetycopy = prob_func !== DEFAULT_PROB_FUNC) =
     EnsembleProblem(prob,prob_func,output_func,reduction,u_init,safetycopy)

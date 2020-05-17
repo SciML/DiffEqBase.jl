@@ -84,24 +84,42 @@ function __solve(prob::AbstractEnsembleProblem,
   num_batches = trajectories ÷ batch_size
   num_batches * batch_size != trajectories && (num_batches += 1)
 
-  u = deepcopy(prob.u_init)
+  function batch_function(I)
+    batch_data = solve_batch(prob,alg,ensemblealg,I,pmap_batch_size,kwargs...)
+  end
+
+  if num_batches == 1 && prob.reduction === DEFAULT_REDUCTION
+    elapsed_time = @elapsed batch_data = batch_function(1:trajectories)
+    return EnsembleSolution(batch_data,elapsed_time,true)
+  end
+
+  if prob.u_init === nothing && prob.reduction === DEFAULT_REDUCTION
+    batchrt = Core.Compiler.return_type(batch_function,Tuple{UnitRange{Int64}})
+    u = Vector{batchrt}(undef,0)
+  else
+    u = []
+  end
+
   converged = false
+
   elapsed_time = @elapsed for i in 1:num_batches
     if i == num_batches
       I = (batch_size*(i-1)+1):trajectories
     else
       I = (batch_size*(i-1)+1):batch_size*i
     end
-    batch_data = solve_batch(prob,alg,ensemblealg,I,pmap_batch_size,kwargs...)
+    batch_data = batch_function(I)
     u,converged = prob.reduction(u,batch_data,I)
     converged && break
   end
+
   if typeof(u) <: Vector{Any}
     _u = map(i->u[i],1:length(u))
   else
     _u = u
   end
-  return EnsembleSolution(_u,elapsed_time,converged)
+
+  return EnsembleSolution(u,elapsed_time,converged)
 end
 
 function batch_func(i,prob,alg,I,kwargs...)
@@ -153,11 +171,22 @@ function solve_batch(prob,alg,::EnsembleSerial,I,pmap_batch_size,kwargs...)
 end
 
 function solve_batch(prob,alg,ensemblealg::EnsembleThreads,I,pmap_batch_size,kwargs...)
-  batch_data = Vector{Any}(undef,length(I))
-  let
-    Threads.@threads for batch_idx in axes(batch_data, 1)
-        i = I[batch_idx]
-        iter = 1
+  function multithreaded_batch(batch_idx)
+    i = I[batch_idx]
+    iter = 1
+    _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
+    new_prob = prob.prob_func(_prob,i,iter)
+    x = prob.output_func(solve(new_prob,alg;kwargs...),i)
+    if !(typeof(x) <: Tuple)
+        @warn("output_func should return (out,rerun). See docs for updated details")
+        _x = (x,false)
+    else
+      _x = x
+    end
+    rerun = _x[2]
+
+    while rerun
+        iter += 1
         _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
         new_prob = prob.prob_func(_prob,i,iter)
         x = prob.output_func(solve(new_prob,alg;kwargs...),i)
@@ -168,24 +197,15 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,I,pmap_batch_size,kwa
           _x = x
         end
         rerun = _x[2]
-
-        while rerun
-            iter += 1
-            _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
-            new_prob = prob.prob_func(_prob,i,iter)
-            x = prob.output_func(solve(new_prob,alg;kwargs...),i)
-            if !(typeof(x) <: Tuple)
-                @warn("output_func should return (out,rerun). See docs for updated details")
-                _x = (x,false)
-            else
-              _x = x
-            end
-            rerun = _x[2]
-        end
-        batch_data[batch_idx] = _x[1]
     end
+    _x[1]
   end
-  map(i->batch_data[i],1:length(batch_data))
+
+  batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(I))})}(undef,length(I))
+  Threads.@threads for batch_idx in axes(batch_data, 1)
+      batch_data[batch_idx] = multithreaded_batch(batch_idx)
+  end
+  batch_data
 end
 
 function solve_batch(prob,alg,::EnsembleSplitThreads,I,pmap_batch_size,kwargs...)
