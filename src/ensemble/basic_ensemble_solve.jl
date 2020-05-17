@@ -89,7 +89,7 @@ function __solve(prob::AbstractEnsembleProblem,
   num_batches * batch_size != trajectories && (num_batches += 1)
 
   function batch_function(I)
-    batch_data = solve_batch(prob,alg,ensemblealg,I,pmap_batch_size;kwargs...)
+    batch_data = map(x->x.u, solve_batch(prob,alg,ensemblealg,I,pmap_batch_size;kwargs...))
   end
 
   if num_batches == 1 && prob.reduction === DEFAULT_REDUCTION
@@ -100,10 +100,10 @@ function __solve(prob::AbstractEnsembleProblem,
 
   if prob.u_init === nothing && prob.reduction === DEFAULT_REDUCTION
     batchrt = Core.Compiler.return_type(batch_function,Tuple{UnitRange{Int64}})
-    u = Vector{batchrt}(undef,0)
   else
-    u = []
+    batchrt = Any
   end
+  u = batchrt[]
 
   converged = false
 
