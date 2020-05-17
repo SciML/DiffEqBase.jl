@@ -95,7 +95,7 @@ function __solve(prob::AbstractEnsembleProblem,
   if num_batches == 1 && prob.reduction === DEFAULT_REDUCTION
     elapsed_time = @elapsed u = batch_function(1:trajectories)
     _u = tighten_container_eltype(u)
-    return EnsembleSolution(_u,elapsed_time,true)
+    return EnsembleSolution([_u],elapsed_time,true)
   end
 
   if prob.u_init === nothing && prob.reduction === DEFAULT_REDUCTION
