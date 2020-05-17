@@ -75,6 +75,9 @@ function __solve(prob::AbstractEnsembleProblem,
     __solve(prob,alg,ensemblealg;trajectories=trajectories,kwargs...)
 end
 
+tighten_container_eltype(u::Vector{Any}) = map(identity, u)
+tighten_container_eltype(u) = u
+
 function __solve(prob::AbstractEnsembleProblem,
                  alg::Union{DEAlgorithm,Nothing},
                  ensemblealg::BasicEnsembleAlgorithm;
@@ -90,11 +93,7 @@ function __solve(prob::AbstractEnsembleProblem,
 
   if num_batches == 1 && prob.reduction === DEFAULT_REDUCTION
     elapsed_time = @elapsed u = batch_function(1:trajectories)
-    if typeof(u) <: Vector{Any}
-      _u = map(i->u[i],1:length(u))
-    else
-      _u = u
-    end
+    _u = tighten_container_eltype(u)
     return EnsembleSolution(_u,elapsed_time,true)
   end
 
@@ -118,11 +117,7 @@ function __solve(prob::AbstractEnsembleProblem,
     converged && break
   end
 
-  if typeof(u) <: Vector{Any}
-    _u = map(i->u[i],1:length(u))
-  else
-    _u = u
-  end
+  _u = tighten_container_eltype(u)
 
   return EnsembleSolution(u,elapsed_time,converged)
 end
