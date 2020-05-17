@@ -85,7 +85,7 @@ function __solve(prob::AbstractEnsembleProblem,
   num_batches * batch_size != trajectories && (num_batches += 1)
 
   function batch_function(I)
-    batch_data = solve_batch(prob,alg,ensemblealg,I,pmap_batch_size,kwargs...)
+    batch_data = solve_batch(prob,alg,ensemblealg,I,pmap_batch_size;kwargs...)
   end
 
   if num_batches == 1 && prob.reduction === DEFAULT_REDUCTION
@@ -127,7 +127,7 @@ function __solve(prob::AbstractEnsembleProblem,
   return EnsembleSolution(u,elapsed_time,converged)
 end
 
-function batch_func(i,prob,alg,I,kwargs...)
+function batch_func(i,prob,alg;kwargs...)
   iter = 1
   _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
   new_prob = prob.prob_func(_prob,i,iter)
@@ -156,23 +156,19 @@ function batch_func(i,prob,alg,I,kwargs...)
   _x[1]
 end
 
-function solve_batch(prob,alg,ensemblealg::EnsembleDistributed,I,pmap_batch_size,kwargs...)
+function solve_batch(prob,alg,ensemblealg::EnsembleDistributed,I,pmap_batch_size;kwargs...)
   wp=CachingPool(workers())
-  batch_data = let
-    pmap(wp,I,batch_size=pmap_batch_size) do i
-      batch_func(i,prob,alg,I,kwargs...)
-    end
+  batch_data = pmap(wp,I,batch_size=pmap_batch_size) do i
+    batch_func(i,prob,alg;kwargs...)
   end
-  map(i->batch_data[i],1:length(batch_data))
+  map(identity,batch_data)
 end
 
-function solve_batch(prob,alg,::EnsembleSerial,I,pmap_batch_size,kwargs...)
-  batch_data = let
-    map(I) do i
-      batch_func(i,prob,alg,I,kwargs...)
-    end
+function solve_batch(prob,alg,::EnsembleSerial,I,pmap_batch_size;kwargs...)
+  batch_data = map(I) do i
+    batch_func(i,prob,alg;kwargs...)
   end
-  map(i->batch_data[i],1:length(batch_data))
+  batch_data
 end
 
 function solve_batch(prob,alg,ensemblealg::EnsembleThreads,I,pmap_batch_size,kwargs...)
@@ -213,7 +209,7 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,I,pmap_batch_size,kwa
   batch_data
 end
 
-function solve_batch(prob,alg,::EnsembleSplitThreads,I,pmap_batch_size,kwargs...)
+function solve_batch(prob,alg,::EnsembleSplitThreads,I,pmap_batch_size;kwargs...)
   wp=CachingPool(workers())
   N = nworkers()
   batch_size = length(I)÷N
@@ -224,13 +220,13 @@ function solve_batch(prob,alg,::EnsembleSplitThreads,I,pmap_batch_size,kwargs...
       else
         I_local = I[(batch_size*(i-1)+1):(batch_size*i)]
       end
-      thread_monte(prob,I_local,alg,i,kwargs...)
+      thread_monte(prob,I_local,alg,i;kwargs...)
     end
   end
   _batch_data = vector_batch_data_to_arr(batch_data)
 end
 
-function thread_monte(prob,I,alg,procid,kwargs...)
+function thread_monte(prob,I,alg,procid;kwargs...)
   batch_data = Vector{Any}(undef,length(I))
   let
     Threads.@threads for j in 1:length(I)
