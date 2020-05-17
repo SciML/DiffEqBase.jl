@@ -121,7 +121,8 @@ function __solve(prob::AbstractEnsembleProblem,
   u = reduce(vcat, u)
   _u = tighten_container_eltype(u)
 
-  return EnsembleSolution(u,elapsed_time,converged)
+  return EnsembleSolution(_u,elapsed_time,converged)
+
 end
 
 function batch_func(i,prob,alg;kwargs...)
