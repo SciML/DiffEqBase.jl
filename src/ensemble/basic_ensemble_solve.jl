@@ -98,16 +98,13 @@ function __solve(prob::AbstractEnsembleProblem,
     return EnsembleSolution(_u,elapsed_time,true)
   end
 
-  if prob.u_init === nothing && prob.reduction === DEFAULT_REDUCTION
-    batchrt = Core.Compiler.return_type(batch_function,Tuple{UnitRange{Int64}})
-  else
-    batchrt = Any
-  end
-  u = batchrt[]
+  converged::Bool = false
 
-  converged = false
-
-  elapsed_time = @elapsed for i in 1:num_batches
+  batch_data = batch_function(I)
+  u = similar(batch_data, 0)
+  u,converged = prob.reduction(u,batch_data,I)
+  elapsed_time = @elapsed for i in 2:num_batches
+    converged && break
     if i == num_batches
       I = (batch_size*(i-1)+1):trajectories
     else
@@ -115,7 +112,6 @@ function __solve(prob::AbstractEnsembleProblem,
     end
     batch_data = batch_function(I)
     u,converged = prob.reduction(u,batch_data,I)
-    converged && break
   end
 
   u = reduce(vcat, u)
