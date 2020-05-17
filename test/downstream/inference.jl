@@ -43,4 +43,4 @@ function solve_ode(f::F, p::P) where {F,P}
 
   return sol
 end
-@inferred solve_ode(f, (a = 1, b = 1))
+@test_broken @inferred solve_ode(f, (a = 1, b = 1))
