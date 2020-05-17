@@ -166,4 +166,4 @@ unpack_args(::Any, args::Tuple{}) = ()
 # Broadcasting checks for aliasing with Base.dataids but the fallback
 # for AbstractArrays is very slow. Instead, we just call dataids on the
 # wrapped buffer
-Base.dataids(A::DEDataArray) = Base.dataids(A.__x)
+Base.dataids(A::DEDataArray) = Base.dataids(A.x)
