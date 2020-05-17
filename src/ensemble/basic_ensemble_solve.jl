@@ -197,8 +197,10 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,I,pmap_batch_size;kwa
   end
 
   batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(I))})}(undef,length(I))
-  Threads.@threads for batch_idx in axes(batch_data, 1)
-      batch_data[batch_idx] = multithreaded_batch(batch_idx)
+  let
+    Threads.@threads for batch_idx in axes(batch_data, 1)
+        batch_data[batch_idx] = multithreaded_batch(batch_idx)
+    end
   end
   batch_data
 end
@@ -217,40 +219,45 @@ function solve_batch(prob,alg,::EnsembleSplitThreads,I,pmap_batch_size;kwargs...
       thread_monte(prob,I_local,alg,i;kwargs...)
     end
   end
-  _batch_data = vector_batch_data_to_arr(batch_data)
+  reduce(vcat,batch_data)
 end
 
 function thread_monte(prob,I,alg,procid;kwargs...)
-  batch_data = Vector{Any}(undef,length(I))
+  function multithreaded_batch(j)
+    i = I[j]
+    iter = 1
+    _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
+    new_prob = prob.prob_func(_prob,i,iter)
+    rerun = true
+    x = prob.output_func(solve(new_prob,alg;kwargs...),i)
+    if !(typeof(x) <: Tuple)
+        @warn("output_func should return (out,rerun). See docs for updated details")
+        _x = (x,false)
+    else
+      _x = x
+    end
+    rerun = _x[2]
+    while rerun
+        iter += 1
+        _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
+        new_prob = prob.prob_func(_prob,i,iter)
+        x = prob.output_func(solve(new_prob,alg;kwargs...),i)
+        if !(typeof(x) <: Tuple)
+            @warn("output_func should return (out,rerun). See docs for updated details")
+            _x = (x,false)
+        else
+          _x = x
+        end
+        rerun = _x[2]
+    end
+    _x[1]
+  end
+
+  batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(I))})}(undef,length(I))
+
   let
     Threads.@threads for j in 1:length(I)
-      i = I[j]
-      iter = 1
-      _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
-      new_prob = prob.prob_func(_prob,i,iter)
-      rerun = true
-      x = prob.output_func(solve(new_prob,alg;kwargs...),i)
-      if !(typeof(x) <: Tuple)
-          @warn("output_func should return (out,rerun). See docs for updated details")
-          _x = (x,false)
-      else
-        _x = x
-      end
-      rerun = _x[2]
-      while rerun
-          iter += 1
-          _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
-          new_prob = prob.prob_func(_prob,i,iter)
-          x = prob.output_func(solve(new_prob,alg;kwargs...),i)
-          if !(typeof(x) <: Tuple)
-              @warn("output_func should return (out,rerun). See docs for updated details")
-              _x = (x,false)
-          else
-            _x = x
-          end
-          rerun = _x[2]
-      end
-      batch_data[j] = _x[1]
+      batch_data[j] = multithreaded_batch(j)
     end
   end
   batch_data
