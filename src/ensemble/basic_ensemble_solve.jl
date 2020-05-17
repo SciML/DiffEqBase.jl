@@ -85,6 +85,7 @@ function __solve(prob::AbstractEnsembleProblem,
                  pmap_batch_size = batch_size÷100 > 0 ? batch_size÷100 : 1, kwargs...)
 
   num_batches = trajectories ÷ batch_size
+  num_batches < 1 && error("trajectories ÷ batch_size cannot be less than 1, got $num_batches")
   num_batches * batch_size != trajectories && (num_batches += 1)
 
   function batch_function(I)
