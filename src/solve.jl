@@ -47,15 +47,19 @@ function solve_call(_prob,args...;merge_callbacks = true, kwargs...)
     kwargs = merge(values(_prob.kwargs), kwargs)
   end
 
+  T = Core.Compiler.return_type(__solve,Tuple{typeof(_prob),map(typeof, args)...})
+
   progress = get(kwargs, :progress, false)
   if progress
     logger = default_logger(Logging.current_logger())
-    maybe_with_logger(logger) do
+    x = maybe_with_logger(logger) do
       __solve(_prob,args...; kwargs...)
     end
+    return x::T
   else
-    __solve(_prob,args...; kwargs...)
+    __solve(_prob,args...; kwargs...)::T
   end
+
 end
 
 function solve(prob::DEProblem,args...;kwargs...)
