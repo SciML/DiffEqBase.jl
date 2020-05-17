@@ -66,7 +66,7 @@ Recursively copy fields of `src` to `dest`.
         Tf = src.types[i]
         qf = Meta.quot(f)
 
-        if Tf <: Union{Number,SArray}
+        if !ArrayInterface.ismutable(Tf)
             expressions[i] = :( dest.$f = getfield( src, $qf ) )
         elseif Tf <: AbstractArray
             expressions[i] = :( recursivecopy!(dest.$f, getfield( src, $qf ) ) )
@@ -110,7 +110,7 @@ end
 
         if f == :x
             expressions[i] = :( )
-        elseif Tf <: Union{Number,SArray}
+        elseif !ArrayInterface.ismutable(Tf)
             expressions[i] = :( dest.$f = getfield( src, $qf ) )
         elseif Tf <: AbstractArray
             expressions[i] = :( recursivecopy!(dest.$f, getfield( src, $qf ) ) )

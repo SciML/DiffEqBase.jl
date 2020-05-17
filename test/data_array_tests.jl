@@ -1,3 +1,21 @@
+# Note: This must be the first file executed in the tests.
+#
+# The following structure is used to test the problem reported at issue #507. We
+# need to define it here because, since `recursivecopy!` and `copy_fields!` are
+# generated functions, then the `ArrayInterface.isimmutable` method must be
+# defined before the first `using DiffEqBase` in a Julia session.
+
+struct Quaternion{T} <: AbstractVector{T}
+    q0::T
+    q1::T
+    q2::T
+    q3::T
+end
+
+using ArrayInterface
+ArrayInterface.ismutable(::Type{<:Quaternion}) = false
+Base.size(::Quaternion) = 4
+
 using DiffEqBase, RecursiveArrayTools, Test
 
 mutable struct VectorType{T} <: DEDataVector{T}
@@ -105,3 +123,31 @@ end
 s0   = SimWorkspace2{Float64}(SVector{2,Float64}(1.0,4.0),1.)
 s1   = SimWorkspace2{Float64}(SVector{2,Float64}(2.0,1.0),1.)
 s0 .+ s1 == SimWorkspace2{Float64}(SVector{2,Float64}(3.0,5.0),1.)
+
+# Test `recursivecopy!` in immutable structures derived from `AbstractArrays`.
+# See issue #507.
+mutable struct SimWorkspace3{T} <: DEDataVector{T}
+    x::Vector{T}
+    q::Quaternion{T}
+end
+
+a = SimWorkspace3([1.0,2.0,3.0], Quaternion(cosd(15), 0.0, 0.0, sind(15)))
+b = SimWorkspace3([0.0,0.0,0.0], Quaternion(1.0, 0.0, 0.0, 0.0))
+
+recursivecopy!(b,a)
+@test b.x == a.x
+@test b.q.q0 == a.q.q0
+@test b.q.q1 == a.q.q1
+@test b.q.q2 == a.q.q2
+@test b.q.q3 == a.q.q3
+
+a = SimWorkspace3([1.0,2.0,3.0], Quaternion(cosd(15), 0.0, 0.0, sind(15)))
+b = SimWorkspace3([0.0,0.0,0.0], Quaternion(1.0, 0.0, 0.0, 0.0))
+
+DiffEqBase.copy_fields!(b, a)
+@test b.x == [0.0,0.0,0.0]
+@test b.q.q0 == a.q.q0
+@test b.q.q1 == a.q.q1
+@test b.q.q2 == a.q.q2
+@test b.q.q3 == a.q.q3
+
