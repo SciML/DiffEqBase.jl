@@ -171,7 +171,7 @@ function solve_batch(prob,alg,::EnsembleSerial,I,pmap_batch_size;kwargs...)
   batch_data
 end
 
-function solve_batch(prob,alg,ensemblealg::EnsembleThreads,I,pmap_batch_size,kwargs...)
+function solve_batch(prob,alg,ensemblealg::EnsembleThreads,I,pmap_batch_size;kwargs...)
   function multithreaded_batch(batch_idx)
     i = I[batch_idx]
     iter = 1
