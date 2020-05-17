@@ -168,10 +168,21 @@ function solve_batch(prob,alg,::EnsembleSerial,II,pmap_batch_size;kwargs...)
 end
 
 function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kwargs...)
+
+  if typeof(prob.prob) <: AbstractJumpProblem && length(II) != 1
+    probs = [deepcopy(prob.prob) for i in 1:Threads.nthreads()]
+  else
+    probs = prob.prob
+  end
+
   function multithreaded_batch(batch_idx)
     i = II[batch_idx]
     iter = 1
-    _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
+    _prob = if prob.safetycopy
+      probs isa Vector ? deepcopy(probs[Threads.threadid()]) : probs
+    else
+      probs isa Vector ? probs[Threads.threadid()] : probs
+    end
     new_prob = prob.prob_func(_prob,i,iter)
     x = prob.output_func(solve(new_prob,alg;kwargs...),i)
     if !(typeof(x) <: Tuple)
@@ -184,9 +195,13 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kw
 
     while rerun
         iter += 1
-        _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
+        _prob = if prob.safetycopy
+          probs isa Vector ? deepcopy(probs[Threads.threadid()]) : probs
+        else
+          probs isa Vector ? probs[Threads.threadid()] : probs
+        end
         new_prob = prob.prob_func(_prob,i,iter)
-        x = prob.output_func(solve(new_prob,alg;kwargs...),i)
+        x = prob.output_func(solve(new_prob,alg;alias_jumps=true,kwargs...),i)
         if !(typeof(x) <: Tuple)
             @warn("output_func should return (out,rerun). See docs for updated details")
             _x = (x,false)
@@ -200,8 +215,14 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kw
 
   batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
   let
-    Threads.@threads for batch_idx in axes(batch_data, 1)
-        batch_data[batch_idx] = multithreaded_batch(batch_idx)
+    if length(II) == 1
+      for batch_idx in axes(batch_data, 1)
+          batch_data[batch_idx] = multithreaded_batch(batch_idx)
+      end
+    else
+      Threads.@threads for batch_idx in axes(batch_data, 1)
+          batch_data[batch_idx] = multithreaded_batch(batch_idx)
+      end
     end
   end
   batch_data
@@ -225,13 +246,24 @@ function solve_batch(prob,alg,::EnsembleSplitThreads,II,pmap_batch_size;kwargs..
 end
 
 function thread_monte(prob,II,alg,procid;kwargs...)
+
+  if typeof(prob.prob) <: AbstractJumpProblem && length(II) != 1
+    probs = [deepcopy(prob.prob) for i in 1:Threads.nthreads()]
+  else
+    probs = prob.prob
+  end
+
   function multithreaded_batch(j)
     i = II[j]
     iter = 1
-    _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
+    _prob = if prob.safetycopy
+      probs isa Vector ? deepcopy(probs[Threads.threadid()]) : probs
+    else
+      probs isa Vector ? probs[Threads.threadid()] : probs
+    end
     new_prob = prob.prob_func(_prob,i,iter)
     rerun = true
-    x = prob.output_func(solve(new_prob,alg;kwargs...),i)
+    x = prob.output_func(solve(new_prob,alg;alias_jumps=true,kwargs...),i)
     if !(typeof(x) <: Tuple)
         @warn("output_func should return (out,rerun). See docs for updated details")
         _x = (x,false)
@@ -241,9 +273,13 @@ function thread_monte(prob,II,alg,procid;kwargs...)
     rerun = _x[2]
     while rerun
         iter += 1
-        _prob = prob.safetycopy ? deepcopy(prob.prob) : prob.prob
+        _prob = if prob.safetycopy
+          probs isa Vector ? deepcopy(probs[Threads.threadid()]) : probs
+        else
+          probs isa Vector ? probs[Threads.threadid()] : probs
+        end
         new_prob = prob.prob_func(_prob,i,iter)
-        x = prob.output_func(solve(new_prob,alg;kwargs...),i)
+        x = prob.output_func(solve(new_prob,alg;alias_jumps=true,kwargs...),i)
         if !(typeof(x) <: Tuple)
             @warn("output_func should return (out,rerun). See docs for updated details")
             _x = (x,false)
@@ -258,8 +294,14 @@ function thread_monte(prob,II,alg,procid;kwargs...)
   batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
 
   let
-    Threads.@threads for j in 1:length(II)
-      batch_data[j] = multithreaded_batch(j)
+    if length(II) == 1
+      for batch_idx in axes(batch_data, 1)
+          batch_data[batch_idx] = multithreaded_batch(batch_idx)
+      end
+    else
+      Threads.@threads for batch_idx in axes(batch_data, 1)
+          batch_data[batch_idx] = multithreaded_batch(batch_idx)
+      end
     end
   end
   batch_data
