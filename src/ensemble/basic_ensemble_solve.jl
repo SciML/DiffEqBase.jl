@@ -262,15 +262,3 @@ function thread_monte(prob,I,alg,procid;kwargs...)
   end
   batch_data
 end
-
-function vector_batch_data_to_arr(batch_data)
-  _batch_data = Vector{Any}(undef,sum((length(x) for x in batch_data)))
-  idx = 0
-  @inbounds for a in batch_data
-    for x in a
-      idx += 1
-      _batch_data[idx] = x
-    end
-  end
-  map(i->_batch_data[i],1:length(_batch_data))
-end
