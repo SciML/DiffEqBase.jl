@@ -12,7 +12,7 @@ end
 
 DEFAULT_PROB_FUNC(prob,i,repeat) = prob
 DEFAULT_OUTPUT_FUNC(sol,i) = (sol,false)
-DEFAULT_REDUCTION(u,data,I) = (reduce(vcat,(u,data)),false)
+DEFAULT_REDUCTION(u,data,I) = (vcat(u,data),false)
 EnsembleProblem(prob;
     output_func = DEFAULT_OUTPUT_FUNC,
     prob_func= DEFAULT_PROB_FUNC,

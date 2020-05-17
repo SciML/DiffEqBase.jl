@@ -89,8 +89,13 @@ function __solve(prob::AbstractEnsembleProblem,
   end
 
   if num_batches == 1 && prob.reduction === DEFAULT_REDUCTION
-    elapsed_time = @elapsed batch_data = batch_function(1:trajectories)
-    return EnsembleSolution(batch_data,elapsed_time,true)
+    elapsed_time = @elapsed u = batch_function(1:trajectories)
+    if typeof(u) <: Vector{Any}
+      _u = map(i->u[i],1:length(u))
+    else
+      _u = u
+    end
+    return EnsembleSolution(_u,elapsed_time,true)
   end
 
   if prob.u_init === nothing && prob.reduction === DEFAULT_REDUCTION
