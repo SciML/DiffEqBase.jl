@@ -101,7 +101,7 @@ function __solve(prob::AbstractEnsembleProblem,
   converged::Bool = false
 
   batch_data = batch_function(I)
-  u = similar(batch_data, 0)
+  u = prob.u_init === nothing ? similar(batch_data, 0) : prob.u_init
   u,converged = prob.reduction(u,batch_data,I)
   elapsed_time = @elapsed for i in 2:num_batches
     converged && break
