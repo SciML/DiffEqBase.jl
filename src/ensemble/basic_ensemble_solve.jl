@@ -116,7 +116,6 @@ function __solve(prob::AbstractEnsembleProblem,
     u,converged = prob.reduction(u,batch_data,II)
   end
 
-  u = reduce(vcat, u)
   _u = tighten_container_eltype(u)
 
   return EnsembleSolution(_u,elapsed_time,converged)
@@ -214,7 +213,8 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kw
   end
 
   #batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
-  batch_data = []
+  batch_data = Vector{Any}(undef,length(II))
+
   let
     if length(II) == 1 || Threads.nthreads() == 1
       for batch_idx in axes(batch_data, 1)
@@ -293,7 +293,7 @@ function thread_monte(prob,II,alg,procid;kwargs...)
   end
 
   #batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
-  batch_data = []
+  batch_data = Vector{Any}(undef,length(II))
 
   let
     if length(II) == 1 || Threads.nthreads() == 1
