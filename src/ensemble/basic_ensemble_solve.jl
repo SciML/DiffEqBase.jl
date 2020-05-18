@@ -215,7 +215,7 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kw
 
   batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
   let
-    if length(II) == 1
+    if length(II) == 1 || Threads.nthreads() == 1
       for batch_idx in axes(batch_data, 1)
           batch_data[batch_idx] = multithreaded_batch(batch_idx)
       end
@@ -294,7 +294,7 @@ function thread_monte(prob,II,alg,procid;kwargs...)
   batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
 
   let
-    if length(II) == 1
+    if length(II) == 1 || Threads.nthreads() == 1
       for batch_idx in axes(batch_data, 1)
           batch_data[batch_idx] = multithreaded_batch(batch_idx)
       end
