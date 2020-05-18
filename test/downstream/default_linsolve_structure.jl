@@ -1,6 +1,6 @@
 using LinearAlgebra, OrdinaryDiffEq, Test
 f = (du,u,p,t) -> du .= u ./ t
-jac = (J,u,p,t) -> (J[1,1] = 1/t; J[2,2] = 1/t; J)
+jac = (J,u,p,t) -> (J[1,1] = 1/t; J[2,2] = 1/t; J[1,2] = 0; J[2,1] = 0)
 
 jp_diag = Diagonal(zeros(2))
 fun = ODEFunction(f; jac=jac, jac_prototype=jp_diag)
