@@ -123,7 +123,8 @@ function get_concrete_problem(prob, kwargs)
   u0 = get_concrete_u0(prob, tspan[1], kwargs)
   u0_promote = promote_u0(u0, prob.p, tspan[1])
   tspan_promote = promote_tspan(u0, prob.p, tspan, prob, kwargs)
-  if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(u0) && typeof(tspan) === typeof(tspan_promote)
+  if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(u0) &&
+                  prob.tspan == tspan && typeof(tspan) === typeof(tspan_promote)
     return prob
   else
     return remake(prob; u0 = u0_promote, tspan = tspan_promote)
