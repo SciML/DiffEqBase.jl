@@ -55,9 +55,9 @@ function solve_call(_prob,args...;merge_callbacks = true, kwargs...)
     x = maybe_with_logger(logger) do
       __solve(_prob,args...; kwargs...)
     end
-    return x::T
+    return x#::T
   else
-    __solve(_prob,args...; kwargs...)::T
+    __solve(_prob,args...; kwargs...)#::T
   end
 
 end
