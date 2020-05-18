@@ -8,7 +8,7 @@ u0 = [1.0;0.0;0.0]
 tspan = (0.0,1.0)
 prob = ODEProblem(lorenz,u0,tspan)
 sol = solve(prob,Tsit5())
-@inferred solve(prob,Tsit5())
+@test_broken @inferred solve(prob,Tsit5())
 
 function f(du,u,p,t)
   du[1] = p.a
@@ -53,4 +53,4 @@ dt = 1//2^(4)
 tspan = (0.0,1.0)
 prob = SDEProblem(ff,gg,u0,(0.0,1.0))
 sol = solve(prob,EM(),dt=dt)
-@inferred solve(prob,EM(),dt=dt)
+@test_broken @inferred solve(prob,EM(),dt=dt)
