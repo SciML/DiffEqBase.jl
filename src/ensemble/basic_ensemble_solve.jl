@@ -157,14 +157,14 @@ function solve_batch(prob,alg,ensemblealg::EnsembleDistributed,II,pmap_batch_siz
   batch_data = pmap(wp,II,batch_size=pmap_batch_size) do i
     batch_func(i,prob,alg;kwargs...)
   end
-  map(identity,batch_data)
+  tighten_container_eltype(batch_data)
 end
 
 function solve_batch(prob,alg,::EnsembleSerial,II,pmap_batch_size;kwargs...)
   batch_data = map(II) do i
     batch_func(i,prob,alg;kwargs...)
   end
-  batch_data
+  tighten_container_eltype(batch_data)
 end
 
 function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kwargs...)
@@ -213,7 +213,8 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kw
     _x[1]
   end
 
-  batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
+  #batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
+  batch_data = []
   let
     if length(II) == 1 || Threads.nthreads() == 1
       for batch_idx in axes(batch_data, 1)
@@ -225,7 +226,7 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kw
       end
     end
   end
-  batch_data
+  tighten_container_eltype(batch_data)
 end
 
 function solve_batch(prob,alg,::EnsembleSplitThreads,II,pmap_batch_size;kwargs...)
@@ -291,7 +292,8 @@ function thread_monte(prob,II,alg,procid;kwargs...)
     _x[1]
   end
 
-  batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
+  #batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
+  batch_data = []
 
   let
     if length(II) == 1 || Threads.nthreads() == 1
@@ -304,5 +306,5 @@ function thread_monte(prob,II,alg,procid;kwargs...)
       end
     end
   end
-  batch_data
+  tighten_container_eltype(batch_data)
 end
