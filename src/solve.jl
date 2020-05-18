@@ -44,7 +44,7 @@ function solve_call(_prob,args...;merge_callbacks = true, kwargs...)
       callbacks = NamedTuple{(:callback,)}( [DiffEqBase.CallbackSet(_prob.kwargs[:callback], values(kwargs).callback )] )
       kwargs = merge(kwargs_temp, callbacks)
     end
-    kwargs = merge(values(_prob.kwargs), kwargs)
+    kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
   end
 
   T = Core.Compiler.return_type(__solve,Tuple{typeof(_prob),map(typeof, args)...})
@@ -121,9 +121,14 @@ function discretize end
 function get_concrete_problem(prob, kwargs)
   tspan = get_concrete_tspan(prob, kwargs)
   u0 = get_concrete_u0(prob, tspan[1], kwargs)
-  u0 = promote_u0(u0, prob.p, tspan[1])
-  tspan = promote_tspan(u0, prob.p, tspan, prob, kwargs)
-  remake(prob; u0 = u0, tspan = tspan)
+  u0_promote = promote_u0(u0, prob.p, tspan[1])
+  tspan_promote = promote_tspan(u0, prob.p, tspan, prob, kwargs)
+  if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(u0) &&
+                  prob.tspan == tspan && typeof(tspan) === typeof(tspan_promote)
+    return prob
+  else
+    return remake(prob; u0 = u0_promote, tspan = tspan_promote)
+  end
 end
 
 function get_concrete_problem(prob::DDEProblem, kwargs)
@@ -157,6 +162,10 @@ function get_concrete_tspan(prob, kwargs)
   end
 
   tspan
+end
+
+function isconcreteu0(prob, t0, kwargs)
+  !eval_u0(prob.u0) && prob.u0 !== nothing && !isdistribution(prob.u0)
 end
 
 function get_concrete_u0(prob, t0, kwargs)
