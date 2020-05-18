@@ -25,12 +25,14 @@ sol = solve(prob,Rosenbrock23(autodiff=false))
 @test sol[end] ≈ [10.0,10.0]
 @test length(sol) < 60
 
+#=
 jp = SymTridiagonal(jp_diag)
 fun = ODEFunction(f; jac=jac, jac_prototype=jp)
 prob = ODEProblem(fun,ones(2),(1.0,10.0))
 sol = solve(prob,Rosenbrock23())
 @test sol[end] ≈ [10.0,10.0]
 @test length(sol) < 60
+=#
 
 # Don't test the autodiff=false version here because it's not as numerically stable,
 # so lack of optimizations would lead to unsymmetric which causes an error:
