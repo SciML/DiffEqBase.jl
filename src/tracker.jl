@@ -30,7 +30,22 @@ end
 end
 @inline ODE_DEFAULT_NORM(u::Tracker.TrackedReal,t::Tracker.TrackedReal) = abs(u)
 
+function DiffEqBase.concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,u0::Tracker.TrackedArray,p::Tracker.TrackedArray,args...;
+                                      sensealg=nothing,kwargs...)
+  Tracker.track(concrete_solve,prob,alg,u0,p,args...;sensealg=sensealg,kwargs...)
+end
+
+function DiffEqBase.concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,u0,p::Tracker.TrackedArray,args...;
+                                      sensealg=nothing,kwargs...)
+  Tracker.track(concrete_solve,prob,alg,u0,p,args...;sensealg=sensealg,kwargs...)
+end
+
+function DiffEqBase.concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,u0::Tracker.TrackedArray,p,args...;
+                                      sensealg=nothing,kwargs...)
+  Tracker.track(concrete_solve,prob,alg,u0,p,args...;sensealg=sensealg,kwargs...)
+end
+
 Tracker.@grad function concrete_solve(prob,alg,u0,p,args...;
                                       sensealg=nothing,kwargs...)
-  _concrete_solve_adjoint(prob,alg,sensealg,u0,p,args...;kwargs...)
+  _concrete_solve_adjoint(prob,alg,sensealg,Tracker.data(u0),Tracker.data(p),args...;kwargs...)
 end
