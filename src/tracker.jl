@@ -30,17 +30,17 @@ end
 end
 @inline ODE_DEFAULT_NORM(u::Tracker.TrackedReal,t::Tracker.TrackedReal) = abs(u)
 
-function DiffEqBase.concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,u0::Tracker.TrackedArray,p::Tracker.TrackedArray,args...;
+function concrete_solve(prob::DiffEqBase.DEProblem,alg::Union{DiffEqBase.DEAlgorithm,Nothing},u0::Tracker.TrackedArray,p::Tracker.TrackedArray,args...;
                                       sensealg=nothing,kwargs...)
   Tracker.track(concrete_solve,prob,alg,u0,p,args...;sensealg=sensealg,kwargs...)
 end
 
-function DiffEqBase.concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,u0,p::Tracker.TrackedArray,args...;
+function concrete_solve(prob::DiffEqBase.DEProblem,alg::Union{DiffEqBase.DEAlgorithm,Nothing},u0,p::Tracker.TrackedArray,args...;
                                       sensealg=nothing,kwargs...)
   Tracker.track(concrete_solve,prob,alg,u0,p,args...;sensealg=sensealg,kwargs...)
 end
 
-function DiffEqBase.concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,u0::Tracker.TrackedArray,p,args...;
+function concrete_solve(prob::DiffEqBase.DEProblem,alg::Union{DiffEqBase.DEAlgorithm,Nothing},u0::Tracker.TrackedArray,p,args...;
                                       sensealg=nothing,kwargs...)
   Tracker.track(concrete_solve,prob,alg,u0,p,args...;sensealg=sensealg,kwargs...)
 end
