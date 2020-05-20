@@ -145,37 +145,7 @@ function __init__()
   end
 
   @require Tracker="9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c" begin
-    value(x::Type{Tracker.TrackedReal{T}}) where T = T
-    value(x::Type{Tracker.TrackedArray{T,N,A}}) where {T,N,A} = Array{T,N}
-    value(x::Tracker.TrackedReal)  = x.data
-    value(x::Tracker.TrackedArray) = x.data
-
-    @inline fastpow(x::Tracker.TrackedReal, y::Tracker.TrackedReal) = x^y
-    @inline Base.any(f::Function,x::Tracker.TrackedArray) = any(f,Tracker.data(x))
-
-    # Support adaptive with non-tracked time
-    @inline function ODE_DEFAULT_NORM(u::Tracker.TrackedArray,t) where {N}
-      sqrt(sum(abs2,value(u)) / length(u))
-    end
-    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Tracker.TrackedReal,N},t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
-    end
-    @inline function ODE_DEFAULT_NORM(u::Array{<:Tracker.TrackedReal,N},t) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip((value(x) for x in u),Iterators.repeated(t))) / length(u))
-    end
-    @inline ODE_DEFAULT_NORM(u::Tracker.TrackedReal,t) = abs(value(u))
-
-    # Support TrackedReal time, don't drop tracking on the adaptivity there
-    @inline function ODE_DEFAULT_NORM(u::Tracker.TrackedArray,t::Tracker.TrackedReal) where {N}
-      sqrt(sum(abs2,u) / length(u))
-    end
-    @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Tracker.TrackedReal,N},t::Tracker.TrackedReal) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,Iterators.repeated(t))) / length(u))
-    end
-    @inline function ODE_DEFAULT_NORM(u::Array{<:Tracker.TrackedReal,N},t::Tracker.TrackedReal) where {N}
-      sqrt(sum(x->ODE_DEFAULT_NORM(x[1],x[2]),zip(u,Iterators.repeated(t))) / length(u))
-    end
-    @inline ODE_DEFAULT_NORM(u::Tracker.TrackedReal,t::Tracker.TrackedReal) = abs(u)
+    include("tracker.jl")
   end
 
   # Piracy, should get upstreamed
@@ -211,6 +181,10 @@ function __init__()
         sqrt(sum(abs2,u) / length(u))
       end
     end
+  end
+
+  @require ReverseDiff="37e2e3b7-166d-5795-8a7a-e32c996b4267" begin
+    include("reversediff.jl")
   end
 
   @require GeneralizedGenerated="6b9d7cbe-bcb9-11e9-073f-15a7a543e2eb" begin
