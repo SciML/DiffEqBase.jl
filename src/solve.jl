@@ -220,18 +220,18 @@ end
 
 function _concrete_solve end
 
-function concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,
+function concrete_solve(prob::DiffEqBase.DEProblem,alg::Union{DiffEqBase.DEAlgorithm,Nothing},
                         u0=prob.u0,p=prob.p,args...;kwargs...)
   _concrete_solve(prob,alg,u0,p,args...;kwargs...)
 end
 
-function _concrete_solve(prob::DiffEqBase.DEProblem,alg::DiffEqBase.DEAlgorithm,
+function _concrete_solve(prob::DiffEqBase.DEProblem,alg::Union{DiffEqBase.DEAlgorithm,Nothing},
                         u0=prob.u0,p=prob.p,args...;kwargs...)
   sol = solve(remake(prob,u0=u0,p=p),alg,args...;kwargs...)
   RecursiveArrayTools.DiffEqArray(sol.u,sol.t)
 end
 
-function _concrete_solve(prob::DiffEqBase.SteadyStateProblem,alg::DiffEqBase.DEAlgorithm,
+function _concrete_solve(prob::DiffEqBase.SteadyStateProblem,alg::Union{DiffEqBase.DEAlgorithm,Nothing},
                         u0=prob.u0,p=prob.p,args...;kwargs...)
   sol = solve(remake(prob,u0=u0,p=p),alg,args...;kwargs...)
   RecursiveArrayTools.VectorOfArray(sol.u)
