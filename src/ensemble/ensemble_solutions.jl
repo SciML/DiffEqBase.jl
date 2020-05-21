@@ -147,7 +147,7 @@ end
   for i in idxs
     @series begin
       legend --> false
-      lw --> 3
+      linewidth --> 3
       fillalpha --> 0.2
       if error_style == :ribbon
         ribbon --> (ci_low[i],ci_high[i])
