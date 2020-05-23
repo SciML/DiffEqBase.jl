@@ -168,6 +168,10 @@ end
 
 function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kwargs...)
 
+  if length(II) == 1 || Threads.nthreads() == 1
+    return solve_batch(prob,alg,EnsembleSerial(),II,pmap_batch_size;kwargs...)
+  end
+
   if typeof(prob.prob) <: AbstractJumpProblem && length(II) != 1
     probs = [deepcopy(prob.prob) for i in 1:Threads.nthreads()]
   else
@@ -176,26 +180,19 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kw
 
   #batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
 
-  local batch_data
+  batch_data = Vector{Any}(undef,Threads.nthreads())
+  batch_size = length(II)÷Threads.nthreads()
+
   let
-    if length(II) == 1 || Threads.nthreads() == 1
-      batch_data = Vector{Any}(undef,length(II))
-      for batch_idx in axes(batch_data, 1)
-          batch_data[batch_idx] = multithreaded_batch(batch_idx,probs,alg,II)
-      end
-    else
-      batch_data = Vector{Any}(undef,Threads.nthreads())
-      batch_size = length(II)÷Threads.nthreads()
-      Threads.@threads for i in 1:Threads.nthreads()
-          if i == Threads.nthreads()
-            I_local = II[(batch_size*(i-1)+1):end]
-          else
-            I_local = II[(batch_size*(i-1)+1):(batch_size*i)]
-          end
-          batch_data[i] = solve_batch(prob,alg,EnsembleSerial(),I_local,pmap_batch_size;kwargs...)
-      end
-      batch_data = reduce(vcat,batch_data)
+    Threads.@threads for i in 1:Threads.nthreads()
+        if i == Threads.nthreads()
+          I_local = II[(batch_size*(i-1)+1):end]
+        else
+          I_local = II[(batch_size*(i-1)+1):(batch_size*i)]
+        end
+        batch_data[i] = solve_batch(prob,alg,EnsembleSerial(),I_local,pmap_batch_size;kwargs...)
     end
+    batch_data = reduce(vcat,batch_data)
   end
   tighten_container_eltype(batch_data)
 end
