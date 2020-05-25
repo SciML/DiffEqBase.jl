@@ -763,7 +763,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
     min_event_idx = 1
   end
 
-  if callback.pool_event
+  if callback.pool_events
     if callback.pooltol isa Missing
       pool_tol = eps(integrator.t) + eps(zero_func(Θ))
     else
