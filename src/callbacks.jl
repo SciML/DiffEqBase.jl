@@ -175,15 +175,16 @@ struct VectorContinuousCallback{F1,F2,F3,F4,T,T2,I,R} <: AbstractContinuousCallb
   dtrelax::R
   abstol::T
   reltol::T2
+  pool_events::Bool
   VectorContinuousCallback(condition::F1,affect!::F2,affect_neg!::F3,len::Int,
                            initialize::F4,idxs::I,rootfind,
                            interp_points,save_positions,dtrelax::R,
-                           abstol::T,reltol::T2) where {F1,F2,F3,F4,T,T2,I,R} =
+                           abstol::T,reltol::T2, pool_events) where {F1,F2,F3,F4,T,T2,I,R} =
                        new{F1,F2,F3,F4,T,T2,I,R}(condition,
                                                affect!,affect_neg!,len,
                                                initialize,idxs,rootfind,interp_points,
                                                BitArray(collect(save_positions)),
-                                               dtrelax,abstol,reltol)
+                                               dtrelax,abstol,reltol,pool_events)
 end
 
 VectorContinuousCallback(condition,affect!,affect_neg!,len;
@@ -193,13 +194,13 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          save_positions=(true,true),
                          interp_points=10,
                          dtrelax=1,
-                         abstol=10eps(),reltol=0) = VectorContinuousCallback(
+                         abstol=10eps(),reltol=0, pool_events=false) = VectorContinuousCallback(
                               condition,affect!,affect_neg!,len,
                               initialize,
                               idxs,
                               rootfind,interp_points,
                               save_positions,dtrelax,
-                              abstol,reltol)
+                              abstol,reltol, pool_events)
 
 function VectorContinuousCallback(condition,affect!,len;
                    initialize = INITIALIZE_DEFAULT,
@@ -209,13 +210,13 @@ function VectorContinuousCallback(condition,affect!,len;
                    affect_neg! = affect!,
                    interp_points=10,
                    dtrelax=1,
-                   abstol=10eps(),reltol=0)
+                   abstol=10eps(),reltol=0, pool_events=false)
 
  VectorContinuousCallback(
             condition,affect!,affect_neg!,len,initialize,idxs,
             rootfind,interp_points,
             collect(save_positions),
-            dtrelax,abstol,reltol)
+            dtrelax,abstol,reltol,pool_events)
 
 end
 
