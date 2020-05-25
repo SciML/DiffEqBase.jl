@@ -769,7 +769,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
     else
       pool_tol = callback.pooltol
     end
-    min_event_idx = findall(x->abs(ArrayInterface.allowed_getindex(get_condition(integrator, callback, abst),x)) < pool_tol, get_condition(integrator, callback, pool_tol))
+    min_event_idx = findall(x->abs(ArrayInterface.allowed_getindex(get_condition(integrator, callback, min_t),x)) < pool_tol, get_condition(integrator, callback, pool_tol))
   end
 
   new_t,ArrayInterface.allowed_getindex(prev_sign,min_event_idx),event_occurred,min_event_idx
