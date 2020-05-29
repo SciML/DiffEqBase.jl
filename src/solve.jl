@@ -260,21 +260,12 @@ end
 
 @deprecate concrete_solve(prob::DiffEqBase.DEProblem,alg::Union{DiffEqBase.DEAlgorithm,Nothing},
                         u0=prob.u0,p=prob.p,args...;kwargs...) solve(prob,alg,args...;u0=u0,p=p,kwargs...)
-                        
+
 ZygoteRules.@adjoint function concrete_solve(prob::DiffEqBase.DEProblem,
                               alg::Union{DiffEqBase.DEAlgorithm,Nothing},
                               u0=prob.u0,p=prob.p,args...;
                               sensealg=nothing,
                               kwargs...)
-  @warn("concrete_solve is deprecated. Only solve is required now.
-         Additionally, new keyword arguments have been added for
-         convenience of changing parameters and initial conditions, so
-         concrete_solve(prob,alg,u0,p,args...;kwargs...) is equivalent
-         to solve(prob,alg,args...;u0=u0,p=p,kwargs...). Note that
-         the `u0` and `p` keyword arguments are not required and will
-         be picked up automatically from the `DEProblem` if the `DEProblem`
-         is defined in the differentiation context. So carry about your
-         day using `solve`: nothing special is required for adjoints!")
   _concrete_solve_adjoint(prob,alg,sensealg,u0,p,args...;kwargs...)
 end
 
