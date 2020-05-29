@@ -1,20 +1,16 @@
-function concrete_solve(prob::DiffEqBase.DEProblem,alg::Union{DiffEqBase.DEAlgorithm,Nothing},u0::ReverseDiff.TrackedArray,p::ReverseDiff.TrackedArray,args...;
-                                      sensealg=nothing,kwargs...)
-  ReverseDiff.track(concrete_solve,prob,alg,u0,p,args...;sensealg=sensealg,kwargs...)
+function solve_up(prob::DiffEqBase.DEProblem,sensealg::Union{AbstractSensitivityAlgorithm,Nothing},u0::ReverseDiff.TrackedArray,p::ReverseDiff.TrackedArray,args...;kwargs...)
+  ReverseDiff.track(solve_up,prob,sensealg,u0,p,args...;kwargs...)
 end
 
-function concrete_solve(prob::DiffEqBase.DEProblem,alg::Union{DiffEqBase.DEAlgorithm,Nothing},u0,p::ReverseDiff.TrackedArray,args...;
-                                      sensealg=nothing,kwargs...)
-  ReverseDiff.track(concrete_solve,prob,alg,u0,p,args...;sensealg=sensealg,kwargs...)
+function solve_up(prob::DiffEqBase.DEProblem,sensealg::Union{AbstractSensitivityAlgorithm,Nothing},u0,p::ReverseDiff.TrackedArray,args...;kwargs...)
+  ReverseDiff.track(solve_up,prob,sensealg,u0,p,args...;kwargs...)
 end
 
-function concrete_solve(prob::DiffEqBase.DEProblem,alg::Union{DiffEqBase.DEAlgorithm,Nothing},u0::ReverseDiff.TrackedArray,p,args...;
-                                      sensealg=nothing,kwargs...)
-  ReverseDiff.track(concrete_solve,prob,alg,u0,p,args...;sensealg=sensealg,kwargs...)
+function solve_up(prob::DiffEqBase.DEProblem,sensealg::Union{AbstractSensitivityAlgorithm,Nothing},u0::ReverseDiff.TrackedArray,p,args...;kwargs...)
+  ReverseDiff.track(solve_up,prob,sensealg,u0,p,args...;kwargs...)
 end
 
-ReverseDiff.@grad function concrete_solve(prob,alg,u0,p,args...;
-                                          sensealg=nothing,kwargs...)
-  out = _concrete_solve_adjoint(prob,alg,sensealg,ReverseDiff.value(u0),ReverseDiff.value(p),args...;kwargs...)
+ReverseDiff.@grad function solve_up(prob,sensealg,u0,p,args...;kwargs...)
+  out = _solve_adjoint(prob,sensealg,ReverseDiff.value(u0),ReverseDiff.value(p),args...;kwargs...)
   Array(out[1]),out[2]
 end
