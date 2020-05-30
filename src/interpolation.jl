@@ -23,12 +23,32 @@ struct ConstantInterpolation{T1,T2} <: AbstractDiffEqInterpolation
   u::T2
 end
 
+"""
+$(TYPEDEF)
+"""
+struct SensitivityInterpolation{T1,T2} <: AbstractDiffEqInterpolation
+  t::T1
+  u::T2
+end
+
 interp_summary(::AbstractDiffEqInterpolation) = "Unknown"
 interp_summary(::HermiteInterpolation) = "3rd order Hermite"
 interp_summary(::LinearInterpolation) = "1st order linear"
 interp_summary(::ConstantInterpolation) = "Piecewise constant interpolation"
 interp_summary(::Nothing) = "No interpolation"
+interp_summary(::SensitivityInterpolation) = "Interpolation disabled due to sensitivity analysis"
 interp_summary(sol::DESolution) = interp_summary(sol.interp)
+
+const SENSITIVITY_INTERP_MESSAGE =
+"""
+Standard interpolation is disabled due to sensitivity analysis being
+used for the gradients. Only linear and constant interpolations are
+compatible with non-AD sensitivity analysis calculations. Either
+utilize tooling like saveat to avoid post-solution interpolation, use
+the keyword argument dense=false for linear or constant interpolations,
+or use the keyword argument sensealg=SensitivityADPassThrough() to revert
+to AD-based derivatives.
+"""
 
 (id::HermiteInterpolation)(tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation(tvals,id,idxs,deriv,p,continuity)
 (id::HermiteInterpolation)(val,tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation!(val,tvals,id,idxs,deriv,p,continuity)
@@ -36,6 +56,8 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
 (id::LinearInterpolation)(val,tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation!(val,tvals,id,idxs,deriv,p,continuity)
 (id::ConstantInterpolation)(tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation(tvals,id,idxs,deriv,p,continuity)
 (id::ConstantInterpolation)(val,tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation!(val,tvals,id,idxs,deriv,p,continuity)
+(id::SensitivityInterpolation)(tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation(tvals,id,idxs,deriv,p,continuity)
+(id::SensitivityInterpolation)(val,tvals,idxs,deriv,p,continuity::Symbol=:left) = interpolation!(val,tvals,id,idxs,deriv,p,continuity)
 
 @inline function interpolation(tvals,id,idxs,deriv,p,continuity::Symbol=:left)
   t = id.t; u = id.u
@@ -72,6 +94,7 @@ interp_summary(sol::DESolution) = interp_summary(sol.interp)
         vals[j] = u[i-1][idxs]
       end
     else
+      typeof(id) <: SensitivityInterpolation && error(SENSITIVITY_INTERP_MESSAGE)
       dt = t[i] - t[i-1]
       Θ = (tval-t[i-1])/dt
       idxs_internal = idxs
@@ -119,6 +142,7 @@ times t (sorted), with values u and derivatives ks
         vals[j] = u[i-1][idxs]
       end
     else
+      typeof(id) <: SensitivityInterpolation && error(SENSITIVITY_INTERP_MESSAGE)
       dt = t[i] - t[i-1]
       Θ = (tval-t[i-1])/dt
       idxs_internal = idxs
@@ -169,6 +193,7 @@ times t (sorted), with values u and derivatives ks
       val = u[i-1][idxs]
     end
   else
+    typeof(id) <: SensitivityInterpolation && error(SENSITIVITY_INTERP_MESSAGE)
     dt = t[i] - t[i-1]
     Θ = (tval-t[i-1])/dt
     idxs_internal = idxs
@@ -211,6 +236,7 @@ times t (sorted), with values u and derivatives ks
       copy!(out,u[i-1][idxs])
     end
   else
+    typeof(id) <: SensitivityInterpolation && error(SENSITIVITY_INTERP_MESSAGE)
     dt = t[i] - t[i-1]
     Θ = (tval-t[i-1])/dt
     idxs_internal = idxs

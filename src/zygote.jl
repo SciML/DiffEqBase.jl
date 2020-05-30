@@ -1,3 +1,4 @@
+#=
 ZygoteRules.@adjoint function ODESolution(u,args...)
   function ODESolutionAdjoint(ȳ)
     (ȳ,ntuple(_->nothing, length(args))...)
@@ -32,6 +33,7 @@ ZygoteRules.@adjoint function getindex(sol::DESolution, i, j...)
   end
   sol[i,j...],DESolution_getindex_adjoint
 end
+=#
 
 ZygoteRules.@adjoint function (f::ODEFunction)(u,p,t)
   if f.vjp === nothing
@@ -71,3 +73,18 @@ end
 
 ZygoteRules.@adjoint numargs(f) = (numargs(f),df->(nothing,))
 ChainRulesCore.rrule(::typeof(numargs),f) = (numargs(f),df->(nothing,))
+
+# Until https://github.com/FluxML/Zygote.jl/issues/664 is fixed
+ZygoteRules.@adjoint function Base.pairs(x::T) where T
+         y = Base.pairs(x)
+         back(dx::NamedTuple) = (dx.data,)
+         function back(dx::Dict)
+           T <: AbstractDict && return (dx,)
+           z = zero(x)
+           for (k,v) in dx
+             z[k] = v
+           end
+           (z,)
+         end
+         y, back
+       end

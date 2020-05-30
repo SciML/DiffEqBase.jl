@@ -18,3 +18,12 @@ function build_solution(prob::AbstractSteadyStateProblem,
 
   SteadyStateSolution{T,N,typeof(u),typeof(resid),typeof(prob),typeof(alg)}(u,resid,prob,alg,retcode)
 end
+
+function sensitivity_solution(sol::AbstractSteadyStateSolution,u)
+  T = eltype(eltype(u))
+  N = length((size(sol.prob.u0)...,))
+
+  SteadyStateSolution{T,N,typeof(u),typeof(sol.resid),
+                      typeof(sol.prob),typeof(sol.alg)}(
+                      u,sol.resid,sol.prob,sol.alg,sol.retcode)
+end
