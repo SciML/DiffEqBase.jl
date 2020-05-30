@@ -18,7 +18,7 @@ function init_call(_prob,args...;kwargs...)
 end
 
 function init(prob::DEProblem,args...;kwargs...)
-  _prob = get_concrete_problem(prob,kwargs)
+  _prob = get_concrete_problem(prob;kwargs...)
   if haskey(kwargs,:alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
     isadaptive(alg) &&
