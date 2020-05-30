@@ -224,7 +224,15 @@ end
 
 function __solve(prob::DEProblem,args...;default_set=false,second_time=false,kwargs...)
   if second_time
-    error("Default algorithm choices require DifferentialEquations.jl. Please specify an algorithm or import DifferentialEquations directly.")
+    error("""
+      Default algorithm choices require DifferentialEquations.jl. 
+      Please specify an algorithm (e.g., `solve(prob, Tsit5())` for an ODE)
+      or import DifferentialEquations directly.
+      
+      You can find the list of available solvers at https://docs.sciml.ai/stable/solvers/ode_solve/
+      and its associated pages.
+      """
+    )
   elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing,DEAlgorithm})
     error("Inappropiate solve command. The arguments do not make sense. Likely, you gave an algorithm which does not actually exist (or does not `<:DiffEqBase.DEAlgorithm`)")
   else
