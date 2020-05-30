@@ -104,6 +104,10 @@ function solve(prob::AbstractNoiseProblem,args...; kwargs...)
   __solve(prob,args...;kwargs...)
 end
 
+function solve(prob::AbstractJumpProblem,args...; kwargs...)
+  __solve(prob,args...;kwargs...)
+end
+
 function get_concrete_problem(prob::AbstractJumpProblem; kwargs...)
   prob
 end
