@@ -120,3 +120,24 @@ function solution_slice(sol::AbstractRODESolution{T,N},I) where {T,N}
                false,sol.tslocation,sol.destats,
                sol.retcode,sol.seed)
 end
+
+function sensitivity_solution(sol::AbstractRODESolution,u,t)
+  T = eltype(eltype(u))
+  N = length((size(sol.prob.u0)..., length(u)))
+  interp = if typeof(sol.interp) <: LinearInterpolation
+    LinearInterpolation(t,u)
+  elseif typeof(sol.interp) <: ConstantInterpolation
+    ConstantInterpolation(t,u)
+  else
+    SensitivityInterpolation(t,u)
+  end
+
+  RODESolution{T,N,typeof(u),typeof(sol.u_analytic),
+               typeof(sol.errors),typeof(t),
+               typeof(nothing),typeof(sol.prob),typeof(sol.alg),
+               typeof(sol.interp),typeof(sol.destats)}(
+               u,sol.u_analytic,sol.errors,t,nothing,sol.prob,
+               sol.alg,sol.interp,
+               sol.dense,sol.tslocation,sol.destats,
+               sol.retcode,sol.seed)
+end

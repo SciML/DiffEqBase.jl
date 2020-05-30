@@ -73,3 +73,8 @@ end
 
 ZygoteRules.@adjoint numargs(f) = (numargs(f),df->(nothing,))
 ChainRulesCore.rrule(::typeof(numargs),f) = (numargs(f),df->(nothing,))
+
+# Until https://github.com/FluxML/Zygote.jl/issues/664 is fixed
+ZygoteRules.@adjoint function Base.pairs(x::NamedTuple)
+  Base.pairs(x), Δ -> (Δ.data,)
+end
