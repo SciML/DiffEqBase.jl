@@ -760,11 +760,12 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
       if callback.pool_events
         tmp = get_condition(integrator, callback, integrator.dt + new_t)
         if callback.pooltol isa Missing
+          # This is still dubious
           pool_tol = eps(integrator.t + new_t) + eps(typeof(tmp[end]))
         else
           pool_tol = callback.pooltol
         end
-        min_event_idx = findall(x-> x < pool_tol, tmp)
+        min_event_idx = findall(x-> abs(x) < pool_tol, tmp)
       end
     end
   else
