@@ -757,19 +757,19 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
         new_t = integrator.dt
         min_event_idx = event_idx[1]
       end
+      if callback.pool_events
+        tmp = get_condition(integrator, callback, integrator.dt + new_t)
+        if callback.pooltol isa Missing
+          pool_tol = eps(integrator.t + new_t) + eps(typeof(tmp[end]))
+        else
+          pool_tol = callback.pooltol
+        end
+        min_event_idx = findall(x-> x < pool_tol, tmp)
+      end
     end
   else
     new_t = zero(typeof(integrator.t))
     min_event_idx = 1
-  end
-
-  if callback.pool_events
-    if callback.pooltol isa Missing
-      pool_tol = eps(integrator.t) + eps(zero_func(Θ))
-    else
-      pool_tol = callback.pooltol
-    end
-    min_event_idx = findall(x->abs(ArrayInterface.allowed_getindex(get_condition(integrator, callback, min_t),x)) < pool_tol, get_condition(integrator, callback, pool_tol))
   end
 
   new_t,ArrayInterface.allowed_getindex(prev_sign,min_event_idx),event_occurred,min_event_idx
