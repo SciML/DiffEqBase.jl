@@ -135,7 +135,7 @@ function get_concrete_problem(prob; kwargs...)
   u0 = get_concrete_u0(prob, tspan[1], kwargs)
   u0_promote = promote_u0(u0, p, tspan[1])
   tspan_promote = promote_tspan(u0, p, tspan, prob, kwargs)
-  if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(u0) &&
+  if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
                   prob.tspan == tspan && typeof(tspan) === typeof(tspan_promote) &&
                   p == prob.p
     return prob
@@ -229,10 +229,10 @@ end
 function __solve(prob::DEProblem,args...;default_set=false,second_time=false,kwargs...)
   if second_time
     error("""
-      Default algorithm choices require DifferentialEquations.jl. 
+      Default algorithm choices require DifferentialEquations.jl.
       Please specify an algorithm (e.g., `solve(prob, Tsit5())` for an ODE)
       or import DifferentialEquations directly.
-      
+
       You can find the list of available solvers at https://docs.sciml.ai/stable/solvers/ode_solve/
       and its associated pages.
       """
