@@ -78,8 +78,8 @@ function calculate_solution_errors!(sol::AbstractODESolution;fill_uanalytic=true
         densetimes = collect(range(sol.t[1], stop=sol.t[end], length=100))
         interp_u = sol(densetimes)
         interp_analytic = VectorOfArray([f.analytic(sol.prob.u0,sol.prob.p,t) for t in densetimes])
-        sol.errors[:L∞] = norm(maximum(abs.(interp_u.-interp_analytic)))
-        sol.errors[:L2] = norm(sqrt(mean((interp_u.-interp_analytic).^2)))
+        sol.errors[:L∞] = norm(maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic)))
+        sol.errors[:L2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,interp_u-interp_analytic))))
       end
     end
   end
