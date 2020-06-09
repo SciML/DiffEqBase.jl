@@ -48,7 +48,7 @@ function __init__()
     @inline fastpow(x::ForwardDiff.Dual, y::ForwardDiff.Dual) = x^y
 
     sse(x::Number) = x^2
-    sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse.(ForwardDiff.partials(x)))
+    sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
     totallength(x::Number) = 1
     totallength(x::ForwardDiff.Dual) = totallength(ForwardDiff.value(x)) + sum(totallength.(ForwardDiff.partials(x)))
     totallength(x::AbstractArray) = sum(totallength,x)
