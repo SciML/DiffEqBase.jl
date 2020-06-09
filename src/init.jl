@@ -50,7 +50,7 @@ function __init__()
     sse(x::Number) = x^2
     sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
     totallength(x::Number) = 1
-    totallength(x::ForwardDiff.Dual) = totallength(ForwardDiff.value(x)) + sum(totallength.(ForwardDiff.partials(x)))
+    totallength(x::ForwardDiff.Dual) = totallength(ForwardDiff.value(x)) + sum(totallength, ForwardDiff.partials(x))
     totallength(x::AbstractArray) = sum(totallength,x)
 
     @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,::Any) = sqrt(sse(u))
