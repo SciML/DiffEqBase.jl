@@ -7,7 +7,7 @@ const internalnorm = ODE_DEFAULT_NORM
 val = rand(10)
 par = rand(10)
 u = Dual.(val, par)
-reference = internalnorm(val, 1)
+reference = sqrt((sum(abs2,val) + sum(abs2,par)) / (length(val) + length(par)))
 dual_real = internalnorm(u, 1)
 dual_dual = internalnorm(u, u[1])
 @test reference === dual_real
