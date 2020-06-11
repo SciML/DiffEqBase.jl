@@ -1,5 +1,5 @@
 @inline UNITLESS_ABS2(x) = real(abs2(x))
-@inline ODE_DEFAULT_NORM(u::Union{AbstractFloat,Complex},t) = abs(u)
+@inline ODE_DEFAULT_NORM(u::Union{AbstractFloat,Complex},t) = @fastmath abs(u)
 @inline ODE_DEFAULT_NORM(u::Array{T},t) where T<:Union{AbstractFloat,Complex} =
                                          sqrt(real(sum(abs2,u)) / length(u))
 @inline ODE_DEFAULT_NORM(u::StaticArray{T},t) where T<:Union{AbstractFloat,Complex} =
