@@ -9,7 +9,18 @@ NO_TSPAN_PROBS = Union{AbstractLinearProblem, AbstractNonlinearProblem,
 has_kwargs(_prob::DEProblem) = has_kwargs(typeof(_prob))
 Base.@pure has_kwargs(::Type{T}) where T = :kwargs ∈ fieldnames(T)
 
-function init_call(_prob,args...;kwargs...)
+function init_call(_prob,args...;merge_callbacks = true,kwargs...)
+
+  if has_kwargs(_prob)
+    if merge_callbacks && haskey(_prob.kwargs,:callback) && haskey(kwargs, :callback)
+      kwargs_temp = NamedTuple{Base.diff_names(Base._nt_names(
+      values(kwargs)), (:callback,))}(values(kwargs))
+      callbacks = NamedTuple{(:callback,)}( [DiffEqBase.CallbackSet(_prob.kwargs[:callback], values(kwargs).callback )] )
+      kwargs = merge(kwargs_temp, callbacks)
+    end
+    kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
+  end
+
   if has_kwargs(_prob)
     __init(_prob,args...;_prob.kwargs...,kwargs...)
   else
