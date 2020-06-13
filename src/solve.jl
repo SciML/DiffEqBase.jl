@@ -2,6 +2,11 @@ function __solve end
 function __init end
 function solve! end
 
+struct EvalFunc{F} <: Function
+  f::F
+end
+(f::EvalFunc)(args...) = f.f(args...)
+
 NO_TSPAN_PROBS = Union{AbstractLinearProblem, AbstractNonlinearProblem,
                        AbstractQuadratureProblem,
                        AbstractSteadyStateProblem,AbstractJumpProblem}
@@ -21,10 +26,23 @@ function init_call(_prob,args...;merge_callbacks = true,kwargs...)
     kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
   end
 
-  if has_kwargs(_prob)
-    __init(_prob,args...;_prob.kwargs...,kwargs...)
+  progress = get(kwargs, :progress, false)
+  if progress
+    logger = default_logger(Logging.current_logger())
+    x = maybe_with_logger(logger) do
+      if typeof(_prob.f.f) <: EvalFunc
+        Base.invokelatest(__init,_prob,args...; kwargs...)#::T
+      else
+        __init(_prob,args...;kwargs...)#::T
+      end
+    end
+    return x#::T
   else
-    __init(_prob,args...;kwargs...)
+    if typeof(_prob.f.f) <: EvalFunc
+      Base.invokelatest(__init,_prob,args...; kwargs...)#::T
+    else
+      __init(_prob,args...;kwargs...)#::T
+    end
   end
 end
 
@@ -64,11 +82,19 @@ function solve_call(_prob,args...;merge_callbacks = true, kwargs...)
   if progress
     logger = default_logger(Logging.current_logger())
     x = maybe_with_logger(logger) do
-      __solve(_prob,args...; kwargs...)
+      if typeof(_prob.f.f) <: EvalFunc
+        Base.invokelatest(__solve,_prob,args...; kwargs...)#::T
+      else
+        __solve(_prob,args...;kwargs...)#::T
+      end
     end
     return x#::T
   else
-    __solve(_prob,args...; kwargs...)#::T
+    if typeof(_prob.f.f) <: EvalFunc
+      Base.invokelatest(__solve,_prob,args...; kwargs...)#::T
+    else
+      __solve(_prob,args...;kwargs...)#::T
+    end
   end
 end
 
