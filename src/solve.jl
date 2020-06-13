@@ -30,7 +30,7 @@ function init_call(_prob,args...;merge_callbacks = true,kwargs...)
   if progress
     logger = default_logger(Logging.current_logger())
     x = maybe_with_logger(logger) do
-      if hasfield(_prob,:f) && hasfield(_prob.f,:f) && typeof(_prob.f.f) <: EvalFunc
+      if hasfield(typeof(_prob),:f) && hasfield(typeof(_prob.f),:f) && typeof(_prob.f.f) <: EvalFunc
         Base.invokelatest(__init,_prob,args...; kwargs...)#::T
       else
         __init(_prob,args...;kwargs...)#::T
@@ -38,7 +38,7 @@ function init_call(_prob,args...;merge_callbacks = true,kwargs...)
     end
     return x#::T
   else
-    if hasfield(_prob,:f) && hasfield(_prob.f,:f) && typeof(_prob.f.f) <: EvalFunc
+    if hasfield(typeof(_prob),:f) && hasfield(typeof(_prob.f),:f) && typeof(_prob.f.f) <: EvalFunc
       Base.invokelatest(__init,_prob,args...; kwargs...)#::T
     else
       __init(_prob,args...;kwargs...)#::T
@@ -82,7 +82,7 @@ function solve_call(_prob,args...;merge_callbacks = true, kwargs...)
   if progress
     logger = default_logger(Logging.current_logger())
     x = maybe_with_logger(logger) do
-      if hasfield(_prob,:f) && hasfield(_prob.f,:f) && typeof(_prob.f.f) <: EvalFunc
+      if hasfield(typeof(_prob),:f) && hasfield(typeof(_prob.f),:f) && typeof(_prob.f.f) <: EvalFunc
         Base.invokelatest(__solve,_prob,args...; kwargs...)#::T
       else
         __solve(_prob,args...;kwargs...)#::T
@@ -90,7 +90,7 @@ function solve_call(_prob,args...;merge_callbacks = true, kwargs...)
     end
     return x#::T
   else
-    if hasfield(_prob,:f) && hasfield(_prob.f,:f) && typeof(_prob.f.f) <: EvalFunc
+    if hasfield(typeof(_prob),:f) && hasfield(typeof(_prob.f),:f) && typeof(_prob.f.f) <: EvalFunc
       Base.invokelatest(__solve,_prob,args...; kwargs...)#::T
     else
       __solve(_prob,args...;kwargs...)#::T
