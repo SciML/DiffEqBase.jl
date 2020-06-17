@@ -461,7 +461,7 @@ SplitFunction(f::SplitFunction; kwargs...) = f
               jac_prototype,sparsity,Wfact,Wfact_t,paramjac,syms,colorvec)
 end
 
-function DynamicalODEFunction{iip,true}(f1,f2;mass_matrix=(I,I),
+function DynamicalODEFunction{iip,true}(f1,f2;mass_matrix=I,
                                         analytic=nothing,
                                         tgrad=nothing,
                                         jac=nothing,
@@ -484,7 +484,7 @@ function DynamicalODEFunction{iip,true}(f1,f2;mass_matrix=(I,I),
 end
 
 
-function DynamicalODEFunction{iip,false}(f1,f2;mass_matrix=(I,I),
+function DynamicalODEFunction{iip,false}(f1,f2;mass_matrix=I,
                                          analytic=nothing,
                                          tgrad=nothing,
                                          jac=nothing,
