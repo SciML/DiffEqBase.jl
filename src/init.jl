@@ -181,6 +181,40 @@ function __init__()
     end
   end
 
+  @require CUDA="052768ef-5323-5732-b1bb-66c8b64840ba" begin
+    cuify(x::AbstractArray) = CUDA.CuArray(x)
+    function LinearAlgebra.ldiv!(x::CUDA.CuArray,_qr::CUDA.CUSOLVER.CuQR,b::CUDA.CuArray)
+      _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
+      x .= vec(_x)
+      CUDA.unsafe_free!(_x)
+      return x
+    end
+    # make `\` work
+    LinearAlgebra.ldiv!(F::CUDA.CUSOLVER.CuQR, b::CUDA.CuArray) = (x = similar(b); ldiv!(x, F, b); x)
+    default_factorize(A::CUDA.CuArray) = qr(A)
+    function findall_events(affect!,affect_neg!,prev_sign::CUDA.CuArray,next_sign::CUDA.CuArray)
+      hasaffect::Bool = affect! !== nothing
+      hasaffectneg::Bool = affect_neg! !== nothing
+      f = (p,n)-> ((p < 0 && hasaffect) || (p > 0 && hasaffectneg)) && p*n<=0
+      A = map(f,prev_sign,next_sign)
+      out = findall(A)
+      CUDA.unsafe_free!(A)
+      out
+    end
+
+    ODE_DEFAULT_NORM(u::CUDA.CuArray,t) = sqrt(real(sum(abs2,u))/length(u))
+
+    @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
+      @inline function ODE_DEFAULT_NORM(u::CUDA.CuArray{<:ForwardDiff.Dual},t)
+        sqrt(sum(abs2,value.(u)) / length(u))
+      end
+
+      @inline function ODE_DEFAULT_NORM(u::CUDA.CuArray{<:ForwardDiff.Dual},t::ForwardDiff.Dual)
+        sqrt(sum(abs2,u) / length(u))
+      end
+    end
+  end
+
   @require ReverseDiff="37e2e3b7-166d-5795-8a7a-e32c996b4267" begin
     include("reversediff.jl")
   end
