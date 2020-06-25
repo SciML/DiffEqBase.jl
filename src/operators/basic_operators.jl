@@ -94,6 +94,7 @@ end
 update_coefficients!(L::DiffEqArrayOperator,u,p,t) = (L.update_func(L.A,u,p,t); L)
 setval!(L::DiffEqArrayOperator, A) = (L.A = A; L)
 isconstant(L::DiffEqArrayOperator) = L.update_func == DEFAULT_UPDATE_FUNC
+Base.similar(L::DiffEqArrayOperator, ::Type{T}, dims::Dims) where T = similar(L.A, T, dims)
 
 # propagate_inbounds here for the getindex fallback
 Base.@propagate_inbounds Base.convert(::Type{AbstractMatrix}, L::DiffEqArrayOperator) = L.A
