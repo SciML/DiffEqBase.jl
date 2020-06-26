@@ -11,7 +11,7 @@ ContinuousCallback(condition,affect!,affect_neg!;
                    rootfind=true,
                    save_positions=(true,true),
                    interp_points=10,
-                   abstol=10eps(),reltol=0)
+                   abstol=10eps(),reltol=0,apply_only_on_accept=true)
 ```
 
 ```julia
@@ -22,7 +22,7 @@ function ContinuousCallback(condition,affect!;
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
-                   abstol=10eps(),reltol=0)
+                   abstol=10eps(),reltol=0,apply_only_on_accept=true)
 ```
 
 Contains a single callback whose `condition` is a continuous function. The callback is triggered when this function evaluates to 0.
@@ -70,6 +70,8 @@ Contains a single callback whose `condition` is a continuous function. The callb
 - `abstol=1e-14` & `reltol=0`: These are used to specify a tolerance from zero for the rootfinder:
   if the starting condition is less than the tolerance from zero, then no root will be detected.
   This is to stop repeat events happening just after a previously rootfound event.
+- `apply_only_on_accept=true`: if `apply_only_on_accept`, then the callback is
+  only applied when the step is accepted.
 """
 struct ContinuousCallback{F1,F2,F3,F4,T,T2,I,R} <: AbstractContinuousCallback
   condition::F1
@@ -83,14 +85,15 @@ struct ContinuousCallback{F1,F2,F3,F4,T,T2,I,R} <: AbstractContinuousCallback
   dtrelax::R
   abstol::T
   reltol::T2
+  apply_only_on_accept::Bool
   ContinuousCallback(condition::F1,affect!::F2,affect_neg!::F3,
                      initialize::F4,idxs::I,rootfind,
-                     interp_points,save_positions,dtrelax::R,abstol::T,reltol::T2) where {F1,F2,F3,F4,T,T2,I,R} =
+                     interp_points,save_positions,dtrelax::R,abstol::T,reltol::T2,apply_only_on_accept) where {F1,F2,F3,F4,T,T2,I,R} =
                        new{F1,F2,F3,F4,T,T2,I,R}(condition,
                                                affect!,affect_neg!,
                                                initialize,idxs,rootfind,interp_points,
                                                BitArray(collect(save_positions)),
-                                               dtrelax,abstol,reltol)
+                                               dtrelax,abstol,reltol,apply_only_on_accept)
 end
 
 ContinuousCallback(condition,affect!,affect_neg!;
@@ -100,12 +103,12 @@ ContinuousCallback(condition,affect!,affect_neg!;
                    save_positions=(true,true),
                    interp_points=10,
                    dtrelax=1,
-                   abstol=10eps(),reltol=0) = ContinuousCallback(
+                   abstol=10eps(),reltol=0,apply_only_on_accept=true) = ContinuousCallback(
                               condition,affect!,affect_neg!,initialize,
                               idxs,
                               rootfind,interp_points,
                               save_positions,
-                              dtrelax,abstol,reltol)
+                              dtrelax,abstol,reltol,apply_only_on_accept)
 
 function ContinuousCallback(condition,affect!;
                    initialize = INITIALIZE_DEFAULT,
@@ -115,13 +118,13 @@ function ContinuousCallback(condition,affect!;
                    affect_neg! = affect!,
                    interp_points=10,
                    dtrelax=1,
-                   abstol=10eps(),reltol=0)
+                   abstol=10eps(),reltol=0,apply_only_on_accept=true)
 
  ContinuousCallback(
             condition,affect!,affect_neg!,initialize,idxs,
             rootfind,interp_points,
             collect(save_positions),
-            dtrelax,abstol,reltol)
+            dtrelax,abstol,reltol,apply_only_on_accept)
 
 end
 
@@ -133,7 +136,7 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          rootfind=true,
                          save_positions=(true,true),
                          interp_points=10,
-                         abstol=10eps(),reltol=0)
+                         abstol=10eps(),reltol=0,apply_only_on_accept=true)
 ```
 
 ```julia
@@ -144,7 +147,7 @@ VectorContinuousCallback(condition,affect!,len;
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
-                   abstol=10eps(),reltol=0)
+                   abstol=10eps(),reltol=0,apply_only_on_accept=true)
 ```
 
 This is also a subtype of `AbstractContinuousCallback`. `CallbackSet` is not feasible when you have a large number of callbacks,
@@ -175,15 +178,16 @@ struct VectorContinuousCallback{F1,F2,F3,F4,T,T2,I,R} <: AbstractContinuousCallb
   dtrelax::R
   abstol::T
   reltol::T2
+  apply_only_on_accept::Bool
   VectorContinuousCallback(condition::F1,affect!::F2,affect_neg!::F3,len::Int,
                            initialize::F4,idxs::I,rootfind,
                            interp_points,save_positions,dtrelax::R,
-                           abstol::T,reltol::T2) where {F1,F2,F3,F4,T,T2,I,R} =
+                           abstol::T,reltol::T2,apply_only_on_accept) where {F1,F2,F3,F4,T,T2,I,R} =
                        new{F1,F2,F3,F4,T,T2,I,R}(condition,
                                                affect!,affect_neg!,len,
                                                initialize,idxs,rootfind,interp_points,
                                                BitArray(collect(save_positions)),
-                                               dtrelax,abstol,reltol)
+                                               dtrelax,abstol,reltol,apply_only_on_accept)
 end
 
 VectorContinuousCallback(condition,affect!,affect_neg!,len;
@@ -193,13 +197,13 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          save_positions=(true,true),
                          interp_points=10,
                          dtrelax=1,
-                         abstol=10eps(),reltol=0) = VectorContinuousCallback(
+                         abstol=10eps(),reltol=0,apply_only_on_accept=true) = VectorContinuousCallback(
                               condition,affect!,affect_neg!,len,
                               initialize,
                               idxs,
                               rootfind,interp_points,
                               save_positions,dtrelax,
-                              abstol,reltol)
+                              abstol,reltol,apply_only_on_accept)
 
 function VectorContinuousCallback(condition,affect!,len;
                    initialize = INITIALIZE_DEFAULT,
@@ -209,13 +213,13 @@ function VectorContinuousCallback(condition,affect!,len;
                    affect_neg! = affect!,
                    interp_points=10,
                    dtrelax=1,
-                   abstol=10eps(),reltol=0)
+                   abstol=10eps(),reltol=0,apply_only_on_accept=true)
 
  VectorContinuousCallback(
             condition,affect!,affect_neg!,len,initialize,idxs,
             rootfind,interp_points,
             collect(save_positions),
-            dtrelax,abstol,reltol)
+            dtrelax,abstol,reltol,apply_only_on_accept)
 
 end
 
@@ -223,7 +227,7 @@ end
 ```julia
 DiscreteCallback(condition,affect!;
                  initialize = INITIALIZE_DEFAULT,
-                 save_positions=(true,true))
+                 save_positions=(true,true),apply_only_on_accept=true)
 ```
 
 # Arguments
@@ -243,19 +247,22 @@ DiscreteCallback(condition,affect!;
 - `initialize`: This is a function (c,u,t,integrator) which can be used to initialize
   the state of the callback `c`. It should modify the argument `c` and the return is
   ignored.
+- `apply_only_on_accept=true`: if `apply_only_on_accept`, then the callback is
+  only applied when the step is accepted.
 """
 struct DiscreteCallback{F1,F2,F3} <: AbstractDiscreteCallback
   condition::F1
   affect!::F2
   initialize::F3
   save_positions::BitArray{1}
+  apply_only_on_accept::Bool
   DiscreteCallback(condition::F1,affect!::F2,
-                   initialize::F3,save_positions) where {F1,F2,F3} = new{F1,F2,F3}(condition,
+                   initialize::F3,save_positions,apply_only_on_accept) where {F1,F2,F3} = new{F1,F2,F3}(condition,
                                                                                    affect!,initialize,
-                                                                                   BitArray(collect(save_positions)))
+                                                                                   BitArray(collect(save_positions)),apply_only_on_accept)
 end
 DiscreteCallback(condition,affect!;
-        initialize = INITIALIZE_DEFAULT,save_positions=(true,true)) = DiscreteCallback(condition,affect!,initialize,save_positions)
+        initialize = INITIALIZE_DEFAULT,save_positions=(true,true),apply_only_on_accept=true) = DiscreteCallback(condition,affect!,initialize,save_positions,apply_only_on_accept)
 
 """
 $(TYPEDEF)
@@ -278,7 +285,6 @@ callbacks, the following rules apply:
   matters for the conditions: if a previous callback modifies `u` in such a way
   that the next callback no longer evaluates condition to `true`, its `affect`
   will not be applied.
-
 """
 struct CallbackSet{T1<:Tuple,T2<:Tuple} <: DECallback
   continuous_callbacks::T1
@@ -339,6 +345,16 @@ has_continuous_callback(cb::Nothing) = false
 #======================================================#
 # Callback handling
 #======================================================#
+function callbackcondition(callback, args...)
+  if callback.apply_only_on_accept && !integrator.accept_step
+    cond = false
+  else
+    cond = callback.condition(args...)
+    integrator = args[end]
+    integrator.sol.destats.ncondition += 1
+  end
+  return cond
+end
 
 function get_tmp(integrator::DEIntegrator, callback)
   _tmp = get_tmp_cache(integrator)
@@ -382,12 +398,12 @@ function get_condition(integrator::DEIntegrator, callback, abst)
     # ismutable && !(callback.idxs isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
     #                                                 tmp = integrator(abst,Val{0},idxs=callback.idxs)
   end
-  integrator.sol.destats.ncondition += 1
+  (callback.apply_only_on_accept && !integrator.accept_step) && return false
   if callback isa VectorContinuousCallback
-    callback.condition(@view(integrator.callback_cache.tmp_condition[1:callback.len]),tmp,abst,integrator)
+    callbackcondition(callback, @view(integrator.callback_cache.tmp_condition[1:callback.len]),tmp,abst,integrator)
     return @view(integrator.callback_cache.tmp_condition[1:callback.len])
   else
-    return callback.condition(tmp,abst,integrator)
+    return callbackcondition(callback, tmp,abst,integrator)
   end
 end
 
@@ -430,12 +446,13 @@ end
   # Check if the event occured
   previous_condition = @views(integrator.callback_cache.previous_condition[1:callback.len])
 
-  if callback.idxs === nothing
-    callback.condition(previous_condition,integrator.uprev,integrator.tprev,integrator)
-  else
-    callback.condition(previous_condition,integrator.uprev[callback.idxs],integrator.tprev,integrator)
+  if !(callback.apply_only_on_accept && !integrator.accept_step)
+    if callback.idxs === nothing
+      callbackcondition(callback,previous_condition,integrator.uprev,integrator.tprev,integrator)
+    else
+      callbackcondition(callback,previous_condition,@views(integrator.uprev[callback.idxs]),integrator.tprev,integrator)
+    end
   end
-  integrator.sol.destats.ncondition += 1
 
   ivec = integrator.vector_event_last_time
   prev_sign = @view(integrator.callback_cache.prev_sign[1:callback.len])
@@ -509,12 +526,13 @@ end
   ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
   interp_index = 0
   # Check if the event occured
-  if callback.idxs === nothing
-    previous_condition = callback.condition(integrator.uprev,integrator.tprev,integrator)
-  else
-    @views previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
+  if !(callback.apply_only_on_accept && !integrator.accept_step)
+    if callback.idxs === nothing
+      previous_condition = callbackcondition(callback,integrator.uprev,integrator.tprev,integrator)
+    else
+      @views previous_condition = callbackcondition(callback,integrator.uprev[callback.idxs],integrator.tprev,integrator)
+    end
   end
-  integrator.sol.destats.ncondition += 1
 
   prev_sign = 0.0
   next_sign = 0.0
@@ -810,7 +828,7 @@ end
 #Base Case: Just one
 @inline function apply_discrete_callback!(integrator,callback::DiscreteCallback)
   saved_in_cb = false
-  if callback.condition(integrator.u,integrator.t,integrator)
+  if callbackcondition(callback,integrator.u,integrator.t,integrator)
     # handle saveat
     _, savedexactly = savevalues!(integrator)
     saved_in_cb = true
@@ -825,7 +843,6 @@ end
       saved_in_cb = true
     end
   end
-  integrator.sol.destats.ncondition += 1
   integrator.u_modified,saved_in_cb
 end
 
