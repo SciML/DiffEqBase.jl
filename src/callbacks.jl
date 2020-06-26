@@ -346,11 +346,11 @@ has_continuous_callback(cb::Nothing) = false
 # Callback handling
 #======================================================#
 function callbackcondition(callback, args...)
+  integrator = args[end]
   if callback.apply_only_on_accept && !integrator.accept_step
     cond = false
   else
     cond = callback.condition(args...)
-    integrator = args[end]
     integrator.sol.destats.ncondition += 1
   end
   return cond
@@ -398,7 +398,6 @@ function get_condition(integrator::DEIntegrator, callback, abst)
     # ismutable && !(callback.idxs isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
     #                                                 tmp = integrator(abst,Val{0},idxs=callback.idxs)
   end
-  (callback.apply_only_on_accept && !integrator.accept_step) && return false
   if callback isa VectorContinuousCallback
     callbackcondition(callback, @view(integrator.callback_cache.tmp_condition[1:callback.len]),tmp,abst,integrator)
     return @view(integrator.callback_cache.tmp_condition[1:callback.len])
@@ -446,12 +445,10 @@ end
   # Check if the event occured
   previous_condition = @views(integrator.callback_cache.previous_condition[1:callback.len])
 
-  if !(callback.apply_only_on_accept && !integrator.accept_step)
-    if callback.idxs === nothing
-      callbackcondition(callback,previous_condition,integrator.uprev,integrator.tprev,integrator)
-    else
-      callbackcondition(callback,previous_condition,@views(integrator.uprev[callback.idxs]),integrator.tprev,integrator)
-    end
+  if callback.idxs === nothing
+    callbackcondition(callback,previous_condition,integrator.uprev,integrator.tprev,integrator)
+  else
+    callbackcondition(callback,previous_condition,@views(integrator.uprev[callback.idxs]),integrator.tprev,integrator)
   end
 
   ivec = integrator.vector_event_last_time
@@ -526,12 +523,10 @@ end
   ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
   interp_index = 0
   # Check if the event occured
-  if !(callback.apply_only_on_accept && !integrator.accept_step)
-    if callback.idxs === nothing
-      previous_condition = callbackcondition(callback,integrator.uprev,integrator.tprev,integrator)
-    else
-      @views previous_condition = callbackcondition(callback,integrator.uprev[callback.idxs],integrator.tprev,integrator)
-    end
+  if callback.idxs === nothing
+    previous_condition = callbackcondition(callback,integrator.uprev,integrator.tprev,integrator)
+  else
+    @views previous_condition = callbackcondition(callback,integrator.uprev[callback.idxs],integrator.tprev,integrator)
   end
 
   prev_sign = 0.0
