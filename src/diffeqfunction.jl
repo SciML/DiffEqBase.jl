@@ -1661,4 +1661,4 @@ function Base.convert(::Type{IncrementingODEFunction}, f)
   IncrementingODEFunction(f)
 end
 
-(f::IncrementingODEFunction)(args...) = f.f(args...)
+(f::IncrementingODEFunction)(args...;kwargs...) = f.f(args...;kwargs...)
