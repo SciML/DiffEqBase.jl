@@ -1650,7 +1650,7 @@ function IncrementingODEFunction{iip}(f) where iip
   IncrementingODEFunction{iip, typeof(f)}(f)
 end
 function IncrementingODEFunction(f)
-  IncrementingODEFunction{isinplace(f, 5), typeof(f)}(f)
+  IncrementingODEFunction{isinplace(f, 7), typeof(f)}(f)
 end
 
 function Base.convert(::Type{IncrementingODEFunction{iip}}, f) where iip
