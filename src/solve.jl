@@ -116,6 +116,7 @@ function solve_up(prob::DEProblem,sensealg,u0,p,args...;kwargs...)
     _prob = get_concrete_problem(prob,!(typeof(prob)<:DiscreteProblem);u0=u0,p=p,kwargs...)
     solve_call(_prob,args...;kwargs...)
   else
+    _prob = get_concrete_problem(prob,!(typeof(prob)<:DiscreteProblem);u0=u0,p=p,kwargs...)
     solve_call(_prob,args...;kwargs...)
   end
 end
