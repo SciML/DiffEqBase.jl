@@ -136,17 +136,17 @@ function solve(prob::AbstractJumpProblem,args...; kwargs...)
   __solve(prob,args...;kwargs...)
 end
 
-function get_concrete_problem(prob::AbstractJumpProblem; kwargs...)
+function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
   prob
 end
 
-function get_concrete_problem(prob::AbstractSteadyStateProblem; kwargs...)
+function get_concrete_problem(prob::AbstractSteadyStateProblem, isadapt; kwargs...)
   u0 = get_concrete_u0(prob, Inf, kwargs)
   u0 = promote_u0(u0, prob.p, nothing)
   remake(prob; u0 = u0)
 end
 
-function get_concrete_problem(prob::AbstractEnsembleProblem; kwargs...)
+function get_concrete_problem(prob::AbstractEnsembleProblem, isadapt; kwargs...)
   prob
 end
 
