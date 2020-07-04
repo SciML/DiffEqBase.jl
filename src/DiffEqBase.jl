@@ -590,6 +590,7 @@ export DAEProblem, DAESolution
 export DDEProblem
 export SDDEProblem
 export PDEProblem
+export IncrementingODEProblem
 
 export BVProblem, TwoPointBVProblem
 
@@ -598,7 +599,7 @@ export remake
 export DEDataArray, DEDataVector, DEDataMatrix
 
 export ODEFunction, DiscreteFunction, SplitFunction, DAEFunction, DDEFunction,
-       SDEFunction, SplitSDEFunction, RODEFunction, SDDEFunction
+       SDEFunction, SplitSDEFunction, RODEFunction, SDDEFunction, IncrementingODEFunction
 
 export ContinuousCallback, DiscreteCallback, CallbackSet, VectorContinuousCallback
 
