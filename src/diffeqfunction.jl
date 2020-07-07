@@ -461,7 +461,7 @@ SplitFunction(f::SplitFunction; kwargs...) = f
               jac_prototype,sparsity,Wfact,Wfact_t,paramjac,syms,colorvec)
 end
 
-function DynamicalODEFunction{iip,true}(f1,f2;mass_matrix=(I,I),
+function DynamicalODEFunction{iip,true}(f1,f2;mass_matrix=I,
                                         analytic=nothing,
                                         tgrad=nothing,
                                         jac=nothing,
@@ -484,7 +484,7 @@ function DynamicalODEFunction{iip,true}(f1,f2;mass_matrix=(I,I),
 end
 
 
-function DynamicalODEFunction{iip,false}(f1,f2;mass_matrix=(I,I),
+function DynamicalODEFunction{iip,false}(f1,f2;mass_matrix=I,
                                          analytic=nothing,
                                          tgrad=nothing,
                                          jac=nothing,
@@ -1641,3 +1641,24 @@ function Base.convert(::Type{SDDEFunction{iip}},f,g) where iip
               tgrad=tgrad,jac=jac,jvp=jvp,vjp=vjp,Wfact=Wfact,
               Wfact_t=Wfact_t,paramjac=paramjac,syms=syms,colorvec=colorvec)
 end
+
+struct IncrementingODEFunction{iip,F} <: AbstractODEFunction{iip}
+  f::F
+end
+
+function IncrementingODEFunction{iip}(f) where iip
+  IncrementingODEFunction{iip, typeof(f)}(f)
+end
+function IncrementingODEFunction(f)
+  IncrementingODEFunction{isinplace(f, 7), typeof(f)}(f)
+end
+
+function Base.convert(::Type{IncrementingODEFunction{iip}}, f) where iip
+  IncrementingODEFunction{iip}(f)
+end
+
+function Base.convert(::Type{IncrementingODEFunction}, f)
+  IncrementingODEFunction(f)
+end
+
+(f::IncrementingODEFunction)(args...;kwargs...) = f.f(args...;kwargs...)

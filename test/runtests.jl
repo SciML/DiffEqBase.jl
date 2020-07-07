@@ -1,8 +1,15 @@
-using SafeTestsets, Test
+using Pkg
+using SafeTestsets
+using Test
 
 const GROUP = get(ENV, "GROUP", "All")
 const is_APPVEYOR = ( Sys.iswindows() && haskey(ENV,"APPVEYOR") )
-const is_TRAVIS = haskey(ENV,"TRAVIS")
+
+function activate_downstream_env()
+    Pkg.activate("downstream")
+    Pkg.develop(PackageSpec(path=dirname(@__DIR__)))
+    Pkg.instantiate()
+end
 
 @time begin
 if GROUP == "All" || GROUP == "Core"
@@ -29,11 +36,7 @@ if GROUP == "All" || GROUP == "Core"
 end
 
 if !is_APPVEYOR && GROUP == "Downstream"
-    # add additional packages
-    using Pkg
-    Pkg.activate("downstream")
-    Pkg.develop(PackageSpec(path=joinpath(pwd(), "..")))
-    Pkg.instantiate()
+    activate_downstream_env()
 
     @time @safetestset "Null Parameters" begin include("downstream/null_params_test.jl") end
     @time @safetestset "Ensemble Simulations" begin include("downstream/ensemble.jl") end
@@ -48,13 +51,14 @@ if !is_APPVEYOR && GROUP == "Downstream"
     @time @safetestset "PSOS and Energy Conservation Event Detection" begin include("downstream/psos_and_energy_conservation.jl") end
     @time @safetestset "DE stats" begin include("downstream/destats_tests.jl") end
     @time @safetestset "DEDataArray" begin include("downstream/data_array_regression_tests.jl") end
-    @time @safetestset "Concrete_solve Tests" begin include("downstream/concrete_solve_tests.jl") end
     @time @safetestset "AD Tests" begin include("downstream/ad_tests.jl") end
     @time @testset "Distributed Ensemble Tests" begin include("downstream/distributed_ensemble.jl") end
 end
 
 if !is_APPVEYOR && GROUP == "GPU"
-  @time @safetestset "Simple GPU" begin include("gpu/simple_gpu.jl") end
+    activate_downstream_env()
+
+    @time @safetestset "Simple GPU" begin include("gpu/simple_gpu.jl") end
 end
 
 end
