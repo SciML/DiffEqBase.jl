@@ -47,20 +47,16 @@ function init_call(_prob,args...;merge_callbacks = true,kwargs...)
 end
 
 function init(prob::DEProblem,args...;kwargs...)
-  _prob = get_concrete_problem(prob;kwargs...)
   if haskey(kwargs,:alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
-    isadaptive(alg) &&
-    !(typeof(prob) <: NO_TSPAN_PROBS) &&
-    adaptive_warn(_prob.u0,_prob.tspan)
+    _prob = get_concrete_problem(prob,isadaptive(alg);kwargs...)
     init_call(_prob,alg,args...;kwargs...)
   elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
     alg = args[1]
-    isadaptive(alg) &&
-    !(typeof(prob) <: NO_TSPAN_PROBS) &&
-    adaptive_warn(_prob.u0,_prob.tspan)
+    _prob = get_concrete_problem(prob,isadaptive(alg);kwargs...)
     init_call(_prob,args...;kwargs...)
   else
+    _prob = get_concrete_problem(prob,!(typeof(prob)<:DiscreteProblem);kwargs...)
     init_call(_prob,args...;kwargs...)
   end
 end
@@ -107,24 +103,20 @@ function solve(prob::DEProblem,args...;sensealg=nothing,
 end
 
 function solve_up(prob::DEProblem,sensealg,u0,p,args...;kwargs...)
-  _prob = get_concrete_problem(prob;u0=u0,p=p,kwargs...)
+
   if haskey(kwargs,:alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
-    isadaptive(alg) &&
-    !(typeof(prob) <: NO_TSPAN_PROBS) &&
-    adaptive_warn(_prob.u0,_prob.tspan)
+    _prob = get_concrete_problem(prob,isadaptive(alg);u0=u0,p=p,kwargs...)
     solve_call(_prob,alg,args...;kwargs...)
   elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
     alg = args[1]
-    isadaptive(alg) &&
-    !(typeof(prob) <: NO_TSPAN_PROBS) &&
-    adaptive_warn(_prob.u0,_prob.tspan)
+    _prob = get_concrete_problem(prob,isadaptive(alg);u0=u0,p=p,kwargs...)
     solve_call(_prob,args...;kwargs...)
   elseif isempty(args) # Default algorithm handling
-    !(typeof(prob) <: NO_TSPAN_PROBS) &&
-    adaptive_warn(_prob.u0,_prob.tspan)
+    _prob = get_concrete_problem(prob,!(typeof(prob)<:DiscreteProblem);u0=u0,p=p,kwargs...)
     solve_call(_prob,args...;kwargs...)
   else
+    _prob = get_concrete_problem(prob,!(typeof(prob)<:DiscreteProblem);u0=u0,p=p,kwargs...)
     solve_call(_prob,args...;kwargs...)
   end
 end
@@ -145,17 +137,17 @@ function solve(prob::AbstractJumpProblem,args...; kwargs...)
   __solve(prob,args...;kwargs...)
 end
 
-function get_concrete_problem(prob::AbstractJumpProblem; kwargs...)
+function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
   prob
 end
 
-function get_concrete_problem(prob::AbstractSteadyStateProblem; kwargs...)
-  u0 = get_concrete_u0(prob, Inf, kwargs)
+function get_concrete_problem(prob::AbstractSteadyStateProblem, isadapt; kwargs...)
+  u0 = get_concrete_u0(prob, isadapt, Inf, kwargs)
   u0 = promote_u0(u0, prob.p, nothing)
   remake(prob; u0 = u0)
 end
 
-function get_concrete_problem(prob::AbstractEnsembleProblem; kwargs...)
+function get_concrete_problem(prob::AbstractEnsembleProblem, isadapt; kwargs...)
   prob
 end
 
@@ -166,10 +158,11 @@ end
 
 function discretize end
 
-function get_concrete_problem(prob; kwargs...)
+function get_concrete_problem(prob, isadapt; kwargs...)
+
   p = get_concrete_p(prob, kwargs)
-  tspan = get_concrete_tspan(prob, kwargs, p)
-  u0 = get_concrete_u0(prob, tspan[1], kwargs)
+  tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
+  u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
   u0_promote = promote_u0(u0, p, tspan[1])
   tspan_promote = promote_tspan(u0, p, tspan, prob, kwargs)
   if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
@@ -181,11 +174,10 @@ function get_concrete_problem(prob; kwargs...)
   end
 end
 
-function get_concrete_problem(prob::DDEProblem; kwargs...)
+function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
   p = get_concrete_p(prob, kwargs)
-  tspan = get_concrete_tspan(prob, kwargs, p)
-
-  u0 = get_concrete_u0(prob, tspan[1], kwargs)
+  tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
+  u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
 
   if prob.constant_lags isa Function
     constant_lags = prob.constant_lags(p)
@@ -199,7 +191,7 @@ function get_concrete_problem(prob::DDEProblem; kwargs...)
   remake(prob; u0 = u0, tspan = tspan, p=p, constant_lags = constant_lags)
 end
 
-function get_concrete_tspan(prob, kwargs, p)
+function get_concrete_tspan(prob, isadapt, kwargs, p)
   if prob.tspan isa Function
     tspan = prob.tspan(p)
   elseif haskey(kwargs, :tspan)
@@ -210,6 +202,8 @@ function get_concrete_tspan(prob, kwargs, p)
     tspan = prob.tspan
   end
 
+  isadapt && eltype(tspan) <: Integer && (tspan = float.(tspan))
+
   tspan
 end
 
@@ -217,7 +211,7 @@ function isconcreteu0(prob, t0, kwargs)
   !eval_u0(prob.u0) && prob.u0 !== nothing && !isdistribution(prob.u0)
 end
 
-function get_concrete_u0(prob, t0, kwargs)
+function get_concrete_u0(prob, isadapt, t0, kwargs)
   if eval_u0(prob.u0)
     u0 = prob.u0(prob.p, t0)
   elseif haskey(kwargs,:u0)
@@ -225,6 +219,8 @@ function get_concrete_u0(prob, t0, kwargs)
   else
     u0 = prob.u0
   end
+
+  isadapt && eltype(u0) <: Integer && (u0 = float.(u0))
 
   handle_distribution_u0(u0)
 end
@@ -240,28 +236,6 @@ end
 handle_distribution_u0(_u0) = _u0
 eval_u0(u0::Function) = true
 eval_u0(u0) = false
-
-"""
-$(SIGNATURES)
-
-Check whether the values of `u0` and `tspan` are appropriate for use with
-adaptive integrators and emit specific warnings if they are not.
-"""
-function adaptive_warn(u0,tspan)
-  adaptive_integer_warn(tspan)
-end
-
-"""
-$(SIGNATURES)
-
-Emit a warning about incompatibility with adaptive integers if `tspan` contains
-integers.
-"""
-function adaptive_integer_warn(tspan)
-  if eltype(tspan) <: Integer
-    @warn("Integer time values are incompatible with adaptive integrators. Utilize floating point numbers instead of integers in this case, i.e. (0.0,1.0) instead of (0,1).")
-  end
-end
 
 function __solve(prob::DEProblem,args...;default_set=false,second_time=false,kwargs...)
   if second_time
