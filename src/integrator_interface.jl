@@ -562,7 +562,7 @@ end
   (plot_vecs...,)
 end
 
-function step!(integ::DEIntegrator, dt::Real, stop_at_tdt = false)
+function step!(integ::DEIntegrator, dt, stop_at_tdt = false)
     (dt * integ.tdir) < 0 && error("Cannot step backward.")
     t = integ.t
     next_t = t+dt
