@@ -226,3 +226,24 @@ function SplitODEProblem{iip}(f::SplitFunction,u0,tspan,p=NullParameters();kwarg
   end
   ODEProblem(f,u0,tspan,p,SplitODEProblem{iip}();kwargs...)
 end
+
+abstract type AbstractIncrementingODEProblem end
+
+struct IncrementingODEProblem{iip} <: AbstractIncrementingODEProblem end
+
+function IncrementingODEProblem(f,u0,tspan,p=NullParameters();kwargs...)
+  f = IncrementingODEFunction(f)
+  IncrementingODEProblem(f,u0,tspan,p;kwargs...)
+end
+
+function IncrementingODEProblem{iip}(f,u0,tspan,p=NullParameters();kwargs...) where iip
+  f = IncrementingODEFunction{iip}(f)
+  IncrementingODEProblem(f,u0,tspan,p;kwargs...)
+end
+
+IncrementingODEProblem(f::IncrementingODEFunction,u0,tspan,p=NullParameters();kwargs...) =
+  IncrementingODEProblem{isinplace(f)}(f,u0,tspan,p;kwargs...)
+
+function IncrementingODEProblem{iip}(f::IncrementingODEFunction,u0,tspan,p=NullParameters();kwargs...) where iip
+  ODEProblem(f,u0,tspan,p,IncrementingODEProblem{iip}();kwargs...)
+end

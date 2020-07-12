@@ -47,19 +47,16 @@ function __init__()
 
     @inline fastpow(x::ForwardDiff.Dual, y::ForwardDiff.Dual) = x^y
 
-    # Support adaptive with non-dual time
-    @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual},::Any) = sqrt(sum(UNITLESS_ABS2∘value,u) / length(u))
-    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,::Any) = abs(value(u))
+    sse(x::Number) = x^2
+    sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
+    totallength(x::Number) = 1
+    totallength(x::ForwardDiff.Dual) = totallength(ForwardDiff.value(x)) + sum(totallength, ForwardDiff.partials(x))
+    totallength(x::AbstractArray) = sum(totallength,x)
 
-    # When time is dual, it shouldn't drop the duals for adaptivity
-    @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual},::ForwardDiff.Dual) = sqrt(sum(UNITLESS_ABS2,u) / length(u))
-    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,::ForwardDiff.Dual) = abs(u)
-
-    @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{<:Any,<:ForwardDiff.Dual}},::ForwardDiff.Dual) = sqrt(sum(UNITLESS_ABS2∘value,u) / length(u))
-    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual{<:Any,ForwardDiff.Dual},::ForwardDiff.Dual) = abs(value(u))
-
-    @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{<:Any,<:ForwardDiff.Dual}},::ForwardDiff.Dual{<:Any,ForwardDiff.Dual}) = sqrt(sum(UNITLESS_ABS2,u) / length(u))
-    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual{<:Any,ForwardDiff.Dual},::ForwardDiff.Dual{<:Any,ForwardDiff.Dual}) = abs(u)
+    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,::Any) = sqrt(sse(u))
+    @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual},t::Any) = sqrt(sum(sse,u) / totallength(u))
+    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,::ForwardDiff.Dual) = sqrt(sse(u))
+    @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual},::ForwardDiff.Dual) = sqrt(sum(x->sse(x),u) / totallength(u))
 
     # Type piracy. Should upstream
     Base.nextfloat(d::ForwardDiff.Dual{T,V,N}) where {T,V,N} = ForwardDiff.Dual{T}(nextfloat(d.value), d.partials)
@@ -179,6 +176,40 @@ function __init__()
       end
 
       @inline function ODE_DEFAULT_NORM(u::CuArrays.CuArray{<:ForwardDiff.Dual},t::ForwardDiff.Dual)
+        sqrt(sum(abs2,u) / length(u))
+      end
+    end
+  end
+
+  @require CUDA="052768ef-5323-5732-b1bb-66c8b64840ba" begin
+    cuify(x::AbstractArray) = CUDA.CuArray(x)
+    function LinearAlgebra.ldiv!(x::CUDA.CuArray,_qr::CUDA.CUSOLVER.CuQR,b::CUDA.CuArray)
+      _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
+      x .= vec(_x)
+      CUDA.unsafe_free!(_x)
+      return x
+    end
+    # make `\` work
+    LinearAlgebra.ldiv!(F::CUDA.CUSOLVER.CuQR, b::CUDA.CuArray) = (x = similar(b); ldiv!(x, F, b); x)
+    default_factorize(A::CUDA.CuArray) = qr(A)
+    function findall_events(affect!,affect_neg!,prev_sign::CUDA.CuArray,next_sign::CUDA.CuArray)
+      hasaffect::Bool = affect! !== nothing
+      hasaffectneg::Bool = affect_neg! !== nothing
+      f = (p,n)-> ((p < 0 && hasaffect) || (p > 0 && hasaffectneg)) && p*n<=0
+      A = map(f,prev_sign,next_sign)
+      out = findall(A)
+      CUDA.unsafe_free!(A)
+      out
+    end
+
+    ODE_DEFAULT_NORM(u::CUDA.CuArray,t) = sqrt(real(sum(abs2,u))/length(u))
+
+    @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
+      @inline function ODE_DEFAULT_NORM(u::CUDA.CuArray{<:ForwardDiff.Dual},t)
+        sqrt(sum(abs2,value.(u)) / length(u))
+      end
+
+      @inline function ODE_DEFAULT_NORM(u::CUDA.CuArray{<:ForwardDiff.Dual},t::ForwardDiff.Dual)
         sqrt(sum(abs2,u) / length(u))
       end
     end

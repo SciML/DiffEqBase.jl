@@ -1,7 +1,7 @@
 name = "DiffEqBase"
 uuid = "2b5f629d-d688-5b77-993f-72d75c75574e"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "6.35.2"
+version = "6.40.6"
 
 [deps]
 ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
@@ -37,7 +37,7 @@ ZygoteRules = "700de1a5-db45-46bc-99cf-38207098b444"
 
 [compat]
 ArrayInterface = "2.6"
-ChainRulesCore = "0.4, 0.5, 0.6, 0.7, 0.8"
+ChainRulesCore = "0.4, 0.5, 0.6, 0.7, 0.8, 0.9"
 ConsoleProgressMonitor = "0.1"
 DataStructures = "0.17"
 DocStringExtensions = "0.8"
@@ -71,4 +71,4 @@ SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "Distributions", "Pkg", "Random", "SafeTestsets", "InteractiveUtils", "ForwardDiff"]
+test = ["Distributions", "ForwardDiff", "InteractiveUtils", "Pkg", "Random", "SafeTestsets", "Test"]

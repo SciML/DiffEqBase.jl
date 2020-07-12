@@ -78,8 +78,8 @@ function calculate_solution_errors!(sol::AbstractODESolution;fill_uanalytic=true
         densetimes = collect(range(sol.t[1], stop=sol.t[end], length=100))
         interp_u = sol(densetimes)
         interp_analytic = VectorOfArray([f.analytic(sol.prob.u0,sol.prob.p,t) for t in densetimes])
-        sol.errors[:L∞] = norm(maximum(abs.(interp_u.-interp_analytic)))
-        sol.errors[:L2] = norm(sqrt(mean((interp_u.-interp_analytic).^2)))
+        sol.errors[:L∞] = norm(maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic)))
+        sol.errors[:L2] = norm(sqrt(recursive_mean(vecvecapply((x)->float.(x).^2,interp_u-interp_analytic))))
       end
     end
   end
@@ -100,22 +100,42 @@ function solution_new_retcode(sol::AbstractODESolution{T,N},retcode) where {T,N}
                      sol.alg,sol.interp,sol.dense,sol.tslocation,sol.destats,retcode)
  end
 
- function solution_new_tslocation(sol::AbstractODESolution{T,N},tslocation) where {T,N}
-   ODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),
-                      typeof(sol.t),typeof(sol.k),
-                      typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
-                      sol.u,sol.u_analytic,sol.errors,sol.t,sol.k,sol.prob,
-                      sol.alg,sol.interp,sol.dense,tslocation,sol.destats,sol.retcode)
+function solution_new_tslocation(sol::AbstractODESolution{T,N},tslocation) where {T,N}
+  ODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),
+                    typeof(sol.t),typeof(sol.k),
+                    typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
+                    sol.u,sol.u_analytic,sol.errors,sol.t,sol.k,sol.prob,
+                    sol.alg,sol.interp,sol.dense,tslocation,sol.destats,sol.retcode)
+end
+
+function solution_slice(sol::AbstractODESolution{T,N},I) where {T,N}
+  ODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),
+                     typeof(sol.t),typeof(sol.k),
+                     typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
+                     sol.u[I],
+                     sol.u_analytic === nothing ? nothing : sol.u_analytic[I],
+                     sol.errors,sol.t[I],
+                     sol.dense ? sol.k[I] : sol.k,
+                     sol.prob,
+                     sol.alg,sol.interp,false,sol.tslocation,sol.destats,sol.retcode)
+ end
+
+function sensitivity_solution(sol::AbstractODESolution,u,t)
+  T = eltype(eltype(u))
+  N = length((size(sol.prob.u0)..., length(u)))
+  interp = if typeof(sol.interp) <: LinearInterpolation
+    LinearInterpolation(t,u)
+  elseif typeof(sol.interp) <: ConstantInterpolation
+    ConstantInterpolation(t,u)
+  else
+    SensitivityInterpolation(t,u)
   end
 
-  function solution_slice(sol::AbstractODESolution{T,N},I) where {T,N}
-    ODESolution{T,N,typeof(sol.u),typeof(sol.u_analytic),typeof(sol.errors),
-                       typeof(sol.t),typeof(sol.k),
-                       typeof(sol.prob),typeof(sol.alg),typeof(sol.interp),typeof(sol.destats)}(
-                       sol.u[I],
-                       sol.u_analytic === nothing ? nothing : sol.u_analytic[I],
-                       sol.errors,sol.t[I],
-                       sol.dense ? sol.k[I] : sol.k,
-                       sol.prob,
-                       sol.alg,sol.interp,false,sol.tslocation,sol.destats,sol.retcode)
-   end
+  ODESolution{T,N,typeof(u),typeof(sol.u_analytic),typeof(sol.errors),
+              typeof(t),Nothing,typeof(sol.prob),typeof(sol.alg),
+              typeof(interp),typeof(sol.destats)}(
+              u,sol.u_analytic,sol.errors,t,nothing,sol.prob,
+              sol.alg,interp,
+              sol.dense,sol.tslocation,
+              sol.destats,sol.retcode)
+end
