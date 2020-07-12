@@ -74,6 +74,10 @@ function __init__()
 
     dualcache(u::AbstractArray, N=Val{ForwardDiff.pickchunksize(length(u))}) = DiffCache(u, size(u), N)
 
+    function get_tmp(dc::DiffCache, u::T) where T<:ForwardDiff.Dual
+      x = reinterpret(T, dc.dual_du)
+    end
+
     function get_tmp(dc::DiffCache, u::AbstractArray{T}) where T<:ForwardDiff.Dual
       x = reinterpret(T, dc.dual_du)
     end
@@ -83,6 +87,7 @@ function __init__()
       LabelledArrays.LArray{T,N,D,Syms}(x)
     end
 
+    get_tmp(dc::DiffCache, u::Number) = dc.du
     get_tmp(dc::DiffCache, u::AbstractArray) = dc.du
 
     bisection(f, tup::Tuple{T,T}, tdir) where {T<:ForwardDiff.Dual} = find_zero(f, tup, Roots.AlefeldPotraShi())
