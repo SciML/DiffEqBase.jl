@@ -38,6 +38,7 @@ end
 if !is_APPVEYOR && GROUP == "Downstream"
     activate_downstream_env()
 
+    @time @safetestset "Unitful" begin include("downstream/unitful.jl") end
     @time @safetestset "Null Parameters" begin include("downstream/null_params_test.jl") end
     @time @safetestset "Ensemble Simulations" begin include("downstream/ensemble.jl") end
     @time @safetestset "Ensemble Analysis" begin include("downstream/ensemble_analysis.jl") end

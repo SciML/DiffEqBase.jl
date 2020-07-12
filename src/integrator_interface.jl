@@ -563,7 +563,7 @@ end
 end
 
 function step!(integ::DEIntegrator, dt, stop_at_tdt = false)
-    (dt * integ.tdir) < 0 && error("Cannot step backward.")
+    (dt * integ.tdir) < zero(dt) && error("Cannot step backward.")
     t = integ.t
     next_t = t+dt
     stop_at_tdt && add_tstop!(integ,next_t)
