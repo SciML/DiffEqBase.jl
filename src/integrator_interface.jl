@@ -235,11 +235,11 @@ Recalculate interpolation data and update ODE integrator after changes by callba
 reeval_internals_due_to_modification!(integrator::DEIntegrator) = nothing
 
 """
-    set_t!(integrator::DEIntegrator, t::Real)
+    set_t!(integrator::DEIntegrator, t)
 
 Set current time point of the `integrator` to `t`.
 """
-set_t!(integrator::DEIntegrator, t::Real) =
+set_t!(integrator::DEIntegrator, t) =
     error("set_t!: method has not been implemented for the integrator")
 
 """
@@ -563,7 +563,7 @@ end
 end
 
 function step!(integ::DEIntegrator, dt, stop_at_tdt = false)
-    (dt * integ.tdir) < zero(dt) && error("Cannot step backward.")
+    (dt * integ.tdir) < 0 * oneunit(dt) && error("Cannot step backward.")
     t = integ.t
     next_t = t+dt
     stop_at_tdt && add_tstop!(integ,next_t)
