@@ -3,35 +3,47 @@ $(TYPEDEF)
 
 Holds a tableau which defines an explicit Runge-Kutta method.
 """
-mutable struct ExplicitRKTableau{MType<:AbstractMatrix,VType<:AbstractVector,fsal} <: ODERKTableau
-  A::MType
-  c::VType
-  α::VType
-  αEEst::VType
-  stages::Int
-  order::Int
-  adaptiveorder::Int #The lower order of the pair. Only used for adaptivity.
+struct RKTableau{AType,bType,bbType,cType,
+                 fsal,explicit,stages,order,adaptiveorder} <: ODERKTableau
+  A::AType
+  c::cType
+  b::bType
+  bEEst::bbType
 end
-ExplicitRKTableau(A::MType,c::VType,α::VType,order;
-                  adaptiveorder=0,αEEst=VType(),fsal=false) where {MType,VType} =
-                  ExplicitRKTableau{MType,VType,fsal}(
-                  A,c,α,αEEst,length(α),order,adaptiveorder)
+function RKTableau(A, c, b, order; adaptiveorder=0, bEEst=nothing, kwargs...)
+  stages = length(b)
+  eeststages = bEEst === nothing ? stages : length(bEEst)
+  size(A, 1) == size(A, 2) == stages == eeststages || error("The size of A is not consistent with b or embedded b.")
+  isfsal = iszero(c[1]) && isone(c[stages]) && A[stages, :] == b
+  isexplicit = true
+  for j in axes(A, 2), i in j:stages
+    isexplicit &= iszero(A[i, j])
+  end
 
-"""
-$(TYPEDEF)
-
-Holds a tableau which defines an implicit Runge-Kutta method.
-"""
-mutable struct ImplicitRKTableau{MType<:AbstractMatrix,VType<:AbstractVector} <: ODERKTableau
-  A::MType
-  c::VType
-  α::VType
-  αEEst::VType
-  stages::Int
-  order::Int
-  adaptiveorder::Int #The lower order of the pair. Only used for adaptivity.
+  RKTableau{typeof(A), typeof(b), typeof(bEEst), typeof(c),
+            isfsal, isexplicit, stages, order, adaptiveorder}(
+    A, c, b, bEEst
+  )
 end
-ImplicitRKTableau(A::MType,c::VType,α::VType,order;
-                  adaptiveorder=0,αEEst=VType()) where {MType,VType} =
-                  ImplicitRKTableau{MType,VType}(
-                  A,c,α,αEEst,length(α),order,adaptiveorder)
+
+const ExplicitRKTableau{AType,bType,bbType,cType,fsal,stages,order,adaptiveorder} = RKTableau{AType,bType,bbType,cType,fsal,true,stages,order,adaptiveorder}
+const ImplicitRKTableau{AType,bType,bbType,cType,fsal,stages,order,adaptiveorder} = RKTableau{AType,bType,bbType,cType,fsal,false,stages,order,adaptiveorder}
+
+isexplicit(tab::ExplicitRKTableau) = true
+isexplicit(tab::ImplicitRKTableau) = false
+
+alg_order(tab::RKTableau{AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder}) where {AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder} = order
+alg_adaptive_order(tab::RKTableau{AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder}) where {AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder} = adaptiveorder
+isadaptive(tab) = alg_adaptive_order(tab) !== 0
+
+isfsal(tab::RKTableau{AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder}) where {AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder} = fsal
+alg_stages(tab::RKTableau{AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder}) where {AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder} = stages
+
+get_tableau_A(tab) = tab.A
+get_tableau_b(tab) = tab.b
+get_tableau_bEEst(tab) = tab.bEEst
+get_tableau_c(tab) = tab.c
+
+for f in [:alg_order, :isexplicit, :alg_order, :alg_adaptive_order, :isadaptive, :isfsal, :alg_stages, :get_tableau_A, :get_tableau_b, :get_tableau_bEEst, :get_tableau_c]
+  @eval $f(::T) where {T<:Any} = error("`$f(::$T)` is not defined.")
+end
