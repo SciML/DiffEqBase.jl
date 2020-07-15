@@ -3,8 +3,8 @@
 
 Holds a tableau which defines a Runge-Kutta method.
 """
-struct RKTableau{AType,bType,bbType,cType,
-                 fsal,explicit,stages,order,adaptiveorder,name} <: ODERKTableau
+struct RKTableau{AType,bType,fsal,bbType,cType,
+                 explicit,stages,order,adaptiveorder,name} <: ODERKTableau
   A::AType
   c::cType
   b::bType
@@ -20,14 +20,14 @@ function RKTableau(A, c, b, order; adaptiveorder=0, αEEst=nothing, bEEst=αEEst
   isfsal = iszero(c[1]) && isone(c[stages]) && A[stages, :] == b
   isexplicit = istril(A, -1) && iszero(c[1])
 
-  RKTableau{typeof(A), typeof(b), typeof(bEEst), typeof(c),
-            isfsal, isexplicit, stages, order, adaptiveorder, name}(
+  RKTableau{typeof(A), typeof(b), isfsal, typeof(bEEst), typeof(c),
+            isexplicit, stages, order, adaptiveorder, name}(
     A, c, b, bEEst
   )
 end
 
-const ExplicitRKTableau{AType,bType,bbType,cType,fsal,stages,order,adaptiveorder} = RKTableau{AType,bType,bbType,cType,fsal,true,stages,order,adaptiveorder}
-const ImplicitRKTableau{AType,bType,bbType,cType,fsal,stages,order,adaptiveorder} = RKTableau{AType,bType,bbType,cType,fsal,false,stages,order,adaptiveorder}
+const ExplicitRKTableau{AType,bType,fsal,bbType,cType,stages,order,adaptiveorder} = RKTableau{AType,bType,fsal,bbType,cType,true,stages,order,adaptiveorder}
+const ImplicitRKTableau{AType,bType,fsal,bbType,cType,stages,order,adaptiveorder} = RKTableau{AType,bType,fsal,bbType,cType,false,stages,order,adaptiveorder}
 
 ###
 ### Deprecation
@@ -72,20 +72,20 @@ end
 isexplicit(tab::ExplicitRKTableau) = true
 isexplicit(tab::ImplicitRKTableau) = false
 
-alg_order(tab::RKTableau{AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder}) where {AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder} = order
-alg_adaptive_order(tab::RKTableau{AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder}) where {AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder} = adaptiveorder
+alg_order(tab::RKTableau{AType,bType,fsal,bbType,cType,explicit,stages,order,adaptiveorder}) where {AType,bType,fsal,bbType,cType,explicit,stages,order,adaptiveorder} = order
+alg_adaptive_order(tab::RKTableau{AType,bType,fsal,bbType,cType,explicit,stages,order,adaptiveorder}) where {AType,bType,fsal,bbType,cType,explicit,stages,order,adaptiveorder} = adaptiveorder
 
 isadaptive(tab::ODERKTableau) = alg_adaptive_order(tab) !== 0
 
-isfsal(tab::RKTableau{AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder}) where {AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder} = fsal
+isfsal(tab::RKTableau{AType,bType,fsal,bbType,cType,explicit,stages,order,adaptiveorder}) where {AType,bType,fsal,bbType,cType,explicit,stages,order,adaptiveorder} = fsal
 
-alg_stages(tab::RKTableau{AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder}) where {AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder} = stages
+alg_stages(tab::RKTableau{AType,bType,fsal,bbType,cType,explicit,stages,order,adaptiveorder}) where {AType,bType,fsal,bbType,cType,explicit,stages,order,adaptiveorder} = stages
 
 get_tableau_A(tab::ODERKTableau) = tab.A
 get_tableau_b(tab::ODERKTableau) = tab.b
 get_tableau_bEEst(tab::ODERKTableau) = tab.bEEst
 get_tableau_c(tab::ODERKTableau) = tab.c
-get_tableau_name(tab::RKTableau{AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder,name}) where {AType,bType,bbType,cType,fsal,explicit,stages,order,adaptiveorder,name} = name
+get_tableau_name(tab::RKTableau{AType,bType,fsal,bbType,cType,explicit,stages,order,adaptiveorder,name}) where {AType,bType,fsal,bbType,cType,explicit,stages,order,adaptiveorder,name} = name
 
 for f in [:isexplicit, :alg_order, :alg_adaptive_order, :isadaptive, :isfsal, :alg_stages, :get_tableau_A, :get_tableau_b, :get_tableau_bEEst, :get_tableau_c, :get_tableau_name]
   @eval $f(::T) where {T<:Any} = error("`$f(::$T)` is not defined.")
