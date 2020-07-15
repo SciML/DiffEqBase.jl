@@ -10,12 +10,15 @@ struct RKTableau{AType,bType,bbType,cType,
   b::bType
   bEEst::bbType
 end
-function RKTableau(A, c, b, order; adaptiveorder=0, bEEst=nothing, name=:RK, kwargs...)
+function RKTableau(A, c, b, order; adaptiveorder=0, αEEst=nothing, bEEst=αEEst, name=:RK, kwargs...)
+  #TODO
+  αEEst !== nothing && Base.depwarn("RKTableau(A, c, b, order; αEEst=X) is deprecated. Please use RKTableau(A, c, b, order; bEEst=X) instead.", ((Base.Core).Typeof(RKTableau)).name.mt.name)
   stages = length(b)
-  eeststages = bEEst === nothing ? stages : length(bEEst)
+  bEEst = bEEst === nothing ? b : bEEst
+  eeststages = length(bEEst)
   size(A, 1) == size(A, 2) == stages == eeststages || error("The size of A is not consistent with b or embedded b.")
   isfsal = iszero(c[1]) && isone(c[stages]) && A[stages, :] == b
-  isexplicit = istril(A, -1)
+  isexplicit = istril(A, -1) && iszero(c[1])
 
   RKTableau{typeof(A), typeof(b), typeof(bEEst), typeof(c),
             isfsal, isexplicit, stages, order, adaptiveorder, name}(
@@ -23,13 +26,48 @@ function RKTableau(A, c, b, order; adaptiveorder=0, bEEst=nothing, name=:RK, kwa
   )
 end
 
+const ExplicitRKTableau{AType,bType,bbType,cType,fsal,stages,order,adaptiveorder} = RKTableau{AType,bType,bbType,cType,fsal,true,stages,order,adaptiveorder}
+const ImplicitRKTableau{AType,bType,bbType,cType,fsal,stages,order,adaptiveorder} = RKTableau{AType,bType,bbType,cType,fsal,false,stages,order,adaptiveorder}
+
+###
+### Deprecation
+###
+
+Base.@deprecate ExplicitRKTableau(args...; kw...) RKTableau(args...; kw...) false
+Base.@deprecate ImplicitRKTableau(args...; kw...) RKTableau(args...; kw...) false
+
+const DEPWARN_COUNT = Ref(0)
+
+function Base.getproperty(tab::RKTableau, s::Symbol)
+  verbose = DEPWARN_COUNT[] <= 10
+  if s === :α
+    DEPWARN_COUNT[] += 1
+    verbose && @warn "tab.α is deprecated. Please use tab.b instead."
+    getfield(tab, :b)
+  elseif s === :αEEst
+    DEPWARN_COUNT[] += 1
+    verbose && @warn "tab.αEEst is deprecated. Please use tab.bEEst instead."
+    getfield(tab, :bEEst)
+  elseif s === :order
+    DEPWARN_COUNT[] += 1
+    verbose && @warn "tab.order is deprecated. Please use DiffEqBase.alg_order(tab) instead."
+    alg_order(tab)
+  elseif s === :adaptiveorder
+    DEPWARN_COUNT[] += 1
+    verbose && @warn "tab.order is deprecated. Please use DiffEqBase.alg_adaptive_order(tab) instead."
+    alg_adaptive_order(tab)
+  elseif s === :stages
+    DEPWARN_COUNT[] += 1
+    verbose && @warn "tab.stage is deprecated. Please use DiffEqBase.alg_stages(tab) instead."
+    alg_stages(tab)
+  else
+    getfield(tab, s)
+  end
+end
 
 ###
 ### Interface
 ###
-
-const ExplicitRKTableau{AType,bType,bbType,cType,fsal,stages,order,adaptiveorder} = RKTableau{AType,bType,bbType,cType,fsal,true,stages,order,adaptiveorder}
-const ImplicitRKTableau{AType,bType,bbType,cType,fsal,stages,order,adaptiveorder} = RKTableau{AType,bType,bbType,cType,fsal,false,stages,order,adaptiveorder}
 
 isexplicit(tab::ExplicitRKTableau) = true
 isexplicit(tab::ImplicitRKTableau) = false
