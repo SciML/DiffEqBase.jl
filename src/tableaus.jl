@@ -18,7 +18,10 @@ function RKTableau(A, c, b, order; adaptiveorder=0, αEEst=nothing, bEEst=αEEst
   eeststages = length(bEEst)
   size(A, 1) == size(A, 2) == stages == eeststages || error("The size of A is not consistent with b or embedded b.")
   isfsal = iszero(c[1]) && isone(c[stages]) && A[stages, :] == b
-  isexplicit = istril(A, -1) && iszero(c[1])
+  # some explicit methods don't have c[1]==0,
+  # e.g. Runge Kutta Oliver methods
+  # https://www.sciencedirect.com/science/article/abs/pii/S0096300319301511
+  isexplicit = istril(A, -1)
 
   RKTableau{typeof(A), typeof(b), isfsal, typeof(bEEst), typeof(c),
             isexplicit, stages, order, adaptiveorder, name}(
