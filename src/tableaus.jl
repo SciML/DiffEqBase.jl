@@ -29,12 +29,25 @@ end
 const ExplicitRKTableau{AType,bType,fsal,bbType,cType,stages,order,adaptiveorder} = RKTableau{AType,bType,fsal,bbType,cType,true,stages,order,adaptiveorder}
 const ImplicitRKTableau{AType,bType,fsal,bbType,cType,stages,order,adaptiveorder} = RKTableau{AType,bType,fsal,bbType,cType,false,stages,order,adaptiveorder}
 
+function ExplicitRKTableau(args...; kw...)
+  tab = RKTableau(args...; kw...)
+  if !isexplicit(tab)
+    error("The tableau is not explicit!")
+  end
+  return tab
+end
+
+function ImplicitRKTableau(args...; kw...)
+  tab = RKTableau(args...; kw...)
+  if isexplicit(tab)
+    error("The tableau is not implicit!")
+  end
+  return tab
+end
+
 ###
 ### Deprecation
 ###
-
-Base.@deprecate ExplicitRKTableau(args...; kw...) RKTableau(args...; kw...) false
-Base.@deprecate ImplicitRKTableau(args...; kw...) RKTableau(args...; kw...) false
 
 const DEPWARN_COUNT = Ref(0)
 
