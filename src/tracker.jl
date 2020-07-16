@@ -3,6 +3,12 @@ value(x::Type{Tracker.TrackedArray{T,N,A}}) where {T,N,A} = Array{T,N}
 value(x::Tracker.TrackedReal)  = x.data
 value(x::Tracker.TrackedArray) = x.data
 
+promote_u0(u0::Tracker.TrackedArray,p::Tracker.TrackedArray,t0) = u0
+promote_u0(u0::AbstractArray{<:Tracker.TrackedReal},p::AbstractArray{<:Tracker.TrackedReal},t0) = u0
+promote_u0(u0,p::Tracker.TrackedArray,t0) = p./p .* u0
+promote_u0(u0,p::AbstractArray{<:Tracker.TrackedReal},t0) = eltype(p).(u0)
+
+
 @inline fastpow(x::Tracker.TrackedReal, y::Tracker.TrackedReal) = x^y
 @inline Base.any(f::Function,x::Tracker.TrackedArray) = any(f,Tracker.data(x))
 
