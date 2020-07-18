@@ -2,8 +2,10 @@ value(x::ReverseDiff.TrackedReal)  = x.value
 value(x::ReverseDiff.TrackedArray) = x.value
 
 promote_u0(u0::ReverseDiff.TrackedArray,p::ReverseDiff.TrackedArray,t0) = u0
+promote_u0(u0::AbstractArray{<:ReverseDiff.TrackedReal},p::ReverseDiff.TrackedArray,t0) = u0
+promote_u0(u0::ReverseDiff.TrackedArray,p::AbstractArray{<:ReverseDiff.TrackedReal},t0) = u0
 promote_u0(u0::AbstractArray{<:ReverseDiff.TrackedReal},p::AbstractArray{<:ReverseDiff.TrackedReal},t0) = u0
-promote_u0(u0,p::ReverseDiff.TrackedArray,t0) = p./p .* u0
+promote_u0(u0,p::ReverseDiff.TrackedArray,t0) = ReverseDiff.track(u0)
 promote_u0(u0,p::AbstractArray{<:ReverseDiff.TrackedReal},t0) = eltype(p).(u0)
 
 # Support adaptive with non-tracked time

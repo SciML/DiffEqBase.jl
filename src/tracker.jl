@@ -4,8 +4,10 @@ value(x::Tracker.TrackedReal)  = x.data
 value(x::Tracker.TrackedArray) = x.data
 
 promote_u0(u0::Tracker.TrackedArray,p::Tracker.TrackedArray,t0) = u0
+promote_u0(u0::AbstractArray{<:Tracker.TrackedReal},p::Tracker.TrackedArray,t0) = u0
+promote_u0(u0::Tracker.TrackedArray,p::AbstractArray{<:Tracker.TrackedReal},t0) = u0
 promote_u0(u0::AbstractArray{<:Tracker.TrackedReal},p::AbstractArray{<:Tracker.TrackedReal},t0) = u0
-promote_u0(u0,p::Tracker.TrackedArray,t0) = p./p .* u0
+promote_u0(u0,p::Tracker.TrackedArray,t0) = Tracker.track(u0)
 promote_u0(u0,p::AbstractArray{<:Tracker.TrackedReal},t0) = eltype(p).(u0)
 
 
