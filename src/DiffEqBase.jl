@@ -620,4 +620,6 @@ export EnsembleThreads, EnsembleDistributed, EnsembleSplitThreads, EnsembleSeria
 
 export EnsembleAnalysis
 
+export SensitivityADPassThrough
+
 end # module
