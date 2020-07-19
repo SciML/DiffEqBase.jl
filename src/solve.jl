@@ -244,7 +244,7 @@ function __solve(prob::DEProblem,args...;default_set=false,second_time=false,kwa
       Please specify an algorithm (e.g., `solve(prob, Tsit5())` for an ODE)
       or import DifferentialEquations directly.
 
-      You can find the list of available solvers at https://docs.sciml.ai/stable/solvers/ode_solve/
+      You can find the list of available solvers at https://diffeq.sciml.ai/stable/solvers/ode_solve/
       and its associated pages.
       """
     )
