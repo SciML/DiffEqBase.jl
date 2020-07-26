@@ -75,6 +75,10 @@ function __solve(prob::AbstractEnsembleProblem,
     __solve(prob,alg,ensemblealg;trajectories=trajectories,kwargs...)
 end
 
+
+@noinline function rerun_warn()
+  @warn("output_func should return (out,rerun). See docs for updated details")
+end
 tighten_container_eltype(u::Vector{Any}) = map(identity, u)
 tighten_container_eltype(u) = u
 
@@ -129,7 +133,7 @@ function batch_func(i,prob,alg;kwargs...)
   rerun = true
   x = prob.output_func(solve(new_prob,alg;kwargs...),i)
   if !(typeof(x) <: Tuple)
-      @warn("output_func should return (out,rerun). See docs for updated details")
+      rerun_warn()
       _x = (x,false)
   else
     _x = x
@@ -141,7 +145,7 @@ function batch_func(i,prob,alg;kwargs...)
       new_prob = prob.prob_func(_prob,i,iter)
       x = prob.output_func(solve(new_prob,alg;kwargs...),i)
       if !(typeof(x) <: Tuple)
-          @warn("output_func should return (out,rerun). See docs for updated details")
+          rerun_warn()
           _x = (x,false)
       else
         _x = x
