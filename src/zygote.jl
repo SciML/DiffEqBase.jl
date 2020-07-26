@@ -57,8 +57,12 @@ ZygoteRules.@adjoint function DiffEqBase.EnsembleSolution(sim,time,converged)
     arrarr = [[p̄[ntuple(x->Colon(),Val(N-2))...,j,i] for j in 1:size(p̄)[end-1]] for i in 1:size(p̄)[end]]
     (EnsembleSolution(arrarr, 0.0, true),nothing,nothing)
   end
+  function EnsembleSolution_adjoint(p̄::EnsembleSolution)
+    (p̄,nothing,nothing)
+  end
   out,EnsembleSolution_adjoint
 end
+ZygoteRules.@adjoint ZygoteRules.literal_getproperty(sim::EnsembleSolution, ::Val{:u}) = sim.u, p̄ -> (EnsembleSolution(p̄, 0.0, true),)
 
 #=
 ChainRulesCore.frule(f::ODEFunction,u,p,t)
