@@ -183,22 +183,27 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kw
   end
 
   #batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
-
-  batch_data = Vector{Any}(undef,Threads.nthreads())
-  batch_size = length(II)÷Threads.nthreads()
+  batch_size = length(II)÷length(idxs)
 
   let
-    Threads.@threads for i in 1:Threads.nthreads()
-        if i == Threads.nthreads()
-          I_local = II[(batch_size*(i-1)+1):end]
-        else
-          I_local = II[(batch_size*(i-1)+1):(batch_size*i)]
-        end
-        batch_data[i] = solve_batch(prob,alg,EnsembleSerial(),I_local,pmap_batch_size;kwargs...)
+    batch_data = tmap(1:Threads.nthreads()) do i
+      if i == Threads.nthreads()
+        I_local = II[(batch_size*(i-1)+1):end]
+      else
+        I_local = II[(batch_size*(i-1)+1):(batch_size*i)]
+      end
+      solve_batch(prob,alg,EnsembleSerial(),I_local,pmap_batch_size;kwargs...)
     end
-    batch_data = reduce(vcat,batch_data)
   end
   tighten_container_eltype(batch_data)
+end
+
+function tmap(f,idxs)
+  batch_data = Vector{Any}(undef,length(idxs))
+  Threads.@threads for i in idxs
+      batch_data[i] = f(i)
+  end
+  reduce(vcat,batch_data)
 end
 
 function solve_batch(prob,alg,::EnsembleSplitThreads,II,pmap_batch_size;kwargs...)
