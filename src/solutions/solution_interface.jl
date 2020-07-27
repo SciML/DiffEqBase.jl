@@ -60,7 +60,9 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
                    plot_analytic=false,
                    denseplot = (sol.dense ||
                                 typeof(sol.prob) <: AbstractDiscreteProblem) &&
-                                !(typeof(sol) <: AbstractRODESolution),
+                                !(typeof(sol) <: AbstractRODESolution) &&
+                                !(hasfield(typeof(sol),:interp) && 
+                                  typeof(sol.interp) <: SensitivityInterpolation),
                    plotdensity = min(Int(1e5),sol.tslocation==0 ?
                                 (typeof(sol.prob) <: AbstractDiscreteProblem ?
                                 max(1000,100*length(sol)) :
