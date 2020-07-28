@@ -35,6 +35,18 @@ end
 return EnsembleSolution(u,elapsed_time,false)
 =#
 
+@noinline function parallel_type_warn()
+  @warn "parallel_type has been deprecated. Please refer to the docs for the new dispatch-based system."
+end
+
+@noinline function not_recognized_error()
+  @error "parallel_type value not recognized"
+end
+
+@noinline function num_monte_warn()
+  @warn "num_monte has been replaced by trajectories"
+end
+
 function __solve(prob::AbstractEnsembleProblem,
                  alg::Union{DEAlgorithm,Nothing};
                  kwargs...)
@@ -53,7 +65,7 @@ function __solve(prob::AbstractEnsembleProblem,
       elseif kwargs[:parallel_type] == :split_threads
         ensemblealg = EnsembleSplitThreads()
       else
-        @error "parallel_type value not recognized"
+        not_recognized_error()
       end
     elseif alg isa EnsembleAlgorithm
       # Assume DifferentialEquations.jl is being used, so default alg
@@ -63,14 +75,14 @@ function __solve(prob::AbstractEnsembleProblem,
       ensemblealg = EnsembleThreads()
     end
     if :num_monte ∈ keys(kwargs)
-      @warn "num_monte has been replaced by trajectories"
+      num_monte_warn()
       trajectories = kwargs[:num_monte]
     else
       @assert :trajectories ∈ keys(kwargs)
       trajectories = kwargs[:trajectories]
     end
     if :parallel_type ∈ keys(kwargs)
-      @warn "parallel_type has been deprecated. Please refer to the docs for the new dispatch-based system."
+      parallel_type_warn()
     end
     __solve(prob,alg,ensemblealg;trajectories=trajectories,kwargs...)
 end
