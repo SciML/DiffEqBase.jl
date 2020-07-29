@@ -164,13 +164,14 @@ function get_concrete_problem(prob, isadapt; kwargs...)
   tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
   u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
   u0_promote = promote_u0(u0, p, tspan[1])
+  f_promote = promote_f(prob.f, u0_promote)
   tspan_promote = promote_tspan(u0, p, tspan, prob, kwargs)
   if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
                   prob.tspan == tspan && typeof(tspan) === typeof(tspan_promote) &&
-                  p === prob.p
+                  p === prob.p && f_promote === prob.f
     return prob
   else
-    return remake(prob; u0 = u0_promote, p=p, tspan = tspan_promote)
+    return remake(prob; f = f_promote, u0 = u0_promote, p=p, tspan = tspan_promote)
   end
 end
 
@@ -190,6 +191,9 @@ function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
 
   remake(prob; u0 = u0, tspan = tspan, p=p, constant_lags = constant_lags)
 end
+
+promote_f(f,u0) = f
+promote_f(f::SplitFunction,u0) = typeof(f.cache) === typeof(u0) ? f : remake(f,cache=similar(u0))
 
 function get_concrete_tspan(prob, isadapt, kwargs, p)
   if prob.tspan isa Function
