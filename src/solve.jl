@@ -193,7 +193,7 @@ function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
 end
 
 promote_f(f,u0) = f
-promote_f(f::SplitFunction,u0) = typeof(f.cache) === typeof(u0) ? f : remake(f,cache=similar(u0))
+promote_f(f::SplitFunction,u0) = typeof(f.cache) === typeof(u0) && isinplace(f) ? f : remake(f,cache=zero(u0))
 
 function get_concrete_tspan(prob, isadapt, kwargs, p)
   if prob.tspan isa Function
