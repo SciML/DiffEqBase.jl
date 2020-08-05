@@ -12,9 +12,4 @@ common types and utility functions which are shared by other component packages
 in order to reduce the size of dependencies. This is so that the packages for the common interface do not require one another, allowing users to use the functionality of individual packages if they so please. Users interested in using this
 functionality in full should check out [DifferentialEquations.jl](https://github.com/JuliaDiffEq/DifferentialEquations.jl)
 
-The documentation for the interfaces here can be found in [DiffEqDocs.jl](https://juliadiffeq.github.io/DiffEqDocs.jl/dev/) and [DiffEqDevDocs.jl](https://juliadiffeq.github.io/DiffEqDevDocs.jl/dev/). Specific parts to note are:
-
-- [Overview](https://juliadiffeq.github.io/DiffEqDevDocs.jl/dev/contributing/ecosystem_overview/index.html)
-- [Developing a Problem](https://juliadiffeq.github.io/DiffEqDevDocs.jl/dev/contributing/defining_problems/index.html)
-- [The Common Solver Options](https://juliadiffeq.github.io/DiffEqDocs.jl/dev/basics/common_solver_opts/index.html)
-- [Performance Overloads Interface](https://juliadiffeq.github.io/DiffEqDocs.jl/dev/features/performance_overloads/index.html)
+The documentation for the interfaces here can be found in [DiffEqDocs.jl](https://diffeq.sciml.ai/dev/) and [DiffEqDevDocs.jl](https://devdocs.sciml.ai/dev). Specific parts to note are:
