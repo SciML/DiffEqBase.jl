@@ -42,12 +42,14 @@ prob_nojac = ODEProblem(f,u0,tspan)
 @test solve(prob_nojac,Rosenbrock23(autodiff=false,diff_type = Val{:central})).retcode == :Success
 @test solve(prob_nojac,Rosenbrock23(autodiff=false,diff_type = Val{:complex})).retcode == :Success
 
+#=
 prob_nojac_oop = ODEProblem{false}(f,u0,tspan)
 DiffEqBase.prob2dtmin(prob_nojac_oop)
 @test_broken solve(prob_nojac_oop,Rosenbrock23()).retcode == :Success
 @test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=false)).retcode == :Success
 @test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=false,diff_type = Val{:central})).retcode == :Success
 @test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=false,diff_type = Val{:complex})).retcode == :Success
+=#
 
 # Test auto-offload
 _A = -rand(3,3)
