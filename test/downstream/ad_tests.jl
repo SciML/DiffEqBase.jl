@@ -1,6 +1,8 @@
 using Test
 using OrdinaryDiffEq, Calculus, ForwardDiff
 
+println("AD Test 1")
+
 function f(du,u,p,t)
   du[1] = -p[1]
   du[2] = p[2]
@@ -24,6 +26,8 @@ for x in 0:0.001:5
   @test called
   @test findiff ≈ fordiff
 end
+
+println("AD Test 2")
 
 function f2(du,u,p,t)
   du[1] = -u[2]
@@ -71,6 +75,9 @@ fordiff = ForwardDiff.jacobian(test_f2,p)
 # At that value, it shouldn't be called, but a small perturbation will make it called, so finite difference is wrong!
 =#
 
+
+println("AD Test 3")
+
 for x in 1.0:0.001:2.5
   function lotka_volterra(du,u,p,t)
     x, y = u
@@ -103,6 +110,8 @@ end
 
 # Gradients and Hessians
 
+println("AD Test 4")
+
 function myobj(θ)
   f(u,p,t) = -θ[1]*u
   u0, _ = promote(10.0, θ[1])
@@ -124,6 +133,8 @@ function myobj2(θ)
   return diff'diff
 end
 
+println("AD Test 5")
+
 ForwardDiff.gradient(myobj2, [1.0])
 ForwardDiff.hessian(myobj2, [1.0])
 
@@ -137,6 +148,8 @@ function myobj3(θ)
   return diff'diff
 end
 
+println("AD Test 6")
+
 ForwardDiff.gradient(myobj3, [1.0])
 ForwardDiff.hessian(myobj3, [1.0])
 
@@ -149,6 +162,8 @@ function myobj4(θ)
   diff = sol[:,1] .- 10 .* exp.(-sol.t)
   return diff'diff
 end
+
+println("AD Test 7")
 
 ForwardDiff.gradient(myobj4, [1.0])
 ForwardDiff.hessian(myobj4, [1.0])
