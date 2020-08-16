@@ -15,25 +15,16 @@ ZygoteRules.@adjoint function ODESolution{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11
 
                 ODESolution{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11}(u,args...),ODESolutionAdjoint
 end
-
-ZygoteRules.@adjoint function getindex(sol::DESolution, i)
-  function DESolution_getindex_adjoint(Δ)
-    Δ′ = Union{Nothing, eltype(sol.u)}[nothing for x in sol.u]
-    Δ′[i] = Δ
-    (Δ′,nothing)
-  end
-  sol[i],DESolution_getindex_adjoint
-end
-
-ZygoteRules.@adjoint function getindex(sol::DESolution, i, j...)
-  function DESolution_getindex_adjoint(Δ)
-    Δ′ = zero(sol)
-    Δ′[i,j...] = Δ
-    (Δ′, map(_ -> nothing, i)...)
-  end
-  sol[i,j...],DESolution_getindex_adjoint
-end
 =#
+
+ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::DESolution, ::Val{:u})
+  function solu_adjoint(Δ)
+        zerou = zero(sol.prob.u0)
+        _du = @. ifelse(du == nothing,(zerou,),du)
+        (DiffEqBase.build_solution(sol.prob,sol.alg,sol.t,_du),)
+  end
+  sol.u,solu_adjoint
+end
 
 ZygoteRules.@adjoint function (f::ODEFunction)(u,p,t)
   if f.vjp === nothing
