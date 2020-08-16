@@ -20,8 +20,8 @@ end
 ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::DESolution, ::Val{:u})
   function solu_adjoint(Δ)
         zerou = zero(sol.prob.u0)
-        _du = @. ifelse(du == nothing,(zerou,),du)
-        (DiffEqBase.build_solution(sol.prob,sol.alg,sol.t,_du),)
+        _Δ = @. ifelse(Δ == nothing,(zerou,),Δ)
+        (DiffEqBase.build_solution(sol.prob,sol.alg,sol.t,_Δ),)
   end
   sol.u,solu_adjoint
 end
