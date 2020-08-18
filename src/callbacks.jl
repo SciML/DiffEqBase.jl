@@ -585,7 +585,7 @@ end
 # rough implementation, needs multiple type handling
 # always ensures that if r = bisection(f, (x0, x1))
 # then either f(nextfloat(r)) == 0 or f(nextfloat(r)) * f(r) < 0
-function bisection(f, tup, tdir; maxiters=100)
+function bisection(f, tup, tdir; maxiters=1000)
   x0, x1 = tup
   fx0x1 = f(x0) * f(x1)
   fzero = zero(fx0x1)
@@ -607,7 +607,7 @@ function bisection(f, tup, tdir; maxiters=100)
         iter += 1
         iter == maxiters && error("Maxiters exceeded in bisection. Please report the error in DiffEqBase")
         mid = (left + right) / 2
-        (left === mid || right === mid) && return left
+        (left == mid || right == mid) && return left
         if iszero(f(mid)) && !iszero(f(prevfloat_tdir(mid)))
           return prevfloat_tdir(mid)
         end
@@ -618,8 +618,8 @@ function bisection(f, tup, tdir; maxiters=100)
         end
       end
     end
-    (left === mid || right === mid) && return left
-    if sign(y) === sign(f(left))
+    (left == mid || right == mid) && return left
+    if sign(y) == sign(f(left))
       left = mid
     else
       right = mid
