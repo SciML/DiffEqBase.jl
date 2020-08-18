@@ -365,6 +365,14 @@ function get_condition(integrator::DEIntegrator, callback, abst)
     else
       tmp = @view integrator.u[callback.idxs]
     end
+  elseif abst == integrator.tprev
+    if callback.idxs === nothing
+      tmp = integrator.uprev
+    elseif callback.idxs isa Number
+      tmp = integrator.uprev[callback.idxs]
+    else
+      tmp = @view integrator.uprev[callback.idxs]
+    end
   else
     if ismutable
       if callback.idxs === nothing
