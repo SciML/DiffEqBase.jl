@@ -365,6 +365,14 @@ function get_condition(integrator::DEIntegrator, callback, abst)
     else
       tmp = @view integrator.u[callback.idxs]
     end
+  elseif abst == integrator.tprev
+    if callback.idxs === nothing
+      tmp = integrator.uprev
+    elseif callback.idxs isa Number
+      tmp = integrator.uprev[callback.idxs]
+    else
+      tmp = @view integrator.uprev[callback.idxs]
+    end
   else
     if ismutable
       if callback.idxs === nothing
@@ -502,6 +510,7 @@ end
 end
 
 @inline function determine_event_occurance(integrator,callback::ContinuousCallback,counter)
+  println("[*] starting event detection routine")
   event_occurred = false
   if callback.interp_points!=0
     addsteps!(integrator)
@@ -509,6 +518,7 @@ end
   ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
   interp_index = 0
   # Check if the event occured
+
   if callback.idxs === nothing
     previous_condition = callback.condition(integrator.uprev,integrator.tprev,integrator)
   else
@@ -529,7 +539,7 @@ end
 
     # Only due this if the discontinuity did not move it far away from an event
     # Since near even we use direction instead of location to reset
-
+    println("[*] repeat event case detected, adjusting previous sign")
     if callback.interp_points==0
       addsteps!(integrator)
     end
@@ -553,6 +563,8 @@ end
   next_condition = get_condition(integrator, callback, abst)
   next_sign = sign(next_condition)
 
+  println("[*] previous condition = $(previous_condition) at t = $(integrator.tprev) i.e sign = $(prev_sign)")
+  println("[*] next condition = $(next_condition) at t = $(abst) i.e sign = $(next_sign)")
   if ((prev_sign < 0 && callback.affect! !== nothing) || (prev_sign > 0 && callback.affect_neg! !== nothing)) && prev_sign*next_sign<=0
     event_occurred = true
     interp_index = callback.interp_points
@@ -627,6 +639,7 @@ end
 function find_callback_time(integrator,callback::ContinuousCallback,counter)
   event_occurred,interp_index,ts,prev_sign,prev_sign_index,event_idx = determine_event_occurance(integrator,callback,counter)
   if event_occurred
+    println("[*] event has occured, starting routine to find callback time")
     if callback.condition === nothing
       new_t = zero(typeof(integrator.t))
     else
@@ -640,11 +653,14 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
       if callback.rootfind && !isdiscrete(integrator.alg)
         zero_func(abst) = get_condition(integrator, callback, abst)
         if zero_func(top_t) == 0
+          println("[*] callback detected at $(Θ) at the top of the interval")
           Θ = top_t
         else
           if integrator.event_last_time == counter &&
             abs(zero_func(bottom_t)) <= 100abs(integrator.last_event_error) &&
             prev_sign_index == 1
+
+            println("[*] repeat event correction...")
 
             # Determined that there is an event by derivative
             # But floating point error may make the end point negative
@@ -660,7 +676,12 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
+          println("[*] finding root in interval $(bottom_t), $top_t")
+          println("[*] func(botton_t) = $(zero_func(bottom_t))")
+          println("[*] func(top_t) = $(zero_func(top_t))")
+          println("[*] multiplication =  $(zero_func(top_t) * zero_func(bottom_t))")
           Θ = bisection(zero_func, (bottom_t, top_t), integrator.tdir)
+          println("[*] callback detected at $(Θ)")
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
         end
         #Θ = prevfloat(...)
