@@ -37,7 +37,6 @@ end
 
 if !is_APPVEYOR && GROUP == "Downstream"
     activate_downstream_env()
-
     @time @safetestset "Unitful" begin include("downstream/unitful.jl") end
     @time @safetestset "Null Parameters" begin include("downstream/null_params_test.jl") end
     @time @safetestset "Ensemble Simulations" begin include("downstream/ensemble.jl") end
@@ -49,6 +48,7 @@ if !is_APPVEYOR && GROUP == "Downstream"
     @time @safetestset "LabelledArrays Tests" begin include("downstream/labelledarrays.jl") end
     @time @safetestset "ODE Event Tests" begin include("downstream/ode_event_tests.jl") end
     @time @safetestset "Event Detection Tests" begin include("downstream/event_detection_tests.jl") end
+    @time @safetestset "Callback BigFloats" begin include("downstream/bigfloat_events.jl")
     @time @safetestset "PSOS and Energy Conservation Event Detection" begin include("downstream/psos_and_energy_conservation.jl") end
     @time @safetestset "DE stats" begin include("downstream/destats_tests.jl") end
     @time @safetestset "DEDataArray" begin include("downstream/data_array_regression_tests.jl") end
@@ -58,7 +58,6 @@ end
 
 if !is_APPVEYOR && GROUP == "GPU"
     activate_downstream_env()
-
     @time @safetestset "Simple GPU" begin include("gpu/simple_gpu.jl") end
 end
 
