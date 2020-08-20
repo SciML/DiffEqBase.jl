@@ -5,6 +5,7 @@ ZygoteRules.@adjoint function ODESolution(u,args...)
   end
   ODESolution(u,args...), ODESolutionAdjoint
 end
+=#
 
 ZygoteRules.@adjoint function ODESolution{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11
                 }(u,args...) where {T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11}
@@ -15,7 +16,6 @@ ZygoteRules.@adjoint function ODESolution{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11
 
                 ODESolution{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11}(u,args...),ODESolutionAdjoint
 end
-=#
 
 ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::DESolution, ::Val{:u})
   function solu_adjoint(Δ)
