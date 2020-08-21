@@ -72,25 +72,10 @@ function solve_call(_prob,args...;merge_callbacks = true, kwargs...)
     kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
   end
 
-  T = Core.Compiler.return_type(__solve,Tuple{typeof(_prob),map(typeof, args)...})
-
-  progress = get(kwargs, :progress, false)
-  if progress
-    logger = default_logger(Logging.current_logger())
-    x = maybe_with_logger(logger) do
-      if hasfield(typeof(_prob),:f) && hasfield(typeof(_prob.f),:f) && typeof(_prob.f.f) <: EvalFunc
-        Base.invokelatest(__solve,_prob,args...; kwargs...)#::T
-      else
-        __solve(_prob,args...;kwargs...)#::T
-      end
-    end
-    return x#::T
+  if hasfield(typeof(_prob),:f) && hasfield(typeof(_prob.f),:f) && typeof(_prob.f.f) <: EvalFunc
+    Base.invokelatest(__solve,_prob,args...; kwargs...)#::T
   else
-    if hasfield(typeof(_prob),:f) && hasfield(typeof(_prob.f),:f) && typeof(_prob.f.f) <: EvalFunc
-      Base.invokelatest(__solve,_prob,args...; kwargs...)#::T
-    else
-      __solve(_prob,args...;kwargs...)#::T
-    end
+    __solve(_prob,args...;kwargs...)#::T
   end
 end
 

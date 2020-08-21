@@ -7,8 +7,9 @@ end
 u0 = [1.0;0.0;0.0]
 tspan = (0.0,1.0)
 prob = ODEProblem(lorenz,u0,tspan)
-sol = solve(prob,Tsit5())
-@test_broken @inferred solve(prob,Tsit5())
+sol = solve(prob,Tsit5(),save_idxs=1)
+@inferred solve(prob,Tsit5())
+@inferred solve(prob,Tsit5(),save_idxs=1)
 
 function f(du,u,p,t)
   du[1] = p.a
@@ -43,7 +44,7 @@ function solve_ode(f::F, p::P) where {F,P}
 
   return sol
 end
-@test_broken @inferred solve_ode(f, (a = 1, b = 1))
+@inferred solve_ode(f, (a = 1, b = 1))
 
 using StochasticDiffEq, Test
 u0=1/2
@@ -53,4 +54,5 @@ dt = 1//2^(4)
 tspan = (0.0,1.0)
 prob = SDEProblem(ff,gg,u0,(0.0,1.0))
 sol = solve(prob,EM(),dt=dt)
-@test_broken @inferred solve(prob,EM(),dt=dt)
+@inferred solve(prob,EM(),dt=dt)
+@inferred solve(prob,EM(),dt=dt,save_idxs=1)
