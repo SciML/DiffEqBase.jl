@@ -23,8 +23,6 @@ diffeqbc(x) = x
     @inline combine_axes(A, B) = broadcast_shape(broadcast_axes(A), broadcast_axes(B)) # Julia 1.0 compatible
 end
 
-@inline check_broadcast_axes(shp, A::Union{Number, Array, Broadcasted}) = check_broadcast_shape(shp, axes(A))
-
 @noinline throwfastbc(axesA, axesB) = throw(DimensionMismatch("DiffEq's fast broadcast cannot broadcast $axesA with $axesB"))
 @inline preprocess(f::typeof(diffeqbc), dest, bc::Broadcasted{Style}) where {Style} = Broadcasted{Style}(bc.f, preprocess_args(f, dest, bc.args), bc.axes)
 @inline function preprocess(f::typeof(diffeqbc), dest, x)
