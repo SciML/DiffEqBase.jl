@@ -169,9 +169,17 @@ end
 
 function solve_batch(prob,alg,ensemblealg::EnsembleDistributed,II,pmap_batch_size;kwargs...)
   wp=CachingPool(workers())
+
+  # Fix the return type of pmap
+  function f()
+    batch_func(1,prob,alg;kwargs...)
+  end
+  T = Core.Compiler.return_type(f,Tuple{})
+
   batch_data = pmap(wp,II,batch_size=pmap_batch_size) do i
     batch_func(i,prob,alg;kwargs...)
-  end
+  end::Vector{T}
+  
   tighten_container_eltype(batch_data)
 end
 
@@ -194,7 +202,7 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kw
     probs = prob.prob
   end
 
-  #batch_data = Vector{Core.Compiler.return_type(multithreaded_batch,Tuple{typeof(first(II))})}(undef,length(II))
+  #
   batch_size = length(II)÷Threads.nthreads()
 
   batch_data = tmap(1:Threads.nthreads()) do i
@@ -209,7 +217,7 @@ function solve_batch(prob,alg,ensemblealg::EnsembleThreads,II,pmap_batch_size;kw
 end
 
 function tmap(f,args...)
-  batch_data = Vector{Any}(undef,length(args[1]))
+  batch_data = Vector{Core.Compiler.return_type(f,Tuple{typeof.(getindex.(args,1))...})}(undef,length(args[1]))
   Threads.@threads for i in 1:length(args[1])
       batch_data[i] = f(getindex.(args,i)...)
   end

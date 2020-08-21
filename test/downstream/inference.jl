@@ -18,7 +18,7 @@ end
 
 const alg = Tsit5()
 
-function solve_ode(f::F, p::P) where {F,P}
+function solve_ode(f::F, p::P, ensemblealg; kwargs...) where {F,P}
 
   tspan = (0., 1.0)
   Δt = tspan[2] - tspan[1]
@@ -38,13 +38,19 @@ function solve_ode(f::F, p::P) where {F,P}
   odes = EnsembleProblem(prob, prob_func = prob_func)
 
   sol = OrdinaryDiffEq.solve(
-    odes, OrdinaryDiffEq.Tsit5(), OrdinaryDiffEq.EnsembleThreads(),
-    trajectories = nodes - 1, saveat = -dt
+    odes, OrdinaryDiffEq.Tsit5(), ensemblealg,
+    trajectories = nodes - 1, saveat = -dt;
+    kwargs...
   )
 
   return sol
 end
-@inferred solve_ode(f, (a = 1, b = 1))
+@inferred solve_ode(f, (a = 1, b = 1), EnsembleSerial())
+@inferred solve_ode(f, (a = 1, b = 1), EnsembleThreads())
+@inferred solve_ode(f, (a = 1, b = 1), EnsembleDistributed())
+@inferred solve_ode(f, (a = 1, b = 1), EnsembleSerial(),save_idxs = 1)
+@inferred solve_ode(f, (a = 1, b = 1), EnsembleThreads(),save_idxs = 1)
+@inferred solve_ode(f, (a = 1, b = 1), EnsembleDistributed(),save_idxs = 1)
 
 using StochasticDiffEq, Test
 u0=1/2
