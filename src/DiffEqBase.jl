@@ -5,7 +5,7 @@ using RecipesBase, RecursiveArrayTools,
       IterativeSolvers, RecursiveFactorization, Distributed, ArrayInterface,
       DataStructures
 
-import Logging, LoggingExtras, TerminalLoggers, ConsoleProgressMonitor, ProgressLogging
+import Logging
 
 import ZygoteRules, ChainRulesCore, LabelledArrays
 
