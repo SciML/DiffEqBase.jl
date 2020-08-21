@@ -48,9 +48,11 @@ end
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleSerial())
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleThreads())
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleDistributed())
+@inferred solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads())
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleSerial(),save_idxs = 1)
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleThreads(),save_idxs = 1)
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleDistributed(),save_idxs = 1)
+@inferred solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads(),save_idxs = 1)
 
 using StochasticDiffEq, Test
 u0=1/2
