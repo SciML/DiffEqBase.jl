@@ -49,4 +49,4 @@ x = ones(10); y = similar(x)
 du = rand(4, 2)
 u1 = rand(4)
 u2 = rand(1, 2)
-@test_throws DimensionMismatch @.. du = u1 * u2 
+@test_throws DimensionMismatch @.. du = u1 * u2
