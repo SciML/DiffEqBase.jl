@@ -17,11 +17,20 @@ ZygoteRules.@adjoint function ODESolution{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11
                 ODESolution{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11}(u,args...),ODESolutionAdjoint
 end
 
-ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::DESolution, ::Val{:u})
+ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::AbstractTimeseriesSolution, ::Val{:u})
   function solu_adjoint(Δ)
         zerou = zero(sol.prob.u0)
         _Δ = @. ifelse(Δ == nothing,(zerou,),Δ)
         (DiffEqBase.build_solution(sol.prob,sol.alg,sol.t,_Δ),)
+  end
+  sol.u,solu_adjoint
+end
+
+ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::AbstractNoTimeSolution, ::Val{:u})
+  function solu_adjoint(Δ)
+        zerou = zero(sol.prob.u0)
+        _Δ = @. ifelse(Δ == nothing,(zerou,),Δ)
+        (DiffEqBase.build_solution(sol.prob,sol.alg,_Δ,sol.resid),)
   end
   sol.u,solu_adjoint
 end
