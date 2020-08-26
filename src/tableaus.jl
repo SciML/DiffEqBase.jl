@@ -1,5 +1,5 @@
 """
-  $(TYPEDEF)
+$(TYPEDEF)
 
 Holds a tableau which defines a Runge-Kutta method.
 """
