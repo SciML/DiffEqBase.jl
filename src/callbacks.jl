@@ -658,7 +658,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             # But floating point error may make the end point negative
 
             sign_top = sign(zero_func(top_t))
-            diff_t = integrator.tdir*2eps(typeof(bottom_t))
+            diff_t = integrator.tdir*2eps(bottom_t)
             bottom_t += diff_t
             iter = 1
             while sign(zero_func(bottom_t)) == sign_top && iter < 12
@@ -725,7 +725,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               # But floating point error may make the end point negative
 
               sign_top = sign(zero_func(top_t))
-              diff_t = integrator.tdir * 2eps(typeof(bottom_t))
+              diff_t = integrator.tdir * 2eps(bottom_t)
               bottom_t += diff_t
               iter = 1
               while sign(zero_func(bottom_t)) == sign_top && iter < 12
