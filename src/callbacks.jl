@@ -661,7 +661,8 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             diff_t = integrator.tdir*2eps(bottom_t)
             bottom_t += diff_t
             iter = 1
-            while sign(zero_func(bottom_t)) == sign_top && iter < 12
+            # This check should match the same check in bisection
+            while sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && iter < 12
               diff_t *= 5
               bottom_t = integrator.tprev + diff_t
               iter += 1
@@ -728,7 +729,8 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               diff_t = integrator.tdir * 2eps(bottom_t)
               bottom_t += diff_t
               iter = 1
-              while sign(zero_func(bottom_t)) == sign_top && iter < 12
+              # This check should match the same check in bisection
+              while sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && iter < 12
                 diff_t *= 5
                 bottom_t = integrator.tprev + diff_t
                 iter += 1
