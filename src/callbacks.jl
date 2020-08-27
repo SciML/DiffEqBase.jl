@@ -658,10 +658,11 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             # But floating point error may make the end point negative
 
             sign_top = sign(zero_func(top_t))
-            diff_t = integrator.tdir*2eps(typeof(bottom_t))
+            diff_t = integrator.tdir*2eps(bottom_t)
             bottom_t += diff_t
             iter = 1
-            while sign(zero_func(bottom_t)) == sign_top && iter < 12
+            # This check should match the same check in bisection
+            while sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && iter < 12
               diff_t *= 5
               bottom_t = integrator.tprev + diff_t
               iter += 1
@@ -717,7 +718,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
             Θ = top_t
           else
             if integrator.event_last_time == counter &&
-              integrator.vector_event_last_time == event_idx &&
+              integrator.vector_event_last_time == idx &&
               abs(zero_func(bottom_t)) <= 100abs(integrator.last_event_error) &&
               prev_sign_index == 1
 
@@ -725,10 +726,11 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               # But floating point error may make the end point negative
 
               sign_top = sign(zero_func(top_t))
-              diff_t = integrator.tdir * 2eps(typeof(bottom_t))
+              diff_t = integrator.tdir * 2eps(bottom_t)
               bottom_t += diff_t
               iter = 1
-              while sign(zero_func(bottom_t)) == sign_top && iter < 12
+              # This check should match the same check in bisection
+              while sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && iter < 12
                 diff_t *= 5
                 bottom_t = integrator.tprev + diff_t
                 iter += 1
