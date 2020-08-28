@@ -585,14 +585,14 @@ end
 # rough implementation, needs multiple type handling
 # always ensures that if r = bisection(f, (x0, x1))
 # then either f(nextfloat(r)) == 0 or f(nextfloat(r)) * f(r) < 0
-function bisection(f, tup, tdir; maxiters=1000)
+function bisection(f, tup, tdir, prevfloat_tdir=isone(tdir) ? prevfloat : nextfloat
+                   ; maxiters=1000)
   x0, x1 = tup
   fx0x1 = f(x0) * f(x1)
   fzero = zero(fx0x1)
   (fx0x1 >= fzero) && error("Non bracketing interval passed in bisection method. Please report the error in DiffEqBase.")
   left = x0
   right = x1
-  prevfloat_tdir = isone(tdir) ? prevfloat : nextfloat
   iter = 0
   while true
     iter += 1
@@ -890,5 +890,5 @@ function CallbackCache(max_len,::Type{conditionType},::Type{signType}) where {co
     previous_condition = zeros(conditionType, max_len)
     next_sign = zeros(signType, max_len)
     prev_sign = zeros(signType, max_len)
-    CallbackCache{Array{conditionType},Array{signType}}(tmp_condition,previous_condition,next_sign,prev_sign)
+    CallbackCache{typeof(tmp_condition),typeof(next_sign)}(tmp_condition,previous_condition,next_sign,prev_sign)
 end
