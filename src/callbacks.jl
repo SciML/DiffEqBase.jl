@@ -590,7 +590,10 @@ function bisection(f, tup, tdir ; maxiters=1000)
   fx0x1 = f(x0) * f(x1)
   fzero = zero(fx0x1)
   (fx0x1 >= fzero) && error("Non bracketing interval passed in bisection method. Please report the error in DiffEqBase.")
-  prevfloat_tdir(t,forward=isone(tdir)) = forward ? prevfloat(t) : nextfloat(t)
+  # The comment line below does not allow for inference, yet the second version does.
+  forward=isone(tdir)
+  #prevfloat_tdir = forward ? prevfloat : nextfloat
+  prevfloat_tdir(t) = forward ? prevfloat(t) : nextfloat(t)
   left = x0
   right = x1
   iter = 0
