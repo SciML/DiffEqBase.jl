@@ -585,12 +585,12 @@ end
 # rough implementation, needs multiple type handling
 # always ensures that if r = bisection(f, (x0, x1))
 # then either f(nextfloat(r)) == 0 or f(nextfloat(r)) * f(r) < 0
-function bisection(f, tup, tdir, prevfloat_tdir=isone(tdir) ? prevfloat : nextfloat
-                   ; maxiters=1000)
+function bisection(f, tup, tdir ; maxiters=1000)
   x0, x1 = tup
   fx0x1 = f(x0) * f(x1)
   fzero = zero(fx0x1)
   (fx0x1 >= fzero) && error("Non bracketing interval passed in bisection method. Please report the error in DiffEqBase.")
+  prevfloat_tdir(t,forward=isone(tdir)) = forward ? prevfloat(t) : nextfloat(t)
   left = x0
   right = x1
   iter = 0
