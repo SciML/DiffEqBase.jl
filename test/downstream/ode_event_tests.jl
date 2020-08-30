@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, RecursiveArrayTools, Test, StaticArrays, DiffEqCallbacks
+using OrdinaryDiffEq, RecursiveArrayTools, Test, StaticArrays, DiffEqCallbacks, ForwardDiff
 
 
 f = function (u,p,t)
@@ -287,3 +287,31 @@ integrator = init(
 )
 
 sol = solve!(integrator)
+
+
+### https://github.com/SciML/DifferentialEquations.jl/issues/662
+
+function prob1!(du, u, p, s)
+  du[1] = u[2]
+  du[2] = zero(eltype(u))
+end
+
+function cb1test(out, u, x)
+  out[1] = u[1] - x
+end
+
+function cb1action!(i)
+  i.u[2] = -i.u[2]
+end
+
+function ode1(x)
+  prob = ODEProblem{true}(prob1!, [zero(typeof(x)), one(typeof(x))], (0.0, 1.0))
+  cb = VectorContinuousCallback(
+    (out, u, t, i) -> cb1test(out, u, x),
+    (i, ndx) -> cb1action!(i),
+    1; rootfind=true)
+  soln = solve(prob, Tsit5(); callback=cb)
+  soln[end][1]
+end
+
+@test ForwardDiff.derivative(ode1, 0.42) ≈ 2
