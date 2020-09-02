@@ -43,6 +43,7 @@ if !is_APPVEYOR && GROUP == "Downstream"
     @time @safetestset "Ensemble Analysis" begin include("downstream/ensemble_analysis.jl") end
     @time @safetestset "Ensemble Thread Safety" begin include("downstream/ensemble_thread_safety.jl") end
     @time @safetestset "Inference Tests" begin include("downstream/inference.jl") end
+    @time @safetestset "Table Inference Tests" begin include("downstream/tables.jl") end
     @time @safetestset "Default linsolve with structure" begin include("downstream/default_linsolve_structure.jl") end
     @time @safetestset "Callback Merging Tests" begin include("downstream/callback_merging.jl") end
     @time @safetestset "LabelledArrays Tests" begin include("downstream/labelledarrays.jl") end
