@@ -1,4 +1,4 @@
-Tables.isrowtable(::Type{T}) where {T} = true
+Tables.isrowtable(::Type{<:DESolution}) = true
 Tables.columns(x::DESolution) = Tables.columntable(Tables.rows(x))
 
 struct DESolutionRows{T, U}
