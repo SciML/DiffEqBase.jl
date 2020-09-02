@@ -1,7 +1,7 @@
 module DiffEqBase
 
 using RecipesBase, RecursiveArrayTools,
-      Requires, TableTraits, IteratorInterfaceExtensions, TreeViews,
+      Requires, Tables, TableTraits, IteratorInterfaceExtensions, TreeViews,
       IterativeSolvers, RecursiveFactorization, Distributed, ArrayInterface
 
 import Logging
