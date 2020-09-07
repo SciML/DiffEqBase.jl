@@ -85,11 +85,18 @@ function f(r, yp, y, p,tres)
 end
 u0 = [1.0, 0, 0]
 du0 = [-0.04, 0.04, 0.0]
+differential_vars = [true, true, false]
+
 prob_dae_resrob = DAEProblem(f,du0,u0,(0.0,100000.0))
 prob_dae_resrob = DAEProblem{true}(f,du0,u0,(0.0,100000.0))
 
 @test_broken @inferred DAEProblem(f,du0,u0,(0.0,100000.0))
 @test_broken @inferred DAEProblem{true}(f,du0,u0,(0.0,100000.0))
+
+# Ensures uniform dimensionality of u0, du0, and differential_vars
+@test_throws ArgumentError DAEProblem(f,du0,u0[1:end-1],(0.0,100000.0))
+@test_throws ArgumentError DAEProblem(f,du0,u0,(0.0,100000.0);
+                                      differential_vars=differential_vars[1:end-1])
 
 f(u,t,W) = 1.01u.+0.87u.*W
 u0 = 1.00
