@@ -344,12 +344,13 @@ function ODEFunction{iip,true}(f;
                    _colorvec = colorvec
                  end
 
-                 ODEFunction{iip,typeof(f),typeof(mass_matrix),typeof(analytic),typeof(tgrad),
-                 typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),
-                 typeof(Wfact),typeof(Wfact_t),
-                 typeof(paramjac),typeof(syms),typeof(_colorvec)}(
-                 f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
-                 paramjac,syms,_colorvec)
+                 ODEFunction{iip,
+                  typeof(f), typeof(mass_matrix), typeof(analytic), typeof(tgrad), typeof(jac),
+                  typeof(jvp), typeof(vjp), typeof(jac_prototype), typeof(sparsity), typeof(Wfact),
+                  typeof(Wfact_t), typeof(paramjac), typeof(syms), typeof(_colorvec)}(
+                    f, mass_matrix, analytic, tgrad, jac,
+                    jvp, vjp, jac_prototype, sparsity, Wfact,
+                    Wfact_t, paramjac, syms, _colorvec)
 end
 function ODEFunction{iip,false}(f;
                  mass_matrix=I,
@@ -380,11 +381,13 @@ function ODEFunction{iip,false}(f;
                    _colorvec = colorvec
                  end
 
-                 ODEFunction{iip,Any,Any,Any,Any,
-                 Any,Any,Any,Any,Any,
-                 Any,typeof(syms),typeof(_colorvec)}(
-                 f,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
-                 paramjac,syms,_colorvec)
+                 ODEFunction{iip,
+                  Any, Any, Any, Any, Any,
+                  Any, Any, Any, Any, Any,
+                  Any, Any, typeof(syms), typeof(_colorvec)}(
+                    f, mass_matrix, analytic, tgrad, jac,
+                    jvp, vjp, jac_prototype, sparsity, Wfact,
+                    Wfact_t, paramjac, syms, _colorvec)
 end
 ODEFunction{iip}(f; kwargs...) where iip = ODEFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
 ODEFunction{iip}(f::ODEFunction; kwargs...) where iip = f

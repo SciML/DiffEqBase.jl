@@ -45,11 +45,19 @@ p = [2.0]
 t = 0.0
 
 
-# ODEFunction
-odefun = ODEFunction{false}(f_op)
-odefun_ip = ODEFunction{true}(f_ip)
-expected = f_op(u, p, t)
-test_iop(expected, odefun, odefun_ip, u, p, t)
+@testset "ODEFunction with default recompile flag" begin
+    odefun = ODEFunction{false}(f_op)
+    odefun_ip = ODEFunction{true}(f_ip)
+    expected = f_op(u, p, t)
+    test_iop(expected, odefun, odefun_ip, u, p, t)
+end
+
+@testset "ODEFunction with recompile flag: $rflag" for rflag in (true, false)
+    odefun = ODEFunction{false,rflag}(f_op)
+    odefun_ip = ODEFunction{true,rflag}(f_ip)
+    expected = f_op(u, p, t)
+    test_iop(expected, odefun, odefun_ip, u, p, t)
+end
 
 # SplitFunction
 @iop_def f2(u, p, t) = u .^ 2
