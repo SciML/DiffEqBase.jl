@@ -167,3 +167,30 @@ println("AD Test 7")
 
 ForwardDiff.gradient(myobj4, [1.0])
 ForwardDiff.hessian(myobj4, [1.0])
+
+function terminate_affect!(integrator)
+    terminate!(integrator)
+end
+
+function terminate_condition(u,t,integrator)
+    min(u[1],u[2])
+end
+
+terminate_cb = ContinuousCallback(terminate_condition,terminate_affect!)
+
+function damped!(du,u,p,t)
+    #Damped harmonic oscillator
+    du[1] = u[2]
+    du[2] = -p[1]u[2] - p[2]u[1]
+end
+
+u0 = [5.,10.] #starting point
+tspan = (0.,10.) #time span
+
+function loss(p)
+    temp_prob = ODEProblem(damped!, u0, tspan, p)
+    temp_solution = solve(temp_prob, Tsit5(), p = p, callback = terminate_cb)
+    return temp_solution.t[end]
+end
+
+@test ForwardDiff.gradient(loss,[2.,5.]) ≈ [-0.025245268698610393,-0.036292733502239424]
