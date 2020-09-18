@@ -92,9 +92,16 @@ Base.size(L::AffineDiffEqOperator) = size(L.As[1])
 
 
 function (L::AffineDiffEqOperator)(u,p,t::Number)
-    tmp = sum((update_coefficients(A,u,p,t); A*u for A in L.As))
-    tmp2 = sum((typeof(B) <: Union{Number,AbstractArray} ? B : B(t) for B in L.Bs))
-    tmp + tmp2
+    update_coefficients!(L,u,p,t)
+    du = sum(A*u for A in L.As)
+    for B in L.Bs
+        if typeof(B) <: Union{Number,AbstractArray}
+            du .+= B
+        else
+            du .+= B(t)
+        end
+    end
+    du
 end
 
 function (L::AffineDiffEqOperator)(du,u,p,t::Number)
