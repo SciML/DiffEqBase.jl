@@ -1,5 +1,6 @@
 using DiffEqBase
 using Test
+using Random
 
 mutable struct TestDiffEqOperator{T} <: DiffEqBase.AbstractDiffEqLinearOperator{T}
     m::Int
