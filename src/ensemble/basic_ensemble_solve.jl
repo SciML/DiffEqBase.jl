@@ -104,12 +104,8 @@ function __solve(prob::AbstractEnsembleProblem,
   num_batches < 1 && error("trajectories ÷ batch_size cannot be less than 1, got $num_batches")
   num_batches * batch_size != trajectories && (num_batches += 1)
 
-  function batch_function(II)
-    batch_data = solve_batch(prob,alg,ensemblealg,II,pmap_batch_size;kwargs...)
-  end
-
   if num_batches == 1 && prob.reduction === DEFAULT_REDUCTION
-    elapsed_time = @elapsed u = batch_function(1:trajectories)
+    elapsed_time = @elapsed u = solve_batch(prob,alg,ensemblealg,1:trajectories,pmap_batch_size;kwargs...)
     _u = tighten_container_eltype(u)
     return EnsembleSolution(_u,elapsed_time,true)
   end
@@ -118,7 +114,8 @@ function __solve(prob::AbstractEnsembleProblem,
   i = 1
   II = (batch_size*(i-1)+1):batch_size*i
 
-  batch_data = batch_function(II)
+  batch_data = solve_batch(prob,alg,ensemblealg,II,pmap_batch_size;kwargs...)
+
   u = prob.u_init === nothing ? similar(batch_data, 0) : prob.u_init
   u,converged = prob.reduction(u,batch_data,II)
   elapsed_time = @elapsed for i in 2:num_batches
@@ -128,7 +125,7 @@ function __solve(prob::AbstractEnsembleProblem,
     else
       II = (batch_size*(i-1)+1):batch_size*i
     end
-    batch_data = batch_function(II)
+    batch_data = solve_batch(prob,alg,ensemblealg,II,pmap_batch_size;kwargs...)
     u,converged = prob.reduction(u,batch_data,II)
   end
 
