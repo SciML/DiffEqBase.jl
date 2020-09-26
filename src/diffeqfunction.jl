@@ -125,7 +125,7 @@ abstract type AbstractSDEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,S,GG,TCV} <: AbstractSDEFunction{iip}
+struct SDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,GG,S,TCV} <: AbstractSDEFunction{iip}
   f::F
   g::G
   mass_matrix::TMM
@@ -225,7 +225,7 @@ abstract type AbstractSDDEFunction{iip} <: AbstractDiffEqFunction{iip} end
 """
 $(TYPEDEF)
 """
-struct SDDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,S,GG,TCV} <: AbstractSDDEFunction{iip}
+struct SDDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,GG,S,TCV} <: AbstractSDDEFunction{iip}
   f::F
   g::G
   mass_matrix::TMM
@@ -560,8 +560,8 @@ function SDEFunction{iip,true}(f,g;
                  SDEFunction{iip,typeof(f),typeof(g),
                  typeof(mass_matrix),typeof(analytic),typeof(tgrad),
                  typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),typeof(Wfact),typeof(Wfact_t),
-                 typeof(paramjac),typeof(syms),
-                 typeof(ggprime),typeof(_colorvec)}(
+                 typeof(paramjac),typeof(ggprime),
+                 typeof(syms),typeof(_colorvec)}(
                  f,g,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
                  paramjac,ggprime,syms,_colorvec)
 end
@@ -597,7 +597,7 @@ function SDEFunction{iip,false}(f,g;
 
                  SDEFunction{iip,Any,Any,Any,Any,Any,
                  Any,Any,Any,Any,Any,
-                 Any,typeof(syms),Any,typeof(_colorvec)}(
+                 Any,Any,typeof(syms),typeof(_colorvec)}(
                  f,g,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
                  paramjac,ggprime,syms,_colorvec)
 end
@@ -921,8 +921,8 @@ function SDDEFunction{iip,true}(f,g;
   SDDEFunction{iip,typeof(f),typeof(g),
   typeof(mass_matrix),typeof(analytic),typeof(tgrad),
   typeof(jac),typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),typeof(Wfact),typeof(Wfact_t),
-  typeof(paramjac),typeof(syms),
-  typeof(ggprime),typeof(_colorvec)}(
+  typeof(paramjac),typeof(ggprime),
+  typeof(syms),typeof(_colorvec)}(
   f,g,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
   paramjac,ggprime,syms,_colorvec)
 end
@@ -959,7 +959,7 @@ function SDDEFunction{iip,false}(f,g;
 
   SDDEFunction{iip,Any,Any,Any,Any,Any,
   Any,Any,Any,Any,Any,
-  Any,typeof(syms),Any,typeof(_colorvec)}(
+  Any,Any,typeof(syms),typeof(_colorvec)}(
   f,g,mass_matrix,analytic,tgrad,jac,jvp,vjp,jac_prototype,sparsity,Wfact,Wfact_t,
   paramjac,ggprime,syms,_colorvec)
 end
