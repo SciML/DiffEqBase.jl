@@ -83,12 +83,12 @@ end
 
 OptimizationProblem(f,args...;kwargs...) = OptimizationProblem{true}(f,args...;kwargs...)
 
-struct OptimizationFunction{iip,F,G,H,HV,C,CJ,CH} <: AbstractOptimizationFunction
+struct OptimizationFunction{iip,AD,F,G,H,HV,C,CJ,CH} <: AbstractOptimizationFunction
     f::F
+    adtype::AD
     grad::G
     hess::H
     hv::HV
-    adtype::AbstractADType
     cons::C
     cons_j::CJ
     cons_h::CH
