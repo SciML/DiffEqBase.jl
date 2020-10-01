@@ -81,9 +81,9 @@ struct OptimizationProblem{isinplace,F,uType,P,B,LC,UC,K} <: AbstractOptimizatio
     end
 end
 
-OptimizationProblem(f,args...;kwargs...) = OptimizationProblem{false}(f,args...;kwargs...)
+OptimizationProblem(f,args...;kwargs...) = OptimizationProblem{true}(f,args...;kwargs...)
 
-struct OptimizationFunction{F,G,H,HV,C,CJ,CH,K} <: AbstractOptimizationFunction
+struct OptimizationFunction{iip,F,G,H,HV,C,CJ,CH} <: AbstractOptimizationFunction
     f::F
     grad::G
     hess::H
