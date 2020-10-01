@@ -62,21 +62,23 @@ QuadratureProblem(f,lb,ub,args...;kwargs...) = QuadratureProblem{isinplace(f, 3)
 """
 $(TYPEDEF)
 """
-struct OptimizationProblem{isinplace,F,uType,BType,P,K} <: AbstractOptimizationProblem{isinplace}
+struct OptimizationProblem{isinplace,F,uType,P,B,LC,UC,K} <: AbstractOptimizationProblem{isinplace}
     f::F
     u0::uType
-    lb::BType
-    ub::BType
     p::P
+    lb::B
+    ub::B
+    lcons::LC
+    ucons::UC
     kwargs::K
-
-    @add_kwonly function OptimizationProblem{iip}(f,p=NullParameters();
-                                                  u0 = nothing,
-                                                  lb = nothing,
-                                                  ub = nothing,
-                                                  kwargs...) where iip
-        new{iip,typeof(f),typeof(u0),typeof(lb),typeof(p),
-            typeof(kwargs)}(f,u0,lb,ub,p,kwargs)
+    function @add_kwonly OptimizationProblem{iip}(f, p=DiffEqBase.NullParameters();
+                                                u0=nothing,
+                                                lb = nothing, ub = nothing,
+                                                lcons = nothing, ucons = nothing,
+                                                kwargs...) where iip
+        new{iip,typeof(f), typeof(u0), typeof(p),
+            typeof(lb), typeof(lcons), typeof(ucons),
+            typeof(kwargs)}(f, u0, p, lb, ub, lcons, ucons, kwargs)
     end
 end
 
