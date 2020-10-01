@@ -93,5 +93,4 @@ struct OptimizationFunction{F,G,H,HV,C,CJ,CH,K} <: AbstractOptimizationFunction
     cons_j::CJ
     cons_h::CH
     num_cons::Int
-    kwargs::K
 end

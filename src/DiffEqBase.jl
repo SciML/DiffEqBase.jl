@@ -471,6 +471,13 @@ abstract type AbstractDiffEqFunction{iip} <: Function end
 """
 $(TYPEDEF)
 
+Base for types defining optimization functions.
+"""
+abstract type AbstractOptimizationFunction end
+
+"""
+$(TYPEDEF)
+
 Base for types which define the history of a delay differential equation.
 """
 abstract type AbstractHistoryFunction <: Function end
@@ -479,6 +486,13 @@ abstract type AbstractHistoryFunction <: Function end
 $(TYPEDEF)
 """
 abstract type AbstractReactionNetwork <: Function end
+
+"""
+$(TYPEDEF)
+
+Base type for AD choices.
+"""
+abstract type AbstractADType end
 
 include("fastpow.jl")
 include("diffeqfastbc.jl")
