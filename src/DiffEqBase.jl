@@ -600,6 +600,8 @@ export DEDataArray, DEDataVector, DEDataMatrix
 export ODEFunction, DiscreteFunction, SplitFunction, DAEFunction, DDEFunction,
        SDEFunction, SplitSDEFunction, RODEFunction, SDDEFunction, IncrementingODEFunction
 
+export OptimizationFunction
+
 export ContinuousCallback, DiscreteCallback, CallbackSet, VectorContinuousCallback
 
 export initialize!

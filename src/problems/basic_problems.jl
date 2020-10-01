@@ -71,14 +71,27 @@ struct OptimizationProblem{isinplace,F,uType,P,B,LC,UC,K} <: AbstractOptimizatio
     lcons::LC
     ucons::UC
     kwargs::K
-    function @add_kwonly OptimizationProblem{iip}(f, u0, p=DiffEqBase.NullParameters();
+    @add_kwonly function OptimizationProblem{iip}(f, u0, p=DiffEqBase.NullParameters();
                                                   lb = nothing, ub = nothing,
                                                   lcons = nothing, ucons = nothing,
                                                   kwargs...) where iip
-        new{iip,typeof(f), typeof(u0), typeof(p),
+        new{iip, typeof(f), typeof(u0), typeof(p),
             typeof(lb), typeof(lcons), typeof(ucons),
             typeof(kwargs)}(f, u0, p, lb, ub, lcons, ucons, kwargs)
     end
 end
 
 OptimizationProblem(f,args...;kwargs...) = OptimizationProblem{false}(f,args...;kwargs...)
+
+struct OptimizationFunction{F,G,H,HV,C,CJ,CH,K} <: AbstractOptimizationFunction
+    f::F
+    grad::G
+    hess::H
+    hv::HV
+    adtype::AbstractADType
+    cons::C
+    cons_j::CJ
+    cons_h::CH
+    num_cons::Int
+    kwargs::K
+end
