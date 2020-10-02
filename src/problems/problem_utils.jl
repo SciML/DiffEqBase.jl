@@ -46,6 +46,17 @@ function Base.show(io::IO, A::AbstractNonlinearProblem)
   show(io, A.u0)
 end
 
+Base.summary(prob::AbstractOptimizationProblem) = string(
+                                       TYPE_COLOR, nameof(typeof(prob)),
+                                       NO_COLOR, ". In-place: ",
+                                       TYPE_COLOR, isinplace(prob),
+                                       NO_COLOR)
+function Base.show(io::IO, A::AbstractOptimizationProblem)
+  println(io,summary(A))
+  print(io,"u0: ")
+  show(io, A.u0)
+end
+
 Base.summary(prob::AbstractQuadratureProblem) = string(
                                                        TYPE_COLOR, nameof(typeof(prob)),
                                                        NO_COLOR, ". In-place: ",

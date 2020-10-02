@@ -59,25 +59,57 @@ end
 
 QuadratureProblem(f,lb,ub,args...;kwargs...) = QuadratureProblem{isinplace(f, 3)}(f,lb,ub,args...;kwargs...)
 
+struct NoAD <: AbstractADType end
+
+struct OptimizationFunction{iip,AD,F,G,H,HV,C,CJ,CH} <: AbstractOptimizationFunction
+    f::F
+    adtype::AD
+    grad::G
+    hess::H
+    hv::HV
+    cons::C
+    cons_j::CJ
+    cons_h::CH
+    num_cons::Int
+end
+
+(f::OptimizationFunction)(args...) = f.f(args...)
+
+OptimizationFunction(args...;kwargs...) = OptimizationFunction{true}(args...;kwargs...)
+
+function OptimizationFunction{iip}(f,adtype::AbstractADType=NoAD();
+                     grad=nothing,hess=nothing,hv=nothing,
+                     cons=nothing, cons_j=nothing,cons_h=nothing,
+                     num_cons=0) where iip
+    OptimizationFunction{iip,typeof(adtype),typeof(f),typeof(grad),typeof(hess),typeof(hv),
+                         typeof(cons),typeof(cons_j),typeof(cons_h)}(
+                         f,adtype,grad,hess,hv,cons,cons_j,cons_h,num_cons)
+end
+
 """
 $(TYPEDEF)
 """
-struct OptimizationProblem{isinplace,F,uType,BType,P,K} <: AbstractOptimizationProblem{isinplace}
+struct OptimizationProblem{iip,F,uType,P,B,LC,UC,K} <: AbstractOptimizationProblem{isinplace}
     f::F
     u0::uType
-    lb::BType
-    ub::BType
     p::P
+    lb::B
+    ub::B
+    lcons::LC
+    ucons::UC
     kwargs::K
-
-    @add_kwonly function OptimizationProblem{iip}(f,p=NullParameters();
-                                                  u0 = nothing,
-                                                  lb = nothing,
-                                                  ub = nothing,
+    @add_kwonly function OptimizationProblem{iip}(f::OptimizationFunction{iip}, u0, p=DiffEqBase.NullParameters();
+                                                  lb = nothing, ub = nothing,
+                                                  lcons = nothing, ucons = nothing,
                                                   kwargs...) where iip
-        new{iip,typeof(f),typeof(u0),typeof(lb),typeof(p),
-            typeof(kwargs)}(f,u0,lb,ub,p,kwargs)
+        new{iip, typeof(f), typeof(u0), typeof(p),
+            typeof(lb), typeof(lcons), typeof(ucons),
+            typeof(kwargs)}(f, u0, p, lb, ub, lcons, ucons, kwargs)
     end
 end
 
-OptimizationProblem(f,args...;kwargs...) = OptimizationProblem{false}(f,args...;kwargs...)
+OptimizationProblem(f::OptimizationFunction,args...;kwargs...) = OptimizationProblem{isinplace(f)}(f,args...;kwargs...)
+OptimizationProblem(f,args...;kwargs...) = OptimizationProblem{true}(OptimizationFunction{true}(f),args...;kwargs...)
+
+isinplace(f::OptimizationFunction{iip}) where iip = iip
+isinplace(f::OptimizationProblem{iip}) where iip = iip
