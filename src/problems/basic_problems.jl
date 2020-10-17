@@ -70,7 +70,6 @@ struct OptimizationFunction{iip,AD,F,G,H,HV,C,CJ,CH} <: AbstractOptimizationFunc
     cons::C
     cons_j::CJ
     cons_h::CH
-    num_cons::Int
 end
 
 (f::OptimizationFunction)(args...) = f.f(args...)
@@ -79,11 +78,10 @@ OptimizationFunction(args...;kwargs...) = OptimizationFunction{true}(args...;kwa
 
 function OptimizationFunction{iip}(f,adtype::AbstractADType=NoAD();
                      grad=nothing,hess=nothing,hv=nothing,
-                     cons=nothing, cons_j=nothing,cons_h=nothing,
-                     num_cons=0) where iip
+                     cons=nothing, cons_j=nothing,cons_h=nothing) where iip
     OptimizationFunction{iip,typeof(adtype),typeof(f),typeof(grad),typeof(hess),typeof(hv),
                          typeof(cons),typeof(cons_j),typeof(cons_h)}(
-                         f,adtype,grad,hess,hv,cons,cons_j,cons_h,num_cons)
+                         f,adtype,grad,hess,hv,cons,cons_j,cons_h)
 end
 
 """
