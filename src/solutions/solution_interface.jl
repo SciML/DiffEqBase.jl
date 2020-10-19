@@ -168,7 +168,7 @@ function cleansym(sym::Symbol)
   str = String(sym)
   replace(str,"₊"=>".") # Fix MTK component syntax
 end
-issymbollike(x) = typeof(x) <: Symbol || Symbol(typeof(x)) == :Operation || Symbol(typeof(x)) == :Variable
+issymbollike(x) = typeof(x) <: Symbol || Symbol(typeof(x)) == :Operation || Symbol(typeof(x)) == :Variable || Symbol(typeof(x)) == :Num
 
 function diffeq_to_arrays(sol,plot_analytic,denseplot,plotdensity,tspan,axis_safety,vars,int_vars,tscale,strs)
   if tspan === nothing
