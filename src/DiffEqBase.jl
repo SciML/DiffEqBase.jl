@@ -618,7 +618,7 @@ export OptimizationFunction
 
 export ContinuousCallback, DiscreteCallback, CallbackSet, VectorContinuousCallback
 
-export initialize!
+export initialize!, finalize!
 
 export LinSolveFactorize, LinSolveGPUFactorize, DefaultLinSolve, DEFAULT_LINSOLVE,
        LinSolveGMRES, LinSolveCG, LinSolveBiCGStabl, LinSolveChebyshev,
