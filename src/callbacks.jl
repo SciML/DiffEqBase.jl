@@ -1,7 +1,10 @@
 # Necessary to have initialize set u_modified to false if all don't do anything
 # otherwise unnecessary save
-INITIALIZE_DEFAULT(cb,u,t,integrator) = u_modified!(integrator, false)
-FINALIZE_DEFAULT(cb,u,t,integrator) = nothing
+initialize!(cb,u,t,integrator) = u_modified!(integrator, false)
+finalize!(cb,u,t,integrator) = nothing
+
+const INITIALIZE_DEFAULT = initialize!
+const FINALIZE_DEFAULT = finalize!
 
 
 """
