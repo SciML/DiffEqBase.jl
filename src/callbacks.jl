@@ -1,12 +1,14 @@
 # Necessary to have initialize set u_modified to false if all don't do anything
 # otherwise unnecessary save
 INITIALIZE_DEFAULT(cb,u,t,integrator) = u_modified!(integrator, false)
+FINALIZE_DEFAULT(cb,u,t,integrator) = nothing
 
 
 """
 ```julia
 ContinuousCallback(condition,affect!,affect_neg!;
                    initialize = INITIALIZE_DEFAULT,
+                   finalize = FINALIZE_DEFAULT,
                    idxs = nothing,
                    rootfind=true,
                    save_positions=(true,true),
@@ -17,6 +19,7 @@ ContinuousCallback(condition,affect!,affect_neg!;
 ```julia
 function ContinuousCallback(condition,affect!;
                    initialize = INITIALIZE_DEFAULT,
+                   finalize = FINALIZE_DEFAULT,
                    idxs = nothing,
                    rootfind=true,
                    save_positions=(true,true),
@@ -64,18 +67,21 @@ Contains a single callback whose `condition` is a continuous function. The callb
   handled correctly (without error), one should set `save_positions=(true,true)`.
 - `idxs=nothing`: The components which will be interpolated into the condition. Defaults
   to `nothing` which means `u` will be all components.
-- `initialize`: This is a function (c,u,t,integrator) which can be used to initialize
+- `initialize`: This is a function `(c,u,t,integrator)` which can be used to initialize
   the state of the callback `c`. It should modify the argument `c` and the return is
   ignored.
+- `finalize`: This is a function `(c,u,t,integrator)` which can be used to finalize
+  the state of the callback `c`. It can modify the argument `c` and the return is ignored.
 - `abstol=1e-14` & `reltol=0`: These are used to specify a tolerance from zero for the rootfinder:
   if the starting condition is less than the tolerance from zero, then no root will be detected.
   This is to stop repeat events happening just after a previously rootfound event.
 """
-struct ContinuousCallback{F1,F2,F3,F4,T,T2,I,R} <: AbstractContinuousCallback
+struct ContinuousCallback{F1,F2,F3,F4,F5,T,T2,I,R} <: AbstractContinuousCallback
   condition::F1
   affect!::F2
   affect_neg!::F3
   initialize::F4
+  finalize::F5
   idxs::I
   rootfind::Bool
   interp_points::Int
@@ -84,24 +90,25 @@ struct ContinuousCallback{F1,F2,F3,F4,T,T2,I,R} <: AbstractContinuousCallback
   abstol::T
   reltol::T2
   ContinuousCallback(condition::F1,affect!::F2,affect_neg!::F3,
-                     initialize::F4,idxs::I,rootfind,
-                     interp_points,save_positions,dtrelax::R,abstol::T,reltol::T2) where {F1,F2,F3,F4,T,T2,I,R} =
-                       new{F1,F2,F3,F4,T,T2,I,R}(condition,
+                     initialize::F4,finalize::F5,idxs::I,rootfind,
+                     interp_points,save_positions,dtrelax::R,abstol::T,reltol::T2) where {F1,F2,F3,F4,F5,T,T2,I,R} =
+                       new{F1,F2,F3,F4,F5,T,T2,I,R}(condition,
                                                affect!,affect_neg!,
-                                               initialize,idxs,rootfind,interp_points,
+                                               initialize,finalize,idxs,rootfind,interp_points,
                                                BitArray(collect(save_positions)),
                                                dtrelax,abstol,reltol)
 end
 
 ContinuousCallback(condition,affect!,affect_neg!;
                    initialize = INITIALIZE_DEFAULT,
+                   finalize = FINALIZE_DEFAULT,
                    idxs = nothing,
                    rootfind=true,
                    save_positions=(true,true),
                    interp_points=10,
                    dtrelax=1,
                    abstol=10eps(),reltol=0) = ContinuousCallback(
-                              condition,affect!,affect_neg!,initialize,
+                              condition,affect!,affect_neg!,initialize,finalize,
                               idxs,
                               rootfind,interp_points,
                               save_positions,
@@ -109,6 +116,7 @@ ContinuousCallback(condition,affect!,affect_neg!;
 
 function ContinuousCallback(condition,affect!;
                    initialize = INITIALIZE_DEFAULT,
+                   finalize = FINALIZE_DEFAULT,
                    idxs = nothing,
                    rootfind=true,
                    save_positions=(true,true),
@@ -118,7 +126,7 @@ function ContinuousCallback(condition,affect!;
                    abstol=10eps(),reltol=0)
 
  ContinuousCallback(
-            condition,affect!,affect_neg!,initialize,idxs,
+            condition,affect!,affect_neg!,initialize,finalize,idxs,
             rootfind,interp_points,
             collect(save_positions),
             dtrelax,abstol,reltol)
@@ -129,6 +137,7 @@ end
 ```julia
 VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          initialize = INITIALIZE_DEFAULT,
+                         finalize = FINALIZE_DEFAULT,
                          idxs = nothing,
                          rootfind=true,
                          save_positions=(true,true),
@@ -139,6 +148,7 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
 ```julia
 VectorContinuousCallback(condition,affect!,len;
                    initialize = INITIALIZE_DEFAULT,
+                   finalize = FINALIZE_DEFAULT,
                    idxs = nothing,
                    rootfind=true,
                    save_positions=(true,true),
@@ -162,12 +172,13 @@ multiple events.
 
 Rest of the arguments have the same meaning as in [`ContinuousCallback`](@ref).
 """
-struct VectorContinuousCallback{F1,F2,F3,F4,T,T2,I,R} <: AbstractContinuousCallback
+struct VectorContinuousCallback{F1,F2,F3,F4,F5,T,T2,I,R} <: AbstractContinuousCallback
   condition::F1
   affect!::F2
   affect_neg!::F3
   len::Int
   initialize::F4
+  finalize::F5
   idxs::I
   rootfind::Bool
   interp_points::Int
@@ -176,18 +187,19 @@ struct VectorContinuousCallback{F1,F2,F3,F4,T,T2,I,R} <: AbstractContinuousCallb
   abstol::T
   reltol::T2
   VectorContinuousCallback(condition::F1,affect!::F2,affect_neg!::F3,len::Int,
-                           initialize::F4,idxs::I,rootfind,
+                           initialize::F4,finalize::F5,idxs::I,rootfind,
                            interp_points,save_positions,dtrelax::R,
-                           abstol::T,reltol::T2) where {F1,F2,F3,F4,T,T2,I,R} =
-                       new{F1,F2,F3,F4,T,T2,I,R}(condition,
+                           abstol::T,reltol::T2) where {F1,F2,F3,F4,F5,T,T2,I,R} =
+                       new{F1,F2,F3,F4,F5,T,T2,I,R}(condition,
                                                affect!,affect_neg!,len,
-                                               initialize,idxs,rootfind,interp_points,
+                                               initialize,finalize,idxs,rootfind,interp_points,
                                                BitArray(collect(save_positions)),
                                                dtrelax,abstol,reltol)
 end
 
 VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          initialize = INITIALIZE_DEFAULT,
+                         finalize = FINALIZE_DEFAULT,
                          idxs = nothing,
                          rootfind=true,
                          save_positions=(true,true),
@@ -195,7 +207,7 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          dtrelax=1,
                          abstol=10eps(),reltol=0) = VectorContinuousCallback(
                               condition,affect!,affect_neg!,len,
-                              initialize,
+                              initialize,finalize,
                               idxs,
                               rootfind,interp_points,
                               save_positions,dtrelax,
@@ -203,6 +215,7 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
 
 function VectorContinuousCallback(condition,affect!,len;
                    initialize = INITIALIZE_DEFAULT,
+                   finalize = FINALIZE_DEFAULT,
                    idxs = nothing,
                    rootfind=true,
                    save_positions=(true,true),
@@ -212,7 +225,7 @@ function VectorContinuousCallback(condition,affect!,len;
                    abstol=10eps(),reltol=0)
 
  VectorContinuousCallback(
-            condition,affect!,affect_neg!,len,initialize,idxs,
+            condition,affect!,affect_neg!,len,initialize,finalize,idxs,
             rootfind,interp_points,
             collect(save_positions),
             dtrelax,abstol,reltol)
@@ -223,6 +236,7 @@ end
 ```julia
 DiscreteCallback(condition,affect!;
                  initialize = INITIALIZE_DEFAULT,
+                 finalize = FINALIZE_DEFAULT,
                  save_positions=(true,true))
 ```
 
@@ -231,7 +245,7 @@ DiscreteCallback(condition,affect!;
 - `condition`: This is a function `condition(u,t,integrator)` for declaring when
   the callback should be used. A callback is initiated if the condition evaluates
   to `true`. See the [Integrator Interface](@ref integrator) documentation for information about `integrator`.
-- `affect!`: This is the function `affect!(integrator)` where one is allowed to
+    - `affect!`: This is the function `affect!(integrator)` where one is allowed to
   modify the current state of the integrator. For more information on what can
   be done, see the [Integrator Interface](@ref integrator) manual page.
 - `save_positions`: Boolean tuple for whether to save before and after the `affect!`.
@@ -240,22 +254,27 @@ DiscreteCallback(condition,affect!;
   `saveat=[1.0,2.0,3.0]`, this can still add a save point at `2.1` if true).
   For discontinuous changes like a modification to `u` to be
   handled correctly (without error), one should set `save_positions=(true,true)`.
-- `initialize`: This is a function (c,u,t,integrator) which can be used to initialize
+- `initialize`: This is a function `(c,u,t,integrator)` which can be used to initialize
   the state of the callback `c`. It should modify the argument `c` and the return is
   ignored.
+- `finalize`: This is a function `(c,u,t,integrator)` which can be used to finalize
+  the state of the callback `c`. It should can the argument `c` and the return is
+  ignored.
 """
-struct DiscreteCallback{F1,F2,F3} <: AbstractDiscreteCallback
+struct DiscreteCallback{F1,F2,F3,F4} <: AbstractDiscreteCallback
   condition::F1
   affect!::F2
   initialize::F3
+  finalize::F4
   save_positions::BitArray{1}
   DiscreteCallback(condition::F1,affect!::F2,
-                   initialize::F3,save_positions) where {F1,F2,F3} = new{F1,F2,F3}(condition,
-                                                                                   affect!,initialize,
+                   initialize::F3,finalize::F4,save_positions) where {F1,F2,F3,F4} = new{F1,F2,F3,F4}(condition,
+                                                                                   affect!,initialize,finalize,
                                                                                    BitArray(collect(save_positions)))
 end
 DiscreteCallback(condition,affect!;
-        initialize = INITIALIZE_DEFAULT,save_positions=(true,true)) = DiscreteCallback(condition,affect!,initialize,save_positions)
+                 initialize = INITIALIZE_DEFAULT, finalize = FINALIZE_DEFAULT,
+                 save_positions=(true,true)) = DiscreteCallback(condition,affect!,initialize,finalize,save_positions)
 
 """
 $(TYPEDEF)
@@ -325,6 +344,28 @@ function initialize!(u,t,integrator::DEIntegrator,any_modified::Bool,
   c.initialize(c,u,t,integrator)
   any_modified || integrator.u_modified
 end
+
+
+"""
+    finalize!(cb::CallbackSet,u,t,integrator::DEIntegrator)
+
+Recursively apply `finalize!` and return whether any modified u
+"""
+function finalize!(cb::CallbackSet,u,t,integrator::DEIntegrator)
+  finalize!(u,t,integrator,false,cb.continuous_callbacks...,cb.discrete_callbacks...)
+end
+finalize!(cb::CallbackSet{Tuple{},Tuple{}},u,t,integrator::DEIntegrator) = false
+function finalize!(u,t,integrator::DEIntegrator,any_modified::Bool,
+                     c::DECallback,cs::DECallback...)
+  c.finalize(c,u,t,integrator)
+  finalize!(u,t,integrator,any_modified || integrator.u_modified,cs...)
+end
+function finalize!(u,t,integrator::DEIntegrator,any_modified::Bool,
+                     c::DECallback)
+  c.finalize(c,u,t,integrator)
+  any_modified || integrator.u_modified
+end
+
 
 # Helpers
 Base.isempty(cb::CallbackSet) = isempty(cb.continuous_callbacks) && isempty(cb.discrete_callbacks)
