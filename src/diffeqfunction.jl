@@ -995,6 +995,9 @@ has_paramjac(f::AbstractDiffEqFunction) = __has_paramjac(f) && f.paramjac !== no
 has_syms(f::AbstractDiffEqFunction) = __has_syms(f) && f.syms !== nothing
 has_colorvec(f::AbstractDiffEqFunction) = __has_colorvec(f) && f.colorvec !== nothing
 
+has_Wfact(f::Function) = false
+has_Wfact_t(f::Function) = false
+
 # TODO: find an appropriate way to check `has_*`
 has_jac(f::Union{SplitFunction,SplitSDEFunction}) = has_jac(f.f1)
 has_jvp(f::Union{SplitFunction,SplitSDEFunction}) = has_jvp(f.f1)
