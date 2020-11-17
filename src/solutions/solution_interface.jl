@@ -61,7 +61,7 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
                    denseplot = (sol.dense ||
                                 typeof(sol.prob) <: AbstractDiscreteProblem) &&
                                 !(typeof(sol) <: AbstractRODESolution) &&
-                                !(hasfield(typeof(sol),:interp) && 
+                                !(hasfield(typeof(sol),:interp) &&
                                   typeof(sol.interp) <: SensitivityInterpolation),
                    plotdensity = min(Int(1e5),sol.tslocation==0 ?
                                 (typeof(sol.prob) <: AbstractDiscreteProblem ?
@@ -95,10 +95,10 @@ DEFAULT_PLOT_FUNC(x,y,z) = (x,y,z) # For v0.5.2 bug
   if getindex.(int_vars,1) == zeros(length(int_vars)) || getindex.(int_vars,2) == zeros(length(int_vars))
     xguide --> "t"
   end
-  if length(int_vars[1]) >= 3 && getindex.(int_vars,3) == zeros(length(int_vars))
+  if all(x->length(x) >= 3 && x[4] == 0,int_vars)
     yguide --> "t"
   end
-  if length(int_vars[1]) >= 4 && getindex.(int_vars,4) == zeros(length(int_vars))
+  if all(x->length(x) >= 4 && x[4] == 0,int_vars)
     zguide --> "t"
   end
 
@@ -236,12 +236,7 @@ function diffeq_to_arrays(sol,plot_analytic,denseplot,plotdensity,tspan,axis_saf
     end
   end
 
-  dims = length(int_vars[1])
-  for var in int_vars
-    @assert length(var) == dims
-  end
-  # Should check that all have the same dims!
-  plot_vecs,labels = solplot_vecs_and_labels(dims,int_vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries,strs)
+  plot_vecs,labels = solplot_vecs_and_labels(int_vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries,strs)
 end
 
 function interpret_vars(vars,sol,syms)
@@ -420,12 +415,12 @@ function u_n(timeseries::AbstractArray, n::Int,sol,plott,plot_timeseries)
   end
 end
 
-function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries,strs)
+function solplot_vecs_and_labels(vars,plot_timeseries,plott,sol,plot_analytic,plot_analytic_timeseries,strs)
   plot_vecs = []
   labels = String[]
   for x in vars
     tmp = []
-    for j in 2:dims
+    for j in 2:length(x)
       push!(tmp, u_n(plot_timeseries, x[j],sol,plott,plot_timeseries))
     end
 
@@ -440,7 +435,7 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
       end
       push!(plot_vecs[i],tmp[i])
     end
-    add_labels!(labels,x,dims,sol,strs)
+    add_labels!(labels,x,length(x),sol,strs)
   end
 
 
@@ -449,7 +444,7 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
     analytic_plot_vecs = []
     for x in vars
       tmp = []
-      for j in 2:dims
+      for j in 2:length(x)
         push!(tmp, u_n(plot_analytic_timeseries, x[j],sol,plott,plot_analytic_timeseries))
       end
       f = x[1]
@@ -458,7 +453,7 @@ function solplot_vecs_and_labels(dims,vars,plot_timeseries,plott,sol,plot_analyt
       for i in eachindex(tmp)
         push!(plot_vecs[i],tmp[i])
       end
-      add_analytic_labels!(labels,x,dims,sol,strs)
+      add_analytic_labels!(labels,x,length(x),sol,strs)
     end
   end
   plot_vecs = [hcat(x...) for x in plot_vecs]
