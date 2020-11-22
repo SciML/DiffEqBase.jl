@@ -3,7 +3,8 @@ $(SIGNATURES)
 
 Returns the number of arguments of `f` for the method which has the most arguments.
 """
-function numargs(f)
+@generated function numargs(f)
+  f = f.instance
   typ = Tuple{Any, Val{:analytic}, Vararg}
   typ2 = Tuple{Any, Type{Val{:analytic}}, Vararg} # This one is required for overloaded types
   typ3 = Tuple{Any, Val{:jac}, Vararg}

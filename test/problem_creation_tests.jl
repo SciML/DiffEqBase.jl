@@ -1,4 +1,4 @@
-using DiffEqBase, Test
+using DiffEqBase, Test, BenchmarkTools
 
 function f_lin(du,u,p,t)
   du[1] = 0.2u[1] + p[1]*u[2]
@@ -14,6 +14,7 @@ function f_nonlin(du,u,p)
 end
 p = (0.0,1.0)
 prob = NonlinearProblem(f_nonlin,ones(2),p)
+@test (@ballocated NonlinearProblem((u, p)->u, 1.0, 2.0)) == 0
 
 function f_quad(du,u,p)
   du[1] = 0.2u[1] + p[1]*u[2]
