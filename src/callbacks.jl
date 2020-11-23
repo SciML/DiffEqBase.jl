@@ -688,7 +688,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
         bottom_t = integrator.tprev
       end
       if callback.rootfind && !isdiscrete(integrator.alg)
-        zero_func(abst) = get_condition(integrator, callback, abst)
+        zero_func(abst, p=nothing) = get_condition(integrator, callback, abst)
         if zero_func(top_t) == 0
           Θ = top_t
         else
@@ -711,7 +711,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
-          Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir))
+          Θ = NonlinearSolve.solve(NonlinearSolve.NonlinearProblem(zero_func, (bottom_t, top_t), integrator.p), NonlinearSolve.Bisection()).left
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
         end
         #Θ = prevfloat(...)
@@ -755,7 +755,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
         min_t = nextfloat(top_t)
         min_event_idx = -1
         for idx in event_idx
-          zero_func(abst) = ArrayInterface.allowed_getindex(get_condition(integrator, callback, abst),idx)
+          zero_func(abst, p=nothing) = ArrayInterface.allowed_getindex(get_condition(integrator, callback, abst),idx)
           if zero_func(top_t) == 0
             Θ = top_t
           else
@@ -779,7 +779,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               end
               iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
-            Θ = bisection(zero_func, (bottom_t,top_t), isone(integrator.tdir))
+            Θ = NonlinearSolve.solve(NonlinearSolve.NonlinearProblem(zero_func, (bottom_t, top_t), integrator.p), NonlinearSolve.Bisection()).left
             if integrator.tdir * Θ < integrator.tdir * min_t
               integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
             end
