@@ -1,0 +1,27 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - master
+    tags: '*'
+  pull_request:
+
+jobs:
+  build:
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: '1.5'
+      - name: Install dependencies
+        run: julia --project=./ -e 'using Pkg; Pkg.instantiate()'
+      - name: Test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
+        run: julia --project=./ -e 'using Pkg; pkg"test";'
+      - name: Test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
+          GROUP: Downstream
+        run: julia --project=./ -e 'using Pkg; pkg"test";'
