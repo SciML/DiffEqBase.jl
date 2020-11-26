@@ -4,25 +4,32 @@ on:
   push:
     branches:
       - master
-    tags: '*'
   pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        group:
+          - Core
+          - Downstream
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@latest
         with:
-          version: '1.5'
-      - name: Install dependencies
-        run: julia --project=./ -e 'using Pkg; Pkg.instantiate()'
-      - name: Test
+          version: '1'
+      - uses: actions/cache@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
-        run: julia --project=./ -e 'using Pkg; pkg"test";'
-      - name: Test
+          cache-name: cache-artifacts
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-test-
+            ${{ runner.os }}-
+      - uses: julia-actions/julia-buildpkg@latest
+      - uses: julia-actions/julia-runtest@latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
-          GROUP: Downstream
-        run: julia --project=./ -e 'using Pkg; pkg"test";'
+          GROUP: ${{ matrix.group }}
