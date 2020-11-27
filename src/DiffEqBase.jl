@@ -20,6 +20,8 @@ using FunctionWrappers: FunctionWrapper
 
 using MuladdMacro, Parameters
 
+using NonlinearSolve
+
 # Problems
 """
 $(TYPEDEF)
