@@ -1,8 +1,7 @@
 # DiffEqBase.jl
 
 [![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/SciML/DiffEqBase.jl.svg?branch=master)](https://travis-ci.org/SciML/DiffEqBase.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/f480ahs29c85m6ne?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/diffeqbase-jl-3yke2)
+[![Build Status](https://github.com/SciML/DiffEqBase.jl/workflows/CI/badge.svg)](https://github.com/SciML/DiffEqBase.jl/actions?query=workflow%3ACI)
 [![GitlabCI](https://gitlab.com/JuliaGPU/DiffEqBase.jl/badges/master/pipeline.svg)](https://gitlab.com/JuliaGPU/DiffEqBase.jl/pipelines)
 
 DiffEqBase.jl is a component package in the DiffEq ecosystem. It holds the
