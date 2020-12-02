@@ -358,7 +358,12 @@ function add_labels!(labels,x,dims,sol,strs)
   end
   lys[end] = chop(lys[end]) # Take off the last comma
   if x[2] == 0 && dims == 3
-    tmp_lab = "$(lys...)(t)"
+    # if there are no dependence in syms, then we add "(t)"
+    if strs !== nothing && endswith(strs[x[3]], r"(.*)")
+      tmp_lab = "$(lys...)"
+    else
+      tmp_lab = "$(lys...)(t)"
+    end
   else
     if strs !== nothing && x[2] != 0
       tmp = strs[x[2]]
