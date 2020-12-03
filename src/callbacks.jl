@@ -628,7 +628,7 @@ end
 # always ensures that if r = bisection(f, (x0, x1))
 # then either f(nextfloat(r)) == 0 or f(nextfloat(r)) * f(r) < 0
 function bisection(f, tup, t_forward::Bool ; maxiters=1000)
-  NonlinearSolve.solve(NonlinearSolve.NonlinearProblem(f, tup), NonlinearSolve.Bisection()).left
+  NonlinearSolve.solve(NonlinearSolve.NonlinearProblem(f, tup), NonlinearSolve.Falsi()).left
 end
 
 ## Different definition for GPUs
