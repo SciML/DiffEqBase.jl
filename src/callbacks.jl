@@ -9,6 +9,10 @@ FINALIZE_DEFAULT(cb,u,t,integrator) = nothing
   RightRootFind = 2
 end
 
+function Base.convert(::Type{RootfindOpt}, b::Bool)
+  return b ? LeftRootFind : NoRootFind
+end
+
 """
 ```julia
 ContinuousCallback(condition,affect!,affect_neg!;
