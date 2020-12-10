@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, Plots, DiffEqCallbacks
+using OrdinaryDiffEq, DiffEqCallbacks
 
 # https://github.com/SciML/DiffEqBase.jl/issues/564 : Fixed
 gravity = 9.8
