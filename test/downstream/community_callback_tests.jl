@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, DiffEqCallbacks
+using OrdinaryDiffEq, DiffEqCallbacks, LinearAlgebra
 
 # https://github.com/SciML/DiffEqBase.jl/issues/564 : Fixed
 gravity = 9.8
@@ -59,7 +59,7 @@ affect2!(i) = (t_half_1 = i.t)
 prob = ODEProblem(model, u0, tspan, perror)
 sol = solve(
     prob,
-    Rosenbrock23(); 
+    Rosenbrock23();
     callback=CallbackSet(
         PositiveDomain(),
         DiscreteCallback(condition, affect!),
