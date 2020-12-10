@@ -8,8 +8,6 @@ import Logging
 
 import ZygoteRules, ChainRulesCore, LabelledArrays
 
-using Roots # callbacks
-
 using StaticArrays # data arrays
 
 using LinearAlgebra, Statistics, Printf
