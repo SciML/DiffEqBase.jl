@@ -3,6 +3,15 @@
 INITIALIZE_DEFAULT(cb,u,t,integrator) = u_modified!(integrator, false)
 FINALIZE_DEFAULT(cb,u,t,integrator) = nothing
 
+@enum RootfindOpt::Int8 begin
+  NoRootFind    = 0
+  LeftRootFind  = 1
+  RightRootFind = 2
+end
+
+function Base.convert(::Type{RootfindOpt}, b::Bool)
+  return b ? LeftRootFind : NoRootFind
+end
 
 """
 ```julia
@@ -10,7 +19,7 @@ ContinuousCallback(condition,affect!,affect_neg!;
                    initialize = INITIALIZE_DEFAULT,
                    finalize = FINALIZE_DEFAULT,
                    idxs = nothing,
-                   rootfind=true,
+                   rootfind=LeftRootFind,
                    save_positions=(true,true),
                    interp_points=10,
                    abstol=10eps(),reltol=0)
@@ -21,7 +30,7 @@ function ContinuousCallback(condition,affect!;
                    initialize = INITIALIZE_DEFAULT,
                    finalize = FINALIZE_DEFAULT,
                    idxs = nothing,
-                   rootfind=true,
+                   rootfind=LeftRootFind,
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
@@ -49,9 +58,11 @@ Contains a single callback whose `condition` is a continuous function. The callb
   negative). For more information on what can
   be done, see the [Integrator Interface](@ref integrator) manual page. Modifications to
   `u` are safe in this function.
-- `rootfind=true`: This is a boolean for whether to rootfind the event location. If
-  this is set to `true`, the solution will be backtracked to the point where
-  `condition==0`. Otherwise the systems and the `affect!` will occur at `t+dt`.
+- `rootfind=LeftRootFind`: This is a flag to specify the type of rootfinding to do for finding 
+  event location. If this is set to `LeftRootfind`, the solution will be backtracked to the point where
+  `condition==0` and if the solution isn't exact, the left limit of root is used. If set to 
+  `RightRootFind`, the solution would be set to the right limit of the root. Otherwise the systems and
+  the `affect!` will occur at `t+dt`.
 - `interp_points=10`: The number of interpolated points to check the condition. The
   condition is found by checking whether any interpolation point / endpoint has
   a different sign. If `interp_points=0`, then conditions will only be noticed if
@@ -83,7 +94,7 @@ struct ContinuousCallback{F1,F2,F3,F4,F5,T,T2,I,R} <: AbstractContinuousCallback
   initialize::F4
   finalize::F5
   idxs::I
-  rootfind::Bool
+  rootfind::RootfindOpt
   interp_points::Int
   save_positions::BitArray{1}
   dtrelax::R
@@ -103,7 +114,7 @@ ContinuousCallback(condition,affect!,affect_neg!;
                    initialize = INITIALIZE_DEFAULT,
                    finalize = FINALIZE_DEFAULT,
                    idxs = nothing,
-                   rootfind=true,
+                   rootfind=LeftRootFind,
                    save_positions=(true,true),
                    interp_points=10,
                    dtrelax=1,
@@ -118,7 +129,7 @@ function ContinuousCallback(condition,affect!;
                    initialize = INITIALIZE_DEFAULT,
                    finalize = FINALIZE_DEFAULT,
                    idxs = nothing,
-                   rootfind=true,
+                   rootfind=LeftRootFind,
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
@@ -139,7 +150,7 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          initialize = INITIALIZE_DEFAULT,
                          finalize = FINALIZE_DEFAULT,
                          idxs = nothing,
-                         rootfind=true,
+                         rootfind=LeftRootFind,
                          save_positions=(true,true),
                          interp_points=10,
                          abstol=10eps(),reltol=0)
@@ -150,7 +161,7 @@ VectorContinuousCallback(condition,affect!,len;
                    initialize = INITIALIZE_DEFAULT,
                    finalize = FINALIZE_DEFAULT,
                    idxs = nothing,
-                   rootfind=true,
+                   rootfind=LeftRootFind,
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
@@ -180,7 +191,7 @@ struct VectorContinuousCallback{F1,F2,F3,F4,F5,T,T2,I,R} <: AbstractContinuousCa
   initialize::F4
   finalize::F5
   idxs::I
-  rootfind::Bool
+  rootfind::RootfindOpt
   interp_points::Int
   save_positions::BitArray{1}
   dtrelax::R
@@ -201,7 +212,7 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          initialize = INITIALIZE_DEFAULT,
                          finalize = FINALIZE_DEFAULT,
                          idxs = nothing,
-                         rootfind=true,
+                         rootfind=LeftRootFind,
                          save_positions=(true,true),
                          interp_points=10,
                          dtrelax=1,
@@ -217,7 +228,7 @@ function VectorContinuousCallback(condition,affect!,len;
                    initialize = INITIALIZE_DEFAULT,
                    finalize = FINALIZE_DEFAULT,
                    idxs = nothing,
-                   rootfind=true,
+                   rootfind=LeftRootFind,
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
@@ -627,8 +638,12 @@ end
 # rough implementation, needs multiple type handling
 # always ensures that if r = bisection(f, (x0, x1))
 # then either f(nextfloat(r)) == 0 or f(nextfloat(r)) * f(r) < 0
-function bisection(f, tup, t_forward::Bool ; maxiters=1000)
-  NonlinearSolve.solve(NonlinearSolve.NonlinearProblem(f, tup), NonlinearSolve.Bisection()).left
+function bisection(f, tup, t_forward::Bool, rootfind::RootfindOpt; maxiters=1000)
+  if rootfind == LeftRootFind
+    NonlinearSolve.solve(NonlinearSolve.NonlinearProblem(f, tup), NonlinearSolve.Falsi()).left
+  else
+    NonlinearSolve.solve(NonlinearSolve.NonlinearProblem(f, tup), NonlinearSolve.Falsi()).right
+  end
 end
 
 ## Different definition for GPUs
@@ -649,7 +664,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
         top_t = integrator.t
         bottom_t = integrator.tprev
       end
-      if callback.rootfind && !isdiscrete(integrator.alg)
+      if callback.rootfind != NoRootFind && !isdiscrete(integrator.alg)
         zero_func(abst, p=nothing) = get_condition(integrator, callback, abst)
         if zero_func(top_t) == 0
           Θ = top_t
@@ -673,7 +688,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             end
             iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
-          Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir))
+          Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir), callback.rootfind)
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
         end
         #Θ = prevfloat(...)
@@ -713,7 +728,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
         top_t = integrator.t
         bottom_t = integrator.tprev
       end
-      if callback.rootfind && !isdiscrete(integrator.alg)
+      if callback.rootfind != NoRootFind && !isdiscrete(integrator.alg)
         min_t = nextfloat(top_t)
         min_event_idx = -1
         for idx in event_idx
@@ -741,7 +756,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               end
               iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
-            Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir))
+            Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir), callback.rootfind)
             if integrator.tdir * Θ < integrator.tdir * min_t
               integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
             end

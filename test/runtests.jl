@@ -54,6 +54,7 @@ if !is_APPVEYOR && GROUP == "Downstream"
     @time @safetestset "DE stats" begin include("downstream/destats_tests.jl") end
     @time @safetestset "DEDataArray" begin include("downstream/data_array_regression_tests.jl") end
     @time @safetestset "AD Tests" begin include("downstream/ad_tests.jl") end
+    @time @safetestset "Community Callback Tests" begin include("downstream/community_callback_tests.jl") end
     @time @testset "Distributed Ensemble Tests" begin include("downstream/distributed_ensemble.jl") end
 end
 
