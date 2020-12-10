@@ -62,7 +62,7 @@ function __init__()
     @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,::ForwardDiff.Dual) = sqrt(sse(u))
     @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual},::ForwardDiff.Dual) = sqrt(sum(x->sse(x),u) / totallength(u))
 
-    @static if !hasmethod(nextfloat, Tuple{ForwardDiff.Dual})
+    if !hasmethod(nextfloat, Tuple{ForwardDiff.Dual})
       # Type piracy. Should upstream
       Base.nextfloat(d::ForwardDiff.Dual{T,V,N}) where {T,V,N} = ForwardDiff.Dual{T}(nextfloat(d.value), d.partials)
       Base.prevfloat(d::ForwardDiff.Dual{T,V,N}) where {T,V,N} = ForwardDiff.Dual{T}(prevfloat(d.value), d.partials)
