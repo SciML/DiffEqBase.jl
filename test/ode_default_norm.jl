@@ -2,6 +2,8 @@ using Test, RecursiveArrayTools, StaticArrays
 
 using DiffEqBase: UNITLESS_ABS2, recursive_length,  ODE_DEFAULT_NORM
 
+@test recursive_length(1.0) == 1
+
 n = UNITLESS_ABS2(3.0+4.0im)
 @test n == 25.0
 @test typeof(n)<:Real
