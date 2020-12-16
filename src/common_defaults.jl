@@ -3,6 +3,7 @@
 @inline UNITLESS_ABS2(x::ArrayPartition) = sum(UNITLESS_ABS2, x.x)
 
 @inline recursive_length(u::AbstractArray{<:Number}) = length(u)
+@inline recursive_length(u::Number) = 1
 @inline recursive_length(u::AbstractArray{<:AbstractArray}) = sum(recursive_length, u)
 @inline recursive_length(u::ArrayPartition) = sum(recursive_length, u.x)
 @inline recursive_length(u::VectorOfArray) = sum(recursive_length, u.u)
