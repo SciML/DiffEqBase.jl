@@ -2,6 +2,8 @@ using Test, RecursiveArrayTools, StaticArrays
 
 using DiffEqBase: UNITLESS_ABS2, recursive_length,  ODE_DEFAULT_NORM
 
+@test recursive_length(1.0) == 1
+
 n = UNITLESS_ABS2(3.0+4.0im)
 @test n == 25.0
 @test typeof(n)<:Real
@@ -32,3 +34,8 @@ u5 = ArrayPartition(u4, u4)
 @test UNITLESS_ABS2(u5) == 50.0
 @test recursive_length(u5) == 50
 @test ODE_DEFAULT_NORM(u5, 0.0) == 1.0
+
+u6 = ArrayPartition(1.0,1.0)
+@test UNITLESS_ABS2(u6) == 2.0
+@test recursive_length(u6) == 2
+@test ODE_DEFAULT_NORM(u6, 0.0) == 1.0
