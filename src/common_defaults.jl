@@ -20,11 +20,11 @@
 @inline ODE_DEFAULT_ISOUTOFDOMAIN(u,p,t) = false
 @inline ODE_DEFAULT_PROG_MESSAGE(dt,u,p,t) =
            "dt="*string(dt)*"\nt="*string(t)*"\nmax u="*string(maximum(abs.(u)))
+
+@inline NAN_CHECK(x::Number) = isnan(x)
+@inline NAN_CHECK(x::Float64) = isnan(x) || (x>1e50)
+@inline NAN_CHECK(x::AbstractArray) = any(NAN_CHECK, x)
+@inline NAN_CHECK(x::ArrayPartition) = any(NAN_CHECK, x.x)
+
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u,p,t) = false
-@inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::AbstractFloat,p,t) = isnan(u)
-@inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::Float64,p,t) =
-                                                any(x->(isnan(x) || x>1e50),u)
-@inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::AbstractArray{T},p,t) where
-                                    {T<:AbstractFloat} = any(isnan,u)
-@inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::ArrayPartition,p,t) =
-                                                 any(any(isnan,x) for x in u.x)
+@inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::Union{Number,AbstractArray},p,t) = NAN_CHECK(u)
