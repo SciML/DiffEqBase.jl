@@ -400,6 +400,7 @@ function Base.iterate(integrator::DEIntegrator,state=0)
 end
 
 Base.eltype(integrator::DEIntegrator) = typeof(integrator)
+Base.IteratorSize(::Type{T}) where T<:DEIntegrator = Base.SizeUnknown()
 
 ### Other Iterators
 
@@ -414,6 +415,8 @@ function Base.iterate(tup::IntegratorTuples, state=0)
   # Next is callbacks -> iterator  -> top
   return (tup.integrator.u,tup.integrator.t),state
 end
+
+Base.IteratorSize(::Type{IntegratorTuples{T}}) where T<:DEIntegrator = Base.SizeUnknown()
 
 RecursiveArrayTools.tuples(integrator::DEIntegrator) = IntegratorTuples(integrator)
 
@@ -431,6 +434,8 @@ function Base.iterate(tup::IntegratorIntervals,state=0)
   # Next is callbacks -> iterator  -> top
   return (tup.integrator.uprev,tup.integrator.tprev,tup.integrator.u,tup.integrator.t),state
 end
+
+Base.IteratorSize(::Type{IntegratorIntervals{T}}) where T<:DEIntegrator = Base.SizeUnknown()
 
 intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 
