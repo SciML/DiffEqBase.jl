@@ -416,7 +416,7 @@ function Base.iterate(tup::IntegratorTuples, state=0)
   return (tup.integrator.u,tup.integrator.t),state
 end
 
-Base.IteratorSize(::Type{IntegratorTuples{T}}) where T<:DEIntegrator = Base.SizeUnknown()
+Base.IteratorSize(::Type{<:IntegratorTuples}) = Base.SizeUnknown()
 
 RecursiveArrayTools.tuples(integrator::DEIntegrator) = IntegratorTuples(integrator)
 
