@@ -399,7 +399,8 @@ function Base.iterate(integrator::DEIntegrator,state=0)
   return integrator,state
 end
 
-Base.eltype(integrator::DEIntegrator) = typeof(integrator)
+Base.eltype(::Type{T}) where {T<:DEIntegrator} = T
+Base.IteratorSize(::Type{<:DEIntegrator}) = Base.SizeUnknown()
 
 ### Other Iterators
 
@@ -414,6 +415,9 @@ function Base.iterate(tup::IntegratorTuples, state=0)
   # Next is callbacks -> iterator  -> top
   return (tup.integrator.u,tup.integrator.t),state
 end
+
+Base.eltype(::Type{IntegratorTuples{I}}) where {U, T, I<:DEIntegrator{<:Any, <:Any, U, T}} = Tuple{U, T} 
+Base.IteratorSize(::Type{<:IntegratorTuples}) = Base.SizeUnknown()
 
 RecursiveArrayTools.tuples(integrator::DEIntegrator) = IntegratorTuples(integrator)
 
@@ -431,6 +435,9 @@ function Base.iterate(tup::IntegratorIntervals,state=0)
   # Next is callbacks -> iterator  -> top
   return (tup.integrator.uprev,tup.integrator.tprev,tup.integrator.u,tup.integrator.t),state
 end
+
+Base.eltype(::Type{IntegratorIntervals{I}}) where {U, T, I<:DEIntegrator{<:Any, <:Any, U, T}} = Tuple{U, T, U, T} 
+Base.IteratorSize(::Type{<:IntegratorIntervals}) = Base.SizeUnknown()
 
 intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 
@@ -466,6 +473,8 @@ function Base.iterate(iter::TimeChoiceIterator,state=1)
     return (tmp,t),state+1
   end
 end
+
+Base.length(iter::TimeChoiceIterator) = length(iter.ts)
 
 @recipe function f(integrator::DEIntegrator;
                     denseplot=(integrator.opts.calck || typeof(integrator) <: AbstractSDEIntegrator)  && integrator.iter>0,
