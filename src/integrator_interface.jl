@@ -435,7 +435,7 @@ function Base.iterate(tup::IntegratorIntervals,state=0)
   return (tup.integrator.uprev,tup.integrator.tprev,tup.integrator.u,tup.integrator.t),state
 end
 
-Base.IteratorSize(::Type{IntegratorIntervals{T}}) where T<:DEIntegrator = Base.SizeUnknown()
+Base.IteratorSize(::Type{<:IntegratorIntervals}) = Base.SizeUnknown()
 
 intervals(integrator::DEIntegrator) = IntegratorIntervals(integrator)
 
