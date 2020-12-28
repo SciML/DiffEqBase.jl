@@ -400,7 +400,7 @@ function Base.iterate(integrator::DEIntegrator,state=0)
 end
 
 Base.eltype(integrator::DEIntegrator) = typeof(integrator)
-Base.IteratorSize(::Type{T}) where T<:DEIntegrator = Base.SizeUnknown()
+Base.IteratorSize(::Type{<:DEIntegrator}) = Base.SizeUnknown()
 
 ### Other Iterators
 
