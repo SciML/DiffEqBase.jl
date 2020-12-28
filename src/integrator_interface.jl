@@ -399,7 +399,7 @@ function Base.iterate(integrator::DEIntegrator,state=0)
   return integrator,state
 end
 
-Base.eltype(integrator::DEIntegrator) = typeof(integrator)
+Base.eltype(::Type{T}) where {T<:DEIntegrator} = T
 Base.IteratorSize(::Type{<:DEIntegrator}) = Base.SizeUnknown()
 
 ### Other Iterators
