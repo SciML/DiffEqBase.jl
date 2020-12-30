@@ -100,7 +100,7 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
   elseif typeof(A) <: AbstractDiffEqOperator
     # No good starting guess, so guess zero
     if p.iterable === nothing
-      p.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,tol=1e-16,kwargs...)
+      p.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,abstol=1e-16,kwargs...)
       p.iterable.reltol = tol
     end
     x .= false
@@ -156,7 +156,7 @@ function (f::LinSolveIterativeSolvers)(x,A,b,update_matrix=false; Pl=nothing, Pr
     Pr = ComposePreconditioner(f.Pr, Pr, false)
     f.iterable = f.generate_iterator(x,A,b,f.args...;
                                      initially_zero=true,restart=5,
-                                     maxiter=5,tol=1e-16,Pl=Pl,Pr=Pr,
+                                     maxiter=5,abstol=1e-16,Pl=Pl,Pr=Pr,
                                      f.kwargs...,kwargs...)
     tol′ = get(f.kwargs, :tol, nothing)
     tol′ !== nothing && (tol = tol′)
