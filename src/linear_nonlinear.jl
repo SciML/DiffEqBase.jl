@@ -52,8 +52,14 @@ mutable struct DefaultLinSolve
   iterable
 end
 DefaultLinSolve() = DefaultLinSolve(nothing, nothing)
+@noinline function checkreltol(reltol)
+  if !(reltol isa Real)
+    error("Non real valued reltol is not supported by the linear iterative solvers. To customize tolerances for the linear iterative solvers, use the syntax like `KenCarp3(linsolve=LinSolveGMRES(abstol=1e-16,reltol=1e-16))`.")
+  end
+  return reltol
+end
 
-function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
+function (p::DefaultLinSolve)(x,A,b,update_matrix=false;reltol=nothing, kwargs...)
   if p.iterable isa Vector && eltype(p.iterable) <: LinearAlgebra.BlasInt # `iterable` here is the pivoting vector
     F = LU{eltype(A)}(A, p.iterable, zero(LinearAlgebra.BlasInt))
     ldiv!(x, F, b)
@@ -100,7 +106,8 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;tol=nothing, kwargs...)
   elseif typeof(A) <: AbstractDiffEqOperator
     # No good starting guess, so guess zero
     if p.iterable === nothing
-      p.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,abstol=1e-16,reltol=tol,kwargs...)
+      reltol = checkreltol(reltol)
+      p.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,abstol=1e-16,reltol=reltol,kwargs...)
     end
     x .= false
     iter = p.iterable
@@ -149,19 +156,17 @@ LinSolveBiCGStabl(args...;kwargs...) = LinSolveIterativeSolvers(IterativeSolvers
 LinSolveChebyshev(args...;kwargs...) = LinSolveIterativeSolvers(IterativeSolvers.chebyshev_iterable!,args...;kwargs...)
 LinSolveMINRES(args...;kwargs...) = LinSolveIterativeSolvers(IterativeSolvers.minres_iterable!,args...;kwargs...)
 
-function (f::LinSolveIterativeSolvers)(x,A,b,update_matrix=false; Pl=nothing, Pr=nothing, tol=nothing, kwargs...)
+function (f::LinSolveIterativeSolvers)(x,A,b,update_matrix=false; Pl=nothing, Pr=nothing, reltol=eps(eltype(x)), kwargs...)
   if f.iterable === nothing
     Pl = ComposePreconditioner(f.Pl, Pl, true)
     Pr = ComposePreconditioner(f.Pr, Pr, false)
 
-    tol′ = get(f.kwargs, :tol, nothing)
-    tol′ !== nothing && (tol = tol′)
-
+    reltol = checkreltol(reltol)
     f.iterable = f.generate_iterator(x,A,b,f.args...;
                                      initially_zero=true,restart=5,
-                                     maxiter=5,abstol=1e-16,reltol=tol,
+                                     maxiter=5,abstol=1e-16,reltol=reltol,
                                      Pl=Pl,Pr=Pr,
-                                     f.kwargs...,kwargs...)
+                                     kwargs...,f.kwargs...)
   end
   x .= false
   iter = f.iterable
