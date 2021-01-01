@@ -23,6 +23,7 @@
 
 @inline NAN_CHECK(x::Number) = isnan(x)
 @inline NAN_CHECK(x::Float64) = isnan(x) || (x>1e50)
+@inline NAN_CHECK(x::Enum) = false
 @inline NAN_CHECK(x::AbstractArray) = any(NAN_CHECK, x)
 @inline NAN_CHECK(x::ArrayPartition) = any(NAN_CHECK, x.x)
 
