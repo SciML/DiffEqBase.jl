@@ -235,7 +235,14 @@ end
 
 struct SensitivityADPassThrough <: DiffEqBase.DEAlgorithm end
 
-ZygoteRules.@adjoint function solve_up(prob,sensealg::Union{Nothing,AbstractSensitivityAlgorithm},
+ZygoteRules.@adjoint function solve_up(prob::Union{ODEProblem,
+                                                   SteadyStateProblem,
+                                                   SDEProblem,
+                                                   DDEProblem,
+                                                   DAEProblem,
+                                                   RODEProblem,
+                                                   SDDEProblem},
+                                       sensealg::Union{Nothing,AbstractSensitivityAlgorithm},
                                        u0,p,args...;
                                        kwargs...)
   _solve_adjoint(prob,sensealg,u0,p,args...;kwargs...)
@@ -248,7 +255,13 @@ function ChainRulesCore.frule(::typeof(solve_up),prob,
   _solve_forward(prob,sensealg,u0,p,args...;kwargs...)
 end
 
-function ChainRulesCore.rrule(::typeof(solve_up),prob,
+function ChainRulesCore.rrule(::typeof(solve_up),prob::Union{ODEProblem,
+                                                   SteadyStateProblem,
+                                                   SDEProblem,
+                                                   DDEProblem,
+                                                   DAEProblem,
+                                                   RODEProblem,
+                                                   SDDEProblem},
                               sensealg::Union{Nothing,AbstractSensitivityAlgorithm},
                               u0,p,args...;
                               kwargs...)
