@@ -110,6 +110,7 @@ end
 
 struct NullParameters end
 Base.getindex(::NullParameters,i...) = error("Parameters were indexed but the parameters are `nothing`. You likely forgot to pass in parameters to the DEProblem!")
+Base.iterate(::NullParameters) = error("Parameters were indexed but the parameters are `nothing`. You likely forgot to pass in parameters to the DEProblem!")
 
 function Base.show(io::IO, A::AbstractPDEProblem)
   println(io,summary(A.prob))
