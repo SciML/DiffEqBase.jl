@@ -128,6 +128,11 @@ function DiffEqBase.solve(prob::PDEProblem,alg::DiffEqBase.DEAlgorithm,args...;
     solve(prob.prob,alg,args...;kwargs...)
 end
 
+function DiffEqBase.init(prob::PDEProblem,alg::DiffEqBase.DEAlgorithm,args...;
+                                          kwargs...)
+    init(prob.prob,alg,args...;kwargs...)
+end
+
 function discretize end
 
 function get_concrete_problem(prob, isadapt; kwargs...)
