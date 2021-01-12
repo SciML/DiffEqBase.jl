@@ -58,9 +58,9 @@ Contains a single callback whose `condition` is a continuous function. The callb
   negative). For more information on what can
   be done, see the [Integrator Interface](@ref integrator) manual page. Modifications to
   `u` are safe in this function.
-- `rootfind=LeftRootFind`: This is a flag to specify the type of rootfinding to do for finding 
+- `rootfind=LeftRootFind`: This is a flag to specify the type of rootfinding to do for finding
   event location. If this is set to `LeftRootfind`, the solution will be backtracked to the point where
-  `condition==0` and if the solution isn't exact, the left limit of root is used. If set to 
+  `condition==0` and if the solution isn't exact, the left limit of root is used. If set to
   `RightRootFind`, the solution would be set to the right limit of the root. Otherwise the systems and
   the `affect!` will occur at `t+dt`.
 - `interp_points=10`: The number of interpolated points to check the condition. The
@@ -518,7 +518,11 @@ end
     end
 
     # Evaluate condition slightly in future
-    abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(integrator.t))
+    if integrator.t == 0
+      abst = integrator.tprev+integrator.tdir*abs(integrator.dt/10000)
+    else
+      abst = integrator.tprev+integrator.tdir*100*eps(integrator.t)
+    end
     tmp_condition = get_condition(integrator, callback, abst)
 
     # Sometimes users may "switch off" the condition after crossing
@@ -596,7 +600,11 @@ end
     end
 
     # Evaluate condition slightly in future
-    abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(integrator.t))
+    if integrator.t == 0
+      abst = integrator.tprev+integrator.tdir*abs(integrator.dt/10000)
+    else
+      abst = integrator.tprev+integrator.tdir*100*eps(integrator.t)
+    end
     tmp_condition = get_condition(integrator, callback, abst)
 
     # Sometimes users may "switch off" the condition after crossing
