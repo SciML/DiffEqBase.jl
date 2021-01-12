@@ -58,9 +58,9 @@ Contains a single callback whose `condition` is a continuous function. The callb
   negative). For more information on what can
   be done, see the [Integrator Interface](@ref integrator) manual page. Modifications to
   `u` are safe in this function.
-- `rootfind=LeftRootFind`: This is a flag to specify the type of rootfinding to do for finding 
+- `rootfind=LeftRootFind`: This is a flag to specify the type of rootfinding to do for finding
   event location. If this is set to `LeftRootfind`, the solution will be backtracked to the point where
-  `condition==0` and if the solution isn't exact, the left limit of root is used. If set to 
+  `condition==0` and if the solution isn't exact, the left limit of root is used. If set to
   `RightRootFind`, the solution would be set to the right limit of the root. Otherwise the systems and
   the `affect!` will occur at `t+dt`.
 - `interp_points=10`: The number of interpolated points to check the condition. The
@@ -418,28 +418,28 @@ function get_condition(integrator::DEIntegrator, callback, abst)
     else
       tmp = @view integrator.u[callback.idxs]
     end
-  elseif abst == integrator.tprev
-    if callback.idxs === nothing
-      tmp = integrator.uprev
-    elseif callback.idxs isa Number
-      tmp = integrator.uprev[callback.idxs]
-    else
-      tmp = @view integrator.uprev[callback.idxs]
-    end
+  #elseif abst == integrator.tprev
+  #  if callback.idxs === nothing
+  #    tmp = integrator.uprev
+  #  elseif callback.idxs isa Number
+  #    tmp = integrator.uprev[callback.idxs]
+  #  else
+  #    tmp = @view integrator.uprev[callback.idxs]
+  #  end
   else
-    if ismutable
-      if callback.idxs === nothing
-        integrator(tmp,abst,Val{0})
-      else
-        integrator(tmp,abst,Val{0},idxs=callback.idxs)
-      end
-    else
+  #  if ismutable
+  #    if callback.idxs === nothing
+  #      integrator(tmp,abst,Val{0})
+  #    else
+  #      integrator(tmp,abst,Val{0},idxs=callback.idxs)
+  #    end
+  #  else
       if callback.idxs === nothing
         tmp = integrator(abst,Val{0})
       else
         tmp = integrator(abst,Val{0},idxs=callback.idxs)
       end
-    end
+  #  end
     # ismutable && !(callback.idxs isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
     #                                                 tmp = integrator(abst,Val{0},idxs=callback.idxs)
   end
@@ -599,12 +599,14 @@ end
     abst = integrator.tprev+integrator.tdir*max(abs(integrator.dt/10000),100*eps(integrator.t))
     tmp_condition = get_condition(integrator, callback, abst)
 
+    prev_sign = Main.ForwardDiff.derivative(t -> get_condition(integrator, callback, t),integrator.tprev)
+
     # Sometimes users may "switch off" the condition after crossing
     # This is necessary to ensure proper non-detection of a root
     # == is for exact floating point equality!
-    prev_sign =    tmp_condition > previous_condition ? 1.0 :
-                  (tmp_condition == previous_condition ?
-                  (prev_sign = sign(previous_condition)) : -1.0)
+    #prev_sign =    tmp_condition > previous_condition ? 1.0 :
+    #              (tmp_condition == previous_condition ?
+    #              (prev_sign = sign(previous_condition)) : -1.0)
   else
     prev_sign = sign(previous_condition)
   end
