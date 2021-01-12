@@ -640,9 +640,9 @@ end
 # then either f(nextfloat(r)) == 0 or f(nextfloat(r)) * f(r) < 0
 function bisection(f, tup, t_forward::Bool, rootfind::RootfindOpt; maxiters=1000)
   if rootfind == LeftRootFind
-    NonlinearSolve.solve(NonlinearSolve.NonlinearProblem(f, tup), NonlinearSolve.Falsi()).left
+    NonlinearSolve.solve(NonlinearSolve.NonlinearProblem{false}(f, tup), NonlinearSolve.Falsi()).left
   else
-    NonlinearSolve.solve(NonlinearSolve.NonlinearProblem(f, tup), NonlinearSolve.Falsi()).right
+    NonlinearSolve.solve(NonlinearSolve.NonlinearProblem{false}(f, tup), NonlinearSolve.Falsi()).right
   end
 end
 
