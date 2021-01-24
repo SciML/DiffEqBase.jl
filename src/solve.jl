@@ -123,12 +123,12 @@ function get_concrete_problem(prob::AbstractEnsembleProblem, isadapt; kwargs...)
   prob
 end
 
-function DiffEqBase.solve(prob::PDEProblem,alg::DiffEqBase.DEAlgorithm,args...;
+function solve(prob::PDEProblem,alg::DiffEqBase.DEAlgorithm,args...;
                                           kwargs...)
     solve(prob.prob,alg,args...;kwargs...)
 end
 
-function DiffEqBase.init(prob::PDEProblem,alg::DiffEqBase.DEAlgorithm,args...;
+function init(prob::PDEProblem,alg::DiffEqBase.DEAlgorithm,args...;
                                           kwargs...)
     init(prob.prob,alg,args...;kwargs...)
 end
