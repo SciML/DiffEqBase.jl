@@ -1138,6 +1138,16 @@ has_Wfact_t(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_Wfact_t(f.f)
 has_paramjac(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_paramjac(f.f)
 has_colorvec(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_colorvec(f.f)
 
+
+has_jac(f::JacobianWrapper) = has_jac(f.f)
+has_jvp(f::JacobianWrapper) = has_jvp(f.f)
+has_vjp(f::JacobianWrapper) = has_vjp(f.f)
+has_tgrad(f::JacobianWrapper) = has_tgrad(f.f)
+has_Wfact(f::JacobianWrapper) = has_Wfact(f.f)
+has_Wfact_t(f::JacobianWrapper) = has_Wfact_t(f.f)
+has_paramjac(f::JacobianWrapper) = has_paramjac(f.f)
+has_colorvec(f::JacobianWrapper) = has_colorvec(f.f)
+
 ######### Additional traits
 
 islinear(f) = false # fallback
