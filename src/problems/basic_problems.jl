@@ -31,12 +31,44 @@ struct NonlinearProblem{uType,isinplace,P,F,K} <: AbstractNonlinearProblem{uType
     u0::uType
     p::P
     kwargs::K
-    @add_kwonly function NonlinearProblem{iip}(f,u0,p=NullParameters();kwargs...) where iip
+    @add_kwonly function NonlinearProblem{iip}(f::AbstractNonlinearFunction{iip},u0,p=NullParameters();kwargs...) where iip
         new{typeof(u0),iip,typeof(p),typeof(f),typeof(kwargs)}(f,u0,p,kwargs)
+    end
+
+    """
+    $(SIGNATURES)
+  
+    Define a steady state problem using the given function.
+    `isinplace` optionally sets whether the function is inplace or not.
+    This is determined automatically, but not inferred.
+    """
+    function NonlinearProblem{iip}(f,u0,p=NullParameters()) where iip
+      NonlinearProblem(NonlinearFunction{iip}(f),u0,p)
     end
 end
 
-NonlinearProblem(f,u0,args...;kwargs...) = NonlinearProblem{isinplace(f, 3)}(f,u0,args...;kwargs...)
+
+"""
+$(SIGNATURES)
+
+Define a steady state problem using an instance of
+[`AbstractNonlinearFunction`](@ref DiffEqBase.AbstractNonlinearFunction).
+"""
+function NonlinearProblem(f::AbstractNonlinearFunction,u0,p=NullParameters();kwargs...)
+  NonlinearProblem{isinplace(f)}(f,u0,p;kwargs...)
+end
+
+function NonlinearProblem(f,u0,p=NullParameters();kwargs...)
+  NonlinearProblem(NonlinearFunction(f),u0,p;kwargs...)
+end
+
+"""
+$(SIGNATURES)
+
+Define a steady state problem from a standard ODE problem.
+"""
+NonlinearProblem(prob::AbstractNonlinearProblem) =
+      NonlinearProblem{isinplace(prob)}(prob.f,prob.u0,prob.p)
 
 """
 $(TYPEDEF)
