@@ -612,7 +612,7 @@ export remake
 export DEDataArray, DEDataVector, DEDataMatrix
 
 export ODEFunction, DiscreteFunction, SplitFunction, DAEFunction, DDEFunction,
-       SDEFunction, SplitSDEFunction, RODEFunction, SDDEFunction, IncrementingODEFunction
+       SDEFunction, SplitSDEFunction, RODEFunction, SDDEFunction, IncrementingODEFunction, NonlinearFunction
 
 export OptimizationFunction
 

@@ -44,3 +44,11 @@ function (ff::ParamJacobianWrapper)(p)
   ff.f(du1,ff.u,p,ff.t)
   return du1
 end
+
+mutable struct JacobianWrapper{fType,pType}
+  f::fType
+  p::pType
+end
+
+(uf::JacobianWrapper)(u) = uf.f(u, uf.p)
+(uf::JacobianWrapper)(res, u) = uf.f(res, u, uf.p)

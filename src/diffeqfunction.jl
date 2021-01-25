@@ -243,6 +243,31 @@ struct SDDEFunction{iip,F,G,TMM,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,GG,S,TCV} <: A
   syms::S
   colorvec::TCV
 end
+
+"""
+$(TYPEDEF)
+"""
+abstract type AbstractNonlinearFunction{iip} <: AbstractDiffEqFunction{iip} end
+
+"""
+$(TYPEDEF)
+"""
+struct NonlinearFunction{iip,F,TMM,Ta,Tt,TJ,JVP,VJP,JP,SP,TW,TWt,TPJ,S,TCV} <: AbstractNonlinearFunction{iip}
+  f::F
+  mass_matrix::TMM
+  analytic::Ta
+  tgrad::Tt
+  jac::TJ
+  jvp::JVP
+  vjp::VJP
+  jac_prototype::JP
+  sparsity::SP
+  Wfact::TW
+  Wfact_t::TWt
+  paramjac::TPJ
+  syms::S
+  colorvec::TCV
+end
 ######### Backwards Compatibility Overloads
 
 (f::ODEFunction)(args...) = f.f(args...)
@@ -252,6 +277,14 @@ end
 (f::ODEFunction)(::Type{Val{:Wfact}},args...) = f.Wfact(args...)
 (f::ODEFunction)(::Type{Val{:Wfact_t}},args...) = f.Wfact_t(args...)
 (f::ODEFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
+
+(f::NonlinearFunction)(args...) = f.f(args...)
+(f::NonlinearFunction)(::Type{Val{:analytic}},args...) = f.analytic(args...)
+(f::NonlinearFunction)(::Type{Val{:tgrad}},args...) = f.tgrad(args...)
+(f::NonlinearFunction)(::Type{Val{:jac}},args...) = f.jac(args...)
+(f::NonlinearFunction)(::Type{Val{:Wfact}},args...) = f.Wfact(args...)
+(f::NonlinearFunction)(::Type{Val{:Wfact_t}},args...) = f.Wfact_t(args...)
+(f::NonlinearFunction)(::Type{Val{:paramjac}},args...) = f.paramjac(args...)
 
 function (f::DynamicalODEFunction)(u,p,t)
   ArrayPartition(f.f1(u.x[1],u.x[2],p,t),f.f2(u.x[1],u.x[2],p,t))
@@ -968,6 +1001,88 @@ SDDEFunction{iip}(f::SDDEFunction,g; kwargs...) where iip = f
 SDDEFunction(f,g; kwargs...) = SDDEFunction{isinplace(f, 5),RECOMPILE_BY_DEFAULT}(f,g; kwargs...)
 SDDEFunction(f::SDDEFunction; kwargs...) = f
 
+function NonlinearFunction{iip,true}(f;
+  mass_matrix=I,
+  analytic=nothing,
+  tgrad=nothing,
+  jac=nothing,
+  jvp=nothing,
+  vjp=nothing,
+  jac_prototype=nothing,
+  sparsity=jac_prototype,
+  Wfact=nothing,
+  Wfact_t=nothing,
+  paramjac = nothing,
+  syms = nothing,
+  colorvec = nothing) where iip
+
+  if mass_matrix == I && typeof(f) <: Tuple
+   mass_matrix = ((I for i in 1:length(f))...,)
+  end
+
+  if jac === nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
+   if iip
+     jac = update_coefficients! #(J,u,p,t)
+   else
+     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
+   end
+  end
+
+  if jac_prototype !== nothing && colorvec === nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+    _colorvec = ArrayInterface.matrix_colors(jac_prototype)
+  else
+    _colorvec = colorvec
+  end
+
+  NonlinearFunction{iip,
+   typeof(f), typeof(mass_matrix), typeof(analytic), typeof(tgrad), typeof(jac),
+   typeof(jvp), typeof(vjp), typeof(jac_prototype), typeof(sparsity), typeof(Wfact),
+   typeof(Wfact_t), typeof(paramjac), typeof(syms), typeof(_colorvec)}(
+     f, mass_matrix, analytic, tgrad, jac,
+     jvp, vjp, jac_prototype, sparsity, Wfact,
+     Wfact_t, paramjac, syms, _colorvec)
+end
+function NonlinearFunction{iip,false}(f;
+  mass_matrix=I,
+  analytic=nothing,
+  tgrad=nothing,
+  jac=nothing,
+  jvp=nothing,
+  vjp=nothing,
+  jac_prototype=nothing,
+  sparsity=jac_prototype,
+  Wfact=nothing,
+  Wfact_t=nothing,
+  paramjac = nothing,
+  syms = nothing,
+  colorvec = nothing) where iip
+
+  if jac === nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
+   if iip
+     jac = update_coefficients! #(J,u,p,t)
+   else
+     jac = (u,p,t) -> update_coefficients!(deepcopy(jac_prototype),u,p,t)
+   end
+  end
+
+  if jac_prototype !== nothing && colorvec === nothing && ArrayInterface.fast_matrix_colors(jac_prototype)
+    _colorvec = ArrayInterface.matrix_colors(jac_prototype)
+  else
+    _colorvec = colorvec
+  end
+
+  NonlinearFunction{iip,
+   Any, Any, Any, Any, Any,
+   Any, Any, Any, Any, Any,
+   Any, Any, typeof(syms), typeof(_colorvec)}(
+     f, mass_matrix, analytic, tgrad, jac,
+     jvp, vjp, jac_prototype, sparsity, Wfact,
+     Wfact_t, paramjac, syms, _colorvec)
+end
+NonlinearFunction{iip}(f; kwargs...) where iip = NonlinearFunction{iip,RECOMPILE_BY_DEFAULT}(f; kwargs...)
+NonlinearFunction{iip}(f::NonlinearFunction; kwargs...) where iip = f
+NonlinearFunction(f; kwargs...) = NonlinearFunction{isinplace(f, 4),RECOMPILE_BY_DEFAULT}(f; kwargs...)
+NonlinearFunction(f::NonlinearFunction; kwargs...) = f
 ########## Existance Functions
 
 # Check that field/property exists (may be nothing)
@@ -1022,6 +1137,16 @@ has_Wfact(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_Wfact(f.f)
 has_Wfact_t(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_Wfact_t(f.f)
 has_paramjac(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_paramjac(f.f)
 has_colorvec(f::Union{UDerivativeWrapper,UJacobianWrapper}) = has_colorvec(f.f)
+
+
+has_jac(f::JacobianWrapper) = has_jac(f.f)
+has_jvp(f::JacobianWrapper) = has_jvp(f.f)
+has_vjp(f::JacobianWrapper) = has_vjp(f.f)
+has_tgrad(f::JacobianWrapper) = has_tgrad(f.f)
+has_Wfact(f::JacobianWrapper) = has_Wfact(f.f)
+has_Wfact_t(f::JacobianWrapper) = has_Wfact_t(f.f)
+has_paramjac(f::JacobianWrapper) = has_paramjac(f.f)
+has_colorvec(f::JacobianWrapper) = has_colorvec(f.f)
 
 ######### Additional traits
 
