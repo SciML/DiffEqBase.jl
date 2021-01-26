@@ -31,7 +31,7 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  AbstractNoiseProblem, AbstractEnsembleProblem, DEAlgorithm,
                  AbstractSensitivityAlgorithm, AbstractODEAlgorithm,
                  AbstractSDEAlgorithm, AbstractDDEAlgorithm, AbstractDAEAlgorithm,
-                 AbstractSDDEAlgorithm, AbstractRODEAlgorithm,
+                 AbstractSDDEAlgorithm, AbstractRODEAlgorithm, DAEInitializationAlgorithm,
                  AbstractODEProblem,
                  AbstractSDEProblem, AbstractRODEProblem, AbstractDDEProblem,
                  AbstractDAEProblem, AbstractSDDEProblem, AbstractBVProblem,
@@ -39,12 +39,23 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  AbstractODEFunction, AbstractSDEFunction, AbstractRODEFunction,
                  AbstractDDEFunction, AbstractSDDEFunction, AbstractDAEFunction,
                  AbstractNonlinearFunction, AbstractEnsembleSolution,
+                 AbstractODESolution, AbstractRODESolution, AbstractDAESolution,
                  EnsembleAlgorithm, EnsembleSolution, EnsembleSummary,
                  TimeGradientWrapper, TimeDerivativeWrapper, UDerivativeWrapper,
                  UJacobianWrapper, ParamJacobianWrapper, JacobianWrapper,
-                 check_error!
+                 check_error!, has_jac, has_tgrad, has_Wfact, has_Wfact_t,
+                 AbstractODEIntegrator, unwrap_cache, has_reinit, reinit!,
+                 postamble!, last_step_failed, islinear, has_destats,
+                 initialize_dae!, build_solution, solution_new_retcode,
+                 solution_new_tslocation, sensitivity_solution, plot_indices,
+                 NullParameters, isinplace, AbstractADType, AbstractDiscretization,
+                 DISCRETE_OUTOFPLACE_DEFAULT, DISCRETE_INPLACE_DEFAULT,
+                 has_analytic, calculate_solution_errors!, AbstractNoiseProcess,
+                 has_colorvec, parameterless_type, undefined_exports
 
-import SciMLBase: solve, init, solve!, __init, __solve
+import SciMLBase: solve, init, solve!, __init, __solve, update_coefficients!, update_coefficients
+
+SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
 """
 $(TYPEDEF)
@@ -117,8 +128,6 @@ const MonteCarloSummary = EnsembleSummary
 @deprecate MonteCarloSummary(args...) EnsembleSummary(args...)
 @deprecate calculate_monte_errors(args...;kwargs...) calculate_ensemble_errors(args...;kwargs...)
 
-export tuples, intervals, TimeChoiceIterator
-
 export DEDataArray, DEDataVector, DEDataMatrix
 
 export ContinuousCallback, DiscreteCallback, CallbackSet, VectorContinuousCallback
@@ -132,5 +141,7 @@ export LinSolveFactorize, LinSolveGPUFactorize, DefaultLinSolve, DEFAULT_LINSOLV
 export AffineDiffEqOperator
 
 export DiffEqScalar, DiffEqArrayOperator, DiffEqIdentity
+
+export NLNewton, NLFunctional, NLAnderson
 
 end # module
