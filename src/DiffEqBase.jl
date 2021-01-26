@@ -39,7 +39,10 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  AbstractODEFunction, AbstractSDEFunction, AbstractRODEFunction,
                  AbstractDDEFunction, AbstractSDDEFunction, AbstractDAEFunction,
                  AbstractNonlinearFunction, AbstractEnsembleSolution,
-                 EnsembleAlgorithm, EnsembleSolution, EnsembleSummary
+                 EnsembleAlgorithm, EnsembleSolution, EnsembleSummary,
+                 TimeGradientWrapper, TimeDerivativeWrapper, UDerivativeWrapper,
+                 UJacobianWrapper, ParamJacobianWrapper, JacobianWrapper,
+                 check_error!
 
 import SciMLBase: solve, init, solve!, __init, __solve
 
