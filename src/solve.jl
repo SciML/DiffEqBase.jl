@@ -1,5 +1,3 @@
-function solve! end
-
 struct EvalFunc{F} <: Function
   f::F
 end

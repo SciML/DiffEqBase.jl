@@ -39,8 +39,9 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  AbstractODEFunction, AbstractSDEFunction, AbstractRODEFunction,
                  AbstractDDEFunction, AbstractSDDEFunction, AbstractDAEFunction,
                  AbstractNonlinearFunction, AbstractEnsembleSolution,
-                 EnsembleAlgorithm, EnsembleSolution, EnsembleSummary,
-                 solve, init, solve!, __init, __solve
+                 EnsembleAlgorithm, EnsembleSolution, EnsembleSummary
+
+import SciMLBase: solve, init, solve!, __init, __solve
 
 """
 $(TYPEDEF)
@@ -114,17 +115,6 @@ const MonteCarloSummary = EnsembleSummary
 @deprecate calculate_monte_errors(args...;kwargs...) calculate_ensemble_errors(args...;kwargs...)
 
 export tuples, intervals, TimeChoiceIterator
-
-export step!, resize!,deleteat!,addat!,get_tmp_cache,
-       full_cache,user_cache,u_cache,du_cache,
-       rand_cache,ratenoise_cache,
-       resize_non_user_cache!,deleteat_non_user_cache!,addat_non_user_cache!,
-       terminate!,
-       add_tstop!,add_saveat!,set_abstol!,
-       set_reltol!,get_du, get_du!, get_dt,get_proposed_dt,set_proposed_dt!,
-       u_modified!, savevalues!,reinit!, auto_dt_reset!, set_t!,
-       set_u!, check_error, change_t_via_interpolation!, addsteps!,
-       isdiscrete, reeval_internals_due_to_modification!
 
 export DEDataArray, DEDataVector, DEDataMatrix
 
