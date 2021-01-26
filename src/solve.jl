@@ -1,5 +1,3 @@
-function __solve end
-function __init end
 function solve! end
 
 struct EvalFunc{F} <: Function
