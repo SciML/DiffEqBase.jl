@@ -44,16 +44,18 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  TimeGradientWrapper, TimeDerivativeWrapper, UDerivativeWrapper,
                  UJacobianWrapper, ParamJacobianWrapper, JacobianWrapper,
                  check_error!, has_jac, has_tgrad, has_Wfact, has_Wfact_t,
-                 AbstractODEIntegrator, unwrap_cache, has_reinit, reinit!,
+                 AbstractODEIntegrator, AbstractSDEIntegrator, AbstractDDEIntegrator,
+                 AbstractDAEIntegrator, unwrap_cache, has_reinit, reinit!,
                  postamble!, last_step_failed, islinear, has_destats,
                  initialize_dae!, build_solution, solution_new_retcode,
                  solution_new_tslocation, sensitivity_solution, plot_indices,
                  NullParameters, isinplace, AbstractADType, AbstractDiscretization,
                  DISCRETE_OUTOFPLACE_DEFAULT, DISCRETE_INPLACE_DEFAULT,
                  has_analytic, calculate_solution_errors!, AbstractNoiseProcess,
-                 has_colorvec, parameterless_type, undefined_exports
+                 has_colorvec, parameterless_type, undefined_exports,
+                 is_diagonal_noise
 
-import SciMLBase: solve, init, solve!, __init, __solve, update_coefficients!, update_coefficients
+import SciMLBase: solve, init, solve!, __init, __solve, update_coefficients!, update_coefficients, isadaptive
 
 SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
