@@ -69,7 +69,7 @@ Recursively copy fields of `src` to `dest`.
         if !ArrayInterface.ismutable(Tf)
             expressions[i] = :( dest.$f = getfield( src, $qf ) )
         elseif Tf <: AbstractArray
-            expressions[i] = :( recursivecopy!(dest.$f, getfield( src, $qf ) ) )
+            expressions[i] = :( RecursiveArrayTools.recursivecopy!(dest.$f, getfield( src, $qf ) ) )
         else
             expressions[i] = :( dest.$f = deepcopy( getfield( src, $qf ) ) )
         end
@@ -113,7 +113,7 @@ end
         elseif !ArrayInterface.ismutable(Tf)
             expressions[i] = :( dest.$f = getfield( src, $qf ) )
         elseif Tf <: AbstractArray
-            expressions[i] = :( recursivecopy!(dest.$f, getfield( src, $qf ) ) )
+            expressions[i] = :( RecursiveArrayTools.recursivecopy!(dest.$f, getfield( src, $qf ) ) )
         else
             expressions[i] = :( dest.$f = deepcopy( getfield( src, $qf ) ) )
         end

@@ -1,5 +1,5 @@
 using DiffEqBase
-using DiffEqBase: @add_kwonly, add_kwonly
+using SciMLBase: @add_kwonly, add_kwonly
 using LinearAlgebra, Test
 
 @add_kwonly function f(a, b; c=3, d=4)
@@ -65,7 +65,7 @@ prob2 = remake(prob1;  # prob1 is a ODEProblem
     f2 = (u,p,t) -> 3u))
 
 # Test remake with NoiseProblem (a struct w/o isinplace type parameter):
-struct DummyNoiseProcess <: DiffEqBase.AbstractNoiseProcess{Int,1,Nothing,true}
+struct DummyNoiseProcess <: SciMLBase.AbstractNoiseProcess{Int,1,Nothing,true}
     dummy
 end
 tspan1 = (0.0, 1.0)
@@ -78,7 +78,7 @@ noise2 = remake(noise1; tspan=tspan2);
 @test noise1.tspan != noise2.tspan
 
 # Test remake with TwoPointBVPFunction (manually defined):
-f1 = DiffEqBase.TwoPointBVPFunction(() -> 1)
+f1 = SciMLBase.TwoPointBVPFunction(() -> 1)
 f2 = remake(f1; bc = () -> 2)
 @test f1.bc() == 1
 @test f2.bc() == 2

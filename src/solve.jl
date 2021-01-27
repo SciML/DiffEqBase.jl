@@ -1,7 +1,3 @@
-function __solve end
-function __init end
-function solve! end
-
 struct EvalFunc{F} <: Function
   f::F
 end
@@ -113,13 +109,13 @@ function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
   prob
 end
 
-function get_concrete_problem(prob::AbstractSteadyStateProblem, isadapt; kwargs...)
+function get_concrete_problem(prob::SteadyStateProblem, isadapt; kwargs...)
   u0 = get_concrete_u0(prob, isadapt, Inf, kwargs)
   u0 = promote_u0(u0, prob.p, nothing)
   remake(prob; u0 = u0)
 end
 
-function get_concrete_problem(prob::AbstractNonlinearProblem, isadapt; kwargs...)
+function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
   u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
   u0 = promote_u0(u0, prob.p, nothing)
   remake(prob; u0 = u0)
@@ -138,8 +134,6 @@ function init(prob::PDEProblem,alg::DiffEqBase.DEAlgorithm,args...;
                                           kwargs...)
     init(prob.prob,alg,args...;kwargs...)
 end
-
-function discretize end
 
 function get_concrete_problem(prob, isadapt; kwargs...)
 
@@ -244,7 +238,7 @@ end
 
 ################### Differentiation
 
-struct SensitivityADPassThrough <: DiffEqBase.DEAlgorithm end
+struct SensitivityADPassThrough <: SciMLBase.DEAlgorithm end
 
 ZygoteRules.@adjoint function solve_up(prob,sensealg::Union{Nothing,AbstractSensitivityAlgorithm},
                                        u0,p,args...;
@@ -270,11 +264,11 @@ end
 ### Legacy Dispatches to be Non-Breaking
 ###
 
-@deprecate concrete_solve(prob::DiffEqBase.DEProblem,alg::Union{DiffEqBase.DEAlgorithm,Nothing},
+@deprecate concrete_solve(prob::SciMLBase.DEProblem,alg::Union{SciMLBase.DEAlgorithm,Nothing},
                         u0=prob.u0,p=prob.p,args...;kwargs...) solve(prob,alg,args...;u0=u0,p=p,kwargs...)
 
-ZygoteRules.@adjoint function concrete_solve(prob::DiffEqBase.DEProblem,
-                              alg::Union{DiffEqBase.DEAlgorithm,Nothing},
+ZygoteRules.@adjoint function concrete_solve(prob::SciMLBase.DEProblem,
+                              alg::Union{SciMLBase.DEAlgorithm,Nothing},
                               u0=prob.u0,p=prob.p,args...;
                               sensealg=nothing,
                               kwargs...)
