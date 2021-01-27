@@ -61,11 +61,13 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  interp_summary, AbstractHistoryFunction, LinearInterpolation,
                  ConstantInterpolation, HermiteInterpolation, NoAD, @add_kwonly,
                  calculate_ensemble_errors, DEFAULT_UPDATE_FUNC, isconstant,
-                 DEFAULT_REDUCTION
+                 DEFAULT_REDUCTION, isautodifferentiable,
+                 isadaptive, isdiscrete
 
 import SciMLBase: solve, init, solve!, __init, __solve, update_coefficients!,
                   update_coefficients, isadaptive, wrapfun_oop, wrapfun_iip,
-                  unwrap_fw, promote_tspan, set_u!, set_t!, set_ut!
+                  unwrap_fw, promote_tspan, set_u!, set_t!, set_ut!,
+                  GET_DEFAULT_LINSOLVE, DEFAULT_NORM
 
 SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
@@ -108,7 +110,6 @@ include("common_defaults.jl")
 include("data_array.jl")
 include("solve.jl")
 include("internal_euler.jl")
-include("alg_traits.jl")
 include("init.jl")
 include("zygote.jl")
 
