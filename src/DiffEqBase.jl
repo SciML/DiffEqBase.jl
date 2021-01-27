@@ -4,7 +4,7 @@ using Requires, IterativeSolvers, RecursiveFactorization, ArrayInterface
 
 using StaticArrays # data arrays
 
-using LinearAlgebra, Statistics, Printf
+using LinearAlgebra, Printf
 
 using DocStringExtensions
 
@@ -32,8 +32,8 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  AbstractSensitivityAlgorithm, AbstractODEAlgorithm,
                  AbstractSDEAlgorithm, AbstractDDEAlgorithm, AbstractDAEAlgorithm,
                  AbstractSDDEAlgorithm, AbstractRODEAlgorithm, DAEInitializationAlgorithm,
-                 AbstractSteadyStateAlgorithm,
-                 AbstractODEProblem,
+                 AbstractSteadyStateAlgorithm, AbstractQuadratureAlgorithm,
+                 AbstractODEProblem, AbstractDiscreteProblem,
                  AbstractSDEProblem, AbstractRODEProblem, AbstractDDEProblem,
                  AbstractDAEProblem, AbstractSDDEProblem, AbstractBVProblem,
                  AbstractTimeseriesSolution, AbstractNoTimeSolution, numargs,
@@ -42,11 +42,12 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  AbstractNonlinearFunction, AbstractEnsembleSolution,
                  AbstractODESolution, AbstractRODESolution, AbstractDAESolution,
                  EnsembleAlgorithm, EnsembleSolution, EnsembleSummary,
+                 QuadratureSolution,
                  TimeGradientWrapper, TimeDerivativeWrapper, UDerivativeWrapper,
                  UJacobianWrapper, ParamJacobianWrapper, JacobianWrapper,
                  check_error!, has_jac, has_tgrad, has_Wfact, has_Wfact_t, has_paramjac,
                  AbstractODEIntegrator, AbstractSDEIntegrator, AbstractRODEIntegrator,
-                 AbstractDDEIntegrator,
+                 AbstractDDEIntegrator, AbstractSDDEIntegrator,
                  AbstractDAEIntegrator, unwrap_cache, has_reinit, reinit!,
                  postamble!, last_step_failed, islinear, has_destats,
                  initialize_dae!, build_solution, solution_new_retcode,
@@ -56,9 +57,14 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  has_analytic, calculate_solution_errors!, AbstractNoiseProcess,
                  has_colorvec, parameterless_type, undefined_exports,
                  is_diagonal_noise, AbstractDiffEqFunction, sensitivity_solution,
-                 interp_summary
+                 interp_summary, AbstractHistoryFunction, LinearInterpolation,
+                 ConstantInterpolation, HermiteInterpolation, NoAD, @add_kwonly,
+                 calculate_ensemble_errors, DEFAULT_UPDATE_FUNC, isconstant,
+                 DEFAULT_REDUCTION
 
-import SciMLBase: solve, init, solve!, __init, __solve, update_coefficients!, update_coefficients, isadaptive
+import SciMLBase: solve, init, solve!, __init, __solve, update_coefficients!,
+                  update_coefficients, isadaptive, wrapfun_oop, wrapfun_iip,
+                  unwrap_fw, promote_tspan
 
 SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
@@ -95,9 +101,6 @@ include("nlsolve/type.jl")
 include("nlsolve/newton.jl")
 include("nlsolve/functional.jl")
 include("nlsolve/utils.jl")
-include("operators/diffeq_operator.jl")
-include("operators/common_defaults.jl")
-include("operators/basic_operators.jl")
 include("callbacks.jl")
 include("linear_nonlinear.jl")
 include("common_defaults.jl")
@@ -142,10 +145,8 @@ export LinSolveFactorize, LinSolveGPUFactorize, DefaultLinSolve, DEFAULT_LINSOLV
        LinSolveGMRES, LinSolveCG, LinSolveBiCGStabl, LinSolveChebyshev,
        LinSolveMINRES, LinSolveIterativeSolvers
 
-export AffineDiffEqOperator
-
-export DiffEqScalar, DiffEqArrayOperator, DiffEqIdentity
-
 export NLNewton, NLFunctional, NLAnderson
+
+export SensitivityADPassThrough
 
 end # module
