@@ -251,7 +251,7 @@ function __init__()
   end
 
   @require GeneralizedGenerated="6b9d7cbe-bcb9-11e9-073f-15a7a543e2eb" begin
-    numargs(::GeneralizedGenerated.RuntimeFn{Args}) where Args = GeneralizedGenerated.from_type(Args) |> length
+    SciMLBase.numargs(::GeneralizedGenerated.RuntimeFn{Args}) where Args = GeneralizedGenerated.from_type(Args) |> length
   end
 
   @require Pardiso="46dd5b70-b6fb-5a00-ae2d-e8fea33afaf2" begin
