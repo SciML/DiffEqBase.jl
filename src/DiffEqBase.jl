@@ -32,6 +32,7 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  AbstractSensitivityAlgorithm, AbstractODEAlgorithm,
                  AbstractSDEAlgorithm, AbstractDDEAlgorithm, AbstractDAEAlgorithm,
                  AbstractSDDEAlgorithm, AbstractRODEAlgorithm, DAEInitializationAlgorithm,
+                 AbstractSteadyStateAlgorithm,
                  AbstractODEProblem,
                  AbstractSDEProblem, AbstractRODEProblem, AbstractDDEProblem,
                  AbstractDAEProblem, AbstractSDDEProblem, AbstractBVProblem,
@@ -43,17 +44,19 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  EnsembleAlgorithm, EnsembleSolution, EnsembleSummary,
                  TimeGradientWrapper, TimeDerivativeWrapper, UDerivativeWrapper,
                  UJacobianWrapper, ParamJacobianWrapper, JacobianWrapper,
-                 check_error!, has_jac, has_tgrad, has_Wfact, has_Wfact_t,
-                 AbstractODEIntegrator, AbstractSDEIntegrator, AbstractDDEIntegrator,
+                 check_error!, has_jac, has_tgrad, has_Wfact, has_Wfact_t, has_paramjac,
+                 AbstractODEIntegrator, AbstractSDEIntegrator, AbstractRODEIntegrator,
+                 AbstractDDEIntegrator,
                  AbstractDAEIntegrator, unwrap_cache, has_reinit, reinit!,
                  postamble!, last_step_failed, islinear, has_destats,
                  initialize_dae!, build_solution, solution_new_retcode,
-                 solution_new_tslocation, sensitivity_solution, plot_indices,
+                 solution_new_tslocation, plot_indices,
                  NullParameters, isinplace, AbstractADType, AbstractDiscretization,
                  DISCRETE_OUTOFPLACE_DEFAULT, DISCRETE_INPLACE_DEFAULT,
                  has_analytic, calculate_solution_errors!, AbstractNoiseProcess,
                  has_colorvec, parameterless_type, undefined_exports,
-                 is_diagonal_noise
+                 is_diagonal_noise, AbstractDiffEqFunction, sensitivity_solution,
+                 interp_summary
 
 import SciMLBase: solve, init, solve!, __init, __solve, update_coefficients!, update_coefficients, isadaptive
 
@@ -95,7 +98,6 @@ include("nlsolve/utils.jl")
 include("operators/diffeq_operator.jl")
 include("operators/common_defaults.jl")
 include("operators/basic_operators.jl")
-include("interpolation.jl")
 include("callbacks.jl")
 include("linear_nonlinear.jl")
 include("common_defaults.jl")
