@@ -109,13 +109,13 @@ function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
   prob
 end
 
-function get_concrete_problem(prob::AbstractSteadyStateProblem, isadapt; kwargs...)
+function get_concrete_problem(prob::SteadyStateProblem, isadapt; kwargs...)
   u0 = get_concrete_u0(prob, isadapt, Inf, kwargs)
   u0 = promote_u0(u0, prob.p, nothing)
   remake(prob; u0 = u0)
 end
 
-function get_concrete_problem(prob::AbstractNonlinearProblem, isadapt; kwargs...)
+function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
   u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
   u0 = promote_u0(u0, prob.p, nothing)
   remake(prob; u0 = u0)
