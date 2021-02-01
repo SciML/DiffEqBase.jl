@@ -16,6 +16,8 @@ using NonlinearSolve
 
 using Reexport
 
+using Statistics
+
 import ZygoteRules, ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
