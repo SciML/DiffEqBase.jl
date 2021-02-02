@@ -31,6 +31,7 @@ function __init__()
     promote_u0(u0::AbstractArray{<:ForwardDiff.Dual},p::AbstractArray{<:ForwardDiff.Dual},t0) = u0
     promote_u0(u0,p::AbstractArray{<:ForwardDiff.Dual},t0) = eltype(p).(u0)
     promote_u0(u0,p::NTuple{N,<:ForwardDiff.Dual},t0) where N = eltype(p).(u0)
+    promote_u0(u0,p::ForwardDiff.Dual,t0) where N = eltype(p).(u0)
 
     function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual},p,tspan::Tuple{<:ForwardDiff.Dual,<:ForwardDiff.Dual},prob,kwargs)
       return tspan
