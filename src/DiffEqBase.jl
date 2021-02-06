@@ -64,7 +64,7 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  ConstantInterpolation, HermiteInterpolation, NoAD, @add_kwonly,
                  calculate_ensemble_errors, DEFAULT_UPDATE_FUNC, isconstant,
                  DEFAULT_REDUCTION, isautodifferentiable,
-                 isadaptive, isdiscrete
+                 isadaptive, isdiscrete, has_syms
 
 import SciMLBase: solve, init, solve!, __init, __solve, update_coefficients!,
                   update_coefficients, isadaptive, wrapfun_oop, wrapfun_iip,
