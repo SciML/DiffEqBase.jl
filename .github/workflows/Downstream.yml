@@ -1,3 +1,4 @@
+  
 name: IntegrationTest
 on:
   push:
@@ -7,19 +8,24 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.package.repo }}
+    name: ${{ matrix.package.repo }}/${{ matrix.package.group }}
     runs-on: ${{ matrix.os }}
+    env:
+      GROUP: ${{ matrix.package.group }}
     strategy:
       fail-fast: false
       matrix:
         julia-version: [1]
         os: [ubuntu-latest]
         package:
-          - {user: SciML, repo: DelayDiffEq.jl}
-          - {user: SciML, repo: DiffEqFlux.jl}
-          - {user: SciML, repo: OrdinaryDiffEq.jl}
-          - {user: SciML, repo: StochasticDiffEq.jl}
-          - {user: SciML, repo: Sundials.jl}
+          - {user: SciML, repo: DelayDiffEq.jl, group: All}
+          - {user: SciML, repo: DiffEqBase.jl, group: All}
+          - {user: SciML, repo: DiffEqFlux.jl, group: DiffEqFlux}
+          - {user: SciML, repo: OrdinaryDiffEq.jl, group: Interface}
+          - {user: SciML, repo: OrdinaryDiffEq.jl, group: Integrators}
+          - {user: SciML, repo: OrdinaryDiffEq.jl, group: Regression}
+          - {user: SciML, repo: StochasticDiffEq.jl, group: All}
+          - {user: SciML, repo: Sundials.jl, group: All}
 
     steps:
       - uses: actions/checkout@v2
@@ -34,7 +40,7 @@ jobs:
           repository: ${{ matrix.package.user }}/${{ matrix.package.repo }}
           path: downstream
       - name: Load this and run the downstream tests
-        shell: julia --project=downstream {0}
+        shell: julia --color=yes --project=downstream {0}
         run: |
           using Pkg
           try
