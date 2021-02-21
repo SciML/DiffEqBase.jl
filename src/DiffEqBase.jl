@@ -66,7 +66,7 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
                  calculate_ensemble_errors, DEFAULT_UPDATE_FUNC, isconstant,
                  DEFAULT_REDUCTION, isautodifferentiable,
                  isadaptive, isdiscrete, has_syms, AbstractAnalyticalSolution,
-                 RECOMPILE_BY_DEFAULT 
+                 RECOMPILE_BY_DEFAULT
 
 import SciMLBase: solve, init, solve!, __init, __solve, update_coefficients!,
                   update_coefficients, isadaptive, wrapfun_oop, wrapfun_iip,
@@ -128,17 +128,6 @@ struct ConvergenceSetup{P,C}
     probs::P
     convergence_axis::C
 end
-
-const AbstractMonteCarloProblem = AbstractEnsembleProblem
-const AbstractMonteCarloSolution = AbstractEnsembleSolution
-const MonteCarloAlgorithm = EnsembleAlgorithm
-const MonteCarloProblem = EnsembleProblem
-const MonteCarloSolution = EnsembleSolution
-const MonteCarloSummary = EnsembleSummary
-@deprecate MonteCarloProblem(args...) EnsembleProblem(args...)
-@deprecate MonteCarloSolution(args...) EnsembleSolution(args...)
-@deprecate MonteCarloSummary(args...) EnsembleSummary(args...)
-@deprecate calculate_monte_errors(args...;kwargs...) calculate_ensemble_errors(args...;kwargs...)
 
 export DEDataArray, DEDataVector, DEDataMatrix
 
