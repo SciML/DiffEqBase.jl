@@ -35,6 +35,6 @@ function test_loss(p1,prob)
 	return loss
 end
 
-@time gs = Zygote.gradient(p) do
+@time gs = Zygote.gradient(p) do p
 	test_loss(p,prob_ode)
 end
