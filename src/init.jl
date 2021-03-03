@@ -5,7 +5,7 @@ promote_tspan(u0,p,tspan,prob,kwargs) = tspan
 get_tmp(x) = nothing
 isdistribution(u0) = false
 
-function tmap(args...)
+function SciMLBase.tmap(args...)
   error("Zygote must be added to differentiate Zygote? If you see this error, report it.")
 end
 
@@ -233,7 +233,7 @@ function __init__()
 
   @require Zygote="e88e6eb3-aa80-5325-afca-941959d7151f" begin
     function ∇tmap(cx, f, args...)
-      ys_and_backs = tmap((args...) -> Zygote._pullback(cx, f, args...), args...)
+      ys_and_backs = SciMLBase.tmap((args...) -> Zygote._pullback(cx, f, args...), args...)
       if isempty(ys_and_backs)
         ys_and_backs, _ -> nothing
       else
@@ -241,7 +241,7 @@ function __init__()
         function ∇tmap_internal(Δ)
           lengths = vcat(1,cumsum([length(ys[i]) for i in 1:length(ys)]))
           Δ_split = [Δ[lengths[i]:lengths[i+1]] for i in 1:length(ys)]
-          Δf_and_args_zipped = DiffEqBase.tmap((f, δ) -> f(δ), backs, Δ_split)
+          Δf_and_args_zipped = SciMLBase.tmap((f, δ) -> f(δ), backs, Δ_split)
           Δf_and_args = Zygote.unzip(Δf_and_args_zipped)
           Δf = reduce(Zygote.accum, Δf_and_args[1])
           (Δf, Δf_and_args[2:end]...)

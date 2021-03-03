@@ -51,7 +51,7 @@ ZygoteRules.@adjoint! function (f::ODEFunction)(du,u,p,t)
   end
 end
 
-ZygoteRules.@adjoint function tmap(f, args::Union{AbstractArray,Tuple}...)
+ZygoteRules.@adjoint function SciMLBase.tmap(f, args::Union{AbstractArray,Tuple}...)
   ∇tmap(__context__, f, args...)
 end
 
