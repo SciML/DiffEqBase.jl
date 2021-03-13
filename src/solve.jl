@@ -152,6 +152,28 @@ function get_concrete_problem(prob, isadapt; kwargs...)
   end
 end
 
+function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
+
+  p = get_concrete_p(prob, kwargs)
+  tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
+  u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
+  du0 = get_concrete_du0(prob, isadapt, tspan[1], kwargs)
+
+  u0_promote = promote_u0(u0, p, tspan[1])
+  du0_promote = promote_u0(du0, p, tspan[1])
+
+  f_promote = promote_f(prob.f, u0_promote)
+  tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
+  if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
+     isconcretedu0(prob, tspan[1], kwargs) && typeof(du0_promote) === typeof(prob.du0) &&
+                  prob.tspan == tspan && typeof(tspan) === typeof(tspan_promote) &&
+                  p === prob.p && f_promote === prob.f
+    return prob
+  else
+    return remake(prob; f = f_promote, du0 = du0_promote, u0 = u0_promote, p=p, tspan = tspan_promote)
+  end
+end
+
 function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
   p = get_concrete_p(prob, kwargs)
   tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
@@ -192,6 +214,10 @@ function isconcreteu0(prob, t0, kwargs)
   !eval_u0(prob.u0) && prob.u0 !== nothing && !isdistribution(prob.u0)
 end
 
+function isconcretedu0(prob, t0, kwargs)
+  !eval_u0(prob.u0) && prob.du0 !== nothing && !isdistribution(prob.du0)
+end
+
 function get_concrete_u0(prob, isadapt, t0, kwargs)
   if eval_u0(prob.u0)
     u0 = prob.u0(prob.p, t0)
@@ -204,6 +230,20 @@ function get_concrete_u0(prob, isadapt, t0, kwargs)
   isadapt && eltype(u0) <: Integer && (u0 = float.(u0))
 
   handle_distribution_u0(u0)
+end
+
+function get_concrete_du0(prob, isadapt, t0, kwargs)
+  if eval_u0(prob.du0)
+    du0 = prob.du0(prob.p, t0)
+  elseif haskey(kwargs,:du0)
+    du0 = kwargs[:du0]
+  else
+    du0 = prob.du0
+  end
+
+  isadapt && eltype(du0) <: Integer && (du0 = float.(du0))
+
+  handle_distribution_u0(du0)
 end
 
 function get_concrete_p(prob, kwargs)
