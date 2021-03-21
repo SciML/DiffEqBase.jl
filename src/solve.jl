@@ -90,7 +90,7 @@ function solve_up(prob::DEProblem,sensealg,u0,p,args...;kwargs...)
 end
 
 function solve(prob::EnsembleProblem,args...;kwargs...)
-  if isempty(args)
+  if isempty(args) || length(args) == 1 && typeof(args[1])<:EnsembleAlgorithm
     __solve(prob,nothing,args...;kwargs...)
   else
     __solve(prob,args...;kwargs...)
