@@ -249,6 +249,22 @@ function __init__()
         reduce(vcat,ys),∇tmap_internal
       end
     end
+
+    function ∇responsible_map(cx, f, args...)
+      ys_and_backs = SciMLBase.responsible_map((args...) -> Zygote._pullback(cx, f, args...), args...)
+      if isempty(ys_and_backs)
+        ys_and_backs, _ -> nothing
+      else
+        ys, backs = Zygote.unzip(ys_and_backs)
+        ys, function (Δ)
+          # Apply pullbacks in reverse order. Needed for correctness if `f` is stateful.
+          Δf_and_args_zipped = SciMLBase.responsible_map((f, δ) -> f(δ), Zygote._tryreverse(SciMLBase.responsible_map, backs, Δ)...)
+          Δf_and_args = Zygote.unzip(Zygote._tryreverse(SciMLBase.responsible_map, Δf_and_args_zipped))
+          Δf = reduce(Zygote.accum, Δf_and_args[1])
+          (Δf, Δf_and_args[2:end]...)
+        end
+      end
+    end
   end
 
   @require GeneralizedGenerated="6b9d7cbe-bcb9-11e9-073f-15a7a543e2eb" begin

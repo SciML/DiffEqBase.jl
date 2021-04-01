@@ -55,6 +55,10 @@ ZygoteRules.@adjoint function SciMLBase.tmap(f, args::Union{AbstractArray,Tuple}
   ∇tmap(__context__, f, args...)
 end
 
+ZygoteRules.@adjoint function SciMLBase.responsible_map(f, args::Union{AbstractArray,Tuple}...)
+  ∇responsible_map(__context__, f, args...)
+end
+
 ZygoteRules.@adjoint function DiffEqBase.EnsembleSolution(sim,time,converged)
   out = EnsembleSolution(sim,time,converged)
   function EnsembleSolution_adjoint(p̄::AbstractArray{T,N}) where {T,N}
