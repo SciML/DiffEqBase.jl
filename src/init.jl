@@ -256,7 +256,7 @@ function __init__()
         ys_and_backs, _ -> nothing
       else
         ys, backs = Zygote.unzip(ys_and_backs)
-        ys, function (Δ)
+        ys, function ∇responsible_map_internal(Δ)
           # Apply pullbacks in reverse order. Needed for correctness if `f` is stateful.
           Δf_and_args_zipped = SciMLBase.responsible_map((f, δ) -> f(δ), Zygote._tryreverse(SciMLBase.responsible_map, backs, Δ)...)
           Δf_and_args = Zygote.unzip(Zygote._tryreverse(SciMLBase.responsible_map, Δf_and_args_zipped))
