@@ -22,6 +22,8 @@ import ZygoteRules, ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
 
+using Setfield
+
 @reexport using SciMLBase
 
 using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
