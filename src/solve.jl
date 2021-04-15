@@ -190,7 +190,7 @@ function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
   remake(prob; u0 = u0, tspan = tspan, p=p, constant_lags = constant_lags)
 end
 
-promote_f(f,u0) = begin
+function promote_f(f,u0)
     # Ensure our jacobian will be of the same type as u0
     uElType = isnothing(u0) ? Float64 : eltype(u0)
     if isdefined(f, :jac_prototype) && f.jac_prototype isa AbstractArray
