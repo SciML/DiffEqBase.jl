@@ -136,7 +136,6 @@ function init(prob::PDEProblem,alg::DiffEqBase.DEAlgorithm,args...;
 end
 
 function get_concrete_problem(prob, isadapt; kwargs...)
-
   p = get_concrete_p(prob, kwargs)
   tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
   u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
@@ -191,7 +190,15 @@ function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
   remake(prob; u0 = u0, tspan = tspan, p=p, constant_lags = constant_lags)
 end
 
-promote_f(f,u0) = f
+function promote_f(f,u0)
+    # Ensure our jacobian will be of the same type as u0
+    uElType = u0 === nothing ? Float64 : eltype(u0)
+    if isdefined(f, :jac_prototype) && f.jac_prototype isa AbstractArray
+        f = @set f.jac_prototype = similar(f.jac_prototype, uElType)
+    end
+    return f
+end
+
 promote_f(f::SplitFunction,u0) = typeof(f.cache) === typeof(u0) && isinplace(f) ? f : remake(f,cache=zero(u0))
 
 function get_concrete_tspan(prob, isadapt, kwargs, p)
