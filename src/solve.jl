@@ -194,7 +194,7 @@ function promote_f(f,u0)
     # Ensure our jacobian will be of the same type as u0
     uElType = u0 === nothing ? Float64 : eltype(u0)
     if isdefined(f, :jac_prototype) && f.jac_prototype isa AbstractArray
-        f = @set f.jac_prototype = similar(f.jac_prototype, uEltype)
+        f = @set f.jac_prototype = similar(f.jac_prototype, uElType)
     end
     return f
 end
