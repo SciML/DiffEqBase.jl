@@ -239,14 +239,12 @@ function __init__()
       else
         ys, backs = Zygote.unzip(ys_and_backs)
         function ∇tmap_internal(Δ)
-          lengths = vcat(1,cumsum([length(ys[i]) for i in 1:length(ys)]))
-          Δ_split = [Δ[lengths[i]:lengths[i+1]] for i in 1:length(ys)]
-          Δf_and_args_zipped = SciMLBase.tmap((f, δ) -> f(δ), backs, Δ_split)
+          Δf_and_args_zipped = SciMLBase.tmap((f, δ) -> f(δ), backs, Δ)
           Δf_and_args = Zygote.unzip(Δf_and_args_zipped)
           Δf = reduce(Zygote.accum, Δf_and_args[1])
           (Δf, Δf_and_args[2:end]...)
         end
-        reduce(vcat,ys),∇tmap_internal
+        ys,∇tmap_internal
       end
     end
 

@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, Zygote
+using OrdinaryDiffEq, Zygote, Test
 using DiffEqSensitivity
 using Random
 
@@ -28,13 +28,16 @@ function test_loss(p1,prob)
 	ensembleprob = EnsembleProblem(prob,prob_func = prob_func)
 
 	u = Array(solve(ensembleprob, Tsit5(), EnsembleThreads(), trajectories=n_par,
-	p=p,
+	p=p1,
 	sensealg = ForwardDiffSensitivity(),
 	saveat = 0.1, dt=0.001))[:,end,:]
 	loss=sum(u)
 	return loss
 end
 
+test_loss(p,prob_ode)
+
 @time gs = Zygote.gradient(p) do p
 	test_loss(p,prob_ode)
 end
+@test gs[1] isa Vector
