@@ -8,7 +8,7 @@ Calculate element-wise residuals
 """
 @inline @muladd function calculate_residuals(ũ::Number, u₀::Number, u₁::Number,
                                     α, ρ, internalnorm,t)
-    ũ / (α + max(internalnorm(u₀,t), internalnorm(u₁,t)) * ρ)
+    @fastmath ũ / (α + max(internalnorm(u₀,t), internalnorm(u₁,t)) * ρ)
 end
 
 @inline function calculate_residuals(ũ::Array{T}, u₀::Array{T}, u₁::Array{T}, α::T2,
@@ -34,7 +34,7 @@ Calculate element-wise residuals
 
 @inline @muladd function calculate_residuals(u₀::Number, u₁::Number,
                                     α, ρ, internalnorm,t)
-    (u₁ - u₀) / (α + max(internalnorm(u₀,t), internalnorm(u₁,t)) * ρ)
+    @fastmath (u₁ - u₀) / (α + max(internalnorm(u₀,t), internalnorm(u₁,t)) * ρ)
 end
 
 @inline function calculate_residuals(u₀::Array{T}, u₁::Array{T}, α::T2,
@@ -60,7 +60,7 @@ Return element-wise residuals
 """
 @inline @muladd function calculate_residuals(E₁::Number, E₂::Number, u₀::Number, u₁::Number,
                                              α::Real, ρ::Real, δ::Number, scalarnorm, t)
-    (δ * E₁ + E₂) / (α + max(scalarnorm(u₀,t), scalarnorm(u₁,t)) * ρ)
+    @fastmath (δ * E₁ + E₂) / (α + max(scalarnorm(u₀,t), scalarnorm(u₁,t)) * ρ)
 end
 
 @inline function calculate_residuals(E₁::Array{<:Number}, E₂::Array{<:Number},
