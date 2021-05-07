@@ -18,6 +18,8 @@ using Reexport
 
 using Statistics
 
+using FastBroadcast: @..
+
 import ZygoteRules, ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
@@ -101,7 +103,6 @@ const DEDataMatrix{T} = DEDataArray{T,2}
 
 include("utils.jl")
 include("fastpow.jl")
-include("diffeqfastbc.jl")
 include("destats.jl")
 include("calculate_residuals.jl")
 include("tableaus.jl")
