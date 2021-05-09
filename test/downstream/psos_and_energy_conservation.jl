@@ -4,7 +4,7 @@ using OrdinaryDiffEq, Test, Random, LinearAlgebra, SparseArrays
 Nc = 22
 η = 1.0
 κ = 1.0
-T = (0.0,100.0)
+T = (0.0,500.0)
 
 # Matrix definitions
 A = sparse(diagm(1 => sqrt.(Complex[1:Nc;])))
