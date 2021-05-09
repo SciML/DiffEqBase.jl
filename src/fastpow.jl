@@ -52,8 +52,8 @@ const EXP2FT = (Float32(0x1.6a09e667f3bcdp-1),
                 Float32(0x1.4bfdad5362a27p+0),
                 Float32(0x1.5ab07dd485429p+0))
 @inline function _exp2(x::Float32)
-    TBLBITS = 4
-    TBLSIZE = (1 << TBLBITS)
+    TBLBITS = UInt32(4)
+    TBLSIZE = UInt32(1 << TBLBITS)
 
     redux = Float32(0x1.8p23f) / TBLSIZE
     P1    = Float32(0x1.62e430p-1f)
@@ -64,15 +64,15 @@ const EXP2FT = (Float32(0x1.6a09e667f3bcdp-1),
     # Reduce x, computing z, i0, and k.
     t::Float32 = x + redux
     i0 = reinterpret(UInt32, t)
-    i0 += TBLSIZE ÷ 2
+    i0 += TBLSIZE ÷ UInt32(2)
     k::UInt32 = unsafe_trunc(UInt32, (i0 >> TBLBITS) << 20)
-    i0 &= TBLSIZE - 1
+    i0 &= TBLSIZE - UInt32(1)
     t -= redux
     z = x - t
     twopk = Float32(reinterpret(Float64, UInt64(0x3ff00000 + k) << 32))
 
     # Compute r = exp2(y) = exp2ft[i0] * p(z).
-    tv = EXP2FT[i0+1]
+    tv = EXP2FT[i0+UInt32(1)]
     u = tv * z
     tv = tv + u * (P1 + z * P2) + u * (z * z) * (P3 + z * P4)
 
