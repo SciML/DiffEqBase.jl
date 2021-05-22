@@ -39,3 +39,8 @@ u6 = ArrayPartition(1.0,1.0)
 @test UNITLESS_ABS2(u6) == 2.0
 @test recursive_length(u6) == 2
 @test ODE_DEFAULT_NORM(u6, 0.0) == 1.0
+
+u7 = ArrayPartition(u1, ones(0))
+@test UNITLESS_ABS2(u7) == 3.0
+@test recursive_length(u7) == 3
+@test ODE_DEFAULT_NORM(u7, 0.0) == 1.0
