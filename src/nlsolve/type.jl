@@ -39,7 +39,7 @@ nlsolve_default(_, ::Val{:fast_convergence_cutoff}) = 1//5
 nlsolve_default(_, ::Val{:new_W_dt_cutoff}) = 1//5
 nlsolve_default(_, ::Val{:max_history}) = 10
 nlsolve_default(_, ::Val{:aa_start}) = 1
-nlsolve_default(_, ::Val{:droptol}) = nothing
+nlsolve_default(_, ::Val{:droptol}) = Some(nothing)
 
 # algorithms
 
