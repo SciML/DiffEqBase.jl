@@ -33,36 +33,69 @@ mutable struct NLSolver{iip,uType,rateType,uTolType,kType,gType,cType,du1Type,uf
   cache::C
 end
 
+nlsolve_default(_, ::Val{:κ}) = 1//100 # takes `integrator.alg`
+nlsolve_default(_, ::Val{:max_iter}) = 10
+nlsolve_default(_, ::Val{:fast_convergence_cutoff}) = 1//5
+nlsolve_default(_, ::Val{:new_W_dt_cutoff}) = 1//5
+nlsolve_default(_, ::Val{:max_history}) = 10
+nlsolve_default(_, ::Val{:aa_start}) = 1
+nlsolve_default(_, ::Val{:droptol}) = nothing
+
 # algorithms
 
-struct NLFunctional{K,C} <: AbstractNLSolverAlgorithm
+struct NLFunctional{K,C,M} <: AbstractNLSolverAlgorithm
   κ::K
   fast_convergence_cutoff::C
-  max_iter::Int
+  max_iter::M
 end
 
-NLFunctional(; κ=1//100, max_iter=10, fast_convergence_cutoff=1//5) = NLFunctional(κ, fast_convergence_cutoff, max_iter)
+NLFunctional(; κ=nothing, max_iter=nothing, fast_convergence_cutoff=nothing) = NLFunctional(κ, fast_convergence_cutoff, max_iter)
 
-struct NLAnderson{K,D,C} <: AbstractNLSolverAlgorithm
+function handle_defaults(alg, nlalg::NLFunctional)
+  @set! nlalg.κ = something(nlalg.κ, nlsolve_default(alg, Val(:κ)))
+  @set! nlalg.max_iter = something(nlalg.max_iter, nlsolve_default(alg, Val(:max_iter)))
+  @set! nlalg.fast_convergence_cutoff = something(nlalg.fast_convergence_cutoff, nlsolve_default(alg, Val(:fast_convergence_cutoff)))
+  return nlalg
+end
+
+struct NLAnderson{K,D,C,MI,MH,AS} <: AbstractNLSolverAlgorithm
   κ::K
   fast_convergence_cutoff::C
-  max_iter::Int
-  max_history::Int
-  aa_start::Int
+  max_iter::MI
+  max_history::MH
+  aa_start::AS
   droptol::D
 end
 
-NLAnderson(; κ=1//100, max_iter=10, max_history::Int=5, aa_start::Int=1, droptol=nothing, fast_convergence_cutoff=1//5) =
+NLAnderson(; κ=nothing, max_iter=nothing, max_history=nothing, aa_start=nothing, droptol=nothing, fast_convergence_cutoff=nothing) =
   NLAnderson(κ, fast_convergence_cutoff, max_iter, max_history, aa_start, droptol)
 
-struct NLNewton{K,C1,C2} <: AbstractNLSolverAlgorithm
+function handle_defaults(alg, nlalg::NLAnderson)
+  @set! nlalg.κ = something(nlalg.κ, nlsolve_default(alg, Val(:κ)))
+  @set! nlalg.max_iter = something(nlalg.max_iter, nlsolve_default(alg, Val(:max_iter)))
+  @set! nlalg.fast_convergence_cutoff = something(nlalg.fast_convergence_cutoff, nlsolve_default(alg, Val(:fast_convergence_cutoff)))
+  @set! nlalg.max_history = something(nlalg.max_history, nlsolve_default(alg, Val(:max_history)))
+  @set! nlalg.aa_start = something(nlalg.aa_start, nlsolve_default(alg, Val(:aa_start)))
+  @set! nlalg.droptol = something(nlalg.droptol, nlsolve_default(alg, Val(:droptol)))
+  return nlalg
+end
+
+struct NLNewton{K,M,C1,C2} <: AbstractNLSolverAlgorithm
   κ::K
-  max_iter::Int
+  max_iter::M
   fast_convergence_cutoff::C1
   new_W_dt_cutoff::C2
 end
 
-NLNewton(; κ=1//100, max_iter=10, fast_convergence_cutoff=1//5, new_W_dt_cutoff=1//5) = NLNewton(κ, max_iter, fast_convergence_cutoff, new_W_dt_cutoff)
+NLNewton(; κ=nothing, max_iter=nothing, fast_convergence_cutoff=nothing, new_W_dt_cutoff=nothing) = NLNewton(κ, max_iter, fast_convergence_cutoff, new_W_dt_cutoff)
+
+function handle_defaults(alg, nlalg::NLNewton)
+  @set! nlalg.κ = something(nlalg.κ, nlsolve_default(alg, Val(:κ)))
+  @set! nlalg.max_iter = something(nlalg.max_iter, nlsolve_default(alg, Val(:max_iter)))
+  @set! nlalg.fast_convergence_cutoff = something(nlalg.fast_convergence_cutoff, nlsolve_default(alg, Val(:fast_convergence_cutoff)))
+  @set! nlalg.new_W_dt_cutoff = something(nlalg.new_W_dt_cutoff, nlsolve_default(alg, Val(:new_W_dt_cutoff)))
+  return nlalg
+end
 
 # caches
 
