@@ -51,6 +51,8 @@ function __init__()
     value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
 
     @inline fastpow(x::ForwardDiff.Dual, y::ForwardDiff.Dual) = x^y
+    @inline fastpow(x::ForwardDiff.Dual, y::Real) = x^y
+    @inline fastpow(x::Real, y::ForwardDiff.Dual) = x^y
 
     sse(x::Number) = x^2
     sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
@@ -109,6 +111,8 @@ function __init__()
     value(x::Measurements.Measurement) = Measurements.value(x)
 
     @inline fastpow(x::Measurements.Measurement, y::Measurements.Measurement) = x^y
+    @inline fastpow(x::Measurements.Measurement, y::Real) = x^y
+    @inline fastpow(x::Real, y::Measurements.Measurement) = x^y
 
     # Support adaptive steps should be errorless
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:Measurements.Measurement,N},t) where {N}
@@ -129,6 +133,8 @@ function __init__()
     value(x::MonteCarloMeasurements.AbstractParticles) = mean(x)
 
     @inline fastpow(x::MonteCarloMeasurements.AbstractParticles, y::MonteCarloMeasurements.AbstractParticles) = x^y
+    @inline fastpow(x::MonteCarloMeasurements.AbstractParticles, y::Real) = x^y
+    @inline fastpow(x::Real, y::MonteCarloMeasurements.AbstractParticles) = x^y
 
     # Support adaptive steps should be errorless
     @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:MonteCarloMeasurements.AbstractParticles,N},t) where {N}

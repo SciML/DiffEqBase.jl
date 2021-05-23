@@ -8,6 +8,10 @@ promote_u0(u0::AbstractArray{<:ReverseDiff.TrackedReal},p::AbstractArray{<:Rever
 promote_u0(u0,p::ReverseDiff.TrackedArray,t0) = ReverseDiff.track(u0)
 promote_u0(u0,p::AbstractArray{<:ReverseDiff.TrackedReal},t0) = eltype(p).(u0)
 
+@inline fastpow(x::ReverseDiff.TrackedReal, y::ReverseDiff.TrackedReal) = x^y
+@inline fastpow(x::ReverseDiff.TrackedReal, y::Real) = x^y
+@inline fastpow(x::Real, y::ReverseDiff.TrackedReal) = x^y
+
 # Support adaptive with non-tracked time
 @inline function ODE_DEFAULT_NORM(u::ReverseDiff.TrackedArray,t) where {N}
   sqrt(sum(abs2,value(u)) / length(u))

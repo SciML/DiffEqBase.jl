@@ -12,6 +12,9 @@ promote_u0(u0,p::AbstractArray{<:Tracker.TrackedReal},t0) = eltype(p).(u0)
 
 
 @inline fastpow(x::Tracker.TrackedReal, y::Tracker.TrackedReal) = x^y
+@inline fastpow(x::Tracker.TrackedReal, y::Real) = x^y
+@inline fastpow(x::Real, y::Tracker.TrackedReal) = x^y
+
 @inline Base.any(f::Function,x::Tracker.TrackedArray) = any(f,Tracker.data(x))
 
 # Support adaptive with non-tracked time
