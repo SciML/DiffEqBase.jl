@@ -29,7 +29,7 @@ end
 ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::AbstractNoTimeSolution, ::Val{:u})
   function solu_adjoint(Δ)
         zerou = zero(sol.prob.u0)
-        _Δ = @. ifelse(Δ == nothing,(zerou,),Δ)
+        _Δ = @. ifelse(Δ == nothing,zerou,Δ)
         (DiffEqBase.build_solution(sol.prob,sol.alg,_Δ,sol.resid),)
   end
   sol.u,solu_adjoint
