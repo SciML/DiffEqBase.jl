@@ -32,7 +32,7 @@ ZygoteRules = "700de1a5-db45-46bc-99cf-38207098b444"
 
 [compat]
 ArrayInterface = "2.6, 3.0"
-ChainRulesCore = "0.4, 0.5, 0.6, 0.7, 0.8, 0.9"
+ChainRulesCore = "0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.10"
 DataStructures = "0.18"
 DocStringExtensions = "0.8"
 FastBroadcast = "0.1.4"
