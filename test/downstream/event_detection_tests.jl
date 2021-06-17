@@ -210,3 +210,28 @@ cb = distance_callback(sol_chief, threshold)
 tspan_deputy = (t_dep_start, tof_chief - t_dep_start)
 prob_deputy = ODEProblem{false}(eoms, q_deputy, tspan_deputy, μ)
 sol_deputy = solve(prob_deputy, Vern9(); callback=cb, abstol=1e-12, reltol=1e-12)
+
+gravity = 9.8
+stiffness = 500
+equilibrium_length = 1
+T = 5.0
+
+f(u, p, t) = begin
+    x1, x2, dx1, dx2 = u
+    length = abs(x2 - x1)
+    spring_force = stiffness * (equilibrium_length - length)
+    ddx1 = -gravity - spring_force
+    if x1 <= 0
+      ddx1 = max(0, ddx1)
+    end
+    ddx2 = -gravity + spring_force
+    [dx1, dx2, ddx1, ddx2]
+end
+
+sol = solve(
+    ODEProblem(f, [5.0, 6.0, 0.0, 0.0], (0.0, T)),
+    Tsit5(),
+    callback = ContinuousCallback((u, _, _) -> u[1], (integrator) -> (integrator.u[3] = 0)),
+    reltol = 1e-2,
+    abstol = 1e-2
+)

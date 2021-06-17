@@ -673,7 +673,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
 
             bottom_t += integrator.tdir*integrator.dt * callback.repeat_nudge
             sign_top = sign(zero_func(top_t))
-            sign(zero_func(bottom_t)) * zero_func(bottom_t) >= zero(sign_top) && error("Double callback crossing floating pointer reducer errored. Report this issue.")
+            sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
           Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir), callback.rootfind, callback.abstol, callback.reltol)
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
@@ -733,7 +733,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
 
               bottom_t += integrator.tdir*integrator.dt * callback.repeat_nudge
               sign_top = sign(zero_func(top_t))
-              sign(zero_func(bottom_t)) * zero_func(bottom_t) >= zero(sign_top) && error("Double callback crossing floating pointer reducer errored. Report this issue.")
+              sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
             Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir), callback.rootfind, callback.abstol, callback.reltol)
             if integrator.tdir * Θ < integrator.tdir * min_t
