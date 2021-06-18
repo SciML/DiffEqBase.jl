@@ -528,7 +528,7 @@ end
     abst = integrator.tprev+integrator.dt * callback.repeat_nudge
     tmp_condition = get_condition(integrator, callback, abst)
     @. prev_sign = sign(previous_condition)
-    prev_sign[ivec] = tmp_condition[ivec]
+    prev_sign[ivec] = sign(tmp_condition[ivec])
   else
       @. prev_sign = sign(previous_condition)
   end
