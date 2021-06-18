@@ -217,7 +217,7 @@ stiffness = 500
 equilibrium_length = 1
 T = 5.0
 
-f(u, p, t) = begin
+f2(u, p, t) = begin
     x1, x2, dx1, dx2 = u
     length = abs(x2 - x1)
     spring_force = stiffness * (equilibrium_length - length)
@@ -239,7 +239,7 @@ sol = solve(
 )
 
 # https://github.com/SciML/DifferentialEquations.jl/issues/601
-f(u, p, t) = return [u[2], 0]
+f2(u, p, t) = return [u[2], 0]
 prob = ODEProblem(f, [-10., 1.], (-10.0, 10.0), nothing)
 
 is_wall(u, t, integrator) = return u[1]
