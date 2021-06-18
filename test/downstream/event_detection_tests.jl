@@ -235,3 +235,15 @@ sol = solve(
     reltol = 1e-2,
     abstol = 1e-2
 )
+
+
+f(u, p, t) = return [u[2], 0]
+prob = ODEProblem(f, [-10., 1.], (-10.0, 10.0), nothing)
+
+is_wall(u, t, integrator) = return u[1]
+affect!(integrator) = println("Wall!")
+cb = ContinuousCallback(is_wall,
+                            affect!
+                            )
+
+sol = solve(prob, Tsit5(), callback = cb)
