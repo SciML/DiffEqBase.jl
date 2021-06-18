@@ -22,7 +22,7 @@ ContinuousCallback(condition,affect!,affect_neg!;
                    rootfind=LeftRootFind,
                    save_positions=(true,true),
                    interp_points=10,
-                   abstol=10eps(),reltol=0)
+                   abstol=10eps(),reltol=0,repeat_nudge=1//100)
 ```
 
 ```julia
@@ -34,7 +34,7 @@ function ContinuousCallback(condition,affect!;
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
-                   abstol=10eps(),reltol=0)
+                   abstol=10eps(),reltol=0,repeat_nudge=1//100)
 ```
 
 Contains a single callback whose `condition` is a continuous function. The callback is triggered when this function evaluates to 0.
@@ -86,8 +86,11 @@ Contains a single callback whose `condition` is a continuous function. The callb
 - `abstol=1e-14` & `reltol=0`: These are used to specify a tolerance from zero for the rootfinder:
   if the starting condition is less than the tolerance from zero, then no root will be detected.
   This is to stop repeat events happening just after a previously rootfound event.
+- `repeat_nudge = 1//100`: This is used to set the next testing point after a
+  previously found zero. Defaults to 1//100, which means after a callback the next
+  sign check will take place at t + dt*1//100 instead of at t to avoid repeats.
 """
-struct ContinuousCallback{F1,F2,F3,F4,F5,T,T2,I,R} <: AbstractContinuousCallback
+struct ContinuousCallback{F1,F2,F3,F4,F5,T,T2,T3,I,R} <: AbstractContinuousCallback
   condition::F1
   affect!::F2
   affect_neg!::F3
@@ -100,14 +103,16 @@ struct ContinuousCallback{F1,F2,F3,F4,F5,T,T2,I,R} <: AbstractContinuousCallback
   dtrelax::R
   abstol::T
   reltol::T2
+  repeat_nudge::T3
   ContinuousCallback(condition::F1,affect!::F2,affect_neg!::F3,
                      initialize::F4,finalize::F5,idxs::I,rootfind,
-                     interp_points,save_positions,dtrelax::R,abstol::T,reltol::T2) where {F1,F2,F3,F4,F5,T,T2,I,R} =
-                       new{F1,F2,F3,F4,F5,T,T2,I,R}(condition,
+                     interp_points,save_positions,dtrelax::R,abstol::T,reltol::T2,
+                     repeat_nudge::T3) where {F1,F2,F3,F4,F5,T,T2,T3,I,R} =
+                       new{F1,F2,F3,F4,F5,T,T2,T3,I,R}(condition,
                                                affect!,affect_neg!,
                                                initialize,finalize,idxs,rootfind,interp_points,
                                                BitArray(collect(save_positions)),
-                                               dtrelax,abstol,reltol)
+                                               dtrelax,abstol,reltol,repeat_nudge)
 end
 
 ContinuousCallback(condition,affect!,affect_neg!;
@@ -118,12 +123,13 @@ ContinuousCallback(condition,affect!,affect_neg!;
                    save_positions=(true,true),
                    interp_points=10,
                    dtrelax=1,
-                   abstol=10eps(),reltol=0) = ContinuousCallback(
+                   abstol=10eps(),reltol=0,
+                   repeat_nudge = 1//100) = ContinuousCallback(
                               condition,affect!,affect_neg!,initialize,finalize,
                               idxs,
                               rootfind,interp_points,
                               save_positions,
-                              dtrelax,abstol,reltol)
+                              dtrelax,abstol,reltol,repeat_nudge)
 
 function ContinuousCallback(condition,affect!;
                    initialize = INITIALIZE_DEFAULT,
@@ -134,13 +140,13 @@ function ContinuousCallback(condition,affect!;
                    affect_neg! = affect!,
                    interp_points=10,
                    dtrelax=1,
-                   abstol=10eps(),reltol=0)
+                   abstol=10eps(),reltol=0,repeat_nudge=1//100)
 
  ContinuousCallback(
             condition,affect!,affect_neg!,initialize,finalize,idxs,
             rootfind,interp_points,
             collect(save_positions),
-            dtrelax,abstol,reltol)
+            dtrelax,abstol,reltol,repeat_nudge)
 
 end
 
@@ -153,7 +159,7 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          rootfind=LeftRootFind,
                          save_positions=(true,true),
                          interp_points=10,
-                         abstol=10eps(),reltol=0)
+                         abstol=10eps(),reltol=0,repeat_nudge = 1//100)
 ```
 
 ```julia
@@ -165,7 +171,7 @@ VectorContinuousCallback(condition,affect!,len;
                    save_positions=(true,true),
                    affect_neg! = affect!,
                    interp_points=10,
-                   abstol=10eps(),reltol=0)
+                   abstol=10eps(),reltol=0,repeat_nudge=1//100)
 ```
 
 This is also a subtype of `AbstractContinuousCallback`. `CallbackSet` is not feasible when you have a large number of callbacks,
@@ -183,7 +189,7 @@ multiple events.
 
 Rest of the arguments have the same meaning as in [`ContinuousCallback`](@ref).
 """
-struct VectorContinuousCallback{F1,F2,F3,F4,F5,T,T2,I,R} <: AbstractContinuousCallback
+struct VectorContinuousCallback{F1,F2,F3,F4,F5,T,T2,T3,I,R} <: AbstractContinuousCallback
   condition::F1
   affect!::F2
   affect_neg!::F3
@@ -197,15 +203,16 @@ struct VectorContinuousCallback{F1,F2,F3,F4,F5,T,T2,I,R} <: AbstractContinuousCa
   dtrelax::R
   abstol::T
   reltol::T2
+  repeat_nudge::T3
   VectorContinuousCallback(condition::F1,affect!::F2,affect_neg!::F3,len::Int,
                            initialize::F4,finalize::F5,idxs::I,rootfind,
                            interp_points,save_positions,dtrelax::R,
-                           abstol::T,reltol::T2) where {F1,F2,F3,F4,F5,T,T2,I,R} =
-                       new{F1,F2,F3,F4,F5,T,T2,I,R}(condition,
+                           abstol::T,reltol::T2,repeat_nudge::T3) where {F1,F2,F3,F4,F5,T,T2,T3,I,R} =
+                       new{F1,F2,F3,F4,F5,T,T2,T3,I,R}(condition,
                                                affect!,affect_neg!,len,
                                                initialize,finalize,idxs,rootfind,interp_points,
                                                BitArray(collect(save_positions)),
-                                               dtrelax,abstol,reltol)
+                                               dtrelax,abstol,reltol,repeat_nudge)
 end
 
 VectorContinuousCallback(condition,affect!,affect_neg!,len;
@@ -216,13 +223,13 @@ VectorContinuousCallback(condition,affect!,affect_neg!,len;
                          save_positions=(true,true),
                          interp_points=10,
                          dtrelax=1,
-                         abstol=10eps(),reltol=0) = VectorContinuousCallback(
+                         abstol=10eps(),reltol=0,repeat_nudge=1//100) = VectorContinuousCallback(
                               condition,affect!,affect_neg!,len,
                               initialize,finalize,
                               idxs,
                               rootfind,interp_points,
                               save_positions,dtrelax,
-                              abstol,reltol)
+                              abstol,reltol,repeat_nudge)
 
 function VectorContinuousCallback(condition,affect!,len;
                    initialize = INITIALIZE_DEFAULT,
@@ -233,13 +240,13 @@ function VectorContinuousCallback(condition,affect!,len;
                    affect_neg! = affect!,
                    interp_points=10,
                    dtrelax=1,
-                   abstol=10eps(),reltol=0)
+                   abstol=10eps(),reltol=0,repeat_nudge=1//100)
 
  VectorContinuousCallback(
             condition,affect!,affect_neg!,len,initialize,finalize,idxs,
             rootfind,interp_points,
             collect(save_positions),
-            dtrelax,abstol,reltol)
+            dtrelax,abstol,reltol,repeat_nudge)
 
 end
 
@@ -518,20 +525,10 @@ end
     end
 
     # Evaluate condition slightly in future
-    if integrator.t == 0
-      abst = integrator.tprev+integrator.tdir*abs(integrator.dt/10000)
-    else
-      abst = integrator.tprev+integrator.tdir*100*eps(integrator.t)
-    end
+    abst = integrator.tprev+integrator.dt * callback.repeat_nudge
     tmp_condition = get_condition(integrator, callback, abst)
-
-    # Sometimes users may "switch off" the condition after crossing
-    # This is necessary to ensure proper non-detection of a root
-    # == is for exact floating point equality!
     @. prev_sign = sign(previous_condition)
-    prev_sign[ivec] = tmp_condition[ivec] > previous_condition[ivec] ? 1.0 :
-                  (tmp_condition[ivec] == previous_condition[ivec] ?
-                  (prev_sign[ivec] = sign(previous_condition[ivec])) : -1.0)
+    prev_sign[ivec] = sign(tmp_condition[ivec])
   else
       @. prev_sign = sign(previous_condition)
   end
@@ -600,19 +597,9 @@ end
     end
 
     # Evaluate condition slightly in future
-    if integrator.t == 0
-      abst = integrator.tprev+integrator.tdir*abs(integrator.dt/10000)
-    else
-      abst = integrator.tprev+integrator.tdir*100*eps(integrator.t)
-    end
+    abst = integrator.tprev+integrator.dt * callback.repeat_nudge
     tmp_condition = get_condition(integrator, callback, abst)
-
-    # Sometimes users may "switch off" the condition after crossing
-    # This is necessary to ensure proper non-detection of a root
-    # == is for exact floating point equality!
-    prev_sign =    tmp_condition > previous_condition ? 1.0 :
-                  (tmp_condition == previous_condition ?
-                  (prev_sign = sign(previous_condition)) : -1.0)
+    prev_sign = sign(tmp_condition)
   else
     prev_sign = sign(previous_condition)
   end
@@ -684,17 +671,9 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             # Determined that there is an event by derivative
             # But floating point error may make the end point negative
 
+            bottom_t += integrator.dt * callback.repeat_nudge
             sign_top = sign(zero_func(top_t))
-            diff_t = integrator.tdir*2eps(bottom_t)
-            bottom_t += diff_t
-            iter = 1
-            # This check should match the same check in bisection
-            while sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && iter < 12
-              diff_t *= 5
-              bottom_t = integrator.tprev + diff_t
-              iter += 1
-            end
-            iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
+            sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
           Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir), callback.rootfind, callback.abstol, callback.reltol)
           integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
@@ -752,17 +731,9 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               # Determined that there is an event by derivative
               # But floating point error may make the end point negative
 
+              bottom_t += integrator.dt * callback.repeat_nudge
               sign_top = sign(zero_func(top_t))
-              diff_t = integrator.tdir * 2eps(bottom_t)
-              bottom_t += diff_t
-              iter = 1
-              # This check should match the same check in bisection
-              while sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && iter < 12
-                diff_t *= 5
-                bottom_t = integrator.tprev + diff_t
-                iter += 1
-              end
-              iter == 12 && error("Double callback crossing floating pointer reducer errored. Report this issue.")
+              sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
             Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir), callback.rootfind, callback.abstol, callback.reltol)
             if integrator.tdir * Θ < integrator.tdir * min_t
