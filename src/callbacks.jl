@@ -525,7 +525,7 @@ end
     end
 
     # Evaluate condition slightly in future
-    abst = integrator.tprev+integrator.tdir*integrator.dt * callback.repeat_nudge
+    abst = integrator.tprev+integrator.dt * callback.repeat_nudge
     tmp_condition = get_condition(integrator, callback, abst)
     @. prev_sign = sign(previous_condition)
     prev_sign[ivec] = tmp_condition[ivec]
@@ -597,7 +597,7 @@ end
     end
 
     # Evaluate condition slightly in future
-    abst = integrator.tprev+integrator.tdir*integrator.dt * callback.repeat_nudge
+    abst = integrator.tprev+integrator.dt * callback.repeat_nudge
     tmp_condition = get_condition(integrator, callback, abst)
     prev_sign = sign(tmp_condition)
   else
@@ -671,7 +671,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
             # Determined that there is an event by derivative
             # But floating point error may make the end point negative
 
-            bottom_t += integrator.tdir*integrator.dt * callback.repeat_nudge
+            bottom_t += integrator.dt * callback.repeat_nudge
             sign_top = sign(zero_func(top_t))
             sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && error("Double callback crossing floating pointer reducer errored. Report this issue.")
           end
@@ -731,7 +731,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
               # Determined that there is an event by derivative
               # But floating point error may make the end point negative
 
-              bottom_t += integrator.tdir*integrator.dt * callback.repeat_nudge
+              bottom_t += integrator.dt * callback.repeat_nudge
               sign_top = sign(zero_func(top_t))
               sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && error("Double callback crossing floating pointer reducer errored. Report this issue.")
             end
