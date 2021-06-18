@@ -129,6 +129,7 @@ begin
 end
 
 
+# https://github.com/SciML/DifferentialEquations.jl/issues/758
 """
     eoms(u, p, t)
 
@@ -228,6 +229,7 @@ f(u, p, t) = begin
     [dx1, dx2, ddx1, ddx2]
 end
 
+# https://github.com/SciML/DifferentialEquations.jl/issues/647
 sol = solve(
     ODEProblem(f, [5.0, 6.0, 0.0, 0.0], (0.0, T)),
     Tsit5(),
@@ -236,7 +238,7 @@ sol = solve(
     abstol = 1e-2
 )
 
-
+# https://github.com/SciML/DifferentialEquations.jl/issues/601
 f(u, p, t) = return [u[2], 0]
 prob = ODEProblem(f, [-10., 1.], (-10.0, 10.0), nothing)
 
@@ -247,3 +249,132 @@ cb = ContinuousCallback(is_wall,
                             )
 
 sol = solve(prob, Tsit5(), callback = cb)
+
+# https://github.com/SciML/DiffEqBase.jl/issues/599
+
+# The actual system of ODEs.  This is a simple system of ODEs here.
+function eom!(du,u,params,t)
+    issaturated1, issaturated2 = params
+    du[1] = u[2] * !Bool(issaturated1)
+    du[2] = 3.0 * !any(Bool.([issaturated1, issaturated2]))
+    nothing
+end
+
+# This condition function is continuously checked throughout
+# the whole time-domain simulation.
+function condition!(out, u, t, integrator, limits)
+    if integrator.p[1] == false            #if state u1 is within saturation limits
+        out[1] =  (u[1] - limits[1][2]);   #up crossing of state 1 upper bound
+        out[2] = -(u[1] - limits[1][1]);   #up crossing of state 1 lower bound
+    else
+        out[1] = -1
+        out[2] = -1
+    end
+end
+
+# The "affect!" function below seems to only be called
+# when either out[1] or out[2] is zero in the condition! function above.
+# That is, when either the state u1 has reached a lower or upper saturation
+# limit, this "affect!" function is called.  printing "event_index" will show
+# you if out[1] was zero or out[2] was zero.
+function affect!(integrator, event_index)
+	println("\ninside affect! function..");
+    @show event_index
+    if event_index ∈ [1,2] # 1 of the 2 sat. limits was met.
+        # Set velocity to zero and unsaturate state 2, assumes 0 ∈ bounds of state 2
+        println("integrator: ", integrator);
+        println("full_cache(integrator): ", full_cache(integrator));
+        println("typeof(full_cache(integrator)): ", typeof(full_cache(integrator)));
+        println("integrator.p: ", integrator.p);
+        println("integrator.u: ", integrator.u);
+        println("integrator.du: ", integrator.du);
+        println("integrator.t: ", integrator.t);
+        #println("size(full_cache(integrator)): ", size(full_cache(integrator)));
+        # Set velocity to zero and unsaturate state 2, assumes 0 ∈ bounds of state 2
+        for u_ in full_cache(integrator)
+            #println("u_: ", u_);
+            u_[2] = 0.0;
+            #println("u_: ", u_);
+        end
+        #println("u_: ", u_);
+        println("full_cache(integrator): ", full_cache(integrator));
+        println("integrator.p: ", integrator.p);
+        #integrator.p[2] = false;
+        println("integrator.p: ", integrator.p);
+
+        u2 = deepcopy(integrator.u);
+        println("u2: ", u2);
+        p2 = deepcopy(integrator.p);
+        p2[1:2] .= false
+        du = similar(u2)
+        integrator.f(du,u2,p2,integrator); # this evaluate the integrator ???
+
+        if event_index == 2 # u1 reaches lower limit.
+            integrator.p[1] = du[2] > 0.0 ? false : true
+        elseif event_index == 1 # u1 reaches upper limit.
+            integrator.p[1] = du[2] < 0.0 ? false : true
+        end
+
+        println("integrator.p: ", integrator.p);
+
+    end
+end
+
+function affect2!(integrator, event_index)
+    println("\ninside affect! function..");
+    @show event_index
+    if event_index ∈ [1,2] # 1 of the 2 sat. limits was met.
+        # Set velocity to zero and unsaturate state 2, assumes 0 ∈ bounds of state 2
+        println("integrator: ", integrator);
+        println("full_cache(integrator): ", full_cache(integrator));
+        println("typeof(full_cache(integrator)): ", typeof(full_cache(integrator)));
+        println("integrator.p: ", integrator.p);
+        println("integrator.u: ", integrator.u);
+        println("integrator.du: ", integrator.du);
+        println("integrator.t: ", integrator.t);
+
+        integrator.p[2] = false;
+        println("integrator.p: ", integrator.p);
+
+        u2 = deepcopy(integrator.u)
+        u2[2] = 0.0;
+        p2 = deepcopy(integrator.p)
+        p2[1:2] .= false
+        du = similar(u2)
+        integrator.f(du,u2,p2,integrator); # this evaluate the integrator ???
+
+        if event_index == 2 # u1 reaches lower limit.
+            integrator.p[1] = du[2] > 0.0 ? false : true
+        elseif event_index == 1 # u1 reaches upper limit.
+            integrator.p[1] = du[2] < 0.0 ? false : true
+        end
+
+        #integrator.p[1] = true;
+
+        println("integrator.p: ", integrator.p);
+
+    end
+end
+
+# ----------------------------------------
+# The actual simulation is below.
+# ----------------------------------------
+time_to_sim = 8.0;
+u0          = [0.0,-10.0];
+tspan       = (0.0,time_to_sim);
+data_times  = collect(0.0:1.0e-3:time_to_sim);
+
+# Set saturation limits, compute if IC in limits, and set params accordingly
+saturationlimits = [[-10.0,10.0],[-Inf,Inf]];
+issaturated = .!([lim[1] <= u_ <= lim[2] for (u_,lim) ∈ zip(u0, saturationlimits)])
+params = [issaturated...];
+
+#cb = VectorContinuousCallback((out, u, t, integrator) -> condition!(out, u, t, integrator, saturationlimits),
+#                              affect2!,2, affect_neg! = nothing, save_positions=(true,true));
+
+cb = VectorContinuousCallback((out, u, t, integrator) -> condition!(out, u, t, integrator, saturationlimits),
+                            affect2!,2, save_positions=(true,true));
+
+prob_sat = ODEProblem(eom!,u0,tspan,params);
+sol_nocb = solve(prob_sat,Tsit5(), saveat=data_times);
+sol_cb   = solve(prob_sat,Tsit5(), callback = cb, saveat=data_times);
