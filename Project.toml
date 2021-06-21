@@ -28,7 +28,6 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 SuiteSparse = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
-ZygoteRules = "700de1a5-db45-46bc-99cf-38207098b444"
 
 [compat]
 ArrayInterface = "2.6, 3.0"
@@ -49,7 +48,6 @@ Requires = "0.5, 1.0"
 SciMLBase = "1.13"
 Setfield = "0.7"
 StaticArrays = "0.11, 0.12, 1.0"
-ZygoteRules = "0.2"
 julia = "1.6"
 
 [extras]

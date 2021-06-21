@@ -20,7 +20,7 @@ using Statistics
 
 using FastBroadcast: @..
 
-import ZygoteRules, ChainRulesCore
+import ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
 
