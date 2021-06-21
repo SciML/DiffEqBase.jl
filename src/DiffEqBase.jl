@@ -25,6 +25,7 @@ import LabelledArrays
 import RecursiveArrayTools
 
 import ChainRulesCore: NoTangent
+import ZygoteRules
 
 using Setfield
 
