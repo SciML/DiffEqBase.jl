@@ -24,6 +24,8 @@ import ZygoteRules, ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
 
+import ChainRulesCore: NoTangent
+
 using Setfield
 
 @reexport using SciMLBase
@@ -118,7 +120,7 @@ include("data_array.jl")
 include("solve.jl")
 include("internal_euler.jl")
 include("init.jl")
-include("zygote.jl")
+include("chainrules.jl")
 
 """
 $(TYPEDEF)
