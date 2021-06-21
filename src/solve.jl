@@ -287,12 +287,6 @@ end
 
 struct SensitivityADPassThrough <: SciMLBase.DEAlgorithm end
 
-ZygoteRules.@adjoint function solve_up(prob,sensealg::Union{Nothing,AbstractSensitivityAlgorithm},
-                                       u0,p,args...;
-                                       kwargs...)
-  _solve_adjoint(prob,sensealg,u0,p,args...;kwargs...)
-end
-
 function ChainRulesCore.frule(::typeof(solve_up),prob,
                               sensealg::Union{Nothing,AbstractSensitivityAlgorithm},
                               u0,p,args...;
@@ -300,7 +294,7 @@ function ChainRulesCore.frule(::typeof(solve_up),prob,
   _solve_forward(prob,sensealg,u0,p,args...;kwargs...)
 end
 
-function ChainRulesCore.rrule(::typeof(solve_up),prob,
+function ChainRulesCore.rrule(::typeof(solve_up),prob::SciMLBase.DEProblem,
                               sensealg::Union{Nothing,AbstractSensitivityAlgorithm},
                               u0,p,args...;
                               kwargs...)
@@ -313,14 +307,6 @@ end
 
 @deprecate concrete_solve(prob::SciMLBase.DEProblem,alg::Union{SciMLBase.DEAlgorithm,Nothing},
                         u0=prob.u0,p=prob.p,args...;kwargs...) solve(prob,alg,args...;u0=u0,p=p,kwargs...)
-
-ZygoteRules.@adjoint function concrete_solve(prob::SciMLBase.DEProblem,
-                              alg::Union{SciMLBase.DEAlgorithm,Nothing},
-                              u0=prob.u0,p=prob.p,args...;
-                              sensealg=nothing,
-                              kwargs...)
-  _concrete_solve_adjoint(prob,alg,sensealg,u0,p,args...;kwargs...)
-end
 
 function _solve_adjoint(prob,sensealg,u0,p,args...;kwargs...)
   if isempty(args)
