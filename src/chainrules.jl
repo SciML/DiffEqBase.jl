@@ -90,4 +90,20 @@ function ChainRulesCore.rrule(f::ODEFunction,u,p,t)
   end
 end
 
+ZygoteRules.@adjoint function (f::ODEFunction)(u,p,t)
+  if f.vjp === nothing
+    ZygoteRules._pullback(f.f,u,p,t)
+  else
+    f.vjp(u,p,t)
+  end
+end
+
+ZygoteRules.@adjoint! function (f::ODEFunction)(du,u,p,t)
+  if f.vjp === nothing
+    ZygoteRules._pullback(f.f,du,u,p,t)
+  else
+    f.vjp(du,u,p,t)
+  end
+end
+
 ChainRulesCore.rrule(::typeof(numargs),f) = (numargs(f),df->(NoTangent(),NoTangent()))
