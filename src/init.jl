@@ -9,13 +9,6 @@ function SciMLBase.tmap(args...)
   error("Zygote must be added to differentiate Zygote? If you see this error, report it.")
 end
 
-if VERSION < v"1.4.0-DEV.635"
-  # Piracy, should get upstreamed
-  LinearAlgebra.ldiv!(Y::AbstractArray, A::AbstractArray, B::AbstractArray) = (copyto!(Y,B); ldiv!(A,Y))
-  LinearAlgebra.ldiv!(Y::AbstractArray, A::AbstractMatrix, B::AbstractArray) = (copyto!(Y,B); ldiv!(A,Y))
-  LinearAlgebra.ldiv!(x::AbstractArray,A::Diagonal,b::AbstractArray) = (x .= A.diag .\ b)
-end
-
 function __init__()
   @require ApproxFun="28f2ccd6-bb30-5033-b560-165f7b14dc2f" begin
     eval_u0(u0::ApproxFun.Fun) = false
@@ -235,14 +228,14 @@ function __init__()
     function ∇tmap(cx, f, args...)
       ys_and_backs = SciMLBase.tmap((args...) -> Zygote._pullback(cx, f, args...), args...)
       if isempty(ys_and_backs)
-        ys_and_backs, _ -> nothing
+        ys_and_backs, _ -> (NoTangent(),NoTangent())
       else
         ys, backs = Zygote.unzip(ys_and_backs)
         function ∇tmap_internal(Δ)
           Δf_and_args_zipped = SciMLBase.tmap((f, δ) -> f(δ), backs, Δ)
           Δf_and_args = Zygote.unzip(Δf_and_args_zipped)
           Δf = reduce(Zygote.accum, Δf_and_args[1])
-          (Δf, Δf_and_args[2:end]...)
+          (NoTangent(), Δf, Δf_and_args[2:end]...)
         end
         ys,∇tmap_internal
       end
@@ -251,7 +244,7 @@ function __init__()
     function ∇responsible_map(cx, f, args...)
       ys_and_backs = SciMLBase.responsible_map((args...) -> Zygote._pullback(cx, f, args...), args...)
       if isempty(ys_and_backs)
-        ys_and_backs, _ -> nothing
+        ys_and_backs, _ -> (NoTangent(),NoTangent())
       else
         ys, backs = Zygote.unzip(ys_and_backs)
         ys, function ∇responsible_map_internal(Δ)
@@ -259,7 +252,7 @@ function __init__()
           Δf_and_args_zipped = SciMLBase.responsible_map((f, δ) -> f(δ), Zygote._tryreverse(SciMLBase.responsible_map, backs, Δ)...)
           Δf_and_args = Zygote.unzip(Zygote._tryreverse(SciMLBase.responsible_map, Δf_and_args_zipped))
           Δf = reduce(Zygote.accum, Δf_and_args[1])
-          (Δf, Δf_and_args[2:end]...)
+          (NoTangent(),Δf, Δf_and_args[2:end]...)
         end
       end
     end

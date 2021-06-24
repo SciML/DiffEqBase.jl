@@ -20,9 +20,12 @@ using Statistics
 
 using FastBroadcast: @..
 
-import ZygoteRules, ChainRulesCore
+import ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
+
+import ChainRulesCore: NoTangent
+import ZygoteRules
 
 using Setfield
 
@@ -118,7 +121,7 @@ include("data_array.jl")
 include("solve.jl")
 include("internal_euler.jl")
 include("init.jl")
-include("zygote.jl")
+include("chainrules.jl")
 
 """
 $(TYPEDEF)
