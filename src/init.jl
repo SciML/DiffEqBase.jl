@@ -235,7 +235,7 @@ function __init__()
           Δf_and_args_zipped = SciMLBase.tmap((f, δ) -> f(δ), backs, Δ)
           Δf_and_args = Zygote.unzip(Δf_and_args_zipped)
           Δf = reduce(Zygote.accum, Δf_and_args[1])
-          (NoTangent(), Δf, Δf_and_args[2:end]...)
+          (Δf, Δf_and_args[2:end]...)
         end
         ys,∇tmap_internal
       end
@@ -252,7 +252,7 @@ function __init__()
           Δf_and_args_zipped = SciMLBase.responsible_map((f, δ) -> f(δ), Zygote._tryreverse(SciMLBase.responsible_map, backs, Δ)...)
           Δf_and_args = Zygote.unzip(Zygote._tryreverse(SciMLBase.responsible_map, Δf_and_args_zipped))
           Δf = reduce(Zygote.accum, Δf_and_args[1])
-          (NoTangent(),Δf, Δf_and_args[2:end]...)
+          (Δf, Δf_and_args[2:end]...)
         end
       end
     end
