@@ -91,6 +91,20 @@ function __init__()
     get_tmp(dc::DiffCache, u::AbstractArray) = dc.du
 
     # bisection(f, tup::Tuple{T,T}, t_forward::Bool) where {T<:ForwardDiff.Dual} = find_zero(f, tup, Roots.AlefeldPotraShi())
+
+    # Support adaptive with non-dual time
+    @inline UNPERTURBED_NORM(u::AbstractArray{<:ForwardDiff.Dual},::Any) = sqrt(sum(DiffEqBase.UNITLESS_ABS2∘DiffEqBase.value,u) / length(u))
+    @inline UNPERTURBED_NORM(u::ForwardDiff.Dual,::Any) = abs(DiffEqBase.value(u))
+
+    # When time is dual, it shouldn't drop the duals for adaptivity
+    @inline UNPERTURBED_NORM(u::AbstractArray{<:ForwardDiff.Dual},::ForwardDiff.Dual) = sqrt(sum(DiffEqBase.UNITLESS_ABS2,u) / length(u))
+    @inline UNPERTURBED_NORM(u::ForwardDiff.Dual,::ForwardDiff.Dual) = abs(u)
+
+    @inline UNPERTURBED_NORM(u::AbstractArray{<:ForwardDiff.Dual{<:Any,<:ForwardDiff.Dual}},::ForwardDiff.Dual) = sqrt(sum(DiffEqBase.UNITLESS_ABS2∘DiffEqBase.value,u) / length(u))
+    @inline UNPERTURBED_NORM(u::ForwardDiff.Dual{<:Any,ForwardDiff.Dual},::ForwardDiff.Dual) = abs(DiffEqBase.value(u))
+
+    @inline UNPERTURBED_NORM(u::AbstractArray{<:ForwardDiff.Dual{<:Any,<:ForwardDiff.Dual}},::ForwardDiff.Dual{<:Any,ForwardDiff.Dual}) = sqrt(sum(DiffEqBase.UNITLESS_ABS2,u) / length(u))
+    @inline UNPERTURBED_NORM(u::ForwardDiff.Dual{<:Any,ForwardDiff.Dual},::ForwardDiff.Dual{<:Any,ForwardDiff.Dual}) = abs(u)
   end
 
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin

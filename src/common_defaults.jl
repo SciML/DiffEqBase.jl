@@ -30,3 +30,5 @@ Base.mapreduce_empty(::typeof(UNITLESS_ABS2), op, T) = abs2(Base.reduce_empty(op
 
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u,p,t) = false
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::Union{Number,AbstractArray},p,t) = NAN_CHECK(u)
+
+@inline UNPERTURBED_NORM(u,t) = DiffEqBase.ODE_DEFAULT_NORM(u,t)
