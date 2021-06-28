@@ -27,7 +27,8 @@ Base.mapreduce_empty(::typeof(UNITLESS_ABS2), op, T) = abs2(Base.reduce_empty(op
 @inline NAN_CHECK(x::Enum) = false
 @inline NAN_CHECK(x::AbstractArray) = any(NAN_CHECK, x)
 @inline NAN_CHECK(x::RecursiveArrayTools.ArrayPartition) = any(NAN_CHECK, x.x)
-@inline NAN_CHECK(x::DEDataArray) = any(NAN_CHECK, x.x)
+@inline NAN_CHECK(x::DEDataArray) = NAN_CHECK(x.x)
+
 
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u,p,t) = false
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::Union{Number,AbstractArray},p,t) = NAN_CHECK(u)
