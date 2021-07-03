@@ -1,15 +1,17 @@
 using LinearAlgebra, SparseArrays, SuiteSparse
 
-struct ForwardSensitivityJacobian{T,JJ<:AbstractMatrix{T}} <: AbstractMatrix{T}
-  J::JJ
+struct ForwardSensitivityW{T,JJ<:AbstractMatrix{T}} <: AbstractMatrix{T}
+  W::JJ
 end
-Base.parent(J::ForwardSensitivityJacobian) = J.J
-Base.similar(J::ForwardSensitivityJacobian, ::Type{T}) where T = ForwardSensitivityJacobian(similar(parent(J), T))
+Base.parent(W::ForwardSensitivityW) = W.W
+Base.similar(W::ForwardSensitivityW, ::Type{T}) where T = ForwardSensitivityJacobian(similar(parent(W), T))
 
-struct ForwardSensitivityJacobianFactorization{T,F<:Factorization{T}} <: Factorization{T}
+struct ForwardSensitivityWFactorization{T,F<:Factorization{T}} <: Factorization{T}
   factorization::F
 end
-LinearAlgebra.lu!(J::ForwardSensitivityJacobian) = ForwardSensitivityJacobianFactorization(lu!(parent(J)))
+for ff in [:lu!, :qr!, :cholesky!, :svd!], f in [ff, Symbol(string(ff)[1:end-1])]
+  @eval LinearAlgebra.$f(W::ForwardSensitivityW) = ForwardSensitivityWFactorization($f(parent(J)))
+end
 function LinearAlgebra.ldiv!(F::ForwardSensitivityJacobianFactorization, x)
   F = F.factorization
   n = size(F, 1)
