@@ -1,24 +1,47 @@
 using LinearAlgebra, SparseArrays, SuiteSparse
 
-struct ForwardSensitivityW{T,JJ<:AbstractMatrix{T}} <: AbstractMatrix{T}
-  W::JJ
+struct ForwardSensitivityW{T,TW1<:AbstractMatrix{T},TW2} <: AbstractMatrix{T}
+  W1::TW1
+  W2::TW2
 end
-Base.parent(W::ForwardSensitivityW) = W.W
-Base.similar(W::ForwardSensitivityW, ::Type{T}) where T = ForwardSensitivityJacobian(similar(parent(W), T))
 
-struct ForwardSensitivityWFactorization{T,F<:Factorization{T}} <: Factorization{T}
-  factorization::F
+struct ForwardSensitivityWFactorization{T,TF1<:Factorization{T},TF2} <: Factorization{T}
+  F1::TF1
+  F2::TF2
 end
 for ff in [:lu!, :qr!, :cholesky!, :svd!], f in [ff, Symbol(string(ff)[1:end-1])]
-  @eval LinearAlgebra.$f(W::ForwardSensitivityW) = ForwardSensitivityWFactorization($f(parent(J)))
+  @eval function LinearAlgebra.$f(W::ForwardSensitivityW)
+    fact1 = $f(W.W1)
+    fact2 = W.W2 === nothing ? W.W2 : $f(W.W2)
+    ForwardSensitivityWFactorization(fact1, fact2)
+  end
 end
 function LinearAlgebra.ldiv!(F::ForwardSensitivityJacobianFactorization, x)
-  F = F.factorization
-  n = size(F, 1)
+  @unpack F1, F2 = F
+  n = size(F1, 1)
   k = length(x)÷n
-  @assert k*n == length(x)
-  ldiv!(F, reshape(x, n, k))
+  @assert k*n == length(x) && k > 1
+  if F2 === nothing
+    ldiv!(F1, reshape(x, n, k))
+  else
+    ldiv!(F1, @view x[1:n])
+    ldiv!(F2, reshape((@view x[n+1:end]), n, k-1))
+  end
   x
+end
+function Base.:(\)(W::ForwardSensitivityW, x)
+  @unpack W1, W2 = W
+  n = size(W1, 1)
+  k = length(x)÷n
+  @assert k*n == length(x) && k > 1
+  if W2 === nothing
+    return W \ reshape(x, n, k)
+  else
+    [
+     F1 \ (@view x[1:n])
+     F2 \ reshape((@view x[n+1:end]), n, k-1)
+    ]
+  end
 end
 
 # This is only used for oop stiff solvers
