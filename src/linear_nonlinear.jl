@@ -16,7 +16,7 @@ for ff in [:lu!, :qr!, :cholesky!, :svd!], f in [ff, Symbol(string(ff)[1:end-1])
     ForwardSensitivityWFactorization(fact1, fact2)
   end
 end
-function LinearAlgebra.ldiv!(F::ForwardSensitivityJacobianFactorization, x)
+function LinearAlgebra.ldiv!(F::ForwardSensitivityWFactorization, x)
   @unpack F1, F2 = F
   n = size(F1, 1)
   k = length(x)÷n
@@ -122,7 +122,7 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;reltol=nothing, kwargs..
       else
         p.A = lu!(A)
       end
-    elseif A isa Union{Tridiagonal, ForwardSensitivityJacobian}
+    elseif A isa Union{Tridiagonal, ForwardSensitivityW}
       p.A = lu!(A)
     elseif A isa Union{SymTridiagonal}
       p.A = ldlt!(A)
@@ -139,7 +139,7 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;reltol=nothing, kwargs..
     end
   end
 
-  if A isa Union{Matrix,SymTridiagonal,Tridiagonal,Symmetric,Hermitian,ForwardSensitivityJacobian} # No 2-arg form for SparseArrays!
+  if A isa Union{Matrix,SymTridiagonal,Tridiagonal,Symmetric,Hermitian,ForwardSensitivityW} # No 2-arg form for SparseArrays!
     x .= b
     ldiv!(p.A,x)
   # Missing a little bit of efficiency in a rare case
