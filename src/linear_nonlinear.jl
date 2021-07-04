@@ -41,6 +41,7 @@ end
 function (p::LinSolveFactorize)(::Type{Val{:init}},f,u0_prototype)
   LinSolveFactorize(p.factorization,nothing)
 end
+Base.resize!(p::LinSolveFactorize,i) = p.A = nothing
 
 mutable struct LinSolveGPUFactorize{F,T}
   factorization::F
@@ -58,6 +59,7 @@ end
 function (p::LinSolveGPUFactorize)(::Type{Val{:init}},f,u0_prototype)
   LinSolveGPUFactorize(p.factorization,nothing,cuify(u0_prototype))
 end
+Base.resize!(p::LinSolveGPUFactorize,i) = p.A = nothing
 
 ### Default Linsolve
 
@@ -149,6 +151,7 @@ function (p::DefaultLinSolve)(::Type{Val{:init}},f,u0_prototype)
   end
 end
 
+Base.resize!(p::DefaultLinSolve,i) = p.A = nothing
 const DEFAULT_LINSOLVE = DefaultLinSolve()
 
 ### Default GMRES
@@ -263,4 +266,8 @@ function purge_history!(iter::IterativeSolvers.GMRESIterable, x, b)
   IterativeSolvers.init_residual!(iter.residual, iter.residual.current)
   iter.β = iter.residual.current
   nothing
+end
+
+function Base.resize!(f::LinSolveIterativeSolvers,i)
+    f.iterable = nothing
 end
