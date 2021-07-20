@@ -293,6 +293,7 @@ integrator = init(
 
 sol = solve!(integrator)
 
+println("Event tests part 6")
 
 ### https://github.com/SciML/DifferentialEquations.jl/issues/662
 
