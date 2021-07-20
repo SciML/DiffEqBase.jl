@@ -1,6 +1,6 @@
 using OrdinaryDiffEq, RecursiveArrayTools, Test, StaticArrays, DiffEqCallbacks, ForwardDiff
 
-
+println("Event tests part 1")
 f = function (u,p,t)
   - u + sin(-t)
 end
@@ -53,6 +53,7 @@ end
 callback = ContinuousCallback(condition,affect!)
 
 sol = solve(prob,Tsit5(),callback=callback,abstol=1e-8,reltol=1e-6)
+println("Event tests part 2")
 
 f = function (du,u,p,t)
   du[1] = u[2]
@@ -117,9 +118,9 @@ sol_bounced = solve(bounced,Vern6(),callback=callback,dt=sol.t[9]-sol.t[8])
 sol_bounced(0.04) # Complete density
 @test maximum(maximum.(map((i)->sol.k[9][i]-sol_bounced.k[2][i],1:length(sol.k[9])))) == 0
 
-
 sol2= solve(prob,Vern6(),callback=callback,adaptive=false,dt=1/2^4)
 #plot(sol2)
+println("Event tests part 3")
 
 sol2= solve(prob,Vern6())
 
@@ -175,6 +176,8 @@ sol5_1 = solve(prob2,Tsit5(),callback=custom_retcode_callback)
 @test sol5_1.retcode == :Custom
 @test sol5[end][1] < 3e-12
 @test sol5.t[end] ≈ sqrt(50*2/9.81)
+
+println("Event tests part 4")
 
 affect2! = function (integrator)
   if integrator.t >= 3.5
@@ -248,6 +251,8 @@ sol1 = solve(prob,Tsit5(),callback = cb,tstops=tstop,saveat=tstop)
 sol2 = solve(prob,Tsit5(),callback = cb,tstops=tstop,saveat=prevfloat.(tstop))
 @test count(x->x==tstop[1], sol2.t) == 2
 @test count(x->x==tstop[2], sol2.t) == 2
+
+println("Event tests part 5")
 
 function model(du, u, p, t)
     du[1] = 0.
