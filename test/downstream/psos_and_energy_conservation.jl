@@ -17,7 +17,7 @@ function f_psos(du, u, t, p)
 end
 
 # Callback
-rng = MersenneTwister(rand(UInt))
+rng = MersenneTwister(100)
 jumpnorm = Ref(rand(rng))
 djumpnorm(x::Vector{ComplexF64}, t, integrator) = norm(x)^2 - (1-jumpnorm[])
 function dojump(integrator)
