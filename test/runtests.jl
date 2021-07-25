@@ -44,6 +44,10 @@ if !is_APPVEYOR && GROUP == "Downstream"
     @time @safetestset "Default linsolve with structure" begin include("downstream/default_linsolve_structure.jl") end
     @time @safetestset "Callback Merging Tests" begin include("downstream/callback_merging.jl") end
     @time @safetestset "LabelledArrays Tests" begin include("downstream/labelledarrays.jl") end
+end
+
+if !is_APPVEYOR && GROUP == "Downstream2"
+    activate_downstream_env()
     @time @safetestset "ODE Event Tests" begin include("downstream/ode_event_tests.jl") end
     @time @safetestset "Event Detection Tests" begin include("downstream/event_detection_tests.jl") end
     @time @safetestset "Callback BigFloats" begin include("downstream/bigfloat_events.jl") end
