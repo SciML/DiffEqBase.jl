@@ -47,6 +47,7 @@ if !is_APPVEYOR && GROUP == "Downstream"
 end
 
 if !is_APPVEYOR && GROUP == "Downstream2"
+    activate_downstream_env()
     @time @safetestset "ODE Event Tests" begin include("downstream/ode_event_tests.jl") end
     @time @safetestset "Event Detection Tests" begin include("downstream/event_detection_tests.jl") end
     @time @safetestset "Callback BigFloats" begin include("downstream/bigfloat_events.jl") end
