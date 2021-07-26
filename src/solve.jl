@@ -308,15 +308,61 @@ end
 @deprecate concrete_solve(prob::SciMLBase.DEProblem,alg::Union{SciMLBase.DEAlgorithm,Nothing},
                         u0=prob.u0,p=prob.p,args...;kwargs...) solve(prob,alg,args...;u0=u0,p=p,kwargs...)
 
-function _solve_adjoint(prob,sensealg,u0,p,args...;kwargs...)
-  if isempty(args)
-    _concrete_solve_adjoint(prob,nothing,sensealg,u0,p;kwargs...)
+function _solve_adjoint(prob,sensealg,u0,p,args...;merge_callbacks = true, kwargs...)
+
+  _prob = if haskey(kwargs,:alg) && (isempty(args) || args[1] === nothing)
+    alg = kwargs[:alg]
+    get_concrete_problem(prob,isadaptive(alg);u0=u0,p=p,kwargs...)
+  elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
+    alg = args[1]
+    get_concrete_problem(prob,isadaptive(alg);u0=u0,p=p,kwargs...)
+  elseif isempty(args) # Default algorithm handling
+    get_concrete_problem(prob,!(typeof(prob)<:DiscreteProblem);u0=u0,p=p,kwargs...)
   else
-    _concrete_solve_adjoint(prob,args[1],sensealg,u0,p,Base.tail(args)...;kwargs...)
+    get_concrete_problem(prob,!(typeof(prob)<:DiscreteProblem);u0=u0,p=p,kwargs...)
+  end
+
+  if has_kwargs(_prob)
+    if merge_callbacks && haskey(_prob.kwargs,:callback) && haskey(kwargs, :callback)
+      kwargs_temp = NamedTuple{Base.diff_names(Base._nt_names(
+      values(kwargs)), (:callback,))}(values(kwargs))
+      callbacks = NamedTuple{(:callback,)}( [DiffEqBase.CallbackSet(_prob.kwargs[:callback], values(kwargs).callback )] )
+      kwargs = merge(kwargs_temp, callbacks)
+    end
+    kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
+  end
+
+  if isempty(args)
+    _concrete_solve_adjoint(_prob,nothing,sensealg,u0,p;kwargs...)
+  else
+    _concrete_solve_adjoint(_prob,args[1],sensealg,u0,p,Base.tail(args)...;kwargs...)
   end
 end
 
-function _solve_forward(prob,sensealg,u0,p,args...;kwargs...)
+function _solve_forward(prob,sensealg,u0,p,args...;merge_callbacks = true, kwargs...)
+
+  _prob = if haskey(kwargs,:alg) && (isempty(args) || args[1] === nothing)
+    alg = kwargs[:alg]
+    get_concrete_problem(prob,isadaptive(alg);u0=u0,p=p,kwargs...)
+  elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
+    alg = args[1]
+    get_concrete_problem(prob,isadaptive(alg);u0=u0,p=p,kwargs...)
+  elseif isempty(args) # Default algorithm handling
+    get_concrete_problem(prob,!(typeof(prob)<:DiscreteProblem);u0=u0,p=p,kwargs...)
+  else
+    get_concrete_problem(prob,!(typeof(prob)<:DiscreteProblem);u0=u0,p=p,kwargs...)
+  end
+
+  if has_kwargs(_prob)
+    if merge_callbacks && haskey(_prob.kwargs,:callback) && haskey(kwargs, :callback)
+      kwargs_temp = NamedTuple{Base.diff_names(Base._nt_names(
+      values(kwargs)), (:callback,))}(values(kwargs))
+      callbacks = NamedTuple{(:callback,)}( [DiffEqBase.CallbackSet(_prob.kwargs[:callback], values(kwargs).callback )] )
+      kwargs = merge(kwargs_temp, callbacks)
+    end
+    kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
+  end
+
   if isempty(args)
     _concrete_solve_forward(prob,nothing,sensealg,u0,p;kwargs...)
   else
