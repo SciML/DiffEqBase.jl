@@ -73,8 +73,9 @@ const EXP2FT = (Float32(0x1.6a09e667f3bcdp-1),
 
     # Compute r = exp2(y) = exp2ft[i0] * p(z).
     tv = EXP2FT[i0+UInt32(1)]
-    u = tv * z
-    tv = tv + u * (P1 + z * P2) + u * (z * z) * (P3 + z * P4)
+    # u = tv * z
+    # tv = tv + u * muladd(z, P2, P1) + u * (z * z) * muladd(z, P4, P3)
+    tv = muladd(tv * z, muladd((z * z), muladd(z, P4, P3), muladd(z, P2, P1)), tv)
 
     # Scale by 2**(k>>20)
     return tv * twopk
