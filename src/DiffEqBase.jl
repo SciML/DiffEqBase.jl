@@ -29,6 +29,8 @@ import ZygoteRules
 
 using Setfield
 
+using ForwardDiff
+
 @reexport using SciMLBase
 
 using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
@@ -121,6 +123,7 @@ include("data_array.jl")
 include("solve.jl")
 include("internal_euler.jl")
 include("init.jl")
+include("forwarddiff.jl")
 include("chainrules.jl")
 
 """
