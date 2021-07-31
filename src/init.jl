@@ -62,34 +62,6 @@ function __init__()
       Base.prevfloat(d::ForwardDiff.Dual{T,V,N}) where {T,V,N} = ForwardDiff.Dual{T}(prevfloat(d.value), d.partials)
     end
 
-    struct DiffCache{T<:AbstractArray, S<:AbstractArray}
-        du::T
-        dual_du::S
-    end
-
-    function DiffCache(u::AbstractArray{T}, siz, ::Type{Val{chunk_size}}) where {T, chunk_size}
-        x = ArrayInterface.restructure(u,zeros(ForwardDiff.Dual{nothing,T,chunk_size}, siz...))
-        DiffCache(u, x)
-    end
-
-    dualcache(u::AbstractArray, N=Val{ForwardDiff.pickchunksize(length(u))}) = DiffCache(u, size(u), N)
-
-    function get_tmp(dc::DiffCache, u::T) where T<:ForwardDiff.Dual
-      x = reinterpret(T, dc.dual_du)
-    end
-
-    function get_tmp(dc::DiffCache, u::AbstractArray{T}) where T<:ForwardDiff.Dual
-      x = reinterpret(T, dc.dual_du)
-    end
-
-    function DiffEqBase.get_tmp(dc::DiffEqBase.DiffCache, u::LabelledArrays.LArray{T,N,D,Syms}) where {T,N,D,Syms}
-      x = reinterpret(T, dc.dual_du.__x)
-      LabelledArrays.LArray{T,N,D,Syms}(x)
-    end
-
-    get_tmp(dc::DiffCache, u::Number) = dc.du
-    get_tmp(dc::DiffCache, u::AbstractArray) = dc.du
-
     # bisection(f, tup::Tuple{T,T}, t_forward::Bool) where {T<:ForwardDiff.Dual} = find_zero(f, tup, Roots.AlefeldPotraShi())
   end
 
