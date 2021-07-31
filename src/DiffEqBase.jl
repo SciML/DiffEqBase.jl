@@ -20,6 +20,7 @@ using Statistics
 
 using FastBroadcast: @..
 
+import Distributions
 import ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
