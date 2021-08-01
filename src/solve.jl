@@ -67,7 +67,7 @@ function solve(prob::DEProblem,args...;sensealg=nothing,
                u0 = nothing, p = nothing, kwargs...)
   u0 = u0 !== nothing ? u0 : prob.u0
   p  = p  !== nothing ? p  : prob.p
-  if sensealg === nothing && hasproperty(prob,:kwargs) && haskey(prob.kwargs,:sensealg)
+  if sensealg === nothing && haskey(prob.kwargs,:sensealg)
     sensealg = prob.kwargs[:sensealg]
   end
   solve_up(prob,sensealg,u0,p,args...;kwargs...)

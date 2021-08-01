@@ -20,6 +20,8 @@ using Statistics
 
 using FastBroadcast: @..
 
+using PreallocationTools
+
 import Distributions
 import ChainRulesCore
 import LabelledArrays
