@@ -20,6 +20,10 @@ using Statistics
 
 using FastBroadcast: @..
 
+using PreallocationTools
+import PreallocationTools: get_tmp
+
+import Distributions
 import ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
@@ -28,6 +32,8 @@ import ChainRulesCore: NoTangent
 import ZygoteRules
 
 using Setfield
+
+using ForwardDiff
 
 @reexport using SciMLBase
 
@@ -121,6 +127,7 @@ include("data_array.jl")
 include("solve.jl")
 include("internal_euler.jl")
 include("init.jl")
+include("forwarddiff.jl")
 include("chainrules.jl")
 
 """
