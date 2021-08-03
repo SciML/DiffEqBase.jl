@@ -21,7 +21,7 @@ using Statistics
 using FastBroadcast: @..
 
 using PreallocationTools
-import PreAllocationTools: get_tmp
+import PreallocationTools: get_tmp
 
 import Distributions
 import ChainRulesCore
