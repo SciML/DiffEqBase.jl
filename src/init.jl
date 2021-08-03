@@ -14,85 +14,6 @@ function __init__()
     eval_u0(u0::ApproxFun.Fun) = false
   end
 
-  @require Distributions="31c24e10-a181-5473-b8eb-7969acd0382f" begin
-    handle_distribution_u0(_u0::Distributions.Sampleable) = rand(_u0)
-    isdistribution(_u0::Distributions.Sampleable) = true
-  end
-
-  @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
-
-    promote_u0(u0::AbstractArray{<:ForwardDiff.Dual},p::AbstractArray{<:ForwardDiff.Dual},t0) = u0
-    promote_u0(u0,p::AbstractArray{<:ForwardDiff.Dual},t0) = eltype(p).(u0)
-    promote_u0(u0,p::NTuple{N,<:ForwardDiff.Dual},t0) where N = eltype(p).(u0)
-    promote_u0(u0,p::ForwardDiff.Dual,t0) where N = eltype(p).(u0)
-
-    function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual},p,tspan::Tuple{<:ForwardDiff.Dual,<:ForwardDiff.Dual},prob,kwargs)
-      return tspan
-    end
-
-    function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual},p,tspan,prob,kwargs)
-      if (haskey(kwargs,:callback) && has_continuous_callback(kwargs[:callback])) ||
-         (haskey(prob.kwargs,:callback) && has_continuous_callback(prob.kwargs[:callback]))
-
-        return eltype(u0).(tspan)
-      else
-        return tspan
-      end
-    end
-
-    value(x::Type{ForwardDiff.Dual{T,V,N}}) where {T,V,N} = V
-    value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
-
-    @inline fastpow(x::ForwardDiff.Dual, y::ForwardDiff.Dual) = x^y
-
-    sse(x::Number) = x^2
-    sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
-    totallength(x::Number) = 1
-    totallength(x::ForwardDiff.Dual) = totallength(ForwardDiff.value(x)) + sum(totallength, ForwardDiff.partials(x))
-    totallength(x::AbstractArray) = sum(totallength,x)
-
-    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,::Any) = sqrt(sse(u))
-    @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual},t::Any) = sqrt(sum(sse,u) / totallength(u))
-    @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual,::ForwardDiff.Dual) = sqrt(sse(u))
-    @inline ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual},::ForwardDiff.Dual) = sqrt(sum(x->sse(x),u) / totallength(u))
-
-    if !hasmethod(nextfloat, Tuple{ForwardDiff.Dual})
-      # Type piracy. Should upstream
-      Base.nextfloat(d::ForwardDiff.Dual{T,V,N}) where {T,V,N} = ForwardDiff.Dual{T}(nextfloat(d.value), d.partials)
-      Base.prevfloat(d::ForwardDiff.Dual{T,V,N}) where {T,V,N} = ForwardDiff.Dual{T}(prevfloat(d.value), d.partials)
-    end
-
-    struct DiffCache{T<:AbstractArray, S<:AbstractArray}
-        du::T
-        dual_du::S
-    end
-
-    function DiffCache(u::AbstractArray{T}, siz, ::Type{Val{chunk_size}}) where {T, chunk_size}
-        x = ArrayInterface.restructure(u,zeros(ForwardDiff.Dual{nothing,T,chunk_size}, siz...))
-        DiffCache(u, x)
-    end
-
-    dualcache(u::AbstractArray, N=Val{ForwardDiff.pickchunksize(length(u))}) = DiffCache(u, size(u), N)
-
-    function get_tmp(dc::DiffCache, u::T) where T<:ForwardDiff.Dual
-      x = reinterpret(T, dc.dual_du)
-    end
-
-    function get_tmp(dc::DiffCache, u::AbstractArray{T}) where T<:ForwardDiff.Dual
-      x = reinterpret(T, dc.dual_du)
-    end
-
-    function DiffEqBase.get_tmp(dc::DiffEqBase.DiffCache, u::LabelledArrays.LArray{T,N,D,Syms}) where {T,N,D,Syms}
-      x = reinterpret(T, dc.dual_du.__x)
-      LabelledArrays.LArray{T,N,D,Syms}(x)
-    end
-
-    get_tmp(dc::DiffCache, u::Number) = dc.du
-    get_tmp(dc::DiffCache, u::AbstractArray) = dc.du
-
-    # bisection(f, tup::Tuple{T,T}, t_forward::Bool) where {T<:ForwardDiff.Dual} = find_zero(f, tup, Roots.AlefeldPotraShi())
-  end
-
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
 
     promote_u0(u0::AbstractArray{<:Measurements.Measurement},p::AbstractArray{<:Measurements.Measurement},t0) = u0
@@ -152,40 +73,6 @@ function __init__()
   end
 
   # Piracy, should get upstreamed
-  @require CuArrays="3a865a2d-5b23-5a0f-bc46-62713ec82fae" begin
-    cuify(x::AbstractArray) = CuArrays.CuArray(x)
-    function LinearAlgebra.ldiv!(x::CuArrays.CuArray,_qr::CuArrays.CUSOLVER.CuQR,b::CuArrays.CuArray)
-      _x = UpperTriangular(_qr.R) \ (_qr.Q' * reshape(b,length(b),1))
-      x .= vec(_x)
-      CuArrays.unsafe_free!(_x)
-      return x
-    end
-    # make `\` work
-    LinearAlgebra.ldiv!(F::CuArrays.CUSOLVER.CuQR, b::CuArrays.CuArray) = (x = similar(b); ldiv!(x, F, b); x)
-    default_factorize(A::CuArrays.CuArray) = qr(A)
-    function findall_events(affect!,affect_neg!,prev_sign::CuArrays.CuArray,next_sign::CuArrays.CuArray)
-      hasaffect::Bool = affect! !== nothing
-      hasaffectneg::Bool = affect_neg! !== nothing
-      f = (p,n)-> ((p < 0 && hasaffect) || (p > 0 && hasaffectneg)) && p*n<=0
-      A = map(f,prev_sign,next_sign)
-      out = findall(A)
-      CuArrays.unsafe_free!(A)
-      out
-    end
-
-    ODE_DEFAULT_NORM(u::CuArrays.CuArray,t) = sqrt(real(sum(abs2,u))/length(u))
-
-    @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
-      @inline function ODE_DEFAULT_NORM(u::CuArrays.CuArray{<:ForwardDiff.Dual},t)
-        sqrt(sum(abs2,value.(u)) / length(u))
-      end
-
-      @inline function ODE_DEFAULT_NORM(u::CuArrays.CuArray{<:ForwardDiff.Dual},t::ForwardDiff.Dual)
-        sqrt(sum(abs2,u) / length(u))
-      end
-    end
-  end
-
   @require CUDA="052768ef-5323-5732-b1bb-66c8b64840ba" begin
     cuify(x::AbstractArray) = CUDA.CuArray(x)
     function LinearAlgebra.ldiv!(x::CUDA.CuArray,_qr::CUDA.CUSOLVER.CuQR,b::CUDA.CuArray)
@@ -209,14 +96,12 @@ function __init__()
 
     ODE_DEFAULT_NORM(u::CUDA.CuArray,t) = sqrt(real(sum(abs2,u))/length(u))
 
-    @require ForwardDiff="f6369f11-7733-5829-9624-2563aa707210" begin
-      @inline function ODE_DEFAULT_NORM(u::CUDA.CuArray{<:ForwardDiff.Dual},t)
-        sqrt(sum(abs2,value.(u)) / length(u))
-      end
+    @inline function ODE_DEFAULT_NORM(u::CUDA.CuArray{<:ForwardDiff.Dual},t)
+      sqrt(sum(abs2,value.(u)) / length(u))
+    end
 
-      @inline function ODE_DEFAULT_NORM(u::CUDA.CuArray{<:ForwardDiff.Dual},t::ForwardDiff.Dual)
-        sqrt(sum(abs2,u) / length(u))
-      end
+    @inline function ODE_DEFAULT_NORM(u::CUDA.CuArray{<:ForwardDiff.Dual},t::ForwardDiff.Dual)
+      sqrt(sum(abs2,u) / length(u))
     end
   end
 

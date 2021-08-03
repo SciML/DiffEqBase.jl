@@ -20,6 +20,10 @@ using Statistics
 
 using FastBroadcast: @..
 
+using PreallocationTools
+import PreallocationTools: get_tmp
+
+import Distributions
 import ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
@@ -31,6 +35,8 @@ import DEDataArrays: DEDataArray, DEDataVector, DEDataMatrix, copy_fields!
 export DEDataArray
 
 using Setfield
+
+using ForwardDiff
 
 @reexport using SciMLBase
 
@@ -117,6 +123,7 @@ include("common_defaults.jl")
 include("solve.jl")
 include("internal_euler.jl")
 include("init.jl")
+include("forwarddiff.jl")
 include("chainrules.jl")
 
 """
