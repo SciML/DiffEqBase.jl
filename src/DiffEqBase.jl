@@ -31,6 +31,9 @@ import RecursiveArrayTools
 import ChainRulesCore: NoTangent
 import ZygoteRules
 
+import DEDataArrays: DEDataArray, DEDataVector, DEDataMatrix, copy_fields!
+export DEDataArray
+
 using Setfield
 
 using ForwardDiff
@@ -103,12 +106,6 @@ $(TYPEDEF)
 """
 abstract type DECostFunction end
 
-"""
-$(TYPEDEF)
-"""
-abstract type DEDataArray{T,N} <: AbstractArray{T,N} end
-const DEDataVector{T} = DEDataArray{T,1}
-const DEDataMatrix{T} = DEDataArray{T,2}
 
 include("utils.jl")
 include("fastpow.jl")
@@ -123,7 +120,6 @@ include("nlsolve/utils.jl")
 include("callbacks.jl")
 include("linear_nonlinear.jl")
 include("common_defaults.jl")
-include("data_array.jl")
 include("solve.jl")
 include("internal_euler.jl")
 include("init.jl")
@@ -142,8 +138,6 @@ struct ConvergenceSetup{P,C}
     probs::P
     convergence_axis::C
 end
-
-export DEDataArray, DEDataVector, DEDataMatrix
 
 export ContinuousCallback, DiscreteCallback, CallbackSet, VectorContinuousCallback
 

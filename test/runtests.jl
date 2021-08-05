@@ -13,7 +13,6 @@ end
 
 @time begin
 if GROUP == "All" || GROUP == "Core"
-    @time @safetestset "Data Arrays" begin include("data_array_tests.jl") end
     @time @safetestset "Fast Power" begin include("fastpow.jl") end
     @time @safetestset "Number of Parameters Calculation" begin include("numargs_test.jl") end
     @time @safetestset "Callbacks" begin include("callbacks.jl") end
@@ -53,7 +52,6 @@ if !is_APPVEYOR && GROUP == "Downstream2"
     @time @safetestset "Callback BigFloats" begin include("downstream/bigfloat_events.jl") end
     @time @safetestset "PSOS and Energy Conservation Event Detection" begin include("downstream/psos_and_energy_conservation.jl") end
     @time @safetestset "DE stats" begin include("downstream/destats_tests.jl") end
-    @time @safetestset "DEDataArray" begin include("downstream/data_array_regression_tests.jl") end
     @time @safetestset "AD Tests" begin include("downstream/ad_tests.jl") end
     @time @safetestset "Ensemble AD Tests" begin include("downstream/ensemble_ad.jl") end
     @time @safetestset "Community Callback Tests" begin include("downstream/community_callback_tests.jl") end
