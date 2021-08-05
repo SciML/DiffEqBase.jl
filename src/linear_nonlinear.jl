@@ -109,7 +109,6 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;reltol=nothing, kwargs..
       end
 
       if ArrayInterface.can_setindex(x) && (size(A,1) <= 100 || (p.openblas && size(A,1) <= 500))
-      if ArrayInterface.can_setindex(x) && (size(A,1) <= 100 || p.openblas)
         p.A = RecursiveFactorization.lu!(A)
       else
         p.A = lu!(A)
