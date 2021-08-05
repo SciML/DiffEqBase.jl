@@ -71,13 +71,23 @@ Base.resize!(p::LinSolveGPUFactorize,i) = p.A = nothing
 mutable struct DefaultLinSolve
   A
   iterable
+  openblas::Union{Bool, Nothing}
 end
-DefaultLinSolve() = DefaultLinSolve(nothing, nothing)
+DefaultLinSolve() = DefaultLinSolve(nothing, nothing, nothing)
 @noinline function checkreltol(reltol)
   if !(reltol isa Real)
     error("Non real valued reltol is not supported by the linear iterative solvers. To customize tolerances for the linear iterative solvers, use the syntax like `KenCarp3(linsolve=LinSolveGMRES(abstol=1e-16,reltol=1e-16))`.")
   end
   return reltol
+end
+
+function isopenblas()
+    @static if VERSION < v"1.7"
+      blas = BLAS.vendor()
+      blas == :openblas64 || blas == :openblas
+    else
+      occursin("openblas", BLAS.get_config().loaded_libs[1].libname)
+    end
 end
 
 function (p::DefaultLinSolve)(x,A,b,update_matrix=false;reltol=nothing, kwargs...)
@@ -88,12 +98,18 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;reltol=nothing, kwargs..
   end
   if update_matrix
     if A isa Matrix
-      blasvendor = BLAS.vendor()
       # if the user doesn't use OpenBLAS, we assume that is a better BLAS
       # implementation like MKL
       #
-      # OpenBLAS sucks
-      if ArrayInterface.can_setindex(x) && (size(A,1) <= 100 || blasvendor === :openblas || blasvendor === :openblas64)
+      # RecursiveFactorization seems to be consistantly winning below 100
+      # https://discourse.julialang.org/t/ann-recursivefactorization-jl/39213
+      if ArrayInterface.can_setindex(x) && p.openblas === nothing
+        # cache it because it's more expensive now
+        p.openblas = isopenblas()
+      end
+
+      if ArrayInterface.can_setindex(x) && (size(A,1) <= 100 || (p.openblas && size(A,1) <= 500))
+      if ArrayInterface.can_setindex(x) && (size(A,1) <= 100 || p.openblas)
         p.A = RecursiveFactorization.lu!(A)
       else
         p.A = lu!(A)
@@ -144,7 +160,7 @@ end
 function (p::DefaultLinSolve)(::Type{Val{:init}},f,u0_prototype)
   if has_Wfact(f) || has_Wfact_t(f)
     piv = collect(one(LinearAlgebra.BlasInt):convert(LinearAlgebra.BlasInt, length(u0_prototype))) # pivoting vector
-    DefaultLinSolve(f, piv)
+    DefaultLinSolve(f, piv, nothing)
   else
     DefaultLinSolve()
   end
