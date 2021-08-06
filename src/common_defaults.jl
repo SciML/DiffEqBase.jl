@@ -19,6 +19,9 @@ Base.mapreduce_empty(::typeof(UNITLESS_ABS2), op, T) = abs2(Base.reduce_empty(op
 @inline ODE_DEFAULT_NORM(u,t) = norm(u)
 
 @inline ODE_DEFAULT_ISOUTOFDOMAIN(u,p,t) = false
+@inline function ODE_DEFAULT_PROG_MESSAGE(dt,u::Array,p,t)
+    "dt="*string(dt)*"\nt="*string(t)*"\nmax u="*string(maximum(x for x in u))
+end
 @inline ODE_DEFAULT_PROG_MESSAGE(dt,u,p,t) =
            "dt="*string(dt)*"\nt="*string(t)*"\nmax u="*string(maximum(abs.(u)))
 
