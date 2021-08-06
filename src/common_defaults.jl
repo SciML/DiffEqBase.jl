@@ -20,7 +20,11 @@ Base.mapreduce_empty(::typeof(UNITLESS_ABS2), op, T) = abs2(Base.reduce_empty(op
 
 @inline ODE_DEFAULT_ISOUTOFDOMAIN(u,p,t) = false
 @inline function ODE_DEFAULT_PROG_MESSAGE(dt,u::Array,p,t)
-    "dt="*string(dt)*"\nt="*string(t)*"\nmax u="*string(maximum(x for x in u))
+    tmp = u[1]
+    for i in eachindex(u)
+        tmp = ifelse(u[i] > tmp,u[i],tmp)
+    end
+    "dt="*string(dt)*"\nt="*string(t)*"\nmax u="*string(tmp)
 end
 @inline ODE_DEFAULT_PROG_MESSAGE(dt,u,p,t) =
            "dt="*string(dt)*"\nt="*string(t)*"\nmax u="*string(maximum(abs.(u)))
