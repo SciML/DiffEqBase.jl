@@ -92,7 +92,7 @@ in `out`.
 end
 
 @inline function calculate_residuals!(out::Array, ũ::Array, u₀::Array, u₁::Array, α::Number, ρ::Number, internalnorm::F, t) where F
-  for i in eachindex(u₀)
+  @inbounds for i in eachindex(out, ũ, u₀, u₁)
     out[i] = calculate_residuals(ũ[i], u₀[i], u₁[i], α, ρ, internalnorm,t)
   end
   nothing
