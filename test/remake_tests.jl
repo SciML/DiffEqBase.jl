@@ -89,6 +89,6 @@ tspan = (0.0,6.3)
 prob = ODEProblem{true,false}((du,u,p,t) -> 2u,u0,tspan)
 
 # Function wrapper makes a new reference, it doesn't make it type instable
-@test_broken remake(prob) == prob
+@test remake(prob) == prob
 @test remake(prob; u0 = [1;2]).u0 == [1;2]
 @test remake(prob; p = (1,2)).p == (1,2)
