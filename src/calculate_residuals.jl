@@ -91,6 +91,12 @@ in `out`.
   nothing
 end
 
+@inline function calculate_residuals!(out::Array, ũ::Array, u₀::Array, u₁::Array, α::Number, ρ::Number, internalnorm::F, t) where F
+  @inbounds @simd ivdep for i in eachindex(out, ũ, u₀, u₁)
+    out[i] = calculate_residuals(ũ[i], u₀[i], u₁[i], α, ρ, internalnorm, t)
+  end
+  nothing
+end
 
 """
     calculate_residuals!(out, u₀, u₁, α, ρ)
