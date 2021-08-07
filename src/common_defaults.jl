@@ -10,8 +10,15 @@ Base.mapreduce_empty(::typeof(UNITLESS_ABS2), op, T) = abs2(Base.reduce_empty(op
 @inline recursive_length(u::RecursiveArrayTools.VectorOfArray) = sum(recursive_length, u.u)
 
 @inline ODE_DEFAULT_NORM(u::Union{AbstractFloat,Complex},t) = @fastmath abs(u)
-@inline ODE_DEFAULT_NORM(u::Array{T},t) where T<:Union{AbstractFloat,Complex} =
-                                         sqrt(real(sum(abs2,u)) / length(u))
+
+@inline function ODE_DEFAULT_NORM(u::Array{T},t) where T<:Union{AbstractFloat,Complex}
+    x = abs2(u[1])
+    @inbounds for i in 2:length(u)
+        x += abs2(u[i])
+    end
+    sqrt(real(x) / length(u))
+end
+
 @inline ODE_DEFAULT_NORM(u::StaticArrays.StaticArray{T},t) where T<:Union{AbstractFloat,Complex} =
                                             sqrt(real(sum(abs2,u)) / length(u))
 
