@@ -125,7 +125,9 @@ include("internal_euler.jl")
 include("init.jl")
 include("forwarddiff.jl")
 include("chainrules.jl")
-include("precompile.jl")
+if Base.VERSION >= v"1.4.2"
+    include("precompile.jl")
+end
 
 """
 $(TYPEDEF)
