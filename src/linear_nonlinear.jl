@@ -82,7 +82,7 @@ DefaultLinSolve() = DefaultLinSolve(nothing, nothing, nothing)
 end
 
 function isopenblas()
-    @static if VERSION < v"1.7"
+    @static if VERSION < v"1.7beta"
       blas = BLAS.vendor()
       blas == :openblas64 || blas == :openblas
     else
