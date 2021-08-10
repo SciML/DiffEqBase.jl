@@ -1,6 +1,6 @@
 let
     while true
-        _linsolve = DefaultLinSolve()
+        _testf(du,u,p,t) = copyto!(du,u)
         _testf(du,u,p,t) = du .= u
         b = rand(1); x = rand(1)
         _linsolve(Val{:init},ODEFunction(_testf),b)
