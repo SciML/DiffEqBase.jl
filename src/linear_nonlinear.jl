@@ -142,7 +142,7 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;reltol=nothing, kwargs..
     # No good starting guess, so guess zero
     if p.iterable === nothing
       reltol = checkreltol(reltol)
-      p.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,abstol=1e-16,reltol=reltol,Pl=Pl,Pr=Pr)
+      p.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,abstol=1e-16,reltol=reltol,kwargs...)
     end
     copyto!(x,false)
     iter = p.iterable
