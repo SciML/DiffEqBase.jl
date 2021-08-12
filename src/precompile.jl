@@ -6,6 +6,14 @@ let
         A = rand(1,1)
         _linsolve(x,A,b,true)
         _linsolve(x,A,b,false)
+        _linsolve = LUFactorize()(Val{:init},ODEFunction(_testf),b)
+        _linsolve(x,A,b,true)
+        _linsolve(x,A,b,false)
+        Pl = ScaleVector([1.0],true)
+        Pr = ScaleVector([1.0],false)
+        reltol = 1.0
+        _linsolve(x,A,b,true;reltol=reltol,Pl=Pl,Pr=Pr)
+        _linsolve(x,A,b,false;reltol=reltol,Pl=Pl,Pr=Pr)        
         break
     end
 end
