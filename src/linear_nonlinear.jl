@@ -82,7 +82,7 @@ DefaultLinSolve() = DefaultLinSolve(nothing, nothing, nothing)
 end
 
 function isopenblas()
-    @static if VERSION < v"1.7"
+    @static if VERSION < v"1.7beta"
       blas = BLAS.vendor()
       blas == :openblas64 || blas == :openblas
     else
@@ -131,7 +131,7 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;reltol=nothing, kwargs..
   end
 
   if A isa Union{Matrix,SymTridiagonal,Tridiagonal,Symmetric,Hermitian,ForwardSensitivityJacobian} # No 2-arg form for SparseArrays!
-    x .= b
+    copyto!(x,b)
     ldiv!(p.A,x)
   # Missing a little bit of efficiency in a rare case
   #elseif A isa DiffEqArrayOperator
@@ -144,7 +144,7 @@ function (p::DefaultLinSolve)(x,A,b,update_matrix=false;reltol=nothing, kwargs..
       reltol = checkreltol(reltol)
       p.iterable = IterativeSolvers.gmres_iterable!(x,A,b;initially_zero=true,restart=5,maxiter=5,abstol=1e-16,reltol=reltol,kwargs...)
     end
-    x .= false
+    fill!(x,false)
     iter = p.iterable
     purge_history!(iter, x, b)
 
@@ -167,6 +167,28 @@ end
 
 Base.resize!(p::DefaultLinSolve,i) = p.A = nothing
 const DEFAULT_LINSOLVE = DefaultLinSolve()
+
+## A much simpler LU for when we know it's Array
+
+mutable struct LUFactorize
+  A::LU{Float64,Matrix{Float64}}
+  openblas::Bool
+end
+LUFactorize() = LUFactorize(lu(rand(1,1)),isopenblas())
+function (p::LUFactorize)(x::Vector{Float64},A::Matrix{Float64},b::Vector{Float64},update_matrix::Bool=false;kwargs...)
+  if update_matrix
+    if ArrayInterface.can_setindex(x) && (size(A,1) <= 100 || (p.openblas && size(A,1) <= 500))
+      p.A = RecursiveFactorization.lu!(A)
+    else
+      p.A = lu!(A)
+    end
+  end
+  ldiv!(x,p.A,b)
+end
+function (p::LUFactorize)(::Type{Val{:init}},f,u0_prototype)
+  LUFactorize(lu(rand(eltype(u0_prototype),1,1)),p.openblas)
+end
+Base.resize!(p::LUFactorize,i) = p.A = nothing
 
 ### Default GMRES
 

@@ -77,12 +77,14 @@ function solve_up(prob::DEProblem,sensealg,u0,p,args...;kwargs...)
 
   if haskey(kwargs,:alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
-    _prob = get_concrete_problem(prob,isadaptive(alg);u0=u0,p=p,kwargs...)
-    solve_call(_prob,alg,args...;kwargs...)
+    _alg = prepare_alg(alg,u0,p,prob)
+    _prob = get_concrete_problem(prob,isadaptive(_alg);u0=u0,p=p,kwargs...)
+    solve_call(_prob,_alg,args...;kwargs...)
   elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
     alg = args[1]
-    _prob = get_concrete_problem(prob,isadaptive(alg);u0=u0,p=p,kwargs...)
-    solve_call(_prob,args...;kwargs...)
+    _alg = prepare_alg(alg,u0,p,prob)
+    _prob = get_concrete_problem(prob,isadaptive(_alg);u0=u0,p=p,kwargs...)
+    solve_call(_prob,_alg,Base.tail(args)...;kwargs...)
   elseif isempty(args) # Default algorithm handling
     _prob = get_concrete_problem(prob,!(typeof(prob)<:DiscreteProblem);u0=u0,p=p,kwargs...)
     solve_call(_prob,args...;kwargs...)
@@ -203,6 +205,7 @@ function promote_f(f,u0)
 end
 
 promote_f(f::SplitFunction,u0) = typeof(f.cache) === typeof(u0) && isinplace(f) ? f : remake(f,cache=zero(u0))
+prepare_alg(alg,u0,p,f) = alg
 
 function get_concrete_tspan(prob, isadapt, kwargs, p)
   if prob.tspan isa Function

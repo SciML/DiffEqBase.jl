@@ -126,6 +126,8 @@ include("init.jl")
 include("forwarddiff.jl")
 include("chainrules.jl")
 
+include("precompile.jl")
+
 """
 $(TYPEDEF)
 """
