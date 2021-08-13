@@ -32,7 +32,7 @@ import ChainRulesCore: NoTangent
 import ZygoteRules
 
 import DEDataArrays: DEDataArray, DEDataVector, DEDataMatrix, copy_fields!
-export DEDataArray
+export DEDataArray, DEDataVector, DEDataMatrix
 
 using Setfield
 
