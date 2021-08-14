@@ -90,7 +90,7 @@ function isopenblas()
     end
 end
 
-function (p::DefaultLinSolve)(x,A,b,update_matrix=false;reltol=nothing, kwargs...)
+function (p::DefaultLinSolve)(x,A::Union{AbstractMatrix,AbstractDiffEqOperator},b,update_matrix=false;reltol=nothing, kwargs...)
   if p.iterable isa Vector && eltype(p.iterable) <: LinearAlgebra.BlasInt # `iterable` here is the pivoting vector
     F = LU{eltype(A)}(A, p.iterable, zero(LinearAlgebra.BlasInt))
     ldiv!(x, F, b)
