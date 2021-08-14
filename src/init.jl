@@ -40,7 +40,7 @@ function __init__()
     promote_u0(u0,p::AbstractArray{<:MonteCarloMeasurements.AbstractParticles},t0) = eltype(p).(u0)
 
     value(x::Type{MonteCarloMeasurements.AbstractParticles{T,N}}) where {T,N} = T
-    value(x::MonteCarloMeasurements.AbstractParticles) = mean(x)
+    value(x::MonteCarloMeasurements.AbstractParticles) = mean(x.particles)
 
     @inline fastpow(x::MonteCarloMeasurements.AbstractParticles, y::MonteCarloMeasurements.AbstractParticles) = x^y
 
