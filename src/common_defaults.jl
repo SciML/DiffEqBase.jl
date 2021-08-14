@@ -29,7 +29,7 @@ end
 @inline function ODE_DEFAULT_PROG_MESSAGE(dt,u::Array,p,t)
     tmp = u[1]
     for i in eachindex(u)
-        tmp = ifelse(u[i] > tmp,u[i],tmp)
+        tmp = ifelse(abs(u[i]) > abs(tmp),u[i],tmp)
     end
     "dt="*string(dt)*"\nt="*string(t)*"\nmax u="*string(tmp)
 end
