@@ -655,8 +655,6 @@ function findall_events!(next_sign::Union{Array,SubArray},affect!::F1,affect_neg
 end
 
 function findall_events!(next_sign,affect!::F1,affect_neg!::F2,prev_sign) where {F1,F2}
-  @show typeof(next_sign)
-  @show typeof(prev_sign)
   hasaffect::Bool = affect! !== nothing
   hasaffectneg::Bool = affect_neg! !== nothing
   f = (n,p)-> ((p < 0 && hasaffect) || (p > 0 && hasaffectneg)) && p*n<=0
