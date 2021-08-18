@@ -547,8 +547,8 @@ end
   if callback.interp_points!=0 && !isdiscrete(integrator.alg) && sum(event_idx) != length(event_idx) # Use the interpolants for safety checking
     for i in 2:length(ts)
       abst = ts[i]
-      new_sign = get_condition(integrator, callback, abst)
-      _event_idx = findall_events!(new_sign,callback.affect!,callback.affect_neg!,prev_sign)
+      copyto!(next_sign,get_condition(integrator, callback, abst))
+      _event_idx = findall_events!(next_sign,callback.affect!,callback.affect_neg!,prev_sign)
       if sum(_event_idx) != 0
         event_occurred = true
         event_idx = _event_idx
