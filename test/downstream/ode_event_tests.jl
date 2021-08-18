@@ -281,9 +281,7 @@ integrator = init(
         DiscreteCallback(condition, affect!),
         ContinuousCallback(condition2, affect2!, terminate!),
     ),
-    tstops = [1.],
-    force_dtmin=true,
-    progress=true
+    tstops = [1.]
 )
 
 sol = solve!(integrator)
