@@ -84,15 +84,6 @@ function __init__()
     # make `\` work
     LinearAlgebra.ldiv!(F::CUDA.CUSOLVER.CuQR, b::CUDA.CuArray) = (x = similar(b); ldiv!(x, F, b); x)
     default_factorize(A::CUDA.CuArray) = qr(A)
-    function findall_events(affect!,affect_neg!,prev_sign::CUDA.CuArray,next_sign::CUDA.CuArray)
-      hasaffect::Bool = affect! !== nothing
-      hasaffectneg::Bool = affect_neg! !== nothing
-      f = (p,n)-> ((p < 0 && hasaffect) || (p > 0 && hasaffectneg)) && p*n<=0
-      A = map(f,prev_sign,next_sign)
-      out = findall(A)
-      CUDA.unsafe_free!(A)
-      out
-    end
 
     ODE_DEFAULT_NORM(u::CUDA.CuArray,t) = sqrt(real(sum(abs2,u))/length(u))
 
