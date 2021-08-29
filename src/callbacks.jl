@@ -558,6 +558,13 @@ end
         prev_sign_index = i
       end
     end
+    # If you get here, then you need to reset the event_idx to the non-interpolated
+    # version
+
+    abst = integrator.t
+    next_condition = get_condition(integrator, callback, abst)
+    @. next_sign = sign(next_condition)
+    event_idx = findall_events!(next_sign,callback.affect!,callback.affect_neg!,prev_sign)
   end
 
   event_occurred,interp_index,ts,prev_sign,prev_sign_index,event_idx
