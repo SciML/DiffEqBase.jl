@@ -545,6 +545,7 @@ end
     interp_index = callback.interp_points
   end
   if callback.interp_points!=0 && !isdiscrete(integrator.alg) && sum(event_idx) != length(event_idx) # Use the interpolants for safety checking
+    fallback = true
     for i in 2:length(ts)
       abst = ts[i]
       copyto!(next_sign,get_condition(integrator, callback, abst))
@@ -553,10 +554,22 @@ end
         event_occurred = true
         event_idx = _event_idx
         interp_index = i
+        fallback = false
         break
       else
         prev_sign_index = i
       end
+    end
+
+    if fallback
+      # If you get here, then you need to reset the event_idx to the
+      # non-interpolated version
+
+      abst = integrator.t
+      next_condition = get_condition(integrator, callback, abst)
+      @. next_sign = sign(next_condition)
+      event_idx = findall_events!(next_sign,callback.affect!,callback.affect_neg!,prev_sign)
+      interp_index = callback.interp_points
     end
   end
 
@@ -784,6 +797,10 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
   else
     new_t = zero(typeof(integrator.t))
     min_event_idx = 1
+  end
+
+  if event_occurred && min_event_idx < 0
+    error("Callback handling failed. Please file an issue with code to reproduce.")
   end
 
   new_t,ArrayInterface.allowed_getindex(prev_sign,min_event_idx),event_occurred::Bool,min_event_idx::Int
