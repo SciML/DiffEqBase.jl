@@ -1,7 +1,7 @@
 name = "DiffEqBase"
 uuid = "2b5f629d-d688-5b77-993f-72d75c75574e"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "6.73.2"
+version = "6.74.0"
 
 [deps]
 ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
@@ -39,7 +39,7 @@ ArrayInterface = "2.6, 3.0"
 ChainRulesCore = "0.10, 1"
 DEDataArrays = "0.2"
 DataStructures = "0.18"
-Distributions = "0.25"
+Distributions = "0.24"
 DocStringExtensions = "0.8"
 FastBroadcast = "0.1.4"
 ForwardDiff = "0.10"
