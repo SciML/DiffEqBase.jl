@@ -18,7 +18,7 @@ using Reexport
 
 using Statistics
 
-using FastBroadcast: @..
+using FastBroadcast: @.., True, False
 
 using PreallocationTools
 import PreallocationTools: get_tmp
