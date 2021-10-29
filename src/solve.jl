@@ -49,7 +49,7 @@ function solve_call(_prob,args...;merge_callbacks = true, kwargs...)
     if merge_callbacks && haskey(_prob.kwargs,:callback) && haskey(kwargs, :callback)
       kwargs_temp = NamedTuple{Base.diff_names(Base._nt_names(
       values(kwargs)), (:callback,))}(values(kwargs))
-      callbacks = NamedTuple{(:callback,)}( [DiffEqBase.CallbackSet(_prob.kwargs[:callback], values(kwargs).callback )] )
+      callbacks = NamedTuple{(:callback,)}( (DiffEqBase.CallbackSet(_prob.kwargs[:callback], values(kwargs).callback ),) )
       kwargs = merge(kwargs_temp, callbacks)
     end
     kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
