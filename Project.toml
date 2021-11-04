@@ -1,7 +1,7 @@
 name = "DiffEqBase"
 uuid = "2b5f629d-d688-5b77-993f-72d75c75574e"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "6.75.1"
+version = "6.76.0"
 
 [deps]
 ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
@@ -49,7 +49,7 @@ LabelledArrays = "1.1"
 MuladdMacro = "0.2.1"
 NonlinearSolve = "0.3.0"
 Parameters = "0.12.0"
-PreallocationTools = "0.1.0, 0.2"
+PreallocationTools = "0.2"
 RecursiveArrayTools = "2"
 RecursiveFactorization = "0.2"
 Reexport = "0.2, 1.0"
