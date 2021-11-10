@@ -220,17 +220,30 @@ function (f::LinSolveIterativeSolvers)(x,A,b,update_matrix=false; Pl=nothing, Pr
     Pr = ComposePreconditioner(f.Pr, Pr, false)
 
     reltol = checkreltol(reltol)
-    f.iterable = f.generate_iterator(x,A,b,f.args...;
-                                     initially_zero=true,restart=5,
-                                     maxiter=5,abstol=1e-16,reltol=reltol,
-                                     Pl=Pl,Pr=Pr,
-                                     kwargs...,f.kwargs...)
+#   @show f.generate_iterator
+    if f.generate_iterator == IterativeSolvers.cg_iterator!
+        f.iterable = f.generate_iterator(x,A,b,f.args...;
+                                         initially_zero=true,
+                                         maxiter=20,abstol=1e-16,reltol=reltol,
+                                         kwargs...,f.kwargs...)
+
+    else # f.generate_iterator == IterativeSolvers.gmres_iterable!
+        f.iterable = f.generate_iterator(x,A,b,f.args...;
+                                         initially_zero=true,restart=5,
+                                         maxiter=20,abstol=1e-16,reltol=reltol,
+                                         Pl=Pl,Pr=Pr,
+                                         kwargs...,f.kwargs...)
+
+    end
   end
   x .= false
   iter = f.iterable
   purge_history!(iter, x, b)
 
+# @show iter.maxiter
+# @show iter.residual
   for residual in iter
+#     @show iter.residual
   end
   return nothing
 end
