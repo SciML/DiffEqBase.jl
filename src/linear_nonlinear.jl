@@ -221,7 +221,8 @@ function (f::LinSolveIterativeSolvers)(x,A,b,update_matrix=false; Pl=nothing, Pr
 
     reltol = checkreltol(reltol)
 #   @show f.generate_iterator
-    if f.generate_iterator == IterativeSolvers.cg_iterator!
+    if f.generate_iterator === IterativeSolvers.cg_iterator!
+
         f.iterable = f.generate_iterator(x,A,b,f.args...;
                                          initially_zero=true,
                                          maxiter=20,abstol=1e-16,reltol=reltol,
