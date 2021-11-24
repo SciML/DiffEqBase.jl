@@ -9,7 +9,15 @@ function SciMLBase.tmap(args...)
   error("Zygote must be added to differentiate Zygote? If you see this error, report it.")
 end
 
+const IS_OPENBLAS = Ref(true)
+
 function __init__()
+  @static if VERSION < v"1.7beta"
+    blas = BLAS.vendor()
+    IS_OPENBLAS[] = blas == :openblas64 || blas == :openblas
+  else
+    IS_OPENBLAS[] = occursin("openblas", BLAS.get_config().loaded_libs[1].libname)
+  end
   @require ApproxFun="28f2ccd6-bb30-5033-b560-165f7b14dc2f" begin
     eval_u0(u0::ApproxFun.Fun) = false
   end

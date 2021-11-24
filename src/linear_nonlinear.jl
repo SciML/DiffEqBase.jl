@@ -81,14 +81,7 @@ DefaultLinSolve() = DefaultLinSolve(nothing, nothing, nothing)
   return reltol
 end
 
-function isopenblas()
-    @static if VERSION < v"1.7beta"
-      blas = BLAS.vendor()
-      blas == :openblas64 || blas == :openblas
-    else
-      occursin("openblas", BLAS.get_config().loaded_libs[1].libname)
-    end
-end
+isopenblas() = IS_OPENBLAS[]
 
 function (p::DefaultLinSolve)(x,A::Union{AbstractMatrix,AbstractDiffEqOperator},b,update_matrix=false;reltol=nothing, kwargs...)
   if p.iterable isa Vector && eltype(p.iterable) <: LinearAlgebra.BlasInt # `iterable` here is the pivoting vector
