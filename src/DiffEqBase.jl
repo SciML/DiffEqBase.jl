@@ -27,6 +27,7 @@ import Distributions
 import ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
+import TriangularSolve
 
 import ChainRulesCore: NoTangent
 import ZygoteRules
