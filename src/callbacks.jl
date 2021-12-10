@@ -302,7 +302,7 @@ end
 # always ensures that if r = bisection(f, (x0, x1))
 # then either f(nextfloat(r)) == 0 or f(nextfloat(r)) * f(r) < 0
 function bisection(f, tup, t_forward::Bool, rootfind::SciMLBase.RootfindOpt, abstol, reltol; maxiters=1000)
-  if rootfind == LeftRootFind
+  if rootfind == SciMLBase.LeftRootFind
     NonlinearSolve.solve(NonlinearSolve.NonlinearProblem{false}(f, tup), NonlinearSolve.Falsi(), abstol=abstol, reltol=reltol).left
   else
     NonlinearSolve.solve(NonlinearSolve.NonlinearProblem{false}(f, tup), NonlinearSolve.Falsi(), abstol=abstol, reltol=reltol).right
@@ -343,7 +343,7 @@ function find_callback_time(integrator,callback::ContinuousCallback,counter)
         top_t = integrator.t
         bottom_t = integrator.tprev
       end
-      if callback.rootfind != NoRootFind && !isdiscrete(integrator.alg)
+      if callback.rootfind != SciMLBase.NoRootFind && !isdiscrete(integrator.alg)
         zero_func(abst, p=nothing) = get_condition(integrator, callback, abst)
         if zero_func(top_t) == 0
           Θ = top_t
@@ -399,7 +399,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
         top_t = integrator.t
         bottom_t = integrator.tprev
       end
-      if callback.rootfind != NoRootFind && !isdiscrete(integrator.alg)
+      if callback.rootfind != SciMLBase.NoRootFind && !isdiscrete(integrator.alg)
         min_t = nextfloat(top_t)
         min_event_idx = -1
         for idx in 1:length(event_idx)
