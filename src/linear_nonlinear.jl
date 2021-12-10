@@ -176,9 +176,10 @@ function (p::LUFactorize)(x::Vector{Float64},A::Matrix{Float64},b::Vector{Float6
       p.A = lu!(A)
     end
   end
-  ldiv!(x,p.A,b)
+  copyto!(x,b)
+  ldiv!(p.A,x)
 end
-function (p::LUFactorize)(::Type{Val{:init}},f,u0_prototype)
+function (p::LUFactorize)(::Type{Val{:init}},f::F,u0_prototype) where F
   LUFactorize(lu(rand(eltype(u0_prototype),1,1)),p.openblas)
 end
 Base.resize!(p::LUFactorize,i) = p.A = nothing
