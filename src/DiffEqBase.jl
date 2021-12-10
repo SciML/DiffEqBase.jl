@@ -141,8 +141,6 @@ struct ConvergenceSetup{P,C}
     convergence_axis::C
 end
 
-export ContinuousCallback, DiscreteCallback, CallbackSet, VectorContinuousCallback
-
 export initialize!, finalize!
 
 export LinSolveFactorize, LinSolveGPUFactorize, DefaultLinSolve, DEFAULT_LINSOLVE,
