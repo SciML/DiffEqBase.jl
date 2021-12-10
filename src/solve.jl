@@ -148,7 +148,7 @@ function get_concrete_problem(prob, isadapt; kwargs...)
   f_promote = promote_f(prob.f, u0_promote)
   tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
   if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
-                  prob.tspan == tspan && typeof(tspan) === typeof(tspan_promote) &&
+                  prob.tspan == tspan && typeof(prob.tspan) === typeof(tspan_promote) &&
                   p === prob.p && f_promote === prob.f
     return prob
   else
@@ -170,7 +170,7 @@ function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
   tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
   if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
      isconcretedu0(prob, tspan[1], kwargs) && typeof(du0_promote) === typeof(prob.du0) &&
-                  prob.tspan == tspan && typeof(tspan) === typeof(tspan_promote) &&
+                  prob.tspan == tspan && typeof(prob.tspan) === typeof(tspan_promote) &&
                   p === prob.p && f_promote === prob.f
     return prob
   else
