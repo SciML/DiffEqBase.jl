@@ -101,7 +101,7 @@ function (p::DefaultLinSolve)(x,A::Union{AbstractMatrix,AbstractDiffEqOperator},
         p.openblas = isopenblas()
       end
 
-      if ArrayInterface.can_setindex(x) && (size(A,1) <= 100 || (p.openblas && size(A,1) <= 500))
+      if eltype(A) <: Union{Float32,Float64,ComplexF32,ComplexF64} && ArrayInterface.can_setindex(x) && (size(A,1) <= 100 || (p.openblas && size(A,1) <= 500))
         p.A = RecursiveFactorization.lu!(A)
       else
         p.A = lu!(A)
