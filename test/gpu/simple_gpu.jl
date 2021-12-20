@@ -1,6 +1,4 @@
 using OrdinaryDiffEq, CUDA, LinearAlgebra, Test
-Base.:+(A::CuArray,I::UniformScaling) = A + CuArray(I,size(A,1),size(A,2))
-Base.:-(A::CuArray,I::UniformScaling) = A + CuArray(I,size(A,1),size(A,2))
 function f(u,p,t)
     A*u
 end
@@ -28,7 +26,7 @@ tspan = (0.,100.)
 prob = ODEProblem(ff,u0,tspan)
 sol = solve(prob,Tsit5())
 @test solve(prob,Rosenbrock23()).retcode == :Success
-solve(prob,Rosenbrock23(autodiff=false))
+solve(prob,Rosenbrock23(autodiff=false));
 
 prob_oop = ODEProblem{false}(ff,u0,tspan)
 CUDA.allowscalar(false)
@@ -50,20 +48,6 @@ DiffEqBase.prob2dtmin(prob_nojac_oop)
 @test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=false,diff_type = Val{:central})).retcode == :Success
 @test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=false,diff_type = Val{:complex})).retcode == :Success
 =#
-
-# Test auto-offload
-_A = -rand(3,3)
-function f2(du,u,p,t)
-    mul!(du,_A,u)
-end
-function jac2(J,u,p,t)
-    J .= _A
-end
-ff2 = ODEFunction(f2,jac=jac2)
-u0 = [1.0;0.0;0.0]
-tspan = (0.0,100.0)
-prob_num = ODEProblem(ff2,u0,tspan)
-sol = solve(prob_num,Rosenbrock23(linsolve=LinSolveGPUFactorize()))
 
 # Complex Numbers Adaptivity DifferentialEquations.jl#460
 f_complex(u,nothing,t) = 1/2 .*u
