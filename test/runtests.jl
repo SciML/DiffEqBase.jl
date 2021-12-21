@@ -11,7 +11,7 @@ function activate_downstream_env()
     Pkg.instantiate()
 end
 
-function activate_downstream_env()
+function activate_gpu_env()
     Pkg.activate("gpu")
     Pkg.develop(PackageSpec(path=dirname(@__DIR__)))
     Pkg.instantiate()
