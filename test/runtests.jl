@@ -47,12 +47,8 @@ end
 
 if !is_APPVEYOR && GROUP == "Downstream2"
     activate_downstream_env()
-    @time @safetestset "ODE Event Tests" begin include("downstream/ode_event_tests.jl") end
-    @time @safetestset "Event Detection Tests" begin include("downstream/event_detection_tests.jl") end
     @time @safetestset "Callback BigFloats" begin include("downstream/bigfloat_events.jl") end
-    @time @safetestset "PSOS and Energy Conservation Event Detection" begin include("downstream/psos_and_energy_conservation.jl") end
     @time @safetestset "DE stats" begin include("downstream/destats_tests.jl") end
-    @time @safetestset "AD Tests" begin include("downstream/ad_tests.jl") end
     @time @safetestset "Ensemble AD Tests" begin include("downstream/ensemble_ad.jl") end
     @time @safetestset "Community Callback Tests" begin include("downstream/community_callback_tests.jl") end
     @time @testset "Distributed Ensemble Tests" begin include("downstream/distributed_ensemble.jl") end
