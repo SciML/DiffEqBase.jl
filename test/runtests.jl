@@ -11,6 +11,12 @@ function activate_downstream_env()
     Pkg.instantiate()
 end
 
+function activate_downstream_env()
+    Pkg.activate("gpu")
+    Pkg.develop(PackageSpec(path=dirname(@__DIR__)))
+    Pkg.instantiate()
+end
+
 @time begin
 if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Fast Power" begin include("fastpow.jl") end
@@ -55,7 +61,7 @@ if !is_APPVEYOR && GROUP == "Downstream2"
 end
 
 if !is_APPVEYOR && GROUP == "GPU"
-    activate_downstream_env()
+    activate_gpu_env()
     @time @safetestset "Simple GPU" begin include("gpu/simple_gpu.jl") end
 end
 
