@@ -80,16 +80,32 @@ const EXP2FT = (Float32(0x1.6a09e667f3bcdp-1),
     return tv * twopk
 end
 
-"""
-    fastpow(x::Real, y::Real) -> Float32
-"""
-@inline function fastpow(x::Real, y::Real)
-    if iszero(x)
-        return 0f0
-    elseif isinf(x) && isinf(y)
-        return Float32(Inf)
-    else
-        return _exp2(convert(Float32,y) * fastlog2(convert(Float32, x)))
+
+if VERSION < v"1.7.0"
+    """
+        fastpow(x::Real, y::Real) -> Float32
+    """
+    @inline function fastpow(x::Real, y::Real)
+        if iszero(x)
+            return 0f0
+        elseif isinf(x) && isinf(y)
+            return Float32(Inf)
+        else
+            return _exp2(convert(Float32,y) * fastlog2(convert(Float32, x)))
+        end
+    end
+else 
+    """
+        fastpow(x::Real, y::Real) -> Float32
+    """
+    @inline function fastpow(x::Real, y::Real)
+        if iszero(x)
+            return 0f0
+        elseif isinf(x) && isinf(y)
+            return Float32(Inf)
+        else
+            return @fastmath exp2(convert(Float32,y) * fastlog2(convert(Float32, x)))
+        end
     end
 end
 @inline fastpow(x, y) = x^y
