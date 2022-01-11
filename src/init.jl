@@ -1,5 +1,6 @@
 value(x) = x
 cuify(x) = error("To use LinSolveGPUFactorize, you must do `using CuArrays`")
+iscuda(x) = false
 promote_u0(u0,p,t0) = u0
 promote_tspan(u0,p,tspan,prob,kwargs) = tspan
 get_tmp(x) = nothing
@@ -82,6 +83,7 @@ function __init__()
 
   @require CUDA="052768ef-5323-5732-b1bb-66c8b64840ba" begin
     cuify(x::AbstractArray) = CUDA.CuArray(x)
+    iscuda(x::Union{CUDA.CuArray,CUDA.CUSPARSE.CuSparseMatrixCSC}) = true
     default_factorize(A::CUDA.CuArray) = qr(A)
 
     ODE_DEFAULT_NORM(u::CUDA.CuArray,t) = sqrt(real(sum(abs2,u))/length(u))
