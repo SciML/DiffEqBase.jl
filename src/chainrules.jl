@@ -129,6 +129,7 @@ ZygoteRules.@adjoint function (f::ODEFunction)(u,p,t)
   end
 end
 
+#=
 ZygoteRules.@adjoint! function (f::ODEFunction)(du,u,p,t)
   if f.vjp === nothing
     ZygoteRules._pullback(f.f,du,u,p,t)
@@ -136,5 +137,6 @@ ZygoteRules.@adjoint! function (f::ODEFunction)(du,u,p,t)
     f.vjp(du,u,p,t)
   end
 end
+=#
 
 ChainRulesCore.rrule(::typeof(numargs),f) = (numargs(f),df->(NoTangent(),NoTangent()))
