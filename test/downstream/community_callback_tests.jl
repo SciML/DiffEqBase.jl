@@ -183,3 +183,25 @@ dt = 0.2
 for i=1:1000
     step!(world, dt)
 end
+
+## https://github.com/SciML/OrdinaryDiffEq.jl/issues/1528
+
+function f!(out, u, p, t)
+    out[1] = 0
+    out[2] = u[3]
+    out[3] = -1.0*(u[2] - u[1])
+end
+u0 = [0, 0, 1.0]
+function cond!(out, u, t, i)
+    out[1] = u[3]
+    nothing
+end
+function affect!(int, idx)
+    terminate!(int)
+end
+cb = VectorContinuousCallback(cond!, affect!, nothing, 1)
+
+u0 = [ 0.0, 0.0, 1.0 ]
+prob = ODEProblem(f!, u0, (0.0, 10.0); callback=cb)
+soln = solve(prob, Tsit5())
+@test soln.t[end] ≈ 4.712347213360699
