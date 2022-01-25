@@ -148,8 +148,17 @@ end
   if callback.interp_points!=0
     addsteps!(integrator)
   end
-  dt = (integrator.t - integrator.tprev) / callback.interp_points
+
+  # This is slow
+  #ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
+
+  if callback.interp_points > 1
+    dt = (integrator.t - integrator.tprev) / (callback.interp_points-1)
+  else
+    dt = integrator.dt
+  end
   ts = integrator.tprev:dt:integrator.t
+
   interp_index = 0
   # Check if the event occured
   previous_condition = @views(integrator.callback_cache.previous_condition[1:callback.len])
@@ -199,6 +208,7 @@ end
     event_occurred = true
     interp_index = callback.interp_points
   end
+
   if callback.interp_points!=0 && !isdiscrete(integrator.alg) && sum(event_idx) != length(event_idx) # Use the interpolants for safety checking
     fallback = true
     for i in 2:length(ts)
@@ -236,8 +246,19 @@ end
   if callback.interp_points!=0
     addsteps!(integrator)
   end
-  ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
+
+  # This is slow
+  #ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
+
+  if callback.interp_points > 1
+    dt = (integrator.t - integrator.tprev) / (callback.interp_points-1)
+  else
+    dt = integrator.dt
+  end
+  ts = integrator.tprev:dt:integrator.t
+  
   interp_index = 0
+
   # Check if the event occured
   if callback.idxs === nothing
     previous_condition = callback.condition(integrator.uprev,integrator.tprev,integrator)
@@ -420,6 +441,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
                 sign_top = sign(zero_func(top_t))
                 sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) && error("Double callback crossing floating pointer reducer errored. Report this issue.")
               end
+
               Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir), callback.rootfind, callback.abstol, callback.reltol)
               if integrator.tdir * Θ < integrator.tdir * min_t
                 integrator.last_event_error = ODE_DEFAULT_NORM(zero_func(Θ), Θ)
