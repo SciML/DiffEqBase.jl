@@ -149,15 +149,17 @@ end
     addsteps!(integrator)
   end
 
-  # This is slow
-  #ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
+  ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
 
+  #=
+  # Faster but can be inaccurate
   if callback.interp_points > 1
     dt = (integrator.t - integrator.tprev) / (callback.interp_points-1)
   else
     dt = integrator.dt
   end
   ts = integrator.tprev:dt:integrator.t
+  =#
 
   interp_index = 0
   # Check if the event occured
@@ -247,16 +249,18 @@ end
     addsteps!(integrator)
   end
 
-  # This is slow
-  #ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
+  ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
 
+  #=
+  # Faster but can be inaccurate
   if callback.interp_points > 1
     dt = (integrator.t - integrator.tprev) / (callback.interp_points-1)
   else
     dt = integrator.dt
   end
   ts = integrator.tprev:dt:integrator.t
-  
+  =#
+
   interp_index = 0
 
   # Check if the event occured
