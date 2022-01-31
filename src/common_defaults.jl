@@ -2,7 +2,7 @@ abs2_and_sum(x,y) = reduce(Base.add_sum,x,init=zero(real(value(eltype(first(x)))
                     reduce(Base.add_sum,y,init=zero(real(value(eltype(first(y))))))
 @inline UNITLESS_ABS2(x::Number) = abs2(x)
 @inline UNITLESS_ABS2(x::AbstractArray) = mapreduce(UNITLESS_ABS2,abs2_and_sum, x, init=zero(real(value(eltype(first(x))))))
-@inline UNITLESS_ABS2(x::RecursiveArrayTools.ArrayPartition) = mapreduce(UNITLESS_ABS2, abs2_and_sum, x.x, init=zero(real(value(eltype(first(x))))))
+@inline UNITLESS_ABS2(x::RecursiveArrayTools.ArrayPartition) = mapreduce(UNITLESS_ABS2, abs2_and_sum, x.x)
 
 @inline recursive_length(u::AbstractArray{<:Number}) = length(u)
 @inline recursive_length(u::Number) = length(u)
