@@ -42,7 +42,7 @@ end
 @inline NAN_CHECK(x::Enum) = false
 @inline NAN_CHECK(x::AbstractArray) = any(NAN_CHECK, x)
 @inline NAN_CHECK(x::RecursiveArrayTools.ArrayPartition) = any(NAN_CHECK, x.x)
-@inline NAN_CHECK(x::SparseMatrixCSC) = any(NAN_CHECK, nonzeros(x))
+@inline NAN_CHECK(x::SparseArrays.AbstractSparseMatrixCSC) = any(NAN_CHECK, nonzeros(x))
   
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u,p,t) = false
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::Union{Number,AbstractArray},p,t) = NAN_CHECK(u)
