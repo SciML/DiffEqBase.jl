@@ -35,7 +35,7 @@ SuiteSparse = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 ZygoteRules = "700de1a5-db45-46bc-99cf-38207098b444"
 
 [compat]
-ArrayInterface = "2.6, 3.0, 4"
+ArrayInterface = "2.6, 3.0, 4, 5"
 ChainRulesCore = "0.10, 1"
 DEDataArrays = "0.2"
 DataStructures = "0.18"
