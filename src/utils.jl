@@ -25,7 +25,10 @@ end
 
 # TODO: would be good to have dtmin a function of dt
 prob2dtmin(prob; use_end_time=true) = prob2dtmin(prob.tspan, oneunit(eltype(prob.tspan)), use_end_time)
-function prob2dtmin(tspan, ::Real, use_end_time)
+
+# This functino requires `eps` to exist, which restricts below `<: Real`
+# Example of a failure is Rational
+function prob2dtmin(tspan, ::Union{AbstractFloat,ForwardDiff.Dual}, use_end_time)
   t1, t2 = tspan
   # handle eps(Inf) -> NaN
   t1f, t2f = map(isfinite, tspan)
