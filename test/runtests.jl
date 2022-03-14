@@ -27,7 +27,6 @@ if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Affine differential equation operators" begin include("affine_operators_tests.jl") end
     @time @safetestset "Export tests" begin include("export_tests.jl") end
     @time @safetestset "Remake tests" begin include("remake_tests.jl") end
-    @time @safetestset "prob2dtmin tests" begin include("prob2dtmin.jl") end
     @time @safetestset "High Level solve Interface" begin include("high_level_solve.jl") end
     @time @safetestset "DiffEqFunction tests" begin include("diffeqfunction_tests.jl") end
     @time @safetestset "Internal Euler" begin include("internal_euler_test.jl") end
