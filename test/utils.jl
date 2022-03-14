@@ -1,6 +1,6 @@
 using Test
 
-using DiffEqBase
+using DiffEqBase, ForwardDiff
 using DiffEqBase: prob2dtmin, timedepentdtmin
 
 @testset "tspan2dtmin" begin
