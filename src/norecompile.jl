@@ -8,9 +8,37 @@ const arglists = (Tuple{Vector{Float64},Vector{Float64},Vector{Float64},Float64}
                   Tuple{Vector{dualT},Vector{dualT},SciMLBase.NullParameters,Float64},
                   Tuple{Vector{dualT},Vector{Float64},SciMLBase.NullParameters,dualT})
 const returnlists = ntuple(x -> Nothing, length(arglists))
-void(f) = function (du, u, p, t)
-  f(du, u, p, t)
-  nothing
+function void(@nospecialize(f::Function)) 
+  function f2(@nospecialize(du::Vector{Float64}), @nospecialize(u::Vector{Float64}), @nospecialize(p::Vector{Float64}), @nospecialize(t::Float64))
+    f(du, u, p, t)
+    nothing
+  end
+
+  function f2(@nospecialize(du::Vector{Float64}), @nospecialize(u::Vector{Float64}), @nospecialize(p::SciMLBase.NullParameters), @nospecialize(t::Float64))
+    f(du, u, p, t)
+    nothing
+  end
+
+  function f2(@nospecialize(du::Vector{dualT}), @nospecialize(u::Vector{dualT}), @nospecialize(p::Vector{Float64}), @nospecialize(t::Float64))
+    f(du, u, p, t)
+    nothing
+  end
+
+  function f2(@nospecialize(du::Vector{dualT}), @nospecialize(u::Vector{dualT}), @nospecialize(p::SciMLBase.NullParameters), @nospecialize(t::Float64))
+    f(du, u, p, t)
+    nothing
+  end
+  
+  function f2(@nospecialize(du::Vector{dualT}), @nospecialize(u::Vector{Float64}), @nospecialize(p::Vector{Float64}), @nospecialize(t::dualT))
+    f(du, u, p, t)
+    nothing
+  end
+
+  function f2(@nospecialize(du::Vector{dualT}), @nospecialize(u::Vector{Float64}), @nospecialize(p::SciMLBase.NullParameters), @nospecialize(t::dualT))
+    f(du, u, p, t)
+    nothing
+  end
+  f2
 end
 const NORECOMPILE_FUNCTION = typeof(FunctionWrappersWrappers.FunctionWrappersWrapper(void(() -> nothing), arglists, returnlists))
 wrap_norecompile(f) = FunctionWrappersWrappers.FunctionWrappersWrapper(void(f), arglists, returnlists)
