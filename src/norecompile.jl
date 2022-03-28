@@ -38,8 +38,15 @@ function void(@nospecialize(f::Function))
     f(du, u, p, t)
     nothing
   end
+  precompile(f2, (Vector{Float64}, Vector{Float64}, Vector{Float64}, Float64))
+  precompile(f2, (Vector{Float64}, Vector{Float64}, SciMLBase.NullParameters, Float64))
+  precompile(f2, (Vector{dualT}, Vector{dualT}, Vector{Float64}, Float64))
+  precompile(f2, (Vector{dualT}, Vector{dualT}, SciMLBase.NullParameters, Float64))
+  precompile(f2, (Vector{dualT}, Vector{Float64}, Vector{Float64}, dualT))
+  precompile(f2, (Vector{dualT}, Vector{Float64}, SciMLBase.NullParameters, dualT))
   f2
 end
+
 const NORECOMPILE_FUNCTION = typeof(FunctionWrappersWrappers.FunctionWrappersWrapper(void(() -> nothing), arglists, returnlists))
 wrap_norecompile(f) = FunctionWrappersWrappers.FunctionWrappersWrapper(void(f), arglists, returnlists)
 
