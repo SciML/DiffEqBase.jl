@@ -38,6 +38,13 @@ function void(@nospecialize(f::Function))
     f(du, u, p, t)
     nothing
   end
+  precompile(f, (Vector{Float64}, Vector{Float64}, Vector{Float64}, Float64))
+  precompile(f, (Vector{Float64}, Vector{Float64}, SciMLBase.NullParameters, Float64))
+  precompile(f, (Vector{dualT}, Vector{dualT}, Vector{Float64}, Float64))
+  precompile(f, (Vector{dualT}, Vector{dualT}, SciMLBase.NullParameters, Float64))
+  precompile(f, (Vector{dualT}, Vector{Float64}, Vector{Float64}, dualT))
+  precompile(f, (Vector{dualT}, Vector{Float64}, SciMLBase.NullParameters, dualT))
+
   precompile(f2, (Vector{Float64}, Vector{Float64}, Vector{Float64}, Float64))
   precompile(f2, (Vector{Float64}, Vector{Float64}, SciMLBase.NullParameters, Float64))
   precompile(f2, (Vector{dualT}, Vector{dualT}, Vector{Float64}, Float64))
