@@ -37,3 +37,8 @@ u4_3 = ArrayPartition(u1, u2, u3′)
 @test NAN_CHECK(ArrayPartition(u4, u4_1))
 @test NAN_CHECK(ArrayPartition(u4, u4_2))
 @test NAN_CHECK(ArrayPartition(u4, u4_3))
+
+u5 = spzeros(1, 1)
+@test !NAN_CHECK(u5)
+u5[1, 1] = NaN
+@test NAN_CHECK(u5) 
