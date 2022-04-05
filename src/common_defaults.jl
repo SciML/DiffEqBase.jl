@@ -9,6 +9,9 @@ abs2_and_sum(x,y) = reduce(Base.add_sum,x,init=zero(real(value(eltype(x))))) +
 @inline recursive_length(u::AbstractArray{<:AbstractArray}) = sum(recursive_length, u)
 @inline recursive_length(u::RecursiveArrayTools.ArrayPartition) = sum(recursive_length, u.x)
 @inline recursive_length(u::RecursiveArrayTools.VectorOfArray) = sum(recursive_length, u.u)
+@inline function recursive_length(u::AbstractArray{<:StaticArray{Size, <:Number}}) where {Size}
+  prod(Size(eltype(u))) * length(u)
+end
 
 @inline ODE_DEFAULT_NORM(u::Union{AbstractFloat,Complex},t) = @fastmath abs(u)
 
