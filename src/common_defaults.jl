@@ -9,6 +9,9 @@ abs2_and_sum(x,y) = reduce(Base.add_sum,x,init=zero(real(value(eltype(x))))) +
 @inline recursive_length(u::AbstractArray{<:AbstractArray}) = sum(recursive_length, u)
 @inline recursive_length(u::RecursiveArrayTools.ArrayPartition) = sum(recursive_length, u.x)
 @inline recursive_length(u::RecursiveArrayTools.VectorOfArray) = sum(recursive_length, u.u)
+@inline function recursive_length(u::AbstractArray{<:StaticArray{S, <:Number}}) where {S}
+  prod(Size(eltype(u))) * length(u)
+end
 
 @inline ODE_DEFAULT_NORM(u::Union{AbstractFloat,Complex},t) = @fastmath abs(u)
 
@@ -43,6 +46,6 @@ end
 @inline NAN_CHECK(x::AbstractArray) = any(NAN_CHECK, x)
 @inline NAN_CHECK(x::RecursiveArrayTools.ArrayPartition) = any(NAN_CHECK, x.x)
 @inline NAN_CHECK(x::SparseArrays.AbstractSparseMatrixCSC) = any(NAN_CHECK, nonzeros(x))
-    
+
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u,p,t) = false
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt,u::Union{Number,AbstractArray},p,t) = NAN_CHECK(u)
