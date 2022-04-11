@@ -151,4 +151,6 @@ export NLNewton, NLFunctional, NLAnderson
 
 export SensitivityADPassThrough
 
+export KeywordArgError, KeywordArgWarn, KeywordArgSilent
+
 end # module
