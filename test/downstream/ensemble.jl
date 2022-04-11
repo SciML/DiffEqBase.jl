@@ -16,9 +16,6 @@ sim = solve(prob2,SRIW1(),dt=1//2^(3),trajectories=10)
 @test sim[1,2] isa Matrix
 @test sim[1,2,1] isa Float64
 
-# Test Deprecations
-@test_logs (:warn, "num_monte has been replaced by trajectories") (:warn, "parallel_type has been deprecated. Please refer to the docs for the new dispatch-based system.") solve(prob2,SRIW1(),dt=1//2^(3),num_monte=10,parallel_type=:threads)
-
 sim = solve(prob2,SRIW1(),EnsembleThreads(),dt=1//2^(3),trajectories=10)
 err_sim = DiffEqBase.calculate_ensemble_errors(sim;weak_dense_errors=true)
 @test length(sim) == 10

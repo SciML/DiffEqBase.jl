@@ -61,6 +61,8 @@ const allowedkeywords = (
   :seed,
   :alg_hints,
   :kwargshandle,
+  :trajectories,
+  :batch_size,
 )
 
 const KWARGWARN_MESSAGE = 
