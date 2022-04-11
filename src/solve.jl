@@ -118,7 +118,7 @@ function init_call(_prob, args...; merge_callbacks=true, kwargs...)
 end
 
 function init(prob::DEProblem, args...; kwargshandle=KeywordArgWarn, kwargs...)
-  @ignore_derivatives checkkwargs(kwargshandle; kwargs...)
+  checkkwargs(kwargshandle; kwargs...)
   if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
     _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
@@ -159,7 +159,7 @@ function solve(prob::DEProblem, args...; sensealg=nothing,
   if sensealg === nothing && haskey(prob.kwargs, :sensealg)
     sensealg = prob.kwargs[:sensealg]
   end
-  @ignore_derivatives checkkwargs(kwargshandle; kwargs...)
+  checkkwargs(kwargshandle; kwargs...)
   solve_up(prob, sensealg, u0, p, args...; kwargs...)
 end
 
@@ -211,6 +211,8 @@ function checkkwargs(kwargshandle; kwargs...)
     end
   end
 end
+
+@non_differentiable checkkwargs(kwargshandle)
 
 function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
   prob

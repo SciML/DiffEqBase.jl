@@ -28,7 +28,7 @@ import ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
 
-import ChainRulesCore: NoTangent, @ignore_derivatives
+import ChainRulesCore: NoTangent, @non_differentiable
 import ZygoteRules
 
 import DEDataArrays: DEDataArray, DEDataVector, DEDataMatrix, copy_fields!
