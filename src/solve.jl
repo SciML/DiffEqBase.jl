@@ -118,7 +118,7 @@ function init_call(_prob, args...; merge_callbacks=true, kwargs...)
 end
 
 function init(prob::DEProblem, args...; kwargshandle=KeywordArgWarn, kwargs...)
-  checkkwargs(kwargshandle; kwargs...)
+  @ignore_derivatives checkkwargs(kwargshandle; kwargs...)
   if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
     _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
@@ -159,7 +159,7 @@ function solve(prob::DEProblem, args...; sensealg=nothing,
   if sensealg === nothing && haskey(prob.kwargs, :sensealg)
     sensealg = prob.kwargs[:sensealg]
   end
-  checkkwargs(kwargshandle; kwargs...)
+  @ignore_derivatives checkkwargs(kwargshandle; kwargs...)
   solve_up(prob, sensealg, u0, p, args...; kwargs...)
 end
 
@@ -200,7 +200,7 @@ function solve(prob::AbstractJumpProblem, args...; kwargs...)
   __solve(prob, args...; kwargs...)
 end
 
-@ignore_derivatives function checkkwargs(kwargshandle; kwargs...)
+function checkkwargs(kwargshandle; kwargs...)
   if any(x -> x ∉ allowedkeywords, keys(kwargs))
     if kwargshandle == KeywordArgError
       throw(CommonKwargError(kwargs))
