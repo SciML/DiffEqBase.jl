@@ -63,6 +63,7 @@ const allowedkeywords = (
   :kwargshandle,
   :trajectories,
   :batch_size,
+  :sensealg,
 )
 
 const KWARGWARN_MESSAGE = 
@@ -199,7 +200,7 @@ function solve(prob::AbstractJumpProblem, args...; kwargs...)
   __solve(prob, args...; kwargs...)
 end
 
-function checkkwargs(kwargshandle; kwargs...)
+@ignore_derivatives function checkkwargs(kwargshandle; kwargs...)
   if any(x -> x ∉ allowedkeywords, keys(kwargs))
     if kwargshandle == KeywordArgError
       throw(CommonKwargError(kwargs))
