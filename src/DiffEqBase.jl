@@ -28,7 +28,7 @@ import ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
 
-import ChainRulesCore: NoTangent
+import ChainRulesCore: NoTangent, @non_differentiable
 import ZygoteRules
 
 import DEDataArrays: DEDataArray, DEDataVector, DEDataMatrix, copy_fields!
@@ -150,5 +150,7 @@ export LinSolveFactorize, LinSolveGPUFactorize, DefaultLinSolve, DEFAULT_LINSOLV
 export NLNewton, NLFunctional, NLAnderson
 
 export SensitivityADPassThrough
+
+export KeywordArgError, KeywordArgWarn, KeywordArgSilent
 
 end # module
