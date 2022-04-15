@@ -64,6 +64,8 @@ const allowedkeywords = (
   :trajectories,
   :batch_size,
   :sensealg,
+  :advance_to_tstop,
+  :stop_at_next_tstop
 )
 
 const KWARGWARN_MESSAGE = 
