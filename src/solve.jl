@@ -101,6 +101,30 @@ function Base.showerror(io::IO, e::CommonKwargError)
   print(io, "Unrecognized keyword arguments: $unrecognized")
 end
 
+const INCOMPATIBLE_U0_MESSAGE = 
+"""
+Error: Initial condition incompatible with functional form.
+Detected an in-place function with an initial condition of type Number or SArray.
+This is incompatible because Numbers cannot be mutated, i.e.
+`x = 2.0; y = 2.0; x .= y` will error.
+
+If using a immutable initial condition type, please use the out-of-place form.
+I.e. define the function `du=f(u,p,t)` instead of attempting to "mutate" the immutable `du`.
+
+If your differential equation function was defined with multiple dispatches and one is
+in-place, then the automatic detection will choose in-place. In this case, override the
+choice in the problem constructor, i.e. `ODEProblem{false}(f,u0,tspan,p,kwargs...)`.
+
+For a longer discussion on mutability vs immutability and in-place vs out-of-place, see:
+https://diffeq.sciml.ai/stable/tutorials/faster_ode_example/#Example-Accelerating-a-Non-Stiff-Equation:-The-Lorenz-Equation
+"""
+
+struct IncompatibleInitialConditionError <: Exception end
+
+function Base.showerror(io::IO, e::IncompatibleInitialConditionError)
+  print(io, INCOMPATIBLE_U0_MESSAGE)
+end
+
 @enum KeywordArgError KeywordArgWarn KeywordArgSilent
 
 function init_call(_prob, args...; merge_callbacks=true, kwargs...)
@@ -351,7 +375,13 @@ function get_concrete_u0(prob, isadapt, t0, kwargs)
 
   isadapt && eltype(u0) <: Integer && (u0 = float.(u0))
 
-  handle_distribution_u0(u0)
+  _u0 = handle_distribution_u0(u0)
+
+  if isinplace(prob) && _u0 isa Number
+    throw(IncompatibleInitialConditionError())
+  end
+
+  _u0
 end
 
 function get_concrete_du0(prob, isadapt, t0, kwargs)
@@ -365,7 +395,13 @@ function get_concrete_du0(prob, isadapt, t0, kwargs)
 
   isadapt && eltype(du0) <: Integer && (du0 = float.(du0))
 
-  handle_distribution_u0(du0)
+  _du0 = handle_distribution_u0(du0)
+
+  if isinplace(prob) && _du0 isa Number
+    throw(IncompatibleInitialConditionError())
+  end
+
+  _du0
 end
 
 function get_concrete_p(prob, kwargs)
