@@ -103,6 +103,72 @@ end
 
 @enum KeywordArgError KeywordArgWarn KeywordArgSilent
 
+const INCOMPATIBLE_U0_MESSAGE = 
+"""
+Error: Initial condition incompatible with functional form.
+Detected an in-place function with an initial condition of type Number or SArray.
+This is incompatible because Numbers cannot be mutated, i.e.
+`x = 2.0; y = 2.0; x .= y` will error.
+
+If using a immutable initial condition type, please use the out-of-place form.
+I.e. define the function `du=f(u,p,t)` instead of attempting to "mutate" the immutable `du`.
+
+If your differential equation function was defined with multiple dispatches and one is
+in-place, then the automatic detection will choose in-place. In this case, override the
+choice in the problem constructor, i.e. `ODEProblem{false}(f,u0,tspan,p,kwargs...)`.
+
+For a longer discussion on mutability vs immutability and in-place vs out-of-place, see:
+https://diffeq.sciml.ai/stable/tutorials/faster_ode_example/#Example-Accelerating-a-Non-Stiff-Equation:-The-Lorenz-Equation
+"""
+
+struct IncompatibleInitialConditionError <: Exception end
+
+function Base.showerror(io::IO, e::IncompatibleInitialConditionError)
+  print(io, INCOMPATIBLE_U0_MESSAGE)
+end
+
+const NO_DEFAULT_ALGORITHM_MESSAGE = 
+"""
+Default algorithm choices require DifferentialEquations.jl.
+Please specify an algorithm (e.g., `solve(prob, Tsit5())` for an ODE)
+or import DifferentialEquations directly.
+
+You can find the list of available solvers at https://diffeq.sciml.ai/stable/solvers/ode_solve/
+and its associated pages.
+"""
+
+struct NoDefaultAlgorithmError <: Exception end
+
+function Base.showerror(io::IO, e::NoDefaultAlgorithmError)
+  print(io, NO_DEFAULT_ALGORITHM_MESSAGE)
+end
+
+const NO_TSPAN_MESSAGE = 
+"""
+No tspan is set in the problem or chosen in the init/solve call
+"""
+
+struct NoTspanError <: Exception end
+
+function Base.showerror(io::IO, e::NoTspanError)
+  print(io, NO_TSPAN_MESSAGE)
+end
+
+const NON_SOLVER_MESSAGE = 
+"""
+Error: The arguments to solve are incorrect.
+The second argument must be a solver choice, `solve(prob,alg)`
+where `alg` is a `<: DEAlgorithm`, i.e. `Tsti5()`.
+
+Please double check the arguments being sent to the solver.
+"""
+
+struct NonSolverError <: Exception end
+
+function Base.showerror(io::IO, e::NonSolverError)
+  print(io, NON_SOLVER_MESSAGE)
+end
+
 function init_call(_prob, args...; merge_callbacks=true, kwargs...)
 
   if has_kwargs(_prob)
@@ -322,7 +388,7 @@ function get_concrete_tspan(prob, isadapt, kwargs, p)
   elseif haskey(kwargs, :tspan)
     tspan = kwargs[:tspan]
   elseif prob.tspan === (nothing, nothing)
-    error("No tspan is set in the problem or chosen in the init/solve call")
+    throw(NoTspanError())
   else
     tspan = prob.tspan
   end
@@ -351,7 +417,13 @@ function get_concrete_u0(prob, isadapt, t0, kwargs)
 
   isadapt && eltype(u0) <: Integer && (u0 = float.(u0))
 
-  handle_distribution_u0(u0)
+  _u0 = handle_distribution_u0(u0)
+
+  if isinplace(prob) && (_u0 isa Number || _u0 isa SArray)
+    throw(IncompatibleInitialConditionError())
+  end
+
+  _u0
 end
 
 function get_concrete_du0(prob, isadapt, t0, kwargs)
@@ -365,7 +437,13 @@ function get_concrete_du0(prob, isadapt, t0, kwargs)
 
   isadapt && eltype(du0) <: Integer && (du0 = float.(du0))
 
-  handle_distribution_u0(du0)
+  _du0 = handle_distribution_u0(du0)
+
+  if isinplace(prob) && (_du0 isa Number || _du0 isa SArray)
+    throw(IncompatibleInitialConditionError())
+  end
+
+  _du0
 end
 
 function get_concrete_p(prob, kwargs)
@@ -385,17 +463,9 @@ eval_u0(u0) = false
 
 function __solve(prob::DEProblem, args...; default_set=false, second_time=false, kwargs...)
   if second_time
-    error("""
-      Default algorithm choices require DifferentialEquations.jl.
-      Please specify an algorithm (e.g., `solve(prob, Tsit5())` for an ODE)
-      or import DifferentialEquations directly.
-
-      You can find the list of available solvers at https://diffeq.sciml.ai/stable/solvers/ode_solve/
-      and its associated pages.
-      """
-    )
+    throw(NoDefaultAlgorithmError())
   elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing,DEAlgorithm})
-    error("Inappropiate solve command. The arguments do not make sense. Likely, you gave an algorithm which does not actually exist (or does not `<:DiffEqBase.DEAlgorithm`)")
+    throw(NonSolverError())
   else
     __solve(prob::DEProblem, nothing, args...; default_set=false, second_time=true, kwargs...)
   end
