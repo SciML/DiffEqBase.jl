@@ -158,7 +158,7 @@ const NON_SOLVER_MESSAGE =
 """
 Error: The arguments to solve are incorrect.
 The second argument must be a solver choice, `solve(prob,alg)`
-where `alg` is is a `<: DEAlgorithm`, i.e. `Tsti5()`.
+where `alg` is a `<: DEAlgorithm`, i.e. `Tsti5()`.
 
 Please double check the arguments being sent to the solver.
 """
