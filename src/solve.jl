@@ -65,7 +65,10 @@ const allowedkeywords = (
   :batch_size,
   :sensealg,
   :advance_to_tstop,
-  :stop_at_next_tstop
+  :stop_at_next_tstop,
+  # These two are from the default algorithm handling
+  :default_set,
+  :second_time
 )
 
 const KWARGWARN_MESSAGE = 
