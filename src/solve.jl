@@ -169,7 +169,7 @@ function Base.showerror(io::IO, e::NonSolverError)
   print(io, NON_SOLVER_MESSAGE)
 end
 
-function init_call(_prob, args...; merge_callbacks=true, kwargs...)
+function init_call(_prob, args...; merge_callbacks=true, kwargshandle=KeywordArgWarn, kwargs...)
 
   if has_kwargs(_prob)
     if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
@@ -190,7 +190,7 @@ function init_call(_prob, args...; merge_callbacks=true, kwargs...)
   end
 end
 
-function init(prob::DEProblem, args...; kwargshandle=KeywordArgWarn, kwargs...)
+function init(prob::DEProblem, args...; kwargs...)
   if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
     _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
