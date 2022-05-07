@@ -11,3 +11,6 @@ prob = ODEProblem(lorenz, u0, tspan)
 sol = solve(prob, Tsit5(), rel_tol=1e-6)
 @test_logs (:warn, DiffEqBase.KWARGWARN_MESSAGE) sol = solve(prob, Tsit5(), rel_tol=1e-6)
 @test_throws DiffEqBase.CommonKwargError sol = solve(prob, Tsit5(), rel_tol=1e-6, kwargshandle=DiffEqBase.KeywordArgError)
+
+prob = ODEProblem(lorenz, u0, tspan, test = 2.0)
+@test_logs (:warn, DiffEqBase.KWARGWARN_MESSAGE) sol = solve(prob, Tsit5(), reltol=1e-6)

@@ -181,6 +181,8 @@ function init_call(_prob, args...; merge_callbacks=true, kwargs...)
     kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
   end
 
+  checkkwargs(kwargshandle; kwargs...)
+
   if hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) && typeof(_prob.f.f) <: EvalFunc
     Base.invokelatest(__init, _prob, args...; kwargs...)#::T
   else
@@ -189,7 +191,6 @@ function init_call(_prob, args...; merge_callbacks=true, kwargs...)
 end
 
 function init(prob::DEProblem, args...; kwargshandle=KeywordArgWarn, kwargs...)
-  checkkwargs(kwargshandle; kwargs...)
   if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
     _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
@@ -204,7 +205,7 @@ function init(prob::DEProblem, args...; kwargshandle=KeywordArgWarn, kwargs...)
   end
 end
 
-function solve_call(_prob, args...; merge_callbacks=true, kwargs...)
+function solve_call(_prob, args...; merge_callbacks=true, kwargshandle=KeywordArgWarn, kwargs...)
   if has_kwargs(_prob)
     if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
       kwargs_temp = NamedTuple{Base.diff_names(Base._nt_names(
@@ -215,6 +216,8 @@ function solve_call(_prob, args...; merge_callbacks=true, kwargs...)
     kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
   end
 
+  checkkwargs(kwargshandle; kwargs...)
+
   if hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) && typeof(_prob.f.f) <: EvalFunc
     Base.invokelatest(__solve, _prob, args...; kwargs...)#::T
   else
@@ -224,13 +227,12 @@ end
 
 # save_idxs and saveat are here due to https://github.com/FluxML/Zygote.jl/issues/664
 function solve(prob::DEProblem, args...; sensealg=nothing,
-  u0=nothing, p=nothing, kwargshandle=KeywordArgWarn, kwargs...)
+  u0=nothing, p=nothing, kwargs...)
   u0 = u0 !== nothing ? u0 : prob.u0
   p = p !== nothing ? p : prob.p
   if sensealg === nothing && haskey(prob.kwargs, :sensealg)
     sensealg = prob.kwargs[:sensealg]
   end
-  checkkwargs(kwargshandle; kwargs...)
   solve_up(prob, sensealg, u0, p, args...; kwargs...)
 end
 
