@@ -8,8 +8,6 @@ function SciMLBase.tmap(args...)
   error("Zygote must be added to differentiate Zygote? If you see this error, report it.")
 end
 
-const IS_OPENBLAS = Ref(true)
-
 function __init__()
   @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
 
