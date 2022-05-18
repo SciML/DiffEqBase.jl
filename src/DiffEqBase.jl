@@ -141,10 +141,6 @@ end
 
 export initialize!, finalize!
 
-export LinSolveFactorize, LinSolveGPUFactorize, DefaultLinSolve, DEFAULT_LINSOLVE,
-       LinSolveGMRES, LinSolveCG, LinSolveBiCGStabl, LinSolveChebyshev,
-       LinSolveMINRES, LinSolveIterativeSolvers
-
 export NLNewton, NLFunctional, NLAnderson
 
 export SensitivityADPassThrough
