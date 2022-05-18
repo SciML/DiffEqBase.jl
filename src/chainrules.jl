@@ -64,14 +64,6 @@ ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::AbstractNoTim
   sol.u,solu_adjoint
 end
 
-ZygoteRules.@adjoint function SciMLBase.tmap(f, args::Union{AbstractArray,Tuple}...)
-  ∇tmap(__context__, f, args...)
-end
-
-ZygoteRules.@adjoint function SciMLBase.responsible_map(f, args::Union{AbstractArray,Tuple}...)
-  ∇responsible_map(__context__, f, args...)
-end
-
 function ChainRulesCore.rrule(::DiffEqBase.EnsembleSolution,sim,time,converged)
   out = EnsembleSolution(sim,time,converged)
   function EnsembleSolution_adjoint(p̄::AbstractArray{T,N}) where {T,N}
