@@ -27,6 +27,7 @@ import Distributions
 import ChainRulesCore
 import LabelledArrays
 import RecursiveArrayTools
+import SparseArrays
 
 import ChainRulesCore: NoTangent, @non_differentiable
 import ZygoteRules
@@ -124,8 +125,6 @@ include("internal_euler.jl")
 include("init.jl")
 include("forwarddiff.jl")
 include("chainrules.jl")
-
-include("precompile.jl")
 
 """
 $(TYPEDEF)
