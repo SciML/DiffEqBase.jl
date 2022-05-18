@@ -274,7 +274,7 @@ function solve(prob::AbstractJumpProblem, args...; kwargs...)
 end
 
 function checkkwargs(kwargshandle; kwargs...)
-  if any(x -> x ∉ allowedkeywords, keys(kwargs))
+  if !isempty(keys(kwargs)) && any(x -> x ∉ allowedkeywords, keys(kwargs))
     if kwargshandle == KeywordArgError
       throw(CommonKwargError(kwargs))
     elseif kwargshandle == KeywordArgWarn
