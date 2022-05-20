@@ -15,6 +15,7 @@ prob = ODEProblem(f,u0,tspan)
 prob = ODEProblem{false}(f,u0,tspan)
 sol = solve(prob,Tsit5())
 
+@test_throws DiffEqBase.ProblemSolverPairingError solve(prob, DFBDF())
 @test_throws DiffEqBase.NoDefaultAlgorithmError solve(prob,nothing)
 @test_throws DiffEqBase.NonSolverError solve(prob,5.0)
 
