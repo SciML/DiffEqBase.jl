@@ -203,6 +203,33 @@ function compatible_problem_types(prob,alg)
   end
 end
 
+const DIRECT_AUTODIFF_INCOMPATABILITY_MESSAGE = 
+"""
+Incompatible solver + automatic differentiation pairing.
+The chosen automatic differentiation algorithm requires the ability
+for compiler transforms on the code which is only possible on pure-Julia
+solvers such as those from OrdinaryDiffEq.jl. Direct differentiation methods 
+which require this ability include:
+
+- Direct use of ForwardDiff.jl on the solver
+- `ForwardDiffSensitivity`, `ReverseDiffAdjoint`, `TrackerAdjoint`, and `ZygoteAdjoint`
+  sensealg choices for adjoint differentiation.
+
+Either switch the choice of solver to a pure Julia method, or change the automatic 
+differentiation method to one that does not require such transformations. 
+
+For more details on automatic differentiation, adjoint, and sensitivity analysis
+of differential equations, see the documentation page:
+
+https://diffeq.sciml.ai/stable/analysis/sensitivity/
+"""
+
+struct DirectAutodiffError <: Exception end
+
+function Base.showerror(io::IO, e::DirectAutodiffError)
+  println(io, DIRECT_AUTODIFF_INCOMPATABILITY_MESSAGE)
+end
+
 function init_call(_prob, args...; merge_callbacks=true, kwargshandle=KeywordArgWarn, kwargs...)
 
   if has_kwargs(_prob)
@@ -520,6 +547,10 @@ function check_prob_alg_pairing(prob, alg)
      prob isa SteadyStateProblem && !(alg isa AbstractSteadyStateAlgorithm)
 
      throw(ProblemSolverPairingError(prob, alg))
+  end
+
+  if isdefined(prob, :u0) && eltype(prob.u0) <: ForwardDiff.Dual && !SciMLBase.isautodifferentiable(alg)
+    throw(DirectAutodiffError())
   end
 end
 
