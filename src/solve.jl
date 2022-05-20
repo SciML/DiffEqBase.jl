@@ -227,11 +227,15 @@ end
 function init(prob::DEProblem, args...; kwargs...)
   if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
+    _alg = prepare_alg(alg, u0, p, prob)
     _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
+    check_prob_alg_pairing(_prob, alg) # use alg for improved inference
     init_call(_prob, alg, args...; kwargs...)
   elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
     alg = args[1]
+    _alg = prepare_alg(alg, u0, p, prob)
     _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
+    check_prob_alg_pairing(_prob, alg)
     init_call(_prob, args...; kwargs...)
   else
     _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); kwargs...)
