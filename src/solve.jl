@@ -73,7 +73,7 @@ const allowedkeywords = (
 
 const KWARGWARN_MESSAGE = 
 """
-Warning: Unrecognized keyword arguments found. Future versions will error.
+Unrecognized keyword arguments found. Future versions will error.
 The only allowed keyword arguments to `solve` are: 
 $allowedkeywords
 See https://diffeq.sciml.ai/stable/basics/common_solver_opts/ for more details.
@@ -84,7 +84,7 @@ Set kwargshandle=KeywordArgSilent to ignore this message.
 
 const KWARGERROR_MESSAGE = 
 """
-Error: Unrecognized keyword arguments found.
+Unrecognized keyword arguments found.
 The only allowed keyword arguments to `solve` are: 
 $allowedkeywords
 See https://diffeq.sciml.ai/stable/basics/common_solver_opts/ for more details.
@@ -105,7 +105,7 @@ end
 
 const INCOMPATIBLE_U0_MESSAGE = 
 """
-Error: Initial condition incompatible with functional form.
+Initial condition incompatible with functional form.
 Detected an in-place function with an initial condition of type Number or SArray.
 This is incompatible because Numbers cannot be mutated, i.e.
 `x = 2.0; y = 2.0; x .= y` will error.
@@ -156,7 +156,7 @@ end
 
 const NON_SOLVER_MESSAGE = 
 """
-Error: The arguments to solve are incorrect.
+The arguments to solve are incorrect.
 The second argument must be a solver choice, `solve(prob,alg)`
 where `alg` is a `<: DEAlgorithm`, i.e. `Tsti5()`.
 
@@ -167,6 +167,40 @@ struct NonSolverError <: Exception end
 
 function Base.showerror(io::IO, e::NonSolverError)
   print(io, NON_SOLVER_MESSAGE)
+end
+
+const PROBSOLVER_PAIRING_MESSAGE = 
+"""
+Incompatible problem+solver pairing.
+For example, this can occur if an ODE solver is passed with an SDEProblem.
+Solvers are only capable of handling specific problem types. Please double
+check that the chosen pairing is capable for handling the given problems.
+"""
+
+struct ProblemSolverPairingError <: Exception 
+  prob
+  alg
+end
+
+function Base.showerror(io::IO, e::ProblemSolverPairingError)
+  println(io, PROBSOLVER_PAIRING_MESSAGE)
+  println(io, "Problem type: $(SciMLBase.__parameterless_type(typeof(e.prob)))")
+  println(io, "Solver type: $(SciMLBase.__parameterless_type(typeof(e.alg)))")
+  println(io, "Problem types compatible with the chosen solver: $(compatible_problem_types(e.prob,e.alg))")
+end
+
+function compatible_problem_types(prob,alg)
+  if alg isa AbstractODEAlgorithm
+    ODEProblem
+  elseif alg isa AbstractSDEAlgorithm
+    (SDEProblem, SDDEProblem)
+  elseif alg isa AbstractDDEAlgorithm # StochasticDelayDiffEq.jl just uses the SDE alg
+    DDEProblem
+  elseif alg isa AbstractDAEAlgorithm
+    DAEProblem
+  elseif alg isa AbstractSteadyStateAlgorithm
+    SteadyStateProblem
+  end
 end
 
 function init_call(_prob, args...; merge_callbacks=true, kwargshandle=KeywordArgWarn, kwargs...)
@@ -240,13 +274,15 @@ function solve_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
 
   if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
-    _alg = prepare_alg(alg, u0, p, prob)
+    _alg = prepare_alg(alg, u0, p, prob) 
     _prob = get_concrete_problem(prob, isadaptive(_alg); u0=u0, p=p, kwargs...)
+    check_prob_alg_pairing(_prob, alg)
     solve_call(_prob, _alg, args...; kwargs...)
   elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
     alg = args[1]
     _alg = prepare_alg(alg, u0, p, prob)
     _prob = get_concrete_problem(prob, isadaptive(_alg); u0=u0, p=p, kwargs...)
+    check_prob_alg_pairing(_prob, alg)
     solve_call(_prob, _alg, Base.tail(args)...; kwargs...)
   elseif isempty(args) # Default algorithm handling
     _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0=u0, p=p, kwargs...)
@@ -470,6 +506,18 @@ function __solve(prob::DEProblem, args...; default_set=false, second_time=false,
     throw(NonSolverError())
   else
     __solve(prob::DEProblem, nothing, args...; default_set=false, second_time=true, kwargs...)
+  end
+end
+
+function check_prob_alg_pairing(prob, alg)
+  if prob isa ODEProblem && !(alg isa AbstractODEAlgorithm) ||
+     prob isa SDEProblem && !(alg isa AbstractSDEAlgorithm) ||
+     prob isa SDDEProblem && !(alg isa AbstractSDEAlgorithm) || 
+     prob isa DDEProblem && !(alg isa AbstractDDEAlgorithm) ||
+     prob isa DAEProblem && !(alg isa AbstractDAEAlgorithm) ||
+     prob isa SteadyStateProblem && !(alg isa AbstractSteadyStateAlgorithm)
+
+     throw(ProblemSolverPairingError(prob, alg))
   end
 end
 
