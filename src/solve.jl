@@ -619,6 +619,14 @@ function check_prob_alg_pairing(prob, alg)
   # This can become more granular if a case where arbitrary number support is different
   # From supporting Dual numbers, but there does not seem to be a real case for that.
   # Check for concrete element type so that the non-concrete case throws a better error
+  @show !SciMLBase.isautodifferentiable(alg)
+  @show (isdefined(prob, :u0) 
+        && Base.isconcretetype(eltype(prob.u0)) &&
+        !(eltype(prob.u0) <: Union{Float32,Float64,ComplexF32,ComplexF64}))
+  @show (isdefined(prob, :tspan) 
+        && Base.isconcretetype(eltype(prob.tspan)) &&
+        !(eltype(prob.tspan) <: Union{Float32,Float64,ComplexF32,ComplexF64}))
+        
   if !SciMLBase.isautodifferentiable(alg) && (isdefined(prob, :u0) 
                                           && Base.isconcretetype(eltype(prob.u0)) &&
                                           !(eltype(prob.u0) <: Union{Float32,Float64,ComplexF32,ComplexF64})) ||
