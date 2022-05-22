@@ -264,6 +264,32 @@ function Base.showerror(io::IO, e::NonConcreteEltypeError)
   print(io,e.eltype)
 end
 
+const GENERIC_NUMBER_TYPE_ERROR_MESSAGE = 
+"""
+Non-standard number type (i.e. not Float32, Flaot64,
+ComplexF32, or ComplexF64) detected as the element type
+for the initial condition or time span. These generic 
+number types are only compatible with the pure Julia 
+solvers which support generic programming, such as 
+OrdinaryDiffEq.jl. The chosen solver does not support 
+this functionality. Please double check that the initial 
+condition and time span types are correct, and check that
+the chosen solver was correct.
+"""
+
+struct GenericNumberTypeError <: Exception
+  alg
+  uType
+  tType
+end
+
+function Base.showerror(io::IO, e::GenericNumberTypeError)
+  println(io, GENERIC_NUMBER_TYPE_ERROR_MESSAGE)
+  println(io, "Solver: $(e.alg)")
+  println(io, "u0 type: $(e.uType)")
+  print(io,"Timespan type: $(e.tType)")
+end
+
 function init_call(_prob, args...; merge_callbacks=true, kwargshandle=KeywordArgWarn, kwargs...)
 
   if has_kwargs(_prob)
@@ -588,6 +614,22 @@ function check_prob_alg_pairing(prob, alg)
   if isdefined(prob, :u0) && eltype(prob.u0) <: ForwardDiff.Dual && !SciMLBase.isautodifferentiable(alg)
     throw(DirectAutodiffError())
   end
+
+  # Use automatic differentiability support as a proxy for arbitrary number support
+  # This can become more granular if a case where arbitrary number support is different
+  # From supporting Dual numbers, but there does not seem to be a real case for that.
+  # Check for concrete element type so that the non-concrete case throws a better error
+  if !SciMLBase.isautodifferentiable(alg) && (isdefined(prob, :u0) 
+                                          && Base.isconcretetype(eltype(prob.u0)) &&
+                                          !(eltype(prob.u0) <: Union{Float32,Float64,ComplexF32,ComplexF64})) ||
+                                          && (isdefined(prob, :tspan) 
+                                          && Base.isconcretetype(eltype(prob.tspan)) &&
+                                          !(eltype(prob.tspan) <: Union{Float32,Float64,ComplexF32,ComplexF64}))
+    
+    throw(GenericNumberTypeError(alg, isdefined(prob, :u0) ? prob.u0 : nothing,
+                                      isdefined(prob, :tspan) ? prob.tspan : nothing))
+  end
+
 end
 
 ################### Differentiation
