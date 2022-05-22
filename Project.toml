@@ -4,7 +4,7 @@ authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 version = "6.86.0"
 
 [deps]
-ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
+ArrayInterfaceCore = "30b0a656-2188-435a-8636-2ec0e6a096e2"
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 DEDataArrays = "754358af-613d-5f8d-9788-280bf1605d4c"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
@@ -35,7 +35,7 @@ SuiteSparse = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 ZygoteRules = "700de1a5-db45-46bc-99cf-38207098b444"
 
 [compat]
-ArrayInterface = "2.6, 3.0, 4, 5"
+ArrayInterfaceCore = "0.1.1"
 ChainRulesCore = "0.10, 1"
 DEDataArrays = "0.2"
 DataStructures = "0.18"

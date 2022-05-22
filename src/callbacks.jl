@@ -176,7 +176,7 @@ end
   prev_sign = @view(integrator.callback_cache.prev_sign[1:callback.len])
   next_sign = @view(integrator.callback_cache.next_sign[1:callback.len])
 
-  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(ArrayInterface.allowed_getindex(previous_condition,ivec),integrator.t)) <= 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
+  if integrator.event_last_time == counter && minimum(ODE_DEFAULT_NORM(ArrayInterfaceCore.allowed_getindex(previous_condition,ivec),integrator.t)) <= 100ODE_DEFAULT_NORM(integrator.last_event_error,integrator.t)
 
     # If there was a previous event, utilize the derivative at the start to
     # chose the previous sign. If the derivative is positive at tprev, then
@@ -429,7 +429,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
         min_event_idx = -1
         for idx in 1:length(event_idx)
           if event_idx[idx] != 0
-            zero_func(abst, p=nothing) = ArrayInterface.allowed_getindex(get_condition(integrator, callback, abst),idx)
+            zero_func(abst, p=nothing) = ArrayInterfaceCore.allowed_getindex(get_condition(integrator, callback, abst),idx)
             if zero_func(top_t) == 0
               Θ = top_t
             else
@@ -484,7 +484,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
     error("Callback handling failed. Please file an issue with code to reproduce.")
   end
 
-  new_t,ArrayInterface.allowed_getindex(prev_sign,min_event_idx),event_occurred::Bool,min_event_idx::Int
+  new_t,ArrayInterfaceCore.allowed_getindex(prev_sign,min_event_idx),event_occurred::Bool,min_event_idx::Int
 end
 
 function apply_callback!(integrator,callback::Union{ContinuousCallback,VectorContinuousCallback},cb_time,prev_sign,event_idx)
