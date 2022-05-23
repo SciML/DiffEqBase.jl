@@ -627,7 +627,7 @@ function check_prob_alg_pairing(prob, alg)
         && Base.isconcretetype(eltype(prob.tspan)) &&
         !(eltype(prob.tspan) <: Union{Float32,Float64,ComplexF32,ComplexF64}))
 
-  if !SciMLBase.isautodifferentiable(alg) (&& (isdefined(prob, :u0) 
+  if !SciMLBase.isautodifferentiable(alg) && ((isdefined(prob, :u0) 
                                           && Base.isconcretetype(eltype(prob.u0)) &&
                                           !(eltype(prob.u0) <: Union{Float32,Float64,ComplexF32,ComplexF64})) ||
                                           (isdefined(prob, :tspan) 
