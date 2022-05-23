@@ -340,7 +340,8 @@ function solve_call(_prob, args...; merge_callbacks=true, kwargshandle=KeywordAr
   end
 
   checkkwargs(kwargshandle; kwargs...)
-  isdefined(_prob, :u0) && !isconcretetype(eltype(_prob.u0)) && 
+  isdefined(_prob, :u0) && _prob.u0 isa Array &&
+                          !isconcretetype(eltype(_prob.u0)) &&
                           throw(NonConcreteEltypeError(eltype(_prob.u0)))
 
   if hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) && typeof(_prob.f.f) <: EvalFunc
