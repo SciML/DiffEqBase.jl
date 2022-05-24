@@ -619,16 +619,27 @@ function check_prob_alg_pairing(prob, alg)
   # Use automatic differentiability support as a proxy for arbitrary number support
   # This can become more granular if a case where arbitrary number support is different
   # From supporting Dual numbers, but there does not seem to be a real case for that.
-  # Check for concrete element type so that the non-concrete case throws a better error
-  if !SciMLBase.isautodifferentiable(alg) && ((isdefined(prob, :u0) 
-                                          && Base.isconcretetype(eltype(prob.u0)) &&
-                                          !(eltype(prob.u0) <: Union{Float32,Float64,ComplexF32,ComplexF64})) ||
-                                          (isdefined(prob, :tspan) 
-                                          && Base.isconcretetype(eltype(prob.tspan)) &&
-                                          !(eltype(prob.tspan) <: Union{Float32,Float64,ComplexF32,ComplexF64})))
-    
-    throw(GenericNumberTypeError(alg, isdefined(prob, :u0) ? prob.u0 : nothing,
-                                      isdefined(prob, :tspan) ? prob.tspan : nothing))
+  # Check for concrete element type so that the non-concrete case throws a better error  
+  if !SciMLBase.isautodifferentiable(alg)
+    if isdefined(prob, :u0) 
+      uType = RecursiveArrayTools.recursive_unitless_eltype(prob.u0)
+      if Base.isconcretetype(uType) &&
+        !(uType <: Union{Float32,Float64,ComplexF32,ComplexF64})
+
+        throw(GenericNumberTypeError(alg, isdefined(prob, :u0) ? prob.u0 : nothing,
+        isdefined(prob, :tspan) ? prob.tspan : nothing))
+      end
+    end
+
+    if isdefined(prob, :tspan)
+      tType = RecursiveArrayTools.recursive_unitless_eltype(prob.tspan)
+      if Base.isconcretetype(tType) &&
+        !(tType <: Union{Float32,Float64,ComplexF32,ComplexF64})
+
+        throw(GenericNumberTypeError(alg, isdefined(prob, :u0) ? prob.u0 : nothing,
+        isdefined(prob, :tspan) ? prob.tspan : nothing))
+      end
+    end
   end
 
 end
