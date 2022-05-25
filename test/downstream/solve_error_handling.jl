@@ -16,7 +16,7 @@ prob = ODEProblem{false}(f,u0,tspan)
 sol = solve(prob,Tsit5())
 
 prob = ODEProblem{false}(f,1.0+im,tspan)
-sol = solve(prob,Tsit5())
+@test_throws DiffEqBase.ComplexSupportError solve(prob,CVODE_Adams())
 
 @test_throws DiffEqBase.ProblemSolverPairingError solve(prob, DFBDF())
 @test_throws DiffEqBase.NoDefaultAlgorithmError solve(prob,nothing)
