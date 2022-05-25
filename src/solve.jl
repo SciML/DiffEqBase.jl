@@ -264,6 +264,66 @@ function Base.showerror(io::IO, e::NonConcreteEltypeError)
   print(io,e.eltype)
 end
 
+const GENERIC_NUMBER_TYPE_ERROR_MESSAGE = 
+"""
+Non-standard number type (i.e. not Float32, Float64,
+ComplexF32, or ComplexF64) detected as the element type
+for the initial condition or time span. These generic 
+number types are only compatible with the pure Julia 
+solvers which support generic programming, such as 
+OrdinaryDiffEq.jl. The chosen solver does not support 
+this functionality. Please double check that the initial 
+condition and time span types are correct, and check that
+the chosen solver was correct.
+"""
+
+struct GenericNumberTypeError <: Exception
+  alg
+  uType
+  tType
+end
+
+function Base.showerror(io::IO, e::GenericNumberTypeError)
+  println(io, GENERIC_NUMBER_TYPE_ERROR_MESSAGE)
+  println(io, "Solver: $(e.alg)")
+  println(io, "u0 type: $(e.uType)")
+  print(io,"Timespan type: $(e.tType)")
+end
+
+const COMPLEX_SUPPORT_ERROR_MESSAGE = 
+"""
+Complex number type (i.e. ComplexF32, or ComplexF64) 
+detected as the element type for the initial condition
+with an algorithm that does not support complex numbers.
+Please check that the initial condition type is correct.
+If complex number support is needed, try different solvers
+such as those from OrdinaryDiffEq.jl.
+"""
+
+struct ComplexSupportError <: Exception
+  alg
+end
+
+function Base.showerror(io::IO, e::ComplexSupportError)
+  println(io, COMPLEX_SUPPORT_ERROR_MESSAGE)
+  println(io, "Solver: $(e.alg)")
+end
+
+const COMPLEX_TSPAN_ERROR_MESSAGE = 
+"""
+Complex number type (i.e. ComplexF32, or ComplexF64) 
+detected as the element type for the independent variable
+(i.e. time span). Please check that the tspan type is correct.
+No solvers support complex time spans. If this is required,
+please open an issue.
+"""
+
+struct ComplexTspanError <: Exception end
+
+function Base.showerror(io::IO, e::ComplexTspanError)
+  println(io, COMPLEX_TSPAN_ERROR_MESSAGE)
+end
+
 function init_call(_prob, args...; merge_callbacks=true, kwargshandle=KeywordArgWarn, kwargs...)
 
   if has_kwargs(_prob)
@@ -314,8 +374,9 @@ function solve_call(_prob, args...; merge_callbacks=true, kwargshandle=KeywordAr
   end
 
   checkkwargs(kwargshandle; kwargs...)
-  isdefined(_prob, :u0) && !isconcretetype(eltype(_prob.u0)) && 
-                          throw(NonConcreteEltypeError(eltype(_prob.u0)))
+  isdefined(_prob, :u0) && _prob.u0 isa Array &&
+                          !isconcretetype(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)) &&
+                          throw(NonConcreteEltypeError(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)))
 
   if hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) && typeof(_prob.f.f) <: EvalFunc
     Base.invokelatest(__solve, _prob, args...; kwargs...)#::T
@@ -588,6 +649,42 @@ function check_prob_alg_pairing(prob, alg)
   if isdefined(prob, :u0) && eltype(prob.u0) <: ForwardDiff.Dual && !SciMLBase.isautodifferentiable(alg)
     throw(DirectAutodiffError())
   end
+
+  # Complex number support comes before arbitrary number support for a more direct
+  # error message.
+  if !SciMLBase.allowscomplex(alg)
+    if isdefined(prob, :u0) && RecursiveArrayTools.recursive_unitless_eltype(prob.u0) <: Complex
+        throw(ComplexSupportError(alg))
+    end
+  end
+
+  if isdefined(prob, :tspan) && eltype(prob.tspan) <: Complex
+    throw(ComplexTspanError())
+  end
+
+  # Check for concrete element type so that the non-concrete case throws a better error  
+  if !SciMLBase.allows_arbitrary_number_types(alg)
+    if isdefined(prob, :u0) 
+      uType = RecursiveArrayTools.recursive_unitless_eltype(prob.u0)
+      if Base.isconcretetype(uType) &&
+        !(uType <: Union{Float32,Float64,ComplexF32,ComplexF64})
+
+        throw(GenericNumberTypeError(alg, isdefined(prob, :u0) ? prob.u0 : nothing,
+        isdefined(prob, :tspan) ? prob.tspan : nothing))
+      end
+    end
+
+    if isdefined(prob, :tspan)
+      tType = RecursiveArrayTools.recursive_unitless_eltype(prob.tspan)
+      if Base.isconcretetype(tType) &&
+        !(tType <: Union{Float32,Float64,ComplexF32,ComplexF64})
+
+        throw(GenericNumberTypeError(alg, isdefined(prob, :u0) ? prob.u0 : nothing,
+        isdefined(prob, :tspan) ? prob.tspan : nothing))
+      end
+    end
+  end
+
 end
 
 ################### Differentiation

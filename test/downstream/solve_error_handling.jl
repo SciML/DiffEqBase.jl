@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, Test
+using OrdinaryDiffEq, Sundials, Test
 
 f(u,p,t) = 2u
 u0 = 0.5
@@ -15,6 +15,9 @@ prob = ODEProblem(f,u0,tspan)
 prob = ODEProblem{false}(f,u0,tspan)
 sol = solve(prob,Tsit5())
 
+prob = ODEProblem{false}(f,1.0+im,tspan)
+@test_throws DiffEqBase.ComplexSupportError solve(prob,CVODE_Adams())
+
 @test_throws DiffEqBase.ProblemSolverPairingError solve(prob, DFBDF())
 @test_throws DiffEqBase.NoDefaultAlgorithmError solve(prob,nothing)
 @test_throws DiffEqBase.NonSolverError solve(prob,5.0)
@@ -24,3 +27,6 @@ prob = ODEProblem{false}(f,u0,(nothing,nothing))
 
 prob = ODEProblem{false}(f,Any[1.0,1f0],tspan)
 @test_throws DiffEqBase.NonConcreteEltypeError solve(prob,Tsit5())
+
+prob = ODEProblem{false}(f,u0,(0.0+im,1.0))
+@test_throws DiffEqBase.ComplexTspanError solve(prob,Tsit5())
