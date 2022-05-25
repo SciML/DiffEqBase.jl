@@ -290,6 +290,40 @@ function Base.showerror(io::IO, e::GenericNumberTypeError)
   print(io,"Timespan type: $(e.tType)")
 end
 
+const COMPLEX_SUPPORT_ERROR_MESSAGE = 
+"""
+Complex number type (i.e. ComplexF32, or ComplexF64) 
+detected as the element type for the initial condition
+with an algorithm that does not support complex numbers.
+Please check that the initial condition type is correct.
+If complex number support is needed, try different solvers
+such as those from OrdinaryDiffEq.jl.
+"""
+
+struct ComplexSupportError <: Exception
+  alg
+end
+
+function Base.showerror(io::IO, e::ComplexSupportError)
+  println(io, COMPLEX_SUPPORT_ERROR_MESSAGE)
+  println(io, "Solver: $(e.alg)")
+end
+
+const COMPLEX_TSPAN_ERROR_MESSAGE = 
+"""
+Complex number type (i.e. ComplexF32, or ComplexF64) 
+detected as the element type for the independent variable
+(i.e. time span). Please check that the tspan type is correct.
+No solvers support complex time spans. If this is required,
+please open an issue.
+"""
+
+struct ComplexTspanError <: Exception end
+
+function Base.showerror(io::IO, e::ComplexTspanError)
+  println(io, COMPLEX_TSPAN_ERROR_MESSAGE)
+end
+
 function init_call(_prob, args...; merge_callbacks=true, kwargshandle=KeywordArgWarn, kwargs...)
 
   if has_kwargs(_prob)
@@ -616,11 +650,20 @@ function check_prob_alg_pairing(prob, alg)
     throw(DirectAutodiffError())
   end
 
-  # Use automatic differentiability support as a proxy for arbitrary number support
-  # This can become more granular if a case where arbitrary number support is different
-  # From supporting Dual numbers, but there does not seem to be a real case for that.
+  # Complex number support comes before arbitrary number support for a more direct
+  # error message.
+  if !SciMLBase.allowscomplex(alg)
+    if isdefined(prob, :u0) && RecursiveArrayTools.recursive_unitless_eltype(prob.u0) <: Complex
+        throw(ComplexSupportError(alg))
+    end
+  end
+
+  if isdefined(prob, :tspan) && eltype(prob.tspan) <: Complex
+    throw(ComplexTspanError())
+  end
+
   # Check for concrete element type so that the non-concrete case throws a better error  
-  if !SciMLBase.isautodifferentiable(alg)
+  if !SciMLBase.allows_arbitrary_number_types(alg)
     if isdefined(prob, :u0) 
       uType = RecursiveArrayTools.recursive_unitless_eltype(prob.u0)
       if Base.isconcretetype(uType) &&
