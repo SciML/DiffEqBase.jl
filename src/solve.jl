@@ -266,7 +266,7 @@ end
 
 const GENERIC_NUMBER_TYPE_ERROR_MESSAGE = 
 """
-Non-standard number type (i.e. not Float32, Flaot64,
+Non-standard number type (i.e. not Float32, Float64,
 ComplexF32, or ComplexF64) detected as the element type
 for the initial condition or time span. These generic 
 number types are only compatible with the pure Julia 
