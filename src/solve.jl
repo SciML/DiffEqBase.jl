@@ -76,9 +76,10 @@ const KWARGWARN_MESSAGE =
 Unrecognized keyword arguments found. Future versions will error.
 The only allowed keyword arguments to `solve` are: 
 $allowedkeywords
+
 See https://diffeq.sciml.ai/stable/basics/common_solver_opts/ for more details.
 
-Set kwargshandle=KeywordArgError for an error message and more details.
+Set kwargshandle=KeywordArgError for an error message.
 Set kwargshandle=KeywordArgSilent to ignore this message.
 """
 
@@ -87,6 +88,7 @@ const KWARGERROR_MESSAGE =
 Unrecognized keyword arguments found.
 The only allowed keyword arguments to `solve` are: 
 $allowedkeywords
+
 See https://diffeq.sciml.ai/stable/basics/common_solver_opts/ for more details.
 """
 
@@ -98,7 +100,9 @@ function Base.showerror(io::IO, e::CommonKwargError)
   println(io, KWARGERROR_MESSAGE)
   notin = collect(map(x -> x ∉ allowedkeywords, keys(e.kwargs)))
   unrecognized = collect(keys(e.kwargs))[notin]
-  print(io, "Unrecognized keyword arguments: $unrecognized")
+  print(io, "Unrecognized keyword arguments: ")
+  printstyled(io, unrecognized; bold=true, color=:red)
+  print(io, "\n\n")
 end
 
 @enum KeywordArgError KeywordArgWarn KeywordArgSilent
@@ -380,6 +384,10 @@ function checkkwargs(kwargshandle; kwargs...)
       throw(CommonKwargError(kwargs))
     elseif kwargshandle == KeywordArgWarn
       @warn KWARGWARN_MESSAGE
+      unrecognized = setdiff(keys(kwargs), allowedkeywords)
+      print("Unrecognized keyword arguments: ")
+      printstyled(unrecognized; bold=true, color=:red)
+      print("\n\n")
     else
       @assert kwargshandle == KeywordArgSilent
     end
