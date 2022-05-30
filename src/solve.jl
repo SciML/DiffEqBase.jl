@@ -967,6 +967,11 @@ end
 
 ################### Differentiation
 
+"""
+Ignores all adjoint definitions (i.e. `sensealg`) and proceeds to do standard
+AD through the `solve` functions. Generally only used internally for implementing
+discrete sensitivity algorithms.
+"""
 struct SensitivityADPassThrough <: SciMLBase.DEAlgorithm end
 
 function ChainRulesCore.frule(::typeof(solve_up), prob,
