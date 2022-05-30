@@ -4,8 +4,8 @@ end
 (f::EvalFunc)(args...) = f.f(args...)
 
 NO_TSPAN_PROBS = Union{AbstractLinearProblem,AbstractNonlinearProblem,
-  AbstractQuadratureProblem,
-  AbstractSteadyStateProblem,AbstractJumpProblem}
+                       AbstractIntegralProblem,AbstractSteadyStateProblem,
+                       AbstractJumpProblem}
 
 has_kwargs(_prob::DEProblem) = has_kwargs(typeof(_prob))
 Base.@pure has_kwargs(::Type{T}) where {T} = :kwargs ∈ fieldnames(T)
