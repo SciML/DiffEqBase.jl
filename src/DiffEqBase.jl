@@ -1,6 +1,6 @@
 module DiffEqBase
 
-using Requires, IterativeSolvers, ArrayInterfaceCore
+using Requires, ArrayInterfaceCore
 
 using StaticArrays # data arrays
 
