@@ -1,6 +1,6 @@
 module DiffEqBase
 
-using Requires, IterativeSolvers, RecursiveFactorization, ArrayInterfaceCore
+using Requires, IterativeSolvers, ArrayInterfaceCore
 
 using StaticArrays # data arrays
 
@@ -20,20 +20,13 @@ using Statistics
 
 using FastBroadcast: @.., True, False
 
-using PreallocationTools
-import PreallocationTools: get_tmp
-
 import Distributions
 import ChainRulesCore
-import LabelledArrays
 import RecursiveArrayTools
 import SparseArrays
 
 import ChainRulesCore: NoTangent, @non_differentiable
 import ZygoteRules
-
-import DEDataArrays: DEDataArray, DEDataVector, DEDataMatrix, copy_fields!
-export DEDataArray, DEDataVector, DEDataMatrix
 
 using Setfield
 
