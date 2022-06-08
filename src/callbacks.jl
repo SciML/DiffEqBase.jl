@@ -428,7 +428,7 @@ function find_callback_time(integrator,callback::VectorContinuousCallback,counte
         min_t = nextfloat(top_t)
         min_event_idx = -1
         for idx in 1:length(event_idx)
-          if event_idx[idx] != 0
+          if ArrayInterfaceCore.allowed_getindex(event_idx,idx) != 0
             zero_func(abst, p=nothing) = ArrayInterfaceCore.allowed_getindex(get_condition(integrator, callback, abst),idx)
             if zero_func(top_t) == 0
               Θ = top_t
