@@ -57,7 +57,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
     end
 
     # evaluate function
-    u = @.. tmp + γ*z
+    u = @.. broadcast=false tmp + γ*z
     if mass_matrix == I
       z₊ = dt .* f(u, p, tstep)
       dz = z₊ .- z
@@ -122,7 +122,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
         end
 
         # update history of differences of z₊
-        Δz₊s[history] = @.. z₊ - z₊old
+        Δz₊s[history] = @.. broadcast=false z₊ - z₊old
 
         # replace/add difference of residuals as right-most column to QR decomposition
         qradd!(Q, R, _vec(dz .- dzold), history)
@@ -152,7 +152,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
 
         # update next iterate
         for i in 1:history
-          z = @.. z - γs[i] * Δz₊s[i]
+          z = @.. broadcast=false z - γs[i] * Δz₊s[i]
         end
 
         # update norm of residuals
@@ -202,18 +202,18 @@ end
     end
 
     # evaluate function
-    @.. u = tmp + γ*z
+    @.. broadcast=false u = tmp + γ*z
     f(k, u, p, tstep)
     if has_destats(integrator)
       integrator.destats.nf += 1
     end
     if mass_matrix == I
-      @.. z₊ = dt*k
-      @.. dz = z₊ - z
+      @.. broadcast=false z₊ = dt*k
+      @.. broadcast=false dz = z₊ - z
     else
       mul!(vecztmp, mass_matrix, vecz)
-      @.. dz = dt*k - ztmp
-      @.. z₊ = z + dz
+      @.. broadcast=false dz = dt*k - ztmp
+      @.. broadcast=false z₊ = z + dz
     end
 
     # compute norm of residuals
@@ -232,7 +232,7 @@ end
     end
 
     # update iterate
-    @.. z = z₊
+    @.. broadcast=false z = z₊
 
     # check stopping criterion
     iter > 1 && (η = θ / (1 - θ))
@@ -247,8 +247,8 @@ end
     if nlcache isa NLAndersonCache && iter < max_iter
       if iter == aa_start
         # update cached values for next step of Anderson acceleration
-        @.. dzold = dz
-        @.. z₊old = z₊
+        @.. broadcast=false dzold = dz
+        @.. broadcast=false z₊old = z₊
       elseif iter > aa_start
         # increase size of history
         history += 1
@@ -270,15 +270,15 @@ end
         end
 
         # update history of differences of z₊
-        @.. Δz₊s[history] = z₊ - z₊old
+        @.. broadcast=false Δz₊s[history] = z₊ - z₊old
 
         # replace/add difference of residuals as right-most column to QR decomposition
-        @.. dzold = dz - dzold
+        @.. broadcast=false dzold = dz - dzold
         qradd!(Q, R, vec(dzold), history)
 
         # update cached values
-        @.. dzold = dz
-        @.. z₊old = z₊
+        @.. broadcast=false dzold = dz
+        @.. broadcast=false z₊old = z₊
 
         # define current Q and R matrices
         Qcur, Rcur = view(Q, :, 1:history), UpperTriangular(view(R, 1:history, 1:history))
@@ -301,11 +301,11 @@ end
 
         # update next iterate
         for i in 1:history
-          @.. z = z - γs[i] * Δz₊s[i]
+          @.. broadcast=false z = z - γs[i] * Δz₊s[i]
         end
 
         # update norm of residuals
-        @.. dz = z - z₊ + dz
+        @.. broadcast=false dz = z - z₊ + dz
         calculate_residuals!(ztmp, dz, uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
         ndz = integrator.opts.internalnorm(ztmp, t)
       end

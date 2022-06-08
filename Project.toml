@@ -1,7 +1,7 @@
 name = "DiffEqBase"
 uuid = "2b5f629d-d688-5b77-993f-72d75c75574e"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "6.89.1"
+version = "6.89.2"
 
 [deps]
 ArrayInterfaceCore = "30b0a656-2188-435a-8636-2ec0e6a096e2"
@@ -36,7 +36,7 @@ DelayDiffEq = "5.35.2"
 DiffEqSensitivity = "6.74.0"
 Distributions = "0.24, 0.25"
 DocStringExtensions = "0.8, 0.9"
-FastBroadcast = "0.1.9"
+FastBroadcast = "0.1.9, 0.2"
 ForwardDiff = "0.10"
 FunctionWrappers = "1.0"
 MuladdMacro = "0.2.1"
