@@ -50,7 +50,7 @@ function qradd!(Q::AbstractMatrix, R::AbstractMatrix, v::AbstractVector, k::Int)
   @inbounds begin
     d = norm(v)
     R[k, k] = d
-    @.. @view(Q[:, k]) = v / d
+    @.. broadcast=false @view(Q[:, k]) = v / d
   end
 
   Q, R

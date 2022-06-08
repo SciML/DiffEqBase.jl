@@ -20,7 +20,7 @@ end
 end
 
 @inline function calculate_residuals(ũ, u₀, u₁, α, ρ, internalnorm,t)
-  @.. calculate_residuals(ũ, u₀, u₁, α, ρ, internalnorm,t)
+  @.. broadcast=false calculate_residuals(ũ, u₀, u₁, α, ρ, internalnorm,t)
 end
 
 """
@@ -45,7 +45,7 @@ end
 end
 
 @inline function calculate_residuals(u₀, u₁, α, ρ, internalnorm,t)
-  @.. calculate_residuals(u₀, u₁, α, ρ, internalnorm,t)
+  @.. broadcast=false calculate_residuals(u₀, u₁, α, ρ, internalnorm,t)
 end
 
 
@@ -71,7 +71,7 @@ end
 end
 
 @inline function calculate_residuals(E₁, E₂, u₀, u₁, α, ρ, δ, scalarnorm, t)
-  @.. calculate_residuals(E₁, E₂, u₀, u₁, α, ρ, δ, scalarnorm, t)
+  @.. broadcast=false calculate_residuals(E₁, E₂, u₀, u₁, α, ρ, δ, scalarnorm, t)
 end
 
 # Inplace Versions
@@ -91,7 +91,7 @@ or use multiple threads (`thread = True()`) when Julia is started
 with multiple threads.
 """
 @inline function calculate_residuals!(out, ũ, u₀, u₁, α, ρ, internalnorm,t, thread::Union{False,True}=False())
-  @.. thread=thread out = calculate_residuals(ũ, u₀, u₁, α, ρ, internalnorm,t)
+  @.. broadcast=false thread=thread out = calculate_residuals(ũ, u₀, u₁, α, ρ, internalnorm,t)
   nothing
 end
 
@@ -117,7 +117,7 @@ or use multiple threads (`thread = True()`) when Julia is started
 with multiple threads.
 """
 @inline function calculate_residuals!(out, u₀, u₁, α, ρ, internalnorm,t, thread::Union{False,True}=False())
-  @.. thread=thread out = calculate_residuals(u₀, u₁, α, ρ, internalnorm,t)
+  @.. broadcast=false thread=thread out = calculate_residuals(u₀, u₁, α, ρ, internalnorm,t)
 end
 
 """
@@ -134,6 +134,6 @@ or use multiple threads (`thread = True()`) when Julia is started
 with multiple threads.
 """
 @inline function calculate_residuals!(out, E₁, E₂, u₀, u₁, α, ρ, δ, scalarnorm, t, thread::Union{False,True}=False())
-  @.. thread=thread out = calculate_residuals(E₁, E₂, u₀, u₁, α, ρ, δ, scalarnorm, t)
+  @.. broadcast=false thread=thread out = calculate_residuals(E₁, E₂, u₀, u₁, α, ρ, δ, scalarnorm, t)
   out
 end

@@ -64,7 +64,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
     end
 
     # evaluate function
-    u = @.. tmp + γ * z
+    u = @.. broadcast=false tmp + γ * z
     if mass_matrix === I
       ztmp = (dt .* f(u, p, tstep) .- z) .* invγdt
     else
@@ -97,7 +97,7 @@ Equations II, Springer Series in Computational Mathematics. ISBN
     end
 
     # update solution
-    z = @.. z - dz
+    z = @.. broadcast=false z - dz
 
     # check stopping criterion
     iter > 1 && (η = θ / (1 - θ))
@@ -145,16 +145,16 @@ end
     end
 
     # evaluate function
-    @.. dz = tmp + γ*z
+    @.. broadcast=false dz = tmp + γ*z
     f(k, dz, p, tstep)
     if has_destats(integrator)
       integrator.destats.nf += 1
     end
     if mass_matrix === I
-      @.. ztmp = (dt*k - z) * invγdt
+      @.. broadcast=false ztmp = (dt*k - z) * invγdt
     else
       mul!(vecztmp,mass_matrix,vecz)
-      @.. ztmp = (dt*k - ztmp) * invγdt
+      @.. broadcast=false ztmp = (dt*k - ztmp) * invγdt
     end
 
     if W isa AbstractDiffEqLinearOperator
@@ -169,7 +169,7 @@ end
     # compute norm of residuals
     iter > 1 && (ndzprev = ndz)
     #W_dt != dt && (rmul!(dz, 2/(1 + dt / W_dt))) # relaxation
-    @.. ztmp = tmp + γ*z
+    @.. broadcast=false ztmp = tmp + γ*z
     calculate_residuals!(ztmp, dz, uprev, ztmp, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
     ndz = integrator.opts.internalnorm(ztmp, t)
 
@@ -184,7 +184,7 @@ end
     end
 
     # update solution
-    @.. z = z - dz
+    @.. broadcast=false z = z - dz
 
     # check stopping criterion
     iter > 1 && (η = θ / (1 - θ))
