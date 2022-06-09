@@ -328,6 +328,44 @@ function Base.showerror(io::IO, e::ComplexTspanError)
   println(io, COMPLEX_TSPAN_ERROR_MESSAGE)
 end
 
+const TUPLE_STATE_ERROR_MESSAGE = 
+"""
+Tuple type used as a state. Since a tuple does not have vector
+properties, it will not work as a state type in equation solvers.
+Instead, change your equation from using tuple constructors `()`
+to static array constructors `SA[]`. For example, change:
+
+```julia
+function ftup((a,b),p,t)
+  return b,-a
+end
+u0 = (1.0,2.0)
+tspan = (0.0,1.0)
+ODEProblem(ftup,u0,tspan)
+```
+
+to:
+
+```julia
+using StaticArrays
+function fsa(u,p,t)
+    SA[u[2],u[1]]
+end
+u0 = SA[1.0,2.0]
+tspan = (0.0,1.0)
+ODEProblem(ftup,u0,tspan)
+```
+
+This will be safer and fast for small ODEs. For more information, see:
+https://diffeq.sciml.ai/stable/tutorials/faster_ode_example/#Further-Optimizations-of-Small-Non-Stiff-ODEs-with-StaticArrays
+"""
+
+struct TupleStateError <: Exception end
+
+function Base.showerror(io::IO, e::TupleStateError)
+  println(io, TUPLE_STATE_ERROR_MESSAGE)
+end
+
 function init_call(_prob, args...; merge_callbacks=true, kwargshandle=KeywordArgWarn, kwargs...)
 
   if has_kwargs(_prob)
@@ -863,6 +901,10 @@ function get_concrete_u0(prob, isadapt, t0, kwargs)
 
   if isinplace(prob) && (_u0 isa Number || _u0 isa SArray)
     throw(IncompatibleInitialConditionError())
+  end
+
+  if _u0 isa Tuple
+    throw(TupleStateError())
   end
 
   _u0

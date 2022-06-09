@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, Sundials, Test
+using OrdinaryDiffEq, Test, Sundials
 
 f(u,p,t) = 2u
 u0 = 0.5
@@ -27,6 +27,9 @@ prob = ODEProblem{false}(f,u0,(nothing,nothing))
 
 prob = ODEProblem{false}(f,Any[1.0,1f0],tspan)
 @test_throws DiffEqBase.NonConcreteEltypeError solve(prob,Tsit5())
+
+prob = ODEProblem{false}(f,(1.0,1f0),tspan)
+@test_throws DiffEqBase.TupleStateError solve(prob,Tsit5())
 
 prob = ODEProblem{false}(f,u0,(0.0+im,1.0))
 @test_throws DiffEqBase.ComplexTspanError solve(prob,Tsit5())
