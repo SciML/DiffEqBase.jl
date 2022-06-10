@@ -30,7 +30,6 @@ if GROUP == "All" || GROUP == "Core"
     @time @safetestset "High Level solve Interface" begin include("high_level_solve.jl") end
     @time @safetestset "DiffEqFunction tests" begin include("diffeqfunction_tests.jl") end
     @time @safetestset "Internal Euler" begin include("internal_euler_test.jl") end
-    @time @safetestset "Numargs" begin include("numargs_test.jl") end
     @time @safetestset "Basic Operators Interface" begin include("basic_operators_interface.jl") end
     @time @safetestset "Norm" begin include("norm.jl") end
     @time @safetestset "Utils" begin include("utils.jl") end
