@@ -20,7 +20,6 @@ end
 @time begin
 if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Fast Power" begin include("fastpow.jl") end
-    @time @safetestset "Number of Parameters Calculation" begin include("numargs_test.jl") end
     @time @safetestset "Callbacks" begin include("callbacks.jl") end
     @time @safetestset "Plot Variables" begin include("plot_vars.jl") end
     @time @safetestset "Problem Creation Tests" begin include("problem_creation_tests.jl") end
