@@ -53,6 +53,8 @@ const allowedkeywords = (
   :progress_message,
   :timeseries_errors,
   :dense_errors,
+  :weak_timeseries_errors, 
+  :weak_dense_errors,
   :calculate_errors,
   :initializealg,
   :alg,
