@@ -4,7 +4,7 @@ using DiffEqBase, ForwardDiff
 using DiffEqBase: prob2dtmin, timedepentdtmin
 
 @testset "tspan2dtmin" begin
-  tspan2dtmin(tspan; kwargs...) = prob2dtmin(ODEProblem(identity, 1, tspan); kwargs...)
+  tspan2dtmin(tspan; kwargs...) = prob2dtmin(ODEProblem((u,p,t)->u, 1, tspan); kwargs...)
   @test tspan2dtmin((10, 100.0)) === eps(100.0)
   @test tspan2dtmin((-10000.0, 100.0)) === eps(10000.0)
   @test tspan2dtmin((1, 2)) === 0
