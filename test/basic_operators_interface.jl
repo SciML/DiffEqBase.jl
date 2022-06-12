@@ -21,7 +21,7 @@ end
 
 @testset "Array Operators" begin
   Random.seed!(0); A = rand(2,2); u = rand(2); du = zeros(2)
-  L = DiffEqArrayOperator(A)
+  L = MatrixOperator(A)
   @test Matrix(L) == A
   @test size(L) == size(A)
   @test L * u == A * u
@@ -44,7 +44,7 @@ end
 @testset "Mutable Array Operators" begin
   Random.seed!(0); A = rand(2,2); u = rand(2); du = zeros(2)
   update_func = (_A,u,p,t) -> _A .= t * A
-  Lt = DiffEqArrayOperator(zeros(2,2); update_func=update_func)
+  Lt = MatrixOperator(zeros(2,2); update_func=update_func)
   t = 5.0
   @test isconstant(Lt) == false
   @test Lt(u,nothing,t) ≈ (t*A) * u
