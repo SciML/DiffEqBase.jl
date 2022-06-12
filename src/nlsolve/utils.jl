@@ -190,7 +190,7 @@ DiffEqBase.@def oopnlsolve begin
     if islinear(f) || DiffEqBase.has_jac(f)
       # get the operator
       J = islinear(f) ? nf.f : f.jac(uprev, p, t)
-      if !isa(J, DiffEqBase.AbstractSciMLLinearOperator)
+      if !isa(J, SciMLOperators.AbstractSciMLLinearOperator)
         J = MatrixOperator(J)
       end
       W = WOperator(f.mass_matrix, dt, J, false)
