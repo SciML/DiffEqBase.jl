@@ -12,6 +12,7 @@ function anyeltypedual(x)
   end
 end
 anyeltypedual(::Type{T}) where T = T
+anyeltypedual(x::SciMLBase.NullParameters) = Any
 anyeltypedual(x::Number) = typeof(x)
 anyeltypedual(x::Union{AbstractArray{T},Set{T}}) where T<:Number = T
 anyeltypedual(x::Union{AbstractArray,Set}) = mapreduce(anyeltypedual,promote_dual,x)
