@@ -3,8 +3,14 @@ promote_dual(::Type{T},::Type{T2}) where {T<:ForwardDiff.Dual,T2} = T
 promote_dual(::Type{T},::Type{T2}) where {T<:ForwardDiff.Dual,T2<:ForwardDiff.Dual} = T
 promote_dual(::Type{T},::Type{T2}) where {T,T2<:ForwardDiff.Dual} = T2
 
-anyeltypedual(x) = mapreduce(y->anyeltypedual(getproperty(x,y)),promote_dual,propertynames(x))
-anyeltypedual(x::Union{String,Symbol}) = Any
+# Catch composite types, check all of their fields
+function anyeltypedual(x) 
+  if propertynames(x) === ()
+    Any
+  else
+    mapreduce(y->anyeltypedual(getproperty(x,y)),promote_dual,propertynames(x))
+  end
+end
 anyeltypedual(::Type{T}) where T = T
 anyeltypedual(x::Number) = typeof(x)
 anyeltypedual(x::Union{AbstractArray{T},Set{T}}) where T<:Number = T
