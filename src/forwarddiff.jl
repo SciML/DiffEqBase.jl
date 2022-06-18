@@ -1,7 +1,33 @@
-promote_u0(u0::AbstractArray{<:ForwardDiff.Dual},p::AbstractArray{<:ForwardDiff.Dual},t0) = u0
-promote_u0(u0,p::AbstractArray{<:ForwardDiff.Dual},t0) = eltype(p).(u0)
-promote_u0(u0,p::NTuple{N,<:ForwardDiff.Dual},t0) where N = eltype(p).(u0)
-promote_u0(u0,p::ForwardDiff.Dual,t0) where N = eltype(p).(u0)
+promote_dual(::Type{T},::Type{T2}) where {T,T2} = T
+promote_dual(::Type{T},::Type{T2}) where {T<:ForwardDiff.Dual,T2} = T
+promote_dual(::Type{T},::Type{T2}) where {T<:ForwardDiff.Dual,T2<:ForwardDiff.Dual} = T
+promote_dual(::Type{T},::Type{T2}) where {T,T2<:ForwardDiff.Dual} = T2
+
+# Catch composite types, check all of their fields
+function anyeltypedual(x) 
+  if propertynames(x) === ()
+    Any
+  else
+    mapreduce(y->anyeltypedual(getproperty(x,y)),promote_dual,propertynames(x))
+  end
+end
+anyeltypedual(::Type{T}) where T = T
+anyeltypedual(x::SciMLBase.NullParameters) = Any
+anyeltypedual(x::Number) = typeof(x)
+anyeltypedual(x::Union{AbstractArray{T},Set{T}}) where T<:Number = T
+anyeltypedual(x::Union{AbstractArray,Set}) = mapreduce(anyeltypedual,promote_dual,x)
+anyeltypedual(x::Tuple) = mapreduce(anyeltypedual,promote_dual,x)
+anyeltypedual(x::Union{Dict,NamedTuple}) = mapreduce(anyeltypedual,promote_dual,values(x))
+
+function promote_u0(u0,p,t0) 
+  if !(eltype(u0) <: ForwardDiff.Dual)
+    T = anyeltypedual(p)
+    if T <: ForwardDiff.Dual 
+      return T.(u0)
+    end
+  end
+  u0
+end
 
 function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual},p,tspan::Tuple{<:ForwardDiff.Dual,<:ForwardDiff.Dual},prob,kwargs)
   return tspan

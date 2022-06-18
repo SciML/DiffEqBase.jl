@@ -1,5 +1,4 @@
 value(x) = x
-promote_u0(u0,p,t0) = u0
 promote_tspan(u0,p,tspan,prob,kwargs) = tspan
 isdistribution(u0) = false
 

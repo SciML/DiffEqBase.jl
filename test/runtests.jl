@@ -32,6 +32,7 @@ if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Basic Operators Interface" begin include("basic_operators_interface.jl") end
     @time @safetestset "Norm" begin include("norm.jl") end
     @time @safetestset "Utils" begin include("utils.jl") end
+    @time @safetestset "ForwardDiff Dual Detection" begin include("forwarddiff_dual_detection.jl") end
     @time @safetestset "ODE default norm" begin include("ode_default_norm.jl") end
     @time @safetestset "ODE default unstable check" begin include("ode_default_unstable_check.jl") end
 end
