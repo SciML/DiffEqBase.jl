@@ -22,6 +22,7 @@ p_possibilities = [ForwardDiff.Dual(2.0),(ForwardDiff.Dual(2.0),2.0),
 ]
 
 for p in p_possibilities
+    @show p
     @test DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual
     u0 = 2.0
     @test DiffEqBase.promote_u0(u0,p,t0) isa ForwardDiff.Dual
