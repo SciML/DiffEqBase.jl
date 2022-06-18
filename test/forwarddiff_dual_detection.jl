@@ -7,10 +7,18 @@ t0 = 1.0
 @test DiffEqBase.promote_u0(u0,p,t0) isa Float64
 @test DiffEqBase.promote_u0(u0,p,t0) == 2.0
 
+struct MyStruct{T,T2}
+    x::T
+    y::T2
+end
+
 p_possibilities = [ForwardDiff.Dual(2.0),(ForwardDiff.Dual(2.0),2.0),
     [ForwardDiff.Dual(2.0)],([ForwardDiff.Dual(2.0)],2.0),
     (2.0,ForwardDiff.Dual(2.0)),(;x=2.0,y=ForwardDiff.Dual(2.0)),
-    (;x=2.0,y=[ForwardDiff.Dual(2.0)]),(;x=2.0,y=[[ForwardDiff.Dual(2.0)]])
+    (;x=2.0,y=[ForwardDiff.Dual(2.0)]),(;x=2.0,y=[[ForwardDiff.Dual(2.0)]]),
+    MyStruct(2.0,ForwardDiff.Dual(2.0)),[MyStruct(2.0,ForwardDiff.Dual(2.0))],
+    [MyStruct(2.0,(2.0,ForwardDiff.Dual(2.0)))],[MyStruct(2.0,[2.0,ForwardDiff.Dual(2.0)])],
+    Set([2.0,ForwardDiff.Dual(2.0)])
 ]
 
 for p in p_possibilities
@@ -26,6 +34,10 @@ p_possibilities_uninferrred = [
     Dict(:x => 2.0, :y => ForwardDiff.Dual(2.0)),
     Dict(:x => 2.0, :y => [ForwardDiff.Dual(2.0)]),
     Dict(:x => 2.0, :y => [(;x=(ForwardDiff.Dual(2.0),2.0),y=2.0)]),
+    Dict(:x => 2.0, :y => [(;x=[MyStruct(2.0,[2.0,ForwardDiff.Dual(2.0)])],y=2.0)]),
+    [MyStruct("2",[2.0,ForwardDiff.Dual(2.0)])],
+    Set([2.0,"s",ForwardDiff.Dual(2.0)]),
+    Dict(:x=>[MyStruct("2",[2.0,MyStruct(ForwardDiff.Dual(2.0),2.0)])],:y=>ForwardDiff.Dual{MyStruct}(2.0))
 ]
 
 for p in p_possibilities_uninferrred

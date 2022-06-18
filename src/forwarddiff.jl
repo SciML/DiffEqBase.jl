@@ -3,10 +3,12 @@ promote_dual(::Type{T},::Type{T2}) where {T<:ForwardDiff.Dual,T2} = T
 promote_dual(::Type{T},::Type{T2}) where {T<:ForwardDiff.Dual,T2<:ForwardDiff.Dual} = T
 promote_dual(::Type{T},::Type{T2}) where {T,T2<:ForwardDiff.Dual} = T2
 
-anyeltypedual(x) = eltype(x)
+anyeltypedual(x) = mapreduce(y->anyeltypedual(getproperty(x,y)),promote_dual,propertynames(x))
+anyeltypedual(x::Union{String,Symbol}) = Any
+anyeltypedual(::Type{T}) where T = T
 anyeltypedual(x::Number) = typeof(x)
-anyeltypedual(x::AbstractArray{T}) where T<:Number = T
-anyeltypedual(x::AbstractArray) = mapreduce(anyeltypedual,promote_dual,x)
+anyeltypedual(x::Union{AbstractArray{T},Set{T}}) where T<:Number = T
+anyeltypedual(x::Union{AbstractArray,Set}) = mapreduce(anyeltypedual,promote_dual,x)
 anyeltypedual(x::Tuple) = mapreduce(anyeltypedual,promote_dual,x)
 anyeltypedual(x::Union{Dict,NamedTuple}) = mapreduce(anyeltypedual,promote_dual,values(x))
 
