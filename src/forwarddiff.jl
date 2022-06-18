@@ -1,7 +1,23 @@
-promote_u0(u0::AbstractArray{<:ForwardDiff.Dual},p::AbstractArray{<:ForwardDiff.Dual},t0) = u0
-promote_u0(u0,p::AbstractArray{<:ForwardDiff.Dual},t0) = eltype(p).(u0)
-promote_u0(u0,p::NTuple{N,<:ForwardDiff.Dual},t0) where N = eltype(p).(u0)
-promote_u0(u0,p::ForwardDiff.Dual,t0) where N = eltype(p).(u0)
+promote_dual(::Type{T},::Type{T2}) where {T,T2} = T
+promote_dual(::Type{T},::Type{T2}) where {T<:ForwardDiff.Dual,T2} = T
+promote_dual(::Type{T},::Type{T2}) where {T<:ForwardDiff.Dual,T2<:ForwardDiff.Dual} = T
+promote_dual(::Type{T},::Type{T2}) where {T,T2<:ForwardDiff.Dual} = T2
+
+anyeltypedual(x) = eltype(x)
+anyeltypedual(x::Number) = typeof(x)
+anyeltypedual(x::AbstractArray{T}) where T<:Number = T
+anyeltypedual(x::AbstractArray) = mapreduce(anyeltypedual,promote_dual,x)
+anyeltypedual(x::Tuple) = mapreduce(anyeltypedual,promote_dual,x)
+anyeltypedual(x::Union{Dict,NamedTuple}) = mapreduce(anyeltypedual,promote_dual,values(x))
+
+function promote_u0(u0,p,t0) 
+  T = anyeltypedual(p)
+  if T <: ForwardDiff.Dual && !(eltype(u0) <: ForwardDiff.Dual)
+    T.(u0)
+  else
+    u0
+  end
+end
 
 function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual},p,tspan::Tuple{<:ForwardDiff.Dual,<:ForwardDiff.Dual},prob,kwargs)
   return tspan
