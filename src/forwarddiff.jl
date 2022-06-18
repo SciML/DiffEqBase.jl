@@ -13,12 +13,13 @@ anyeltypedual(x::Tuple) = mapreduce(anyeltypedual,promote_dual,x)
 anyeltypedual(x::Union{Dict,NamedTuple}) = mapreduce(anyeltypedual,promote_dual,values(x))
 
 function promote_u0(u0,p,t0) 
-  T = anyeltypedual(p)
-  if T <: ForwardDiff.Dual && !(eltype(u0) <: ForwardDiff.Dual)
-    T.(u0)
-  else
-    u0
+  if !(eltype(u0) <: ForwardDiff.Dual)
+    T = anyeltypedual(p)
+    if T <: ForwardDiff.Dual 
+      return T.(u0)
+    end
   end
+  u0
 end
 
 function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual},p,tspan::Tuple{<:ForwardDiff.Dual,<:ForwardDiff.Dual},prob,kwargs)
