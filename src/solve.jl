@@ -1022,14 +1022,14 @@ function ChainRulesCore.frule(::typeof(solve_up), prob,
   sensealg::Union{Nothing,AbstractSensitivityAlgorithm},
   u0, p, args...;
   kwargs...)
-  _solve_forward(prob, sensealg, u0, p, args...; kwargs...)
+  _solve_forward(prob, sensealg, u0, p, SciMLBase.ChainRulesOriginator(), args...; kwargs...)
 end
 
 function ChainRulesCore.rrule(::typeof(solve_up), prob::SciMLBase.DEProblem,
   sensealg::Union{Nothing,AbstractSensitivityAlgorithm},
   u0, p, args...;
   kwargs...)
-  _solve_adjoint(prob, sensealg, u0, p, args...; kwargs...)
+  _solve_adjoint(prob, sensealg, u0, p, SciMLBase.ChainRulesOriginator(), args...; kwargs...)
 end
 
 ###
@@ -1102,9 +1102,17 @@ function _solve_forward(prob, sensealg, u0, p, args...; merge_callbacks=true, kw
 end
 
 function _concrete_solve_adjoint(args...; kwargs...)
-  error("No adjoint rules exist. Check that you added `using DiffEqSensitivity`")
+  error("""
+  Compatibility with reverse-mode automatic differentiation requires DiffEqSensitivity.jl.
+  Please install DiffEqSensitivity.jl and do `using DiffEqSensitivity`/`import DiffEqSensitivity`
+  for this functionality. For more details, see https://sensitivity.sciml.ai/dev/.
+  """)
 end
 
 function _concrete_solve_forward(args...; kwargs...)
-  error("No sensitivity rules exist. Check that you added `using DiffEqSensitivity`")
+  error("""
+  Compatibility with forward-mode automatic differentiation requires DiffEqSensitivity.jl.
+  Please install DiffEqSensitivity.jl and do `using DiffEqSensitivity`/`import DiffEqSensitivity`
+  for this functionality. For more details, see https://sensitivity.sciml.ai/dev/.
+  """)
 end
