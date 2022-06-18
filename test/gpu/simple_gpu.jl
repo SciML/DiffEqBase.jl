@@ -21,7 +21,7 @@ ff = ODEFunction(f,jac=jac,tgrad=tgrad)
 CUDA.allowscalar(false)
 A = cu(-rand(3,3))
 u0 = cu([1.0;0.0;0.0])
-tspan = (0.,100.)
+tspan = (0f0,100f0)
 
 prob = ODEProblem(ff,u0,tspan)
 sol = solve(prob,Tsit5())
@@ -52,5 +52,5 @@ DiffEqBase.prob2dtmin(prob_nojac_oop)
 # Complex Numbers Adaptivity DifferentialEquations.jl#460
 f_complex(u,nothing,t) = 1/2 .*u
 u0 = cu(rand(32,32).+ 1im*rand(32,32));
-prob = ODEProblem(f_complex,u0,(0.0,1.0))
+prob = ODEProblem(f_complex,u0,(0f0,1f0))
 @test_nowarn sol = solve(prob,Tsit5())
