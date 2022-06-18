@@ -1022,14 +1022,14 @@ function ChainRulesCore.frule(::typeof(solve_up), prob,
   sensealg::Union{Nothing,AbstractSensitivityAlgorithm},
   u0, p, args...;
   kwargs...)
-  _solve_forward(prob, sensealg, u0, p, args...; kwargs...)
+  _solve_forward(prob, sensealg, u0, p, SciMLBase.ChainRulesOriginator(), args...; kwargs...)
 end
 
 function ChainRulesCore.rrule(::typeof(solve_up), prob::SciMLBase.DEProblem,
   sensealg::Union{Nothing,AbstractSensitivityAlgorithm},
   u0, p, args...;
   kwargs...)
-  _solve_adjoint(prob, sensealg, u0, p, args...; kwargs...)
+  _solve_adjoint(prob, sensealg, u0, p, SciMLBase.ChainRulesOriginator(), args...; kwargs...)
 end
 
 ###
@@ -1039,7 +1039,7 @@ end
 @deprecate concrete_solve(prob::SciMLBase.DEProblem, alg::Union{SciMLBase.DEAlgorithm,Nothing},
   u0=prob.u0, p=prob.p, args...; kwargs...) solve(prob, alg, args...; u0=u0, p=p, kwargs...)
 
-function _solve_adjoint(prob, sensealg, u0, p, args...; merge_callbacks=true, kwargs...)
+function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callbacks=true, kwargs...)
 
   _prob = if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
@@ -1064,13 +1064,13 @@ function _solve_adjoint(prob, sensealg, u0, p, args...; merge_callbacks=true, kw
   end
 
   if isempty(args)
-    _concrete_solve_adjoint(_prob, nothing, sensealg, u0, p; kwargs...)
+    _concrete_solve_adjoint(_prob, nothing, sensealg, u0, p, originator; kwargs...)
   else
-    _concrete_solve_adjoint(_prob, args[1], sensealg, u0, p, Base.tail(args)...; kwargs...)
+    _concrete_solve_adjoint(_prob, args[1], sensealg, u0, p, originator, Base.tail(args)...; kwargs...)
   end
 end
 
-function _solve_forward(prob, sensealg, u0, p, args...; merge_callbacks=true, kwargs...)
+function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callbacks=true, kwargs...)
 
   _prob = if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
     alg = kwargs[:alg]
@@ -1101,10 +1101,39 @@ function _solve_forward(prob, sensealg, u0, p, args...; merge_callbacks=true, kw
   end
 end
 
+####
+# Catch undefined AD overload cases
+
+const ADJOINT_NOT_FOUND_MESSAGE = 
+"""
+Compatibility with reverse-mode automatic differentiation requires DiffEqSensitivity.jl.
+Please install DiffEqSensitivity.jl and do `using DiffEqSensitivity`/`import DiffEqSensitivity`
+for this functionality. For more details, see https://sensitivity.sciml.ai/dev/.
+"""
+
+struct AdjointNotFoundError <: Exception end
+
+function Base.showerror(io::IO, e::AdjointNotFoundError)
+  print(io, ADJOINT_NOT_FOUND_MESSAGE)
+end
+
 function _concrete_solve_adjoint(args...; kwargs...)
-  error("No adjoint rules exist. Check that you added `using DiffEqSensitivity`")
+  throw(AdjointNotFoundError())
+end
+
+const FORWARD_SENSITIVITY_NOT_FOUND_MESSAGE = 
+"""
+Compatibility with forward-mode automatic differentiation requires DiffEqSensitivity.jl.
+Please install DiffEqSensitivity.jl and do `using DiffEqSensitivity`/`import DiffEqSensitivity`
+for this functionality. For more details, see https://sensitivity.sciml.ai/dev/.
+"""
+
+struct ForwardSensitivityNotFoundError <: Exception end
+
+function Base.showerror(io::IO, e::ForwardSensitivityNotFoundError)
+  print(io, FORWARD_SENSITIVITY_NOT_FOUND_MESSAGE)
 end
 
 function _concrete_solve_forward(args...; kwargs...)
-  error("No sensitivity rules exist. Check that you added `using DiffEqSensitivity`")
+  throw(ForwardSensitivityNotFoundError())
 end
