@@ -1,4 +1,4 @@
-using Test, RecursiveArrayTools, StaticArrays
+using Test, RecursiveArrayTools, StaticArrays, SparseArrays
 
 using DiffEqBase: NAN_CHECK
 

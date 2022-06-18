@@ -33,6 +33,7 @@ if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Norm" begin include("norm.jl") end
     @time @safetestset "Utils" begin include("utils.jl") end
     @time @safetestset "ODE default norm" begin include("ode_default_norm.jl") end
+    @time @safetestset "ODE default unstable check" begin include("ode_default_unstable_check.jl") end
 end
 
 if !is_APPVEYOR && GROUP == "Downstream"
