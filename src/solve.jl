@@ -14,6 +14,7 @@ const allowedkeywords = (
   :dense,
   :saveat,
   :save_idxs,
+  :save_first,
   :tstops,
   :d_discontinuities,
   :save_everystep,
