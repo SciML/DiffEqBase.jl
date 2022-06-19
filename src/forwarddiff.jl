@@ -60,17 +60,17 @@ anyeltypedual(::Type{T}) where T = T
 anyeltypedual(x::SciMLBase.NullParameters) = Any
 anyeltypedual(x::Number) = typeof(x)
 anyeltypedual(x::Union{AbstractArray{T},Set{T}}) where T<:Number = T
-anyeltypedual(x::Union{AbstractArray,Set}) = mapreduce(anyeltypedual,promote_dual,x)
+anyeltypedual(x::Union{AbstractArray,Set}) = mapreduce(anyeltypedual,promote_dual,x; init=Any)
 
 function anyeltypedual(x::Tuple)
   # Handle the empty tuple case separately for inference and to avoid mapreduce error
   if x === ()
     Any
   else
-    mapreduce(anyeltypedual,promote_dual,x)
+    mapreduce(anyeltypedual,promote_dual,x; init=Any)
   end
 end
-anyeltypedual(x::Union{Dict,NamedTuple}) = mapreduce(anyeltypedual,promote_dual,values(x))
+anyeltypedual(x::Union{Dict,NamedTuple}) = mapreduce(anyeltypedual,promote_dual,values(x); init=Any)
 
 function promote_u0(u0,p,t0) 
   if !(eltype(u0) <: ForwardDiff.Dual)

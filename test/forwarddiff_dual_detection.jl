@@ -17,7 +17,8 @@ p_possibilities = [ForwardDiff.Dual(2.0),(ForwardDiff.Dual(2.0),2.0),
     (2.0,ForwardDiff.Dual(2.0)),(;x=2.0,y=ForwardDiff.Dual(2.0)),
     (;x=2.0,y=[ForwardDiff.Dual(2.0)]),(;x=2.0,y=[[ForwardDiff.Dual(2.0)]]),
     Set([2.0,ForwardDiff.Dual(2.0)]),(SciMLBase.NullParameters(),ForwardDiff.Dual(2.0)),
-    ((),ForwardDiff.Dual(2.0)),ForwardDiff.Dual{Nothing}(ForwardDiff.Dual{MyStruct}(2.0))
+    ((),ForwardDiff.Dual(2.0)),ForwardDiff.Dual{Nothing}(ForwardDiff.Dual{MyStruct}(2.0)),
+    ((;),ForwardDiff.Dual(2.0)),
 ]
 
 for p in p_possibilities
@@ -72,7 +73,8 @@ p_possibilities_uninferrred = [
     [MyStruct("2",[2.0,ForwardDiff.Dual(2.0)])],
     Set([2.0,"s",ForwardDiff.Dual(2.0)]),
     Dict(:x=>[MyStruct("2",[2.0,MyStruct(ForwardDiff.Dual(2.0),2.0)])],:y=>ForwardDiff.Dual{MyStruct}(2.0)),
-    Set([2.0,ForwardDiff.Dual(2.0),SciMLBase.NullParameters()])
+    Set([2.0,ForwardDiff.Dual(2.0),SciMLBase.NullParameters()]),
+    ((Dict(:x=>nothing)),ForwardDiff.Dual(2.0))
 ]
 
 for p in p_possibilities_uninferrred
