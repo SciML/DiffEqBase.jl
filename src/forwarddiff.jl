@@ -67,17 +67,17 @@ anyeltypedual(x::Union{AbstractArray{T},Set{T}}) where T<:Union{Number,Symbol,St
 anyeltypedual(x::Union{AbstractArray{T},Set{T}}) where {N,T<:Union{AbstractArray{<:Number},Set{<:Number},NTuple{N,<:Number}}} = anyeltypedual(eltype(x))
 
 # Try to avoid this dispatch because it can lead to type inference issues when !isconcrete(eltype(x))
-anyeltypedual(x::Union{AbstractArray,Set}) = isempty(x) ? Any : mapreduce(anyeltypedual,promote_dual,x)
+anyeltypedual(x::Union{AbstractArray,Set}) = isempty(x) ? eltype(x) : mapreduce(anyeltypedual,promote_dual,x)
 
 function anyeltypedual(x::Tuple)
   # Handle the empty tuple case separately for inference and to avoid mapreduce error
   if x === ()
     Any
   else
-    mapreduce(anyeltypedual,promote_dual,x; init=Any)
+    mapreduce(anyeltypedual,promote_dual,x; init=eltype(x))
   end
 end
-anyeltypedual(x::Union{Dict,NamedTuple}) = isempty(x) ? Any : mapreduce(anyeltypedual,promote_dual,values(x))
+anyeltypedual(x::Union{Dict,NamedTuple}) = isempty(x) ? eltype(values(x)) : mapreduce(anyeltypedual,promote_dual,values(x))
 
 function promote_u0(u0,p,t0) 
   if !(eltype(u0) <: ForwardDiff.Dual)
