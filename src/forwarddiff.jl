@@ -51,16 +51,23 @@ function anyeltypedual(x)
   if propertynames(x) === ()
     Any
   else
-    mapreduce(y->anyeltypedual(getproperty(x,y)),promote_dual,propertynames(x))
+    mapreduce(y-> !isdefined(x,y) ? Any : anyeltypedual(getproperty(x,y)),promote_dual,propertynames(x))
   end
 end
-anyeltypedual(::Type{T}) where T = T
+
+Base.@pure anyeltypedual(::Type{T}) where T = hasproperty(T,:parameters) ? mapreduce(anyeltypedual,promote_dual,T.parameters;init=Any) : T
+anyeltypedual(::Type{T}) where T<:Union{ForwardDiff.Dual} = T
+anyeltypedual(::Type{T}) where T<:Union{AbstractArray,Set,NTuple} = anyeltypedual(eltype(T))
 
 # Any in this context just means not Dual
 anyeltypedual(x::SciMLBase.NullParameters) = Any
-anyeltypedual(x::Number) = typeof(x)
-anyeltypedual(x::Union{AbstractArray{T},Set{T}}) where T<:Number = T
-anyeltypedual(x::Union{AbstractArray,Set}) = mapreduce(anyeltypedual,promote_dual,x; init=Any)
+anyeltypedual(x::Number) = anyeltypedual(typeof(x))
+anyeltypedual(x::Union{String,Symbol}) = typeof(x)
+anyeltypedual(x::Union{AbstractArray{T},Set{T}}) where T<:Union{Number,Symbol,String} = anyeltypedual(T)
+anyeltypedual(x::Union{AbstractArray{T},Set{T}}) where {N,T<:Union{AbstractArray{<:Number},Set{<:Number},NTuple{N,<:Number}}} = anyeltypedual(eltype(x))
+
+# Try to avoid this dispatch because it can lead to type inference issues when !isconcrete(eltype(x))
+anyeltypedual(x::Union{AbstractArray,Set}) = isempty(x) ? Any : mapreduce(anyeltypedual,promote_dual,x)
 
 function anyeltypedual(x::Tuple)
   # Handle the empty tuple case separately for inference and to avoid mapreduce error
@@ -70,7 +77,7 @@ function anyeltypedual(x::Tuple)
     mapreduce(anyeltypedual,promote_dual,x; init=Any)
   end
 end
-anyeltypedual(x::Union{Dict,NamedTuple}) = mapreduce(anyeltypedual,promote_dual,values(x); init=Any)
+anyeltypedual(x::Union{Dict,NamedTuple}) = isempty(x) ? Any : mapreduce(anyeltypedual,promote_dual,values(x))
 
 function promote_u0(u0,p,t0) 
   if !(eltype(u0) <: ForwardDiff.Dual)
