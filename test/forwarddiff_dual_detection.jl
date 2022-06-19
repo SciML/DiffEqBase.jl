@@ -106,13 +106,13 @@ for p in p_possibilities_uninferrred
     @test DiffEqBase.promote_u0(u0,p,t0) isa ForwardDiff.Dual
 end
 
-p_possibilities_notdual= [
+p_possibilities_notdual = [
     (),(;),[2.0],[2.0,2],[2.0,(2.0)],[2.0,MyStruct(2.0,2f0)],
     [2.0,MyStruct3(2.0)],[2.0,MyStruct2(2.0)],[2.0,MyStruct2(2.0),[]],
     Dict(:x=>2,:y=>5),Dict(:x=>2,"y"=>5),[Dict(:x=>2,"y"=>5),MyStruct2(2.0)],
 ]
 
-for p in p_possibilities_notdual_inferred
+for p in p_possibilities_notdual
     @test !(DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual)
     u0 = 2.0
     @test !(DiffEqBase.promote_u0(u0,p,t0) isa ForwardDiff.Dual)
