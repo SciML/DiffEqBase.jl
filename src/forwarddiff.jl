@@ -26,7 +26,8 @@ promote_dual(::Type{T},::Type{T2}) where {
 # Untyped dispatch: catch composite types, check all of their fields
 
 """
-anyeltypedual(x)
+    anyeltypedual(x)
+
 
 Searches through a type to see if any of its values are parameters. This is used to
 then promote other values to match the dual type. For example, if a user pass a parameter
