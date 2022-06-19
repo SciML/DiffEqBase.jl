@@ -30,7 +30,8 @@ promote_dual(::Type{T},::Type{T2}) where {
 
 
 Searches through a type to see if any of its values are parameters. This is used to
-then promote other values to match the dual type. For example, if a user pass a parameter
+then promote other values to match the dual type. For example, if a user passes a parameter
+
 which is a `Dual` and a `u0` which is a `Float64`, after the first time step, `f(u,p,t) = p*u`
 will change `u0` from `Float64` to `Dual`. Thus the state variable always needs to be converted
 to a dual number before the solve. Worse still, this needs to be done in the case of 
