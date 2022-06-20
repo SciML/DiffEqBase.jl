@@ -30,7 +30,6 @@ p_possibilities = [ForwardDiff.Dual(2.0),(ForwardDiff.Dual(2.0),2.0),
     (;x=2.0,y=[ForwardDiff.Dual(2.0)]),(;x=2.0,y=[[ForwardDiff.Dual(2.0)]]),
     Set([2.0,ForwardDiff.Dual(2.0)]),(SciMLBase.NullParameters(),ForwardDiff.Dual(2.0)),
     ((),ForwardDiff.Dual(2.0)),ForwardDiff.Dual{Nothing}(ForwardDiff.Dual{MyStruct}(2.0)),
-    ((;),ForwardDiff.Dual(2.0)),MyStruct3(ForwardDiff.Dual(2.0))
 ]
 
 for p in p_possibilities
@@ -64,6 +63,7 @@ p_possibilities17 = [
     MyStruct(2.0,ForwardDiff.Dual(2.0)), [MyStruct(2.0,ForwardDiff.Dual(2.0))],
     [MyStruct(2.0,[2.0,ForwardDiff.Dual(2.0)])],
     [MyStruct(2.0,(2.0,ForwardDiff.Dual(2.0)))],
+    ((;),ForwardDiff.Dual(2.0)),MyStruct3(ForwardDiff.Dual(2.0))
 ]
 
 for p in p_possibilities17
