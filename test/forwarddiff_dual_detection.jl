@@ -31,6 +31,7 @@ p_possibilities = [ForwardDiff.Dual(2.0),(ForwardDiff.Dual(2.0),2.0),
     Set([2.0,ForwardDiff.Dual(2.0)]),(SciMLBase.NullParameters(),ForwardDiff.Dual(2.0)),
     ((),ForwardDiff.Dual(2.0)),ForwardDiff.Dual{Nothing}(ForwardDiff.Dual{MyStruct}(2.0)),
     ((;),ForwardDiff.Dual(2.0)),MyStruct3(ForwardDiff.Dual(2.0)),
+    Set([Matrix{Float64}(undef,2,2),ForwardDiff.Dual(2.0)])
 ]
 
 for p in p_possibilities
@@ -95,7 +96,8 @@ p_possibilities_uninferrred = [
     # Vectors of non-number types won't infer
     [MyStruct(2.0,ForwardDiff.Dual(2.0))],
     (;x=2.0,y=[[MyStruct3(ForwardDiff.Dual(2.0))]]),
-
+    (;x=Vector{Float64}(undef, 2),y=[[MyStruct3(ForwardDiff.Dual(2.0))]]),
+    (;x=Matrix{Any}(undef, 2, 2),y=[[MyStruct3(ForwardDiff.Dual(2.0))]]),
 ]
 
 for p in p_possibilities_uninferrred

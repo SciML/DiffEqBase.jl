@@ -56,6 +56,7 @@ function anyeltypedual(x)
 end
 
 Base.@pure anyeltypedual(::Type{T}) where T = hasproperty(T,:parameters) ? mapreduce(anyeltypedual,promote_dual,T.parameters;init=Any) : T
+anyeltypedual(::Type{Union{}}) = Any
 anyeltypedual(::Type{T}) where T<:Union{ForwardDiff.Dual} = T
 anyeltypedual(::Type{T}) where T<:Union{AbstractArray,Set,NTuple} = anyeltypedual(eltype(T))
 
@@ -63,11 +64,12 @@ anyeltypedual(::Type{T}) where T<:Union{AbstractArray,Set,NTuple} = anyeltypedua
 anyeltypedual(x::SciMLBase.NullParameters) = Any
 anyeltypedual(x::Number) = anyeltypedual(typeof(x))
 anyeltypedual(x::Union{String,Symbol}) = typeof(x)
-anyeltypedual(x::Union{AbstractArray{T},Set{T}}) where T<:Union{Number,Symbol,String} = anyeltypedual(T)
+anyeltypedual(x::Union{Array{T},AbstractArray{T},Set{T}}) where T<:Union{Number,Symbol,String} = anyeltypedual(T)
 anyeltypedual(x::Union{AbstractArray{T},Set{T}}) where {N,T<:Union{AbstractArray{<:Number},Set{<:Number},NTuple{N,<:Number}}} = anyeltypedual(eltype(x))
 
 # Try to avoid this dispatch because it can lead to type inference issues when !isconcrete(eltype(x))
 anyeltypedual(x::Union{AbstractArray,Set}) = isempty(x) ? eltype(x) : mapreduce(anyeltypedual,promote_dual,x)
+anyeltypedual(x::Array) = isempty(x) : !all(i->isdefined(x,i),1:length(x)) ? eltype(x) : mapreduce(anyeltypedual,promote_dual,x)
 
 function anyeltypedual(x::Tuple)
   # Handle the empty tuple case separately for inference and to avoid mapreduce error
