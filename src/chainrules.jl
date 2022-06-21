@@ -105,6 +105,7 @@ ChainRulesCore.frule(f::ODEFunction,u,p,t)
 end
 =#
 
+#=
 function ChainRulesCore.rrule(f::ODEFunction,u,p,t)
   if f.vjp === nothing
     ChainRulesCore.rrule(f.f,u,p,t)
@@ -112,7 +113,9 @@ function ChainRulesCore.rrule(f::ODEFunction,u,p,t)
     f.vjp(u,p,t)
   end
 end
+=#
 
+#=
 ZygoteRules.@adjoint function (f::ODEFunction)(u,p,t)
   if f.vjp === nothing
     ZygoteRules._pullback(f.f,u,p,t)
@@ -120,6 +123,7 @@ ZygoteRules.@adjoint function (f::ODEFunction)(u,p,t)
     f.vjp(u,p,t)
   end
 end
+=#
 
 #=
 ZygoteRules.@adjoint! function (f::ODEFunction)(du,u,p,t)
