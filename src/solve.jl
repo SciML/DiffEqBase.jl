@@ -136,8 +136,9 @@ end
 const NO_DEFAULT_ALGORITHM_MESSAGE = 
 """
 Default algorithm choices require DifferentialEquations.jl.
-Please specify an algorithm (e.g., `solve(prob, Tsit5())` for an ODE)
-or import DifferentialEquations directly.
+Please specify an algorithm (e.g., `solve(prob, Tsit5())` or
+`init(prob, Tsit5())` for an ODE) or import DifferentialEquations 
+directly.
 
 You can find the list of available solvers at https://diffeq.sciml.ai/stable/solvers/ode_solve/
 and its associated pages.
@@ -954,6 +955,16 @@ function __solve(prob::DEProblem, args...; default_set=false, second_time=false,
     throw(NonSolverError())
   else
     __solve(prob::DEProblem, nothing, args...; default_set=false, second_time=true, kwargs...)
+  end
+end
+
+function __init(prob::DEProblem, args...; default_set=false, second_time=false, kwargs...)
+  if second_time
+    throw(NoDefaultAlgorithmError())
+  elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing,DEAlgorithm})
+    throw(NonSolverError())
+  else
+    __init(prob::DEProblem, nothing, args...; default_set=false, second_time=true, kwargs...)
   end
 end
 
