@@ -21,7 +21,6 @@ macro iop_def(funcdef::Expr)
     end
 end
 
-
 function test_inplace(du, expected, f::Function, args...)
     """Test the in-place version of a function."""
     fill!(du, NaN)
@@ -30,7 +29,9 @@ function test_inplace(du, expected, f::Function, args...)
 end
 
 # Allocate du automatically based on type of expected result
-test_inplace(expected, f::Function, args...) = test_inplace(similar(expected), expected, f, args...)
+function test_inplace(expected, f::Function, args...)
+    test_inplace(similar(expected), expected, f, args...)
+end
 
 function test_iop(expected, f_op::Function, f_ip::Function, args...)
     """Test in- and out-of-place version of function both match expected value."""
@@ -38,12 +39,10 @@ function test_iop(expected, f_op::Function, f_ip::Function, args...)
     test_inplace(expected, f_ip, args...)
 end
 
-
-@iop_def f(u,p,t) = p[1] .* u
+@iop_def f(u, p, t) = p[1] .* u
 u = [1.0, 2.0, 3.0]
 p = [2.0]
 t = 0.0
-
 
 @testset "ODEFunction with default recompile flag" begin
     odefun = ODEFunction{false}(f_op)
@@ -53,8 +52,8 @@ t = 0.0
 end
 
 @testset "ODEFunction with recompile flag: $rflag" for rflag in (true, false)
-    odefun = ODEFunction{false,rflag}(f_op)
-    odefun_ip = ODEFunction{true,rflag}(f_ip)
+    odefun = ODEFunction{false, rflag}(f_op)
+    odefun_ip = ODEFunction{true, rflag}(f_ip)
     expected = f_op(u, p, t)
     test_iop(expected, odefun, odefun_ip, u, p, t)
 end
@@ -62,7 +61,7 @@ end
 # SplitFunction
 @iop_def f2(u, p, t) = u .^ 2
 sfun = SplitFunction{false}(f_op, f2_op)
-sfun_ip = SplitFunction{true}(f_ip, f2_ip; _func_cache=similar(u))
+sfun_ip = SplitFunction{true}(f_ip, f2_ip; _func_cache = similar(u))
 expected = f_op(u, p, t) + f2_op(u, p, t)
 test_iop(expected, sfun, sfun_ip, u, p, t)
 
@@ -80,9 +79,8 @@ dfun = DiscreteFunction{false}(f_op)
 dfun_ip = DiscreteFunction{true}(f_ip)
 test_iop(f_op(u, p, t), dfun, dfun_ip, u, p, t)
 
-
 # Type stability
-f_analytic(u,p,t) = u
-jac = (u,p,t) -> 1
-@inferred ODEFunction{false}(f_op,jac=jac)
-@inferred DiscreteFunction{false}(f_op,analytic=f_analytic)
+f_analytic(u, p, t) = u
+jac = (u, p, t) -> 1
+@inferred ODEFunction{false}(f_op, jac = jac)
+@inferred DiscreteFunction{false}(f_op, analytic = f_analytic)
