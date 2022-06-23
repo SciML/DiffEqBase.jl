@@ -89,6 +89,7 @@ p_possibilities_uninferrred = [
     Dict(:x=>[MyStruct("2",[2.0,MyStruct(ForwardDiff.Dual(2.0),2.0)])],:y=>ForwardDiff.Dual{MyStruct}(2.0)),
     ((Dict(:x=>nothing)),ForwardDiff.Dual(2.0)),
     MyStruct2(ForwardDiff.Dual(2.0)),
+    [MyStruct2(ForwardDiff.Dual(2.0)),2.0],
 
     # Vectors of non-number types won't infer
     [MyStruct(2.0,ForwardDiff.Dual(2.0))],
