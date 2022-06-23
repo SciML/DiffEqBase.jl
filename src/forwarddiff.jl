@@ -80,7 +80,7 @@ anyeltypedual(x::Union{Array{T},AbstractArray{T},Set{T}}) where {N,T<:Union{Abst
 function anyeltypedual(x::AbstractArray) 
   if isconcretetype(eltype(x))
     anyeltypedual(eltype(x))
-  elseif !isempty(x) && all(i->isdefined(x,i),1:length(x))
+  elseif !isempty(x) && all(i->isassigned(x,i),1:length(x))
     mapreduce(anyeltypedual,promote_dual,x)
   else
     # This fallback to Any is required since otherwise we cannot handle `undef` in all cases
