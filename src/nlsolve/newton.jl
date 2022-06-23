@@ -42,165 +42,177 @@ Equations II, Springer Series in Computational Mathematics. ISBN
 [doi:10.1007/978-3-642-05221-7](https://doi.org/10.1007/978-3-642-05221-7)
 """
 @muladd function nlsolve!(nlsolver::NLSolver, nlcache::NLNewtonConstantCache, integrator)
-  @unpack t,dt,uprev,u,p = integrator
-  @unpack z,tmp,κ,c,γ,max_iter = nlsolver
-  W = nlcache.W
+    @unpack t, dt, uprev, u, p = integrator
+    @unpack z, tmp, κ, c, γ, max_iter = nlsolver
+    W = nlcache.W
 
-  # precalculations
-  mass_matrix = integrator.f.mass_matrix
-  f = nlsolve_f(integrator)
-  invγdt = inv(dt*γ)
-  tstep = t + c*dt
-  η = max(nlsolver.ηold,eps(eltype(integrator.opts.reltol)))^(0.8)
+    # precalculations
+    mass_matrix = integrator.f.mass_matrix
+    f = nlsolve_f(integrator)
+    invγdt = inv(dt * γ)
+    tstep = t + c * dt
+    η = max(nlsolver.ηold, eps(eltype(integrator.opts.reltol)))^(0.8)
 
-  # Newton iteration
-  local ndz
-  fail_convergence = true
-  iter = 0
-  while iter < max_iter
-    iter += 1
-    if has_destats(integrator)
-      integrator.destats.nnonliniter += 1
+    # Newton iteration
+    local ndz
+    fail_convergence = true
+    iter = 0
+    while iter < max_iter
+        iter += 1
+        if has_destats(integrator)
+            integrator.destats.nnonliniter += 1
+        end
+
+        # evaluate function
+        u = @.. broadcast=false tmp+γ * z
+        if mass_matrix === I
+            ztmp = (dt .* f(u, p, tstep) .- z) .* invγdt
+        else
+            ztmp = (dt .* f(u, p, tstep) .- mass_matrix * z) .* invγdt
+        end
+        if has_destats(integrator)
+            integrator.destats.nf += 1
+        end
+
+        dz = _reshape(W \ _vec(ztmp), axes(ztmp))
+
+        if has_destats(integrator)
+            integrator.destats.nsolve += 1
+        end
+
+        # compute norm of residuals
+        iter > 1 && (ndzprev = ndz)
+        atmp = calculate_residuals(dz, uprev, u, integrator.opts.abstol,
+                                   integrator.opts.reltol, integrator.opts.internalnorm, t)
+        ndz = integrator.opts.internalnorm(atmp, t)
+
+        # check divergence (not in initial step)
+        if iter > 1
+            θ = ndz / ndzprev
+            (diverge = θ > 1) && (nlsolver.status = Divergence)
+            (veryslowconvergence = ndz * θ^(max_iter - iter) > κ * (1 - θ)) &&
+                (nlsolver.status = VerySlowConvergence)
+            if diverge || veryslowconvergence
+                # Newton method diverges
+                break
+            end
+        end
+
+        # update solution
+        z = @.. broadcast=false z-dz
+
+        # check stopping criterion
+        iter > 1 && (η = θ / (1 - θ))
+        if η * ndz < κ && (iter > 1 || iszero(ndz) || !iszero(integrator.success_iter))
+            # Newton method converges
+            nlsolver.status = η < nlsolver.fast_convergence_cutoff ? FastConvergence :
+                              Convergence
+            fail_convergence = false
+            break
+        end
     end
 
-    # evaluate function
-    u = @.. broadcast=false tmp + γ * z
-    if mass_matrix === I
-      ztmp = (dt .* f(u, p, tstep) .- z) .* invγdt
-    else
-      ztmp = (dt .* f(u, p, tstep) .- mass_matrix * z) .* invγdt
+    if fail_convergence && has_destats(integrator)
+        integrator.destats.nnonlinconvfail += 1
     end
-    if has_destats(integrator)
-      integrator.destats.nf += 1
-    end
-
-    dz = _reshape(W \ _vec(ztmp), axes(ztmp))
-
-    if has_destats(integrator)
-      integrator.destats.nsolve += 1
-    end
-
-    # compute norm of residuals
-    iter > 1 && (ndzprev = ndz)
-    atmp = calculate_residuals(dz, uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
-    ndz = integrator.opts.internalnorm(atmp, t)
-
-    # check divergence (not in initial step)
-    if iter > 1
-      θ = ndz / ndzprev
-      ( diverge = θ > 1 ) && ( nlsolver.status = Divergence )
-      ( veryslowconvergence = ndz * θ^(max_iter - iter) > κ * (1 - θ) ) && ( nlsolver.status = VerySlowConvergence )
-      if diverge || veryslowconvergence
-        # Newton method diverges
-        break
-      end
-    end
-
-    # update solution
-    z = @.. broadcast=false z - dz
-
-    # check stopping criterion
-    iter > 1 && (η = θ / (1 - θ))
-    if η * ndz < κ && (iter > 1 || iszero(ndz) || !iszero(integrator.success_iter))
-      # Newton method converges
-      nlsolver.status = η < nlsolver.fast_convergence_cutoff ? FastConvergence : Convergence
-      fail_convergence = false
-      break
-    end
-  end
-
-  if fail_convergence && has_destats(integrator)
-    integrator.destats.nnonlinconvfail += 1
-  end
-  integrator.force_stepfail = fail_convergence
-  nlsolver.ηold = η
-  nlsolver.nl_iters = iter
-  return z
+    integrator.force_stepfail = fail_convergence
+    nlsolver.ηold = η
+    nlsolver.nl_iters = iter
+    return z
 end
 
 @muladd function nlsolve!(nlsolver::NLSolver, nlcache::NLNewtonCache, integrator)
-  @unpack t,dt,uprev,u,p,cache = integrator
-  @unpack z,dz,tmp,ztmp,k,κ,c,γ,max_iter,weight = nlsolver
-  @unpack W, new_W, W_dt = nlcache
-  cache = unwrap_cache(integrator, true)
-  calculate_residuals!(weight, fill!(weight, one(eltype(u))), uprev, u, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
-  lintol = integrator.opts.reltol
+    @unpack t, dt, uprev, u, p, cache = integrator
+    @unpack z, dz, tmp, ztmp, k, κ, c, γ, max_iter, weight = nlsolver
+    @unpack W, new_W, W_dt = nlcache
+    cache = unwrap_cache(integrator, true)
+    calculate_residuals!(weight, fill!(weight, one(eltype(u))), uprev, u,
+                         integrator.opts.abstol, integrator.opts.reltol,
+                         integrator.opts.internalnorm, t)
+    lintol = integrator.opts.reltol
 
-  # precalculations
-  mass_matrix = integrator.f.mass_matrix
-  f = nlsolve_f(integrator)
-  invγdt = inv(dt*γ)
-  vecztmp = vec(ztmp); vecz = vec(z); vecdz = vec(dz)
-  tstep = t + c*dt
-  η = max(nlsolver.ηold,eps(eltype(integrator.opts.reltol)))^(0.8)
+    # precalculations
+    mass_matrix = integrator.f.mass_matrix
+    f = nlsolve_f(integrator)
+    invγdt = inv(dt * γ)
+    vecztmp = vec(ztmp)
+    vecz = vec(z)
+    vecdz = vec(dz)
+    tstep = t + c * dt
+    η = max(nlsolver.ηold, eps(eltype(integrator.opts.reltol)))^(0.8)
 
-  # Newton iteration
-  local ndz
-  fail_convergence = true
-  iter = 0
-  while iter < max_iter
-    iter += 1
-    if has_destats(integrator)
-      integrator.destats.nnonliniter += 1
+    # Newton iteration
+    local ndz
+    fail_convergence = true
+    iter = 0
+    while iter < max_iter
+        iter += 1
+        if has_destats(integrator)
+            integrator.destats.nnonliniter += 1
+        end
+
+        # evaluate function
+        @.. broadcast=false dz=tmp + γ * z
+        f(k, dz, p, tstep)
+        if has_destats(integrator)
+            integrator.destats.nf += 1
+        end
+        if mass_matrix === I
+            @.. broadcast=false ztmp=(dt * k - z) * invγdt
+        else
+            mul!(vecztmp, mass_matrix, vecz)
+            @.. broadcast=false ztmp=(dt * k - ztmp) * invγdt
+        end
+
+        if W isa AbstractDiffEqLinearOperator
+            update_coefficients!(W, dz, p, tstep)
+        end
+        nlsolver.linsolve(vecdz, W, vecztmp, iter == 1 && new_W;
+                          Pl = ScaleVector(weight, true), Pr = ScaleVector(weight, false),
+                          tol = lintol)
+
+        if has_destats(integrator)
+            integrator.destats.nsolve += 1
+        end
+
+        # compute norm of residuals
+        iter > 1 && (ndzprev = ndz)
+        #W_dt != dt && (rmul!(dz, 2/(1 + dt / W_dt))) # relaxation
+        @.. broadcast=false ztmp=tmp + γ * z
+        calculate_residuals!(ztmp, dz, uprev, ztmp, integrator.opts.abstol,
+                             integrator.opts.reltol, integrator.opts.internalnorm, t)
+        ndz = integrator.opts.internalnorm(ztmp, t)
+
+        # check divergence (not in initial step)
+        if iter > 1
+            θ = ndz / ndzprev
+            (diverge = θ > 1) && (nlsolver.status = Divergence)
+            (veryslowconvergence = ndz * θ^(max_iter - iter) > κ * (1 - θ)) &&
+                (nlsolver.status = VerySlowConvergence)
+            if diverge || veryslowconvergence
+                break
+            end
+        end
+
+        # update solution
+        @.. broadcast=false z=z - dz
+
+        # check stopping criterion
+        iter > 1 && (η = θ / (1 - θ))
+        if η * ndz < κ && (iter > 1 || iszero(ndz) || !iszero(integrator.success_iter))
+            # Newton method converges
+            nlsolver.status = η < nlsolver.fast_convergence_cutoff ? FastConvergence :
+                              Convergence
+            fail_convergence = false
+            break
+        end
     end
 
-    # evaluate function
-    @.. broadcast=false dz = tmp + γ*z
-    f(k, dz, p, tstep)
-    if has_destats(integrator)
-      integrator.destats.nf += 1
+    if fail_convergence && has_destats(integrator)
+        integrator.destats.nnonlinconvfail += 1
     end
-    if mass_matrix === I
-      @.. broadcast=false ztmp = (dt*k - z) * invγdt
-    else
-      mul!(vecztmp,mass_matrix,vecz)
-      @.. broadcast=false ztmp = (dt*k - ztmp) * invγdt
-    end
-
-    if W isa AbstractDiffEqLinearOperator
-      update_coefficients!(W,dz,p,tstep)
-    end
-    nlsolver.linsolve(vecdz,W,vecztmp,iter == 1 && new_W; Pl=ScaleVector(weight, true), Pr=ScaleVector(weight, false), tol=lintol)
-
-    if has_destats(integrator)
-      integrator.destats.nsolve += 1
-    end
-
-    # compute norm of residuals
-    iter > 1 && (ndzprev = ndz)
-    #W_dt != dt && (rmul!(dz, 2/(1 + dt / W_dt))) # relaxation
-    @.. broadcast=false ztmp = tmp + γ*z
-    calculate_residuals!(ztmp, dz, uprev, ztmp, integrator.opts.abstol, integrator.opts.reltol, integrator.opts.internalnorm, t)
-    ndz = integrator.opts.internalnorm(ztmp, t)
-
-    # check divergence (not in initial step)
-    if iter > 1
-      θ = ndz / ndzprev
-      ( diverge = θ > 1 ) && ( nlsolver.status = Divergence )
-      ( veryslowconvergence = ndz * θ^(max_iter - iter) > κ * (1 - θ) ) && ( nlsolver.status = VerySlowConvergence )
-      if diverge || veryslowconvergence
-        break
-      end
-    end
-
-    # update solution
-    @.. broadcast=false z = z - dz
-
-    # check stopping criterion
-    iter > 1 && (η = θ / (1 - θ))
-    if η * ndz < κ && (iter > 1 || iszero(ndz) || !iszero(integrator.success_iter))
-      # Newton method converges
-      nlsolver.status = η < nlsolver.fast_convergence_cutoff ? FastConvergence : Convergence
-      fail_convergence = false
-      break
-    end
-  end
-
-  if fail_convergence && has_destats(integrator)
-    integrator.destats.nnonlinconvfail += 1
-  end
-  integrator.force_stepfail = fail_convergence
-  nlsolver.ηold = η
-  nlsolver.nl_iters = iter
-  return z
+    integrator.force_stepfail = fail_convergence
+    nlsolver.ηold = η
+    nlsolver.nl_iters = iter
+    return z
 end

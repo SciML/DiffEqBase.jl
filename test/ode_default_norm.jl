@@ -1,21 +1,21 @@
 using Test, RecursiveArrayTools, StaticArrays
 
-using DiffEqBase: UNITLESS_ABS2, recursive_length,  ODE_DEFAULT_NORM
+using DiffEqBase: UNITLESS_ABS2, recursive_length, ODE_DEFAULT_NORM
 
 @test recursive_length(1.0) == 1
 
-n = UNITLESS_ABS2(3.0+4.0im)
+n = UNITLESS_ABS2(3.0 + 4.0im)
 @test n == 25.0
-@test typeof(n)<:Real
+@test typeof(n) <: Real
 
-@test ODE_DEFAULT_NORM(3.0+4.0im, 0.0) == 5.0
+@test ODE_DEFAULT_NORM(3.0 + 4.0im, 0.0) == 5.0
 
 u1 = ones(3)
 @test UNITLESS_ABS2(u1) == 3.0
 @test recursive_length(u1) == 3
 @test ODE_DEFAULT_NORM(u1, 0.0) == 1.0
 
-u2 = [SA[1.0 1.0; 1.0 1.0] for i = 1:3]
+u2 = [SA[1.0 1.0; 1.0 1.0] for i in 1:3]
 @test UNITLESS_ABS2(u2) == 12.0
 @test recursive_length(u2) == 12
 @test ODE_DEFAULT_NORM(u2, 0.0) == 1.0
@@ -35,7 +35,7 @@ u5 = ArrayPartition(u4, u4)
 @test recursive_length(u5) == 50
 @test ODE_DEFAULT_NORM(u5, 0.0) == 1.0
 
-u6 = ArrayPartition(1.0,1.0)
+u6 = ArrayPartition(1.0, 1.0)
 @test UNITLESS_ABS2(u6) == 2.0
 @test recursive_length(u6) == 2
 @test ODE_DEFAULT_NORM(u6, 0.0) == 1.0
