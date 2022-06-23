@@ -2,7 +2,7 @@ using Test, RecursiveArrayTools, StaticArrays, SparseArrays
 
 using DiffEqBase: NAN_CHECK
 
-@test !NAN_CHECK(3.0+4.0im)
+@test !NAN_CHECK(3.0 + 4.0im)
 @test NAN_CHECK(NaN)
 
 u1 = ones(3)
@@ -41,4 +41,4 @@ u4_3 = ArrayPartition(u1, u2, u3′)
 u5 = spzeros(1, 1)
 @test !NAN_CHECK(u5)
 u5[1, 1] = NaN
-@test NAN_CHECK(u5) 
+@test NAN_CHECK(u5)
