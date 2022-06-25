@@ -1,5 +1,5 @@
 using OrdinaryDiffEq, ForwardDiff, Zygote, Test
-using DiffEqSensitivity
+using SciMLSensitivity
 using Random
 
 function dt!(du, u, p, t)
