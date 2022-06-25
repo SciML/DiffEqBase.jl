@@ -160,11 +160,11 @@ for p in p_possibilities_notdual_uninferred
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
 end
 
-f(du,u,p,t) = du .= u 
-config = ForwardDiff.JacobianConfig(f,ones(5))
+f(du, u, p, t) = du .= u
+config = ForwardDiff.JacobianConfig(f, ones(5))
 
 p_possibilities_configs = [
-    (config, config), (config, 2.0), config, (;x = config, y = 2.0),
+    (config, config), (config, 2.0), config, (; x = config, y = 2.0),
 ]
 
 for p in p_possibilities_configs
@@ -178,7 +178,7 @@ for p in p_possibilities_configs
 end
 
 p_possibilities_configs_not_inferred = [
-    [2.0, (2.0,), config], [2.0, config, MyStruct(2.0, 2.0f0)]
+    [2.0, (2.0,), config], [2.0, config, MyStruct(2.0, 2.0f0)],
 ]
 
 for p in p_possibilities_configs_not_inferred

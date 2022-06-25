@@ -71,7 +71,7 @@ end
 
 # Opt out since these are using for preallocation, not differentiation
 anyeltypedual(x::Union{ForwardDiff.AbstractConfig}) = Any
-anyeltypedual(x::Type{T}) where {T<:Union{ForwardDiff.AbstractConfig}} = Any
+anyeltypedual(x::Type{T}) where {T <: Union{ForwardDiff.AbstractConfig}} = Any
 
 Base.@pure function anyeltypedual(::Type{T}) where {T}
     hasproperty(T, :parameters) ?
