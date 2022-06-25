@@ -71,7 +71,7 @@ p_possibilities17 = [
     [MyStruct(2.0, [2.0, ForwardDiff.Dual(2.0)])],
     [MyStruct(2.0, (2.0, ForwardDiff.Dual(2.0)))],
     ((;), ForwardDiff.Dual(2.0)), MyStruct3(ForwardDiff.Dual(2.0)),
-    (Mod, ForwardDiff.Dual(2.0)), (() -> 2.0, ForwardDiff.Dual(2.0)), 
+    (Mod, ForwardDiff.Dual(2.0)), (() -> 2.0, ForwardDiff.Dual(2.0)),
 ]
 
 for p in p_possibilities17
