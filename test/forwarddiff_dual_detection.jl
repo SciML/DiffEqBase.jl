@@ -24,7 +24,7 @@ struct MyStruct3{T, T2}
     MyStruct3(x) = new{typeof(x), Float64}(x)
 end
 
-module Mod; end
+module Mod end
 
 p_possibilities = [ForwardDiff.Dual(2.0), (ForwardDiff.Dual(2.0), 2.0),
     [ForwardDiff.Dual(2.0)], ([ForwardDiff.Dual(2.0)], 2.0),
@@ -32,7 +32,7 @@ p_possibilities = [ForwardDiff.Dual(2.0), (ForwardDiff.Dual(2.0), 2.0),
     (; x = 2.0, y = [ForwardDiff.Dual(2.0)]), (; x = 2.0, y = [[ForwardDiff.Dual(2.0)]]),
     Set([2.0, ForwardDiff.Dual(2.0)]), (SciMLBase.NullParameters(), ForwardDiff.Dual(2.0)),
     ((), ForwardDiff.Dual(2.0)), ForwardDiff.Dual{Nothing}(ForwardDiff.Dual{MyStruct}(2.0)),
-    (()->2.0, ForwardDiff.Dual(2.0)), (Base.pointer([2.0]), ForwardDiff.Dual(2.0))
+    (() -> 2.0, ForwardDiff.Dual(2.0)), (Base.pointer([2.0]), ForwardDiff.Dual(2.0)),
 ]
 
 for p in p_possibilities
@@ -71,7 +71,7 @@ p_possibilities17 = [
     [MyStruct(2.0, [2.0, ForwardDiff.Dual(2.0)])],
     [MyStruct(2.0, (2.0, ForwardDiff.Dual(2.0)))],
     ((;), ForwardDiff.Dual(2.0)), MyStruct3(ForwardDiff.Dual(2.0)),
-    (Mod, ForwardDiff.Dual(2.0)), 
+    (Mod, ForwardDiff.Dual(2.0)),
 ]
 
 for p in p_possibilities17
