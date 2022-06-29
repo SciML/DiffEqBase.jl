@@ -424,7 +424,9 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywo
 end
 
 """
+```julia
 solve(prob::DEProblem, alg::Union{DEAlgorithm,Nothing}; kwargs...)
+```
 
 ## Arguments
 
