@@ -73,7 +73,7 @@ const allowedkeywords = (:dense,
 
 const KWARGWARN_MESSAGE = """
                           Unrecognized keyword arguments found. Future versions will error.
-                          The only allowed keyword arguments to `solve` are: 
+                          The only allowed keyword arguments to `solve` are:
                           $allowedkeywords
 
                           See https://diffeq.sciml.ai/stable/basics/common_solver_opts/ for more details.
@@ -84,7 +84,7 @@ const KWARGWARN_MESSAGE = """
 
 const KWARGERROR_MESSAGE = """
                            Unrecognized keyword arguments found.
-                           The only allowed keyword arguments to `solve` are: 
+                           The only allowed keyword arguments to `solve` are:
                            $allowedkeywords
 
                            See https://diffeq.sciml.ai/stable/basics/common_solver_opts/ for more details.
@@ -131,7 +131,7 @@ end
 const NO_DEFAULT_ALGORITHM_MESSAGE = """
                                      Default algorithm choices require DifferentialEquations.jl.
                                      Please specify an algorithm (e.g., `solve(prob, Tsit5())` or
-                                     `init(prob, Tsit5())` for an ODE) or import DifferentialEquations 
+                                     `init(prob, Tsit5())` for an ODE) or import DifferentialEquations
                                      directly.
 
                                      You can find the list of available solvers at https://diffeq.sciml.ai/stable/solvers/ode_solve/
@@ -206,15 +206,15 @@ const DIRECT_AUTODIFF_INCOMPATABILITY_MESSAGE = """
                                                 Incompatible solver + automatic differentiation pairing.
                                                 The chosen automatic differentiation algorithm requires the ability
                                                 for compiler transforms on the code which is only possible on pure-Julia
-                                                solvers such as those from OrdinaryDiffEq.jl. Direct differentiation methods 
+                                                solvers such as those from OrdinaryDiffEq.jl. Direct differentiation methods
                                                 which require this ability include:
 
                                                 - Direct use of ForwardDiff.jl on the solver
                                                 - `ForwardDiffSensitivity`, `ReverseDiffAdjoint`, `TrackerAdjoint`, and `ZygoteAdjoint`
                                                   sensealg choices for adjoint differentiation.
 
-                                                Either switch the choice of solver to a pure Julia method, or change the automatic 
-                                                differentiation method to one that does not require such transformations. 
+                                                Either switch the choice of solver to a pure Julia method, or change the automatic
+                                                differentiation method to one that does not require such transformations.
 
                                                 For more details on automatic differentiation, adjoint, and sensitivity analysis
                                                 of differential equations, see the documentation page:
@@ -230,8 +230,8 @@ end
 
 const NONCONCRETE_ELTYPE_MESSAGE = """
                                    Non-concrete element type inside of an `Array` detected.
-                                   Arrays with non-concrete element types, such as 
-                                   `Array{Union{Float32,Float64}}`, are not supported by the 
+                                   Arrays with non-concrete element types, such as
+                                   `Array{Union{Float32,Float64}}`, are not supported by the
                                    differential equation solvers. Anyways, this is bad for
                                    performance so you don't want to be doing this!
 
@@ -264,11 +264,11 @@ end
 const GENERIC_NUMBER_TYPE_ERROR_MESSAGE = """
                                           Non-standard number type (i.e. not Float32, Float64,
                                           ComplexF32, or ComplexF64) detected as the element type
-                                          for the initial condition or time span. These generic 
-                                          number types are only compatible with the pure Julia 
-                                          solvers which support generic programming, such as 
-                                          OrdinaryDiffEq.jl. The chosen solver does not support 
-                                          this functionality. Please double check that the initial 
+                                          for the initial condition or time span. These generic
+                                          number types are only compatible with the pure Julia
+                                          solvers which support generic programming, such as
+                                          OrdinaryDiffEq.jl. The chosen solver does not support
+                                          this functionality. Please double check that the initial
                                           condition and time span types are correct, and check that
                                           the chosen solver was correct.
                                           """
@@ -287,7 +287,7 @@ function Base.showerror(io::IO, e::GenericNumberTypeError)
 end
 
 const COMPLEX_SUPPORT_ERROR_MESSAGE = """
-                                      Complex number type (i.e. ComplexF32, or ComplexF64) 
+                                      Complex number type (i.e. ComplexF32, or ComplexF64)
                                       detected as the element type for the initial condition
                                       with an algorithm that does not support complex numbers.
                                       Please check that the initial condition type is correct.
@@ -305,7 +305,7 @@ function Base.showerror(io::IO, e::ComplexSupportError)
 end
 
 const COMPLEX_TSPAN_ERROR_MESSAGE = """
-                                    Complex number type (i.e. ComplexF32, or ComplexF64) 
+                                    Complex number type (i.e. ComplexF32, or ComplexF64)
                                     detected as the element type for the independent variable
                                     (i.e. time span). Please check that the tspan type is correct.
                                     No solvers support complex time spans. If this is required,
@@ -411,9 +411,16 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywo
     end
 
     checkkwargs(kwargshandle; kwargs...)
-    isdefined(_prob, :u0) && _prob.u0 isa Array &&
-        !isconcretetype(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)) &&
-        throw(NonConcreteEltypeError(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)))
+    if isdefined(_prob, :u0)
+        if _prob.u0 isa Array &&
+           !isconcretetype(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0))
+            throw(NonConcreteEltypeError(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)))
+        end
+
+        if _prob.u0 === nothing
+            return build_null_solution(_prob, args...; kwargs...)
+        end
+    end
 
     if hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
        typeof(_prob.f.f) <: EvalFunc
@@ -421,6 +428,47 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywo
     else
         __solve(_prob, args...; kwargs...)#::T
     end
+end
+
+function build_null_solution(prob::DEProblem, args...;
+                             saveat = (),
+                             save_everystep = true,
+                             save_on = true,
+                             save_start = save_everystep || isempty(saveat) ||
+                                          saveat isa Number || prob.tspan[1] in saveat,
+                             save_end = true,
+                             kwargs...)
+
+    ts = if saveat === ()
+        if save_start && save_end
+            [prob.tspan[1],prob.tspan[2]]
+        elseif save_start && !save_end
+            [prob.tspan[1]]
+        elseif !save_start && save_end
+            [prob.tspan[2]]
+        else
+            eltype(prob.tspan)[]
+        end
+    else
+        saveat
+    end
+
+    timeseries = [Float64[] for i in 1:length(ts)]
+
+    build_solution(prob,nothing,ts,timeseries, retcode = :Success)
+end
+
+function build_null_solution(prob::Union{SteadyStateProblem,NonlinearProblem}, args...;
+                             saveat = (),
+                             save_everystep = true,
+                             save_on = true,
+                             save_start = save_everystep || isempty(saveat) ||
+                                          saveat isa Number || prob.tspan[1] in saveat,
+                             save_end = true,
+                             kwargs...)
+
+    SciMLBase.build_solution(prob, nothing, Float64[], nothing;
+                             retcode = :Success)
 end
 
 """
@@ -433,7 +481,7 @@ solve(prob::DEProblem, alg::Union{DEAlgorithm,Nothing}; kwargs...)
 The only positional argument is `alg` which is optional. By default, `alg = nothing`.
 If `alg = nothing`, then `solve` dispatches to the DifferentialEquations.jl automated
 algorithm selection (if `using DifferentialEquations` was done, otherwise it will
-error with a MethodError`). 
+error with a MethodError`).
 
 ## Keyword Arguments
 
@@ -670,7 +718,7 @@ options control the errors which are calculated:
 
 ### Sensitivity Algorithms (`sensealg`)
 
-`sensealg` is used for 
+`sensealg` is used for
 
 ## Examples
 
@@ -998,7 +1046,7 @@ function check_prob_alg_pairing(prob, alg)
         throw(ComplexTspanError())
     end
 
-    # Check for concrete element type so that the non-concrete case throws a better error  
+    # Check for concrete element type so that the non-concrete case throws a better error
     if !SciMLBase.allows_arbitrary_number_types(alg)
         if isdefined(prob, :u0)
             uType = RecursiveArrayTools.recursive_unitless_eltype(prob.u0)

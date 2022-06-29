@@ -41,6 +41,7 @@ end
         activate_downstream_env()
         @time @safetestset "Kwarg Warnings" begin include("downstream/kwarg_warn.jl") end
         @time @safetestset "Solve Error Handling" begin include("downstream/solve_error_handling.jl") end
+        @time @safetestset "Null DE Handling" begin include("downstream/null_de.jl") end
         @time @safetestset "Unitful" begin include("downstream/unitful.jl") end
         @time @safetestset "Null Parameters" begin include("downstream/null_params_test.jl") end
         @time @safetestset "Ensemble Simulations" begin include("downstream/ensemble.jl") end
