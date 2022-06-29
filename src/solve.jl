@@ -435,13 +435,12 @@ function build_null_solution(prob::DEProblem, args...;
                              save_everystep = true,
                              save_on = true,
                              save_start = save_everystep || isempty(saveat) ||
-                                          saveat isa Number || prob.tspan[1] in saveat,
+                                              saveat isa Number || prob.tspan[1] in saveat,
                              save_end = true,
                              kwargs...)
-
     ts = if saveat === ()
         if save_start && save_end
-            [prob.tspan[1],prob.tspan[2]]
+            [prob.tspan[1], prob.tspan[2]]
         elseif save_start && !save_end
             [prob.tspan[1]]
         elseif !save_start && save_end
@@ -455,18 +454,17 @@ function build_null_solution(prob::DEProblem, args...;
 
     timeseries = [Float64[] for i in 1:length(ts)]
 
-    build_solution(prob,nothing,ts,timeseries, retcode = :Success)
+    build_solution(prob, nothing, ts, timeseries, retcode = :Success)
 end
 
-function build_null_solution(prob::Union{SteadyStateProblem,NonlinearProblem}, args...;
+function build_null_solution(prob::Union{SteadyStateProblem, NonlinearProblem}, args...;
                              saveat = (),
                              save_everystep = true,
                              save_on = true,
                              save_start = save_everystep || isempty(saveat) ||
-                                          saveat isa Number || prob.tspan[1] in saveat,
+                                              saveat isa Number || prob.tspan[1] in saveat,
                              save_end = true,
                              kwargs...)
-
     SciMLBase.build_solution(prob, nothing, Float64[], nothing;
                              retcode = :Success)
 end
