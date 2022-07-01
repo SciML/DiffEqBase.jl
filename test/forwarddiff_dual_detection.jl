@@ -107,23 +107,6 @@ p_possibilities_uninferrred = [
     (; x = Matrix{Any}(undef, 2, 2), y = [[MyStruct3(ForwardDiff.Dual(2.0))]]),
 ]
 
-# Also check circular references
-# 
-
-x = Any[[1.0,2.0]]
-push!(x,x)
-push!(p_possibilities_uninferrred,x)
-
-struct X; x::Any end
-x = Any[[1.0,2.0]]
-push!(x,X(x))
-push!(p_possibilities_uninferrred,x)
-
-mutable struct Y; x::Any end
-x = Y(1)
-x.x = x
-push!(p_possibilities_uninferrred,x)
-
 for p in p_possibilities_uninferrred
     @show p
     @test DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual
@@ -172,6 +155,23 @@ p_possibilities_notdual_uninferred = [
     # Dictionaries can have inference issues
     Dict(:x => 2, :y => 5), Dict(:x => 2, "y" => 5),
 ]
+
+# Also check circular references
+# https://github.com/SciML/DiffEqBase.jl/issues/784
+
+x = Any[[1.0,2.0]]
+push!(x,x)
+push!(p_possibilities_notdual_uninferred,x)
+
+struct X; x::Any end
+x = Any[[1.0,2.0]]
+push!(x,X(x))
+push!(p_possibilities_notdual_uninferred,x)
+
+mutable struct Y; x::Any end
+x = Y(1)
+x.x = x
+push!(p_possibilities_notdual_uninferred,x)
 
 for p in p_possibilities_notdual_uninferred
     @test !(DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual)
