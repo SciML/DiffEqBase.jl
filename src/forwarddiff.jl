@@ -81,7 +81,9 @@ Base.@pure function anyeltypedual(::Type{T}, counter = 0) where {T}
     mapreduce(anyeltypedual, promote_dual, T.parameters; init = Any) : T
 end
 anyeltypedual(::Type{T}, counter = 0) where {T <: Union{ForwardDiff.Dual}} = T
-anyeltypedual(::Type{T}, counter = 0) where {T <: Union{AbstractArray, Set}} = anyeltypedual(eltype(T))
+function anyeltypedual(::Type{T}, counter = 0) where {T <: Union{AbstractArray, Set}}
+    anyeltypedual(eltype(T))
+end
 Base.@pure function anyeltypedual(::Type{T}, counter = 0) where {T <: Union{NTuple}}
     if isconcretetype(eltype(T))
         return eltype(T)
@@ -97,24 +99,26 @@ end
 anyeltypedual(x::SciMLBase.NullParameters, counter = 0) = Any
 anyeltypedual(x::Number, counter = 0) = anyeltypedual(typeof(x))
 anyeltypedual(x::Union{String, Symbol}, counter = 0) = typeof(x)
-function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}}, counter = 0) where {
-                                                                            T <:
-                                                                            Union{Number,
-                                                                                  Symbol,
-                                                                                  String}}
+function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
+                       counter = 0) where {
+                                           T <:
+                                           Union{Number,
+                                                 Symbol,
+                                                 String}}
     anyeltypedual(T)
 end
-function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}}, counter = 0) where {N,
-                                                                            T <: Union{
-                                                                                  AbstractArray{
-                                                                                                <:Number
-                                                                                                },
-                                                                                  Set{
-                                                                                      <:Number
-                                                                                      },
-                                                                                  NTuple{N,
-                                                                                         <:Number
-                                                                                         }}}
+function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
+                       counter = 0) where {N,
+                                           T <: Union{
+                                                 AbstractArray{
+                                                               <:Number
+                                                               },
+                                                 Set{
+                                                     <:Number
+                                                     },
+                                                 NTuple{N,
+                                                        <:Number
+                                                        }}}
     anyeltypedual(eltype(x))
 end
 
@@ -124,7 +128,7 @@ function anyeltypedual(x::AbstractArray, counter = 0)
         anyeltypedual(eltype(x))
     elseif !isempty(x) && all(i -> isassigned(x, i), 1:length(x)) && counter < 100
         counter += 1
-        mapreduce(y->anyeltypedual(y,counter), promote_dual, x)
+        mapreduce(y -> anyeltypedual(y, counter), promote_dual, x)
     else
         # This fallback to Any is required since otherwise we cannot handle `undef` in all cases
         #  misses cases of
