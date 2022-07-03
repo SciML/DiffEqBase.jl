@@ -82,6 +82,16 @@ ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::AbstractNoTim
     sol.u, solu_adjoint
 end
 
+ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::OptimizationSolution,
+                                                              ::Val{:u})
+    function solu_adjoint(Δ)
+        zerou = zero(sol.prob.u0)
+        _Δ = @. ifelse(Δ == nothing, zerou, Δ)
+        (DiffEqBase.build_solution(sol.prob, sol.alg, _Δ, sol.minimum),)
+    end
+    sol.u, solu_adjoint
+end
+
 function ChainRulesCore.rrule(::DiffEqBase.EnsembleSolution, sim, time, converged)
     out = EnsembleSolution(sim, time, converged)
     function EnsembleSolution_adjoint(p̄::AbstractArray{T, N}) where {T, N}
