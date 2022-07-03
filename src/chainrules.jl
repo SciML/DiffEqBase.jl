@@ -82,7 +82,7 @@ ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::AbstractNoTim
     sol.u, solu_adjoint
 end
 
-ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::OptimizationSolution,
+ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::SciMLBase.OptimizationSolution,
                                                               ::Val{:u})
     function solu_adjoint(Δ)
         zerou = zero(sol.prob.u0)
