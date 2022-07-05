@@ -8,7 +8,8 @@ NO_TSPAN_PROBS = Union{AbstractLinearProblem, AbstractNonlinearProblem,
                        AbstractJumpProblem}
 
 has_kwargs(_prob::DEProblem) = has_kwargs(typeof(_prob))
-Base.@pure has_kwargs(::Type{T}) where {T} = :kwargs ∈ fieldnames(T)
+Base.@pure __has_kwargs(::Type{T}) where {T} = :kwargs ∈ fieldnames(T)
+has_kwargs(::Type{T}) where {T} = __has_kwargs(T)
 
 const allowedkeywords = (:dense,
                          :saveat,

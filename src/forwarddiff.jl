@@ -74,17 +74,18 @@ end
 
 # Opt out since these are using for preallocation, not differentiation
 anyeltypedual(x::Union{ForwardDiff.AbstractConfig, Module}, counter = 0) = Any
-anyeltypedual(x::Type{T}, counter = 0) where {T <: Union{ForwardDiff.AbstractConfig}} = Any
+anyeltypedual(x::Type{T}, counter = 0) where {T <: ForwardDiff.AbstractConfig} = Any
 
-Base.@pure function anyeltypedual(::Type{T}, counter = 0) where {T}
+Base.@pure function __anyeltypedual(::Type{T}) where {T}
     hasproperty(T, :parameters) ?
     mapreduce(anyeltypedual, promote_dual, T.parameters; init = Any) : T
 end
-anyeltypedual(::Type{T}, counter = 0) where {T <: Union{ForwardDiff.Dual}} = T
+anyeltypedual(::Type{T}, counter = 0) where {T} = __anyeltypedual(T)
+anyeltypedual(::Type{T}, counter = 0) where {T <: ForwardDiff.Dual} = T
 function anyeltypedual(::Type{T}, counter = 0) where {T <: Union{AbstractArray, Set}}
     anyeltypedual(eltype(T))
 end
-Base.@pure function anyeltypedual(::Type{T}, counter = 0) where {T <: Union{NTuple}}
+Base.@pure function __anyeltypedual_ntuple(::Type{T}) where {T <: NTuple}
     if isconcretetype(eltype(T))
         return eltype(T)
     end
@@ -94,6 +95,7 @@ Base.@pure function anyeltypedual(::Type{T}, counter = 0) where {T <: Union{NTup
         mapreduce(anyeltypedual, promote_dual, T.parameters; init = Any)
     end
 end
+anyeltypedual(::Type{T}, counter = 0) where {T <: NTuple} = __anyeltypedual_ntuple(T)
 
 # Any in this context just means not Dual
 anyeltypedual(x::SciMLBase.NullParameters, counter = 0) = Any
