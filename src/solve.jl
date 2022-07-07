@@ -158,9 +158,12 @@ end
 const NON_SOLVER_MESSAGE = """
                            The arguments to solve are incorrect.
                            The second argument must be a solver choice, `solve(prob,alg)`
-                           where `alg` is a `<: DEAlgorithm`, i.e. `Tsti5()`.
+                           where `alg` is a `<: DEAlgorithm`, e.g. `Tsit5()`. 
 
                            Please double check the arguments being sent to the solver.
+
+                           You can find the list of available solvers at https://diffeq.sciml.ai/stable/solvers/ode_solve/
+                           and its associated pages.
                            """
 
 struct NonSolverError <: Exception end
