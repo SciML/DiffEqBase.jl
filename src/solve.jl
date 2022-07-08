@@ -158,7 +158,7 @@ end
 const NON_SOLVER_MESSAGE = """
                            The arguments to solve are incorrect.
                            The second argument must be a solver choice, `solve(prob,alg)`
-                           where `alg` is a `<: DEAlgorithm`, e.g. `Tsit5()`. 
+                           where `alg` is a `<: DEAlgorithm`, e.g. `Tsit5()`.
 
                            Please double check the arguments being sent to the solver.
 
@@ -746,7 +746,7 @@ the extention to other types is straightforward.
   to save size or because the user does not care about the others. Finally, with
   `progress = true` you are enabling the progress bar.
 """
-function solve(prob::DEProblem, args...; sensealg = nothing,
+function solve(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = nothing,
                u0 = nothing, p = nothing, kwargs...)
     u0 = u0 !== nothing ? u0 : prob.u0
     p = p !== nothing ? p : prob.p
@@ -756,7 +756,8 @@ function solve(prob::DEProblem, args...; sensealg = nothing,
     solve_up(prob, sensealg, u0, p, args...; kwargs...)
 end
 
-function solve_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
+function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, args...;
+                  kwargs...)
     if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = kwargs[:alg]
         _alg = prepare_alg(alg, u0, p, prob)
