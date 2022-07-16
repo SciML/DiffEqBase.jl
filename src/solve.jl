@@ -389,9 +389,9 @@ function init(prob::DEProblem, args...; kwargs...)
         _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
         check_prob_alg_pairing(_prob, alg)
         if length(args) === 1 && args[1] === nothing
-            init_call(_prob, _alg; kwargs...)
+            init_call(_prob, alg; kwargs...)
         else
-            init_call(_prob, _alg, args[2:end]...; kwargs...)
+            init_call(_prob, alg, args[2:end]...; kwargs...)
         end
     elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
         alg = args[1]
