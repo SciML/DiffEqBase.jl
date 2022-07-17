@@ -388,7 +388,11 @@ function init(prob::DEProblem, args...; kwargs...)
         alg = kwargs[:alg]
         _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
         check_prob_alg_pairing(_prob, alg)
-        init_call(_prob, alg, args...; kwargs...)
+        if length(args) === 1 && args[1] === nothing
+            init_call(_prob, alg; kwargs...)
+        else
+            init_call(_prob, alg, args[2:end]...; kwargs...)
+        end
     elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
         alg = args[1]
         _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
@@ -763,7 +767,11 @@ function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, arg
         _alg = prepare_alg(alg, u0, p, prob)
         _prob = get_concrete_problem(prob, isadaptive(_alg); u0 = u0, p = p, kwargs...)
         check_prob_alg_pairing(_prob, alg) # use alg for improved inference
-        solve_call(_prob, _alg, args...; kwargs...)
+        if length(args) === 1 && args[1] === nothing
+            solve_call(_prob, _alg; kwargs...)
+        else
+            solve_call(_prob, _alg, args[2:end]...; kwargs...)
+        end
     elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
         alg = args[1]
         _alg = prepare_alg(alg, u0, p, prob)

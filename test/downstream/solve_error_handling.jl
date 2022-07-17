@@ -14,6 +14,8 @@ prob = ODEProblem(f, u0, tspan)
 
 prob = ODEProblem{false}(f, u0, tspan)
 sol = solve(prob, Tsit5())
+sol = solve(prob, nothing, alg = Tsit5())
+sol = init(prob, nothing, alg = Tsit5())
 
 prob = ODEProblem{false}(f, 1.0 + im, tspan)
 @test_throws DiffEqBase.ComplexSupportError solve(prob, CVODE_Adams())
