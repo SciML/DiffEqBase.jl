@@ -1063,8 +1063,11 @@ function check_prob_alg_pairing(prob, alg)
             uType = RecursiveArrayTools.recursive_unitless_eltype(prob.u0)
             if Base.isconcretetype(uType) &&
                !(uType <: Union{Float32, Float64, ComplexF32, ComplexF64})
-                throw(GenericNumberTypeError(alg, isdefined(prob, :u0) ? typeof(prob.u0) : nothing,
-                                             isdefined(prob, :tspan) ? typeof(prob.tspan) : nothing))
+                throw(GenericNumberTypeError(alg,
+                                             isdefined(prob, :u0) ? typeof(prob.u0) :
+                                             nothing,
+                                             isdefined(prob, :tspan) ? typeof(prob.tspan) :
+                                             nothing))
             end
         end
 
@@ -1072,8 +1075,11 @@ function check_prob_alg_pairing(prob, alg)
             tType = RecursiveArrayTools.recursive_unitless_eltype(prob.tspan)
             if Base.isconcretetype(tType) &&
                !(tType <: Union{Float32, Float64, ComplexF32, ComplexF64})
-                throw(GenericNumberTypeError(alg, isdefined(prob, :u0) ? typeof(prob.u0) : nothing,
-                                             isdefined(prob, :tspan) ? typeof(prob.tspan) : nothing))
+                throw(GenericNumberTypeError(alg,
+                                             isdefined(prob, :u0) ? typeof(prob.u0) :
+                                             nothing,
+                                             isdefined(prob, :tspan) ? typeof(prob.tspan) :
+                                             nothing))
             end
         end
     end
