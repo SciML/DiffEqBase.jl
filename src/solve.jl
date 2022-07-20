@@ -1072,7 +1072,7 @@ function check_prob_alg_pairing(prob, alg)
         end
 
         if isdefined(prob, :tspan)
-            tType = RecursiveArrayTools.recursive_unitless_eltype(prob.tspan)
+            tType = eltype(prob.tspan)
             if Base.isconcretetype(tType) &&
                !(tType <: Union{Float32, Float64, ComplexF32, ComplexF64})
                 throw(GenericNumberTypeError(alg,
