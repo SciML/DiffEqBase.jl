@@ -1201,8 +1201,8 @@ end
 # Catch undefined AD overload cases
 
 const ADJOINT_NOT_FOUND_MESSAGE = """
-                                  Compatibility with reverse-mode automatic differentiation requires DiffEqSensitivity.jl.
-                                  Please install DiffEqSensitivity.jl and do `using DiffEqSensitivity`/`import DiffEqSensitivity`
+                                  Compatibility with reverse-mode automatic differentiation requires SciMLSensitivity.jl.
+                                  Please install SciMLSensitivity.jl and do `using SciMLSensitivity`/`import SciMLSensitivity`
                                   for this functionality. For more details, see https://sensitivity.sciml.ai/dev/.
                                   """
 
@@ -1217,8 +1217,8 @@ function _concrete_solve_adjoint(args...; kwargs...)
 end
 
 const FORWARD_SENSITIVITY_NOT_FOUND_MESSAGE = """
-                                              Compatibility with forward-mode automatic differentiation requires DiffEqSensitivity.jl.
-                                              Please install DiffEqSensitivity.jl and do `using DiffEqSensitivity`/`import DiffEqSensitivity`
+                                              Compatibility with forward-mode automatic differentiation requires SciMLSensitivity.jl.
+                                              Please install SciMLSensitivity.jl and do `using SciMLSensitivity`/`import SciMLSensitivity`
                                               for this functionality. For more details, see https://sensitivity.sciml.ai/dev/.
                                               """
 
