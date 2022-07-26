@@ -70,7 +70,10 @@ const allowedkeywords = (:dense,
                          :stop_at_next_tstop,
                          # These two are from the default algorithm handling
                          :default_set,
-                         :second_time)
+                         :second_time,
+                         # This is for DiffEqDevTools
+                         :prob_choice,
+                         )
 
 const KWARGWARN_MESSAGE = """
                           Unrecognized keyword arguments found. Future versions will error.
