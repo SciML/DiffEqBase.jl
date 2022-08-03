@@ -23,13 +23,11 @@ end
         @time @safetestset "Callbacks" begin include("callbacks.jl") end
         @time @safetestset "Plot Variables" begin include("plot_vars.jl") end
         @time @safetestset "Problem Creation Tests" begin include("problem_creation_tests.jl") end
-        @time @safetestset "Affine differential equation operators" begin include("affine_operators_tests.jl") end
         @time @safetestset "Export tests" begin include("export_tests.jl") end
         @time @safetestset "Remake tests" begin include("remake_tests.jl") end
         @time @safetestset "High Level solve Interface" begin include("high_level_solve.jl") end
         @time @safetestset "DiffEqFunction tests" begin include("diffeqfunction_tests.jl") end
         @time @safetestset "Internal Euler" begin include("internal_euler_test.jl") end
-        @time @safetestset "Basic Operators Interface" begin include("basic_operators_interface.jl") end
         @time @safetestset "Norm" begin include("norm.jl") end
         @time @safetestset "Utils" begin include("utils.jl") end
         @time @safetestset "ForwardDiff Dual Detection" begin include("forwarddiff_dual_detection.jl") end

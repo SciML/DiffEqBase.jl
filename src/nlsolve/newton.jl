@@ -164,7 +164,7 @@ end
             @.. broadcast=false ztmp=(dt * k - ztmp) * invγdt
         end
 
-        if W isa AbstractDiffEqLinearOperator
+        if W isa AbstractSciMLOperator
             update_coefficients!(W, dz, p, tstep)
         end
         nlsolver.linsolve(vecdz, W, vecztmp, iter == 1 && new_W;

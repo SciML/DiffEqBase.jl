@@ -20,6 +20,9 @@ using Statistics
 
 using FastBroadcast: @.., True, False
 
+using SciMLOperators
+using SciMLOperators: AbstractSciMLOperator
+
 import Distributions
 import ChainRulesCore
 import RecursiveArrayTools
@@ -34,8 +37,8 @@ using ForwardDiff
 
 @reexport using SciMLBase
 
-using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
-                 AbstractDiffEqLinearOperator, AbstractDiffEqInterpolation,
+using SciMLBase: @def, DEIntegrator, DEProblem,
+                 AbstractDiffEqInterpolation,
                  DECallback, AbstractDEOptions, DECache, AbstractContinuousCallback,
                  AbstractDiscreteCallback, AbstractLinearProblem, AbstractNonlinearProblem,
                  AbstractOptimizationProblem, AbstractSteadyStateProblem,
