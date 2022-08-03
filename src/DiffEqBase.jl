@@ -21,7 +21,6 @@ using Statistics
 using FastBroadcast: @.., True, False
 
 using SciMLOperators
-using SciMLOperators: AbstractSciMLOperator
 
 import Distributions
 import ChainRulesCore
@@ -80,6 +79,8 @@ using SciMLBase: @def, DEIntegrator, DEProblem,
                  DEFAULT_REDUCTION, isautodifferentiable,
                  isadaptive, isdiscrete, has_syms, AbstractAnalyticalSolution,
                  RECOMPILE_BY_DEFAULT
+
+import SciMLOperators: AbstractSciMLOperator, MatrixOperator
 
 import SciMLBase: solve, init, solve!, __init, __solve, update_coefficients!,
                   update_coefficients, isadaptive, wrapfun_oop, wrapfun_iip,
