@@ -118,7 +118,7 @@ include("forwarddiff.jl")
 include("chainrules.jl")
 
 # This is only used for oop stiff solvers
-default_factorize(A) = lu(A)
+default_factorize(A) = lu(A; check=false)
 
 """
 $(TYPEDEF)
