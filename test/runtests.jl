@@ -55,7 +55,8 @@ end
     end
 
     if !is_APPVEYOR && GROUP == "Downstream2"
-        activate_downstream_env()
+        activate_downstream_env()'
+        @time @safetestset "Prob Kwargs" begin include("downstream/prob_kwargs.jl") end
         @time @safetestset "Callback BigFloats" begin include("downstream/bigfloat_events.jl") end
         @time @safetestset "DE stats" begin include("downstream/destats_tests.jl") end
         @time @safetestset "Ensemble AD Tests" begin include("downstream/ensemble_ad.jl") end
