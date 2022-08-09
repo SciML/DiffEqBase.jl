@@ -1,3 +1,19 @@
+function ChainRulesCore.rrule(::Type{ODEProblem}, args...; kwargs...)
+    function ODEProblemAdjoint(ȳ)
+        (NoTangent(), ȳ.f, ȳ.u0, ȳ.tspan, ȳ.p, ȳ.kwargs, ȳ.problem_type)
+    end
+
+    ODEProblem(args...; kwargs...), ODEProblemAdjoint
+end
+
+function ChainRulesCore.rrule(::Type{SDEProblem}, args...; kwargs...)
+    function SDEProblemAdjoint(ȳ)
+        (NoTangent(), ȳ.f, ȳ.g, ȳ.u0, ȳ.tspan, ȳ.p, ȳ.kwargs, ȳ.problem_type)
+    end
+
+    SDEProblem(args...; kwargs...), SDEProblemAdjoint
+end
+
 function ChainRulesCore.rrule(::Type{
                                      <:ODESolution{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10,
                                                    T11
