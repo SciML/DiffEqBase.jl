@@ -45,10 +45,10 @@ end
 # where `f` may call `getproperty` and thus have return type dependent
 # on the particular symbol.
 # `mapreduce` hasn't received any such specialization.
-@inline diffeqmapreduce(f::F, op::OP, x::Tuple) where{F,OP} = reduce(op, map(f, x))
-@inline diffeqmapreduce(f::F, op::OP, x::NamedTuple) where{F,OP} = reduce(op, map(f, x))
+@inline diffeqmapreduce(f::F, op::OP, x::Tuple) where {F, OP} = reduce(op, map(f, x))
+@inline diffeqmapreduce(f::F, op::OP, x::NamedTuple) where {F, OP} = reduce(op, map(f, x))
 # For other container types, we probably just want to call `mapreduce`
-@inline diffeqmapreduce(f::F, op::OP, x) where{F,OP} = mapreduce(f, op, x)
+@inline diffeqmapreduce(f::F, op::OP, x) where {F, OP} = mapreduce(f, op, x)
 
 # Untyped dispatch: catch composite types, check all of their fields
 """
@@ -77,8 +77,9 @@ function anyeltypedual(x, counter = 0)
     if propertynames(x) === ()
         Any
     elseif counter < 100
-        diffeqmapreduce(y -> !isdefined(x, y) ? Any : anyeltypedual(getproperty(x, y), counter+1),
-                  promote_dual, propertynames(x))
+        diffeqmapreduce(y -> !isdefined(x, y) ? Any :
+                             anyeltypedual(getproperty(x, y), counter + 1),
+                        promote_dual, propertynames(x))
     else
         Any
     end
@@ -176,8 +177,8 @@ function anyeltypedual(x::NamedTuple, counter = 0)
 end
 @inline function promote_u0(u0, p, t0)
     if !(eltype(u0) <: ForwardDiff.Dual)
-      T = anyeltypedual(p)
-      T === Any && return u0
+        T = anyeltypedual(p)
+        T === Any && return u0
         if T <: ForwardDiff.Dual
             return T.(u0)
         end
