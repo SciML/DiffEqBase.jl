@@ -46,9 +46,21 @@ end
 # on the particular symbol.
 # `mapreduce` hasn't received any such specialization.
 @inline diffeqmapreduce(f::F, op::OP, x::Tuple) where {F, OP} = reduce_tup(op, map(f, x))
-@inline diffeqmapreduce(f::F, op::OP, x::NamedTuple) where {F, OP} = reduce_tup(op, map(f, x))
+@inline function diffeqmapreduce(f::F, op::OP, x::NamedTuple) where {F, OP}
+    reduce_tup(op, map(f, x))
+end
 # For other container types, we probably just want to call `mapreduce`
 @inline diffeqmapreduce(f::F, op::OP, x) where {F, OP} = mapreduce(f, op, x)
+
+struct DualEltypeChecker{T}
+    x::T
+    counter::Int
+    DualEltypeChecker(x::T, counter::Int) where {T} = new{T}(x, counter + 1)
+end
+function (dec::DualEltypeChecker)(::Val{Y}) where {Y}
+    isdefined(dec.x, Y) || return Any
+    anyeltypedual(getproperty(dec.x, Y), dec.counter)
+end
 
 # Untyped dispatch: catch composite types, check all of their fields
 """
@@ -77,9 +89,8 @@ function anyeltypedual(x, counter = 0)
     if propertynames(x) === ()
         Any
     elseif counter < 100
-        diffeqmapreduce(y -> !isdefined(x, y) ? Any :
-                             anyeltypedual(getproperty(x, y), counter + 1),
-                        promote_dual, propertynames(x))
+        diffeqmapreduce(DualEltypeChecker(x, counter), promote_dual,
+                        map(Val, propertynames(x)))
     else
         Any
     end

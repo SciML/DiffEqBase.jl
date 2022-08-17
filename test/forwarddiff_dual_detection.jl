@@ -75,6 +75,8 @@ p_possibilities17 = [
     (Mod, ForwardDiff.Dual(2.0)), (() -> 2.0, ForwardDiff.Dual(2.0)),
     (Base.pointer([2.0]), ForwardDiff.Dual(2.0)),
 ]
+VERSION >= v"1.7" &&
+    push!(p_possibilities17, Returns((a = 2, b = 1.3, c = ForwardDiff.Dual(2.0f0))))
 
 for p in p_possibilities17
     @show p
@@ -87,6 +89,8 @@ for p in p_possibilities17
     if VERSION >= v"1.7"
         # v1.6 does not infer `getproperty` mapping
         @inferred DiffEqBase.anyeltypedual(p)
+        ci = @code_typed DiffEqBase.anyeltypedual(p)
+        @test length(ci.first.code) == 1
     end
 end
 
