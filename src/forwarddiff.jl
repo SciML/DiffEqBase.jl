@@ -45,8 +45,8 @@ end
 # where `f` may call `getproperty` and thus have return type dependent
 # on the particular symbol.
 # `mapreduce` hasn't received any such specialization.
-@inline diffeqmapreduce(f::F, op::OP, x::Tuple) where {F, OP} = reduce(op, map(f, x))
-@inline diffeqmapreduce(f::F, op::OP, x::NamedTuple) where {F, OP} = reduce(op, map(f, x))
+@inline diffeqmapreduce(f::F, op::OP, x::Tuple) where {F, OP} = reduce_tup(op, map(f, x))
+@inline diffeqmapreduce(f::F, op::OP, x::NamedTuple) where {F, OP} = reduce_tup(op, map(f, x))
 # For other container types, we probably just want to call `mapreduce`
 @inline diffeqmapreduce(f::F, op::OP, x) where {F, OP} = mapreduce(f, op, x)
 
