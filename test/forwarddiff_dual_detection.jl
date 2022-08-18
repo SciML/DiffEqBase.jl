@@ -90,7 +90,8 @@ for p in p_possibilities17
         # v1.6 does not infer `getproperty` mapping
         @inferred DiffEqBase.anyeltypedual(p)
         ci = InteractiveUtils.@code_typed DiffEqBase.anyeltypedual(p)
-        @test count(!=(Expr(:code_coverage_effects)), ci.first.code) == 1
+        @show filter(!=(Expr(:code_coverage_effect)), ci.first.code)
+        @test count(!=(Expr(:code_coverage_effect)), ci.first.code) == 1
     end
 end
 
