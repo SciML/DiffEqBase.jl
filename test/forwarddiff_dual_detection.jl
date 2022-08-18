@@ -91,7 +91,8 @@ for p in p_possibilities17
         @inferred DiffEqBase.anyeltypedual(p)
         ci = InteractiveUtils.@code_typed DiffEqBase.anyeltypedual(p)
         @show filter(!=(Expr(:code_coverage_effect)), ci.first.code)
-        @test count(!=(Expr(:code_coverage_effect)), ci.first.code) == 1
+        @test count(x -> (x != (Expr(:code_coverage_effect))) &&
+                        (x != GlobalRef(DiffEqBase, :Any)), ci.first.code) == 1
     end
 end
 
