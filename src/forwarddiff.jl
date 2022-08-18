@@ -36,8 +36,33 @@ function promote_dual(::Type{T},
     ForwardDiff.Dual{T3, promote_dual(V, V2), N}
 end
 
-# Untyped dispatch: catch composite types, check all of their fields
+# `reduce` and `map` are specialized on tuples to be unrolled (via recursion)
+# Therefore, they can be type stable even with heterogenous input types.
+# We also don't care about allocating any temporaries with them, as it should
+# all be unrolled and optimized away.
+# Being unrolled also means const prop can work for things like
+# `mapreduce(f, op, propertynames(x))`
+# where `f` may call `getproperty` and thus have return type dependent
+# on the particular symbol.
+# `mapreduce` hasn't received any such specialization.
+@inline diffeqmapreduce(f::F, op::OP, x::Tuple) where {F, OP} = reduce_tup(op, map(f, x))
+@inline function diffeqmapreduce(f::F, op::OP, x::NamedTuple) where {F, OP}
+    reduce_tup(op, map(f, x))
+end
+# For other container types, we probably just want to call `mapreduce`
+@inline diffeqmapreduce(f::F, op::OP, x) where {F, OP} = mapreduce(f, op, x)
 
+struct DualEltypeChecker{T}
+    x::T
+    counter::Int
+    DualEltypeChecker(x::T, counter::Int) where {T} = new{T}(x, counter + 1)
+end
+function (dec::DualEltypeChecker)(::Val{Y}) where {Y}
+    isdefined(dec.x, Y) || return Any
+    anyeltypedual(getproperty(dec.x, Y), dec.counter)
+end
+
+# Untyped dispatch: catch composite types, check all of their fields
 """
     anyeltypedual(x)
 
@@ -64,9 +89,8 @@ function anyeltypedual(x, counter = 0)
     if propertynames(x) === ()
         Any
     elseif counter < 100
-        counter += 1
-        mapreduce(y -> !isdefined(x, y) ? Any : anyeltypedual(getproperty(x, y), counter),
-                  promote_dual, propertynames(x))
+        diffeqmapreduce(DualEltypeChecker(x, counter), promote_dual,
+                        map(Val, propertynames(x)))
     else
         Any
     end
@@ -153,19 +177,19 @@ function anyeltypedual(x::Tuple, counter = 0)
     if x === ()
         Any
     else
-        mapreduce(anyeltypedual, promote_dual, x)
+        diffeqmapreduce(anyeltypedual, promote_dual, x)
     end
 end
 function anyeltypedual(x::Dict, counter = 0)
     isempty(x) ? eltype(values(x)) : mapreduce(anyeltypedual, promote_dual, values(x))
 end
 function anyeltypedual(x::NamedTuple, counter = 0)
-    isempty(x) ? Any : mapreduce(anyeltypedual, promote_dual, values(x))
+    isempty(x) ? Any : diffeqmapreduce(anyeltypedual, promote_dual, values(x))
 end
-
-function promote_u0(u0, p, t0)
+@inline function promote_u0(u0, p, t0)
     if !(eltype(u0) <: ForwardDiff.Dual)
         T = anyeltypedual(p)
+        T === Any && return u0
         if T <: ForwardDiff.Dual
             return T.(u0)
         end

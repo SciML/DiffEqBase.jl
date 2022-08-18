@@ -20,6 +20,8 @@ using Statistics
 
 using FastBroadcast: @.., True, False
 
+using Static: reduce_tup
+
 import Distributions
 import ChainRulesCore
 import RecursiveArrayTools
