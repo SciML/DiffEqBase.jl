@@ -1,6 +1,8 @@
 using DiffEqBase, ForwardDiff, Test, InteractiveUtils
 using Plots
 
+versioninfo(verbose = true)
+
 u0 = 2.0
 p = 2.0
 t0 = 1.0
@@ -90,6 +92,7 @@ for p in p_possibilities17
         # v1.6 does not infer `getproperty` mapping
         @inferred DiffEqBase.anyeltypedual(p)
         ci = InteractiveUtils.@code_typed DiffEqBase.anyeltypedual(p)
+        @show ci
         @test length(ci.first.code) == 1
     end
 end
