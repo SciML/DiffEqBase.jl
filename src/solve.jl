@@ -73,7 +73,9 @@ const allowedkeywords = (:dense,
                          :default_set,
                          :second_time,
                          # This is for DiffEqDevTools
-                         :prob_choice)
+                         :prob_choice,
+                         # Jump problems
+                         :alias_jump)
 
 const KWARGWARN_MESSAGE = """
                           Unrecognized keyword arguments found. Future versions will error.
