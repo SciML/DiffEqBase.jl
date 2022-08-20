@@ -72,7 +72,7 @@ function ODEFunction{iip,false}(f;
   syms=nothing,
   indepsym=nothing,
   observed=SciMLBase.DEFAULT_OBSERVED,
-  colorvec=nothing) where {iip}
+  colorvec=nothing, sys = nothing) where {iip}
 
   if jac === nothing && isa(jac_prototype, AbstractDiffEqLinearOperator)
     if iip
@@ -92,8 +92,8 @@ function ODEFunction{iip,false}(f;
     NORECOMPILE_FUNCTION,typeof(mass_matrix),typeof(analytic),typeof(tgrad),typeof(jac),
     typeof(jvp),typeof(vjp),typeof(jac_prototype),typeof(sparsity),typeof(Wfact),
     typeof(Wfact_t),typeof(paramjac),typeof(syms),typeof(indepsym),
-    typeof(observed),typeof(_colorvec)}(
+    typeof(observed),typeof(_colorvec), typeof(sys)}(
     wrap_norecompile(f), mass_matrix, analytic, tgrad, jac,
     jvp, vjp, jac_prototype, sparsity, Wfact,
-    Wfact_t, paramjac, syms, indepsym, observed, _colorvec)
+    Wfact_t, paramjac, syms, indepsym, observed, _colorvec, sys)
 end
