@@ -1,10 +1,8 @@
 using StochasticDiffEq, DiffEqBase,
-      DiffEqProblemLibrary, OrdinaryDiffEq, DiffEqBase.EnsembleAnalysis
+      OrdinaryDiffEq, DiffEqBase.EnsembleAnalysis
 using Test
 
-using DiffEqProblemLibrary.SDEProblemLibrary: importsdeproblems;
-importsdeproblems();
-import DiffEqProblemLibrary.SDEProblemLibrary: prob_sde_linear, prob_sde_2Dlinear
+import SDEProblemLibrary: prob_sde_linear, prob_sde_2Dlinear
 
 prob = prob_sde_linear
 prob2 = EnsembleProblem(prob)
