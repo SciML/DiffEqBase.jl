@@ -1,14 +1,8 @@
-using StochasticDiffEq, DiffEqBase,
-      DiffEqProblemLibrary, OrdinaryDiffEq
+using StochasticDiffEq, DiffEqBase, OrdinaryDiffEq
 using Test, Random, Statistics
 
-using DiffEqProblemLibrary.SDEProblemLibrary: importsdeproblems;
-importsdeproblems();
-import DiffEqProblemLibrary.SDEProblemLibrary: prob_sde_2Dlinear,
-                                               prob_sde_additivesystem, prob_sde_lorenz
-using DiffEqProblemLibrary.ODEProblemLibrary: importodeproblems;
-importodeproblems();
-import DiffEqProblemLibrary.ODEProblemLibrary: prob_ode_linear
+import SDEProblemLibrary: prob_sde_2Dlinear, prob_sde_additivesystem, prob_sde_lorenz
+import ODEProblemLibrary: prob_ode_linear
 
 prob = prob_sde_2Dlinear
 prob2 = EnsembleProblem(prob)
