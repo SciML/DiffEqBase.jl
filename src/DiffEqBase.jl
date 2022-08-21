@@ -34,6 +34,7 @@ using Setfield
 
 using ForwardDiff
 
+import FunctionWrappersWrappers
 @reexport using SciMLBase
 
 using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
@@ -119,6 +120,7 @@ include("init.jl")
 include("forwarddiff.jl")
 include("chainrules.jl")
 
+include("norecompile.jl")
 # This is only used for oop stiff solvers
 default_factorize(A) = lu(A; check = false)
 
