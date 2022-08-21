@@ -145,19 +145,23 @@ function Base.showerror(io::IO, e::NoRecompileArgumentError)
     print(io, e.args)
 end
 
-function wrapfun_oop(ff, inputs::Tuple)
-    IT = Tuple{map(typeof, inputs)...}
-    if IT ∉ NORECOMPILE_OOP_SUPPORTED_ARGS
-        throw(NoRecompileArgumentError(IT))
+function wrapfun_oop(ff, inputs::Tuple = ())
+    if !isempty(inputs)
+        IT = Tuple{map(typeof, inputs)...}
+        if IT ∉ NORECOMPILE_OOP_SUPPORTED_ARGS
+            throw(NoRecompileArgumentError(IT))
+        end
     end
     FunctionWrappersWrappers.FunctionWrappersWrapper(typestablemapping(ff), oop_arglists,
                                                      oop_returnlists)
 end
 
-function wrapfun_iip(ff, inputs::Tuple)
-    IT = Tuple{map(typeof, inputs)...}
-    if IT ∉ NORECOMPILE_IIP_SUPPORTED_ARGS
-        throw(NoRecompileArgumentError(IT))
+function wrapfun_iip(ff, inputs::Tuple = ())
+    if !isempty(inputs)
+        IT = Tuple{map(typeof, inputs)...}
+        if IT ∉ NORECOMPILE_IIP_SUPPORTED_ARGS
+            throw(NoRecompileArgumentError(IT))
+        end
     end
     FunctionWrappersWrappers.FunctionWrappersWrapper(void(ff), iip_arglists,
                                                      iip_returnlists)
