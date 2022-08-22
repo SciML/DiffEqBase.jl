@@ -16,56 +16,13 @@ const iip_arglists = (Tuple{Vector{Float64}, Vector{Float64}, Vector{Float64}, F
                       Tuple{Vector{dualT}, Vector{Float64}, SciMLBase.NullParameters, dualT
                             })
 const iip_returnlists = ntuple(x -> Nothing, length(iip_arglists))
-function void(@nospecialize(f))
-    function f2(@nospecialize(du::Vector{Float64}), @nospecialize(u::Vector{Float64}),
-                @nospecialize(p::Vector{Float64}), @nospecialize(t::Float64))
-        f(du, u, p, t)
-        nothing
-    end
 
-    function f2(@nospecialize(du::Vector{Float64}), @nospecialize(u::Vector{Float64}),
-                @nospecialize(p::SciMLBase.NullParameters), @nospecialize(t::Float64))
-        f(du, u, p, t)
-        nothing
-    end
-
-    function f2(@nospecialize(du::Vector{dualT}), @nospecialize(u::Vector{dualT}),
-                @nospecialize(p::Vector{Float64}), @nospecialize(t::Float64))
-        f(du, u, p, t)
-        nothing
-    end
-
-    function f2(@nospecialize(du::Vector{dualT}), @nospecialize(u::Vector{dualT}),
-                @nospecialize(p::SciMLBase.NullParameters), @nospecialize(t::Float64))
-        f(du, u, p, t)
-        nothing
-    end
-
-    function f2(@nospecialize(du::Vector{dualT}), @nospecialize(u::Vector{Float64}),
-                @nospecialize(p::Vector{Float64}), @nospecialize(t::dualT))
-        f(du, u, p, t)
-        nothing
-    end
-
-    function f2(@nospecialize(du::Vector{dualT}), @nospecialize(u::Vector{Float64}),
-                @nospecialize(p::SciMLBase.NullParameters), @nospecialize(t::dualT))
-        f(du, u, p, t)
-        nothing
-    end
-    precompile(f, (Vector{Float64}, Vector{Float64}, Vector{Float64}, Float64))
-    precompile(f, (Vector{Float64}, Vector{Float64}, SciMLBase.NullParameters, Float64))
-    precompile(f, (Vector{dualT}, Vector{dualT}, Vector{Float64}, Float64))
-    precompile(f, (Vector{dualT}, Vector{dualT}, SciMLBase.NullParameters, Float64))
-    precompile(f, (Vector{dualT}, Vector{Float64}, Vector{Float64}, dualT))
-    precompile(f, (Vector{dualT}, Vector{Float64}, SciMLBase.NullParameters, dualT))
-
-    precompile(f2, (Vector{Float64}, Vector{Float64}, Vector{Float64}, Float64))
-    precompile(f2, (Vector{Float64}, Vector{Float64}, SciMLBase.NullParameters, Float64))
-    precompile(f2, (Vector{dualT}, Vector{dualT}, Vector{Float64}, Float64))
-    precompile(f2, (Vector{dualT}, Vector{dualT}, SciMLBase.NullParameters, Float64))
-    precompile(f2, (Vector{dualT}, Vector{Float64}, Vector{Float64}, dualT))
-    precompile(f2, (Vector{dualT}, Vector{Float64}, SciMLBase.NullParameters, dualT))
-    f2
+struct Void{F}
+    f::F
+end
+function (f::Void)(args...)
+    f.f(args...)
+    nothing
 end
 
 const oop_arglists = (Tuple{Vector{Float64}, Vector{Float64}, Float64},
@@ -81,52 +38,6 @@ const NORECOMPILE_OOP_SUPPORTED_ARGS = (Tuple{Vector{Float64},
                                               SciMLBase.NullParameters, Float64})
 const oop_returnlists = (Vector{Float64}, Vector{Float64},
                          ntuple(x -> Vector{dualT}, length(oop_arglists) - 2)...)
-
-function typestablemapping(@nospecialize(f))
-    function f2(@nospecialize(u::Vector{Float64}),
-                @nospecialize(p::Vector{Float64}), @nospecialize(t::Float64))
-        f(u, p, t)::Vector{Float64}
-    end
-
-    function f2(@nospecialize(u::Vector{Float64}),
-                @nospecialize(p::SciMLBase.NullParameters), @nospecialize(t::Float64))
-        f(u, p, t)::Vector{Float64}
-    end
-
-    function f2(@nospecialize(u::Vector{dualT}),
-                @nospecialize(p::Vector{Float64}), @nospecialize(t::Float64))
-        f(u, p, t)::Vector{dualT}
-    end
-
-    function f2(@nospecialize(u::Vector{dualT}),
-                @nospecialize(p::SciMLBase.NullParameters), @nospecialize(t::Float64))
-        f(u, p, t)::Vector{dualT}
-    end
-
-    function f2(@nospecialize(u::Vector{Float64}),
-                @nospecialize(p::Vector{Float64}), @nospecialize(t::dualT))
-        f(u, p, t)::Vector{dualT}
-    end
-
-    function f2(@nospecialize(u::Vector{Float64}),
-                @nospecialize(p::SciMLBase.NullParameters), @nospecialize(t::dualT))
-        f(u, p, t)::Vector{dualT}
-    end
-    precompile(f, (Vector{Float64}, Vector{Float64}, Float64))
-    precompile(f, (Vector{Float64}, SciMLBase.NullParameters, Float64))
-    precompile(f, (Vector{dualT}, Vector{Float64}, Float64))
-    precompile(f, (Vector{dualT}, SciMLBase.NullParameters, Float64))
-    precompile(f, (Vector{Float64}, Vector{Float64}, dualT))
-    precompile(f, (Vector{Float64}, SciMLBase.NullParameters, dualT))
-
-    precompile(f2, (Vector{Float64}, Vector{Float64}, Float64))
-    precompile(f2, (Vector{Float64}, SciMLBase.NullParameters, Float64))
-    precompile(f2, (Vector{dualT}, Vector{Float64}, Float64))
-    precompile(f2, (Vector{dualT}, SciMLBase.NullParameters, Float64))
-    precompile(f2, (Vector{Float64}, Vector{Float64}, dualT))
-    precompile(f2, (Vector{Float64}, SciMLBase.NullParameters, dualT))
-    f2
-end
 
 const NORECOMPILE_ARGUMENT_MESSAGE = """
                                      No-recompile mode is only supported for state arguments
@@ -152,7 +63,7 @@ function wrapfun_oop(ff, inputs::Tuple = ())
             throw(NoRecompileArgumentError(IT))
         end
     end
-    FunctionWrappersWrappers.FunctionWrappersWrapper(typestablemapping(ff), oop_arglists,
+    FunctionWrappersWrappers.FunctionWrappersWrapper(ff, oop_arglists,
                                                      oop_returnlists)
 end
 
@@ -163,7 +74,7 @@ function wrapfun_iip(ff, inputs::Tuple = ())
             throw(NoRecompileArgumentError(IT))
         end
     end
-    FunctionWrappersWrappers.FunctionWrappersWrapper(void(ff), iip_arglists,
+    FunctionWrappersWrappers.FunctionWrappersWrapper(Void(ff), iip_arglists,
                                                      iip_returnlists)
 end
 
