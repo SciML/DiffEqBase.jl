@@ -16,7 +16,7 @@ const iip_arglists = (Tuple{Vector{Float64}, Vector{Float64}, Vector{Float64}, F
                       Tuple{Vector{dualT}, Vector{Float64}, SciMLBase.NullParameters, dualT
                             })
 const iip_returnlists = ntuple(x -> Nothing, length(iip_arglists))
-function void(@nospecialize(f::Function))
+function void(@nospecialize(f))
     function f2(@nospecialize(du::Vector{Float64}), @nospecialize(u::Vector{Float64}),
                 @nospecialize(p::Vector{Float64}), @nospecialize(t::Float64))
         f(du, u, p, t)
@@ -82,7 +82,7 @@ const NORECOMPILE_OOP_SUPPORTED_ARGS = (Tuple{Vector{Float64},
 const oop_returnlists = (Vector{Float64}, Vector{Float64},
                          ntuple(x -> Vector{dualT}, length(oop_arglists) - 2)...)
 
-function typestablemapping(@nospecialize(f::Function))
+function typestablemapping(@nospecialize(f))
     function f2(@nospecialize(u::Vector{Float64}),
                 @nospecialize(p::Vector{Float64}), @nospecialize(t::Float64))
         f(u, p, t)::Vector{Float64}
