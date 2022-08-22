@@ -17,7 +17,9 @@ jobs:
         julia-version: [1,1.6]
         os: [ubuntu-latest]
         package:
-          - {user: SciML, repo: DelayDiffEq.jl, group: All}
+          - {user: SciML, repo: DelayDiffEq.jl, group: Interface}
+          - {user: SciML, repo: DelayDiffEq.jl, group: Integrators}
+          - {user: SciML, repo: DelayDiffEq.jl, group: Regression}
           - {user: SciML, repo: DiffEqFlux.jl, group: DiffEqFlux}
           - {user: SciML, repo: OrdinaryDiffEq.jl, group: InterfaceI}
           - {user: SciML, repo: OrdinaryDiffEq.jl, group: InterfaceII}
@@ -28,7 +30,10 @@ jobs:
           - {user: SciML, repo: OrdinaryDiffEq.jl, group: IntegratorsII}
           - {user: SciML, repo: OrdinaryDiffEq.jl, group: RegressionI}
           - {user: SciML, repo: OrdinaryDiffEq.jl, group: RegressionII}
-          - {user: SciML, repo: StochasticDiffEq.jl, group: All}
+          - {user: SciML, repo: StochasticDiffEq.jl, group: Interface1}
+          - {user: SciML, repo: StochasticDiffEq.jl, group: Interface2}
+          - {user: SciML, repo: StochasticDiffEq.jl, group: Interface3}
+          - {user: SciML, repo: StochasticDiffEq.jl, group: AlgConvergence}
           - {user: SciML, repo: Sundials.jl, group: All}
 
     steps:

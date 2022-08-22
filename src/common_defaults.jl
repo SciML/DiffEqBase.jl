@@ -34,7 +34,9 @@ end
     Base.FastMath.sqrt_fast(real(sum(abs2, u)) / length(u))
 end
 
-@inline ODE_DEFAULT_NORM(u::AbstractArray, t) = Base.FastMath.sqrt_fast(UNITLESS_ABS2(u) / recursive_length(u))
+@inline function ODE_DEFAULT_NORM(u::AbstractArray, t)
+    Base.FastMath.sqrt_fast(UNITLESS_ABS2(u) / recursive_length(u))
+end
 @inline ODE_DEFAULT_NORM(u, t) = norm(u)
 
 @inline ODE_DEFAULT_ISOUTOFDOMAIN(u, p, t) = false
