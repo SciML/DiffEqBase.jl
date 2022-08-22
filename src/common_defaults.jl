@@ -26,15 +26,15 @@ end
     @inbounds for i in 2:length(u)
         x += abs2(u[i])
     end
-    sqrt(real(x) / length(u))
+    Base.FastMath.sqrt_fast(real(x) / length(u))
 end
 
 @inline function ODE_DEFAULT_NORM(u::StaticArrays.StaticArray{T},
                                   t) where {T <: Union{AbstractFloat, Complex}}
-    sqrt(real(sum(abs2, u)) / length(u))
+    Base.FastMath.sqrt_fast(real(sum(abs2, u)) / length(u))
 end
 
-@inline ODE_DEFAULT_NORM(u::AbstractArray, t) = sqrt(UNITLESS_ABS2(u) / recursive_length(u))
+@inline ODE_DEFAULT_NORM(u::AbstractArray, t) = Base.FastMath.sqrt_fast(UNITLESS_ABS2(u) / recursive_length(u))
 @inline ODE_DEFAULT_NORM(u, t) = norm(u)
 
 @inline ODE_DEFAULT_ISOUTOFDOMAIN(u, p, t) = false
