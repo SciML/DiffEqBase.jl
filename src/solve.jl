@@ -773,12 +773,10 @@ function solve(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = not
     end
 
     if (u0 !== nothing || p !== nothing) && prob.f isa ODEFunction &&
-        prob.f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper &&
-            (
-            !(typeof(u0) <: Vector{Float64}) ||
-            !(eltype(promote_tspan(prob.tspan)) <: Float64) ||
-            !(typeof(p) <: Union{SciMLBase.NullParameters,Vector{Float64}})
-            )
+       prob.f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper &&
+       (!(typeof(u0) <: Vector{Float64}) ||
+        !(eltype(promote_tspan(prob.tspan)) <: Float64) ||
+        !(typeof(p) <: Union{SciMLBase.NullParameters, Vector{Float64}}))
         _prob = remake(prob, f = prob.f.f.fw[1].obj[], u0 = u0, p = p)
     else
         _prob = prob
