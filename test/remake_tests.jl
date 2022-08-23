@@ -90,5 +90,11 @@ prob = ODEProblem{true, false}((du, u, p, t) -> 2u, u0, tspan)
 
 # Function wrapper makes a new reference, it doesn't make it type instable
 @test remake(prob) == prob
-@test remake(prob; u0 = [1; 2]).u0 == [1; 2]
+
+prob2 = remake(prob; u0 = [1; 2])
+@test prob2.u0 == [1; 2]
+@test !(prob2.f.f isa SciMLBase.FunctionWrappersWrappers.FunctionWrappersWrapper)
+prob2 = remake(prob; p = (1, 2))
 @test remake(prob; p = (1, 2)).p == (1, 2)
+@test !(prob2.f.f isa SciMLBase.FunctionWrappersWrappers.FunctionWrappersWrapper)
+SciMLBase.unwrapped_f(prob2.f)
