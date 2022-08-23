@@ -17,14 +17,6 @@ const iip_arglists = (Tuple{Vector{Float64}, Vector{Float64}, Vector{Float64}, F
                             })
 const iip_returnlists = ntuple(x -> Nothing, length(iip_arglists))
 
-struct Void{F}
-    f::F
-end
-function (f::Void)(args...)
-    f.f(args...)
-    nothing
-end
-
 const oop_arglists = (Tuple{Vector{Float64}, Vector{Float64}, Float64},
                       Tuple{Vector{Float64}, SciMLBase.NullParameters, Float64},
                       Tuple{Vector{Float64}, Vector{Float64}, dualT},

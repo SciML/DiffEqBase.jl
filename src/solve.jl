@@ -771,7 +771,19 @@ function solve(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = not
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
-    solve_up(prob, sensealg, u0, p, args...; kwargs...)
+
+    if (u0 !== nothing || p !== nothing) && prob.f isa ODEFunction &&
+        prob.f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper &&
+            (
+            !(typeof(u0) <: Vector{Float64}) ||
+            !(eltype(promote_tspan(prob.tspan)) <: Float64) ||
+            !(typeof(p) <: Union{SciMLBase.NullParameters,Vector{Float64}})
+            )
+        _prob = remake(prob, f = prob.f.f.fw[1].obj[], u0 = u0, p = p)
+    else
+        _prob = prob
+    end
+    solve_up(_prob, sensealg, u0, p, args...; kwargs...)
 end
 
 function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, args...;
