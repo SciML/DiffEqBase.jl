@@ -102,25 +102,7 @@ $(TYPEDEF)
 """
 abstract type DECostFunction end
 
-@static if isdefined(SciMLBase, :Void)
-    import SciMLBase: Void, unwrapped_f
-else
-    struct Void{F}
-        f::F
-    end
-    function (f::Void)(args...)
-        f.f(args...)
-        nothing
-    end
-
-    unwrapped_f(f) = f
-    unwrapped_f(f::DiffEqBase.Void) = unwrapped_f(f.f)
-    unwrapped_f(f::ODEFunction) = unwrapped_f(f.f)
-    unwrapped_f(f::SDEFunction) = unwrapped_f(f.f)
-    function unwrapped_f(f::FunctionWrappersWrappers.FunctionWrappersWrapper)
-        f.fw[1].obj[]
-    end
-end
+import SciMLBase: Void, unwrapped_f
 
 include("utils.jl")
 include("fastpow.jl")
