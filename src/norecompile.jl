@@ -10,6 +10,7 @@ const iip_arglists = (Tuple{Vector{Float64}, Vector{Float64}, Vector{Float64}, F
                             Float64
                             },
                       Tuple{Vector{dualT}, Vector{Float64}, Vector{Float64}, dualT},
+                      Tuple{Vector{dualT}, Vector{dualT}, Vector{Float64}, dualT},
                       Tuple{Vector{dualT}, Vector{dualT}, Vector{Float64}, Float64},
                       Tuple{Vector{dualT}, Vector{dualT}, SciMLBase.NullParameters, Float64
                             },
