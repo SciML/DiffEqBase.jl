@@ -126,10 +126,14 @@ include("norecompile.jl")
 # This is only used for oop stiff solvers
 default_factorize(A) = lu(A; check = false)
 
-"""
-$(TYPEDEF)
-"""
-abstract type AbstractParameterizedFunction{iip} <: AbstractODEFunction{iip} end
+if isdefined(SciMLBase,:AbstractParameterizedFunction)
+    import SciMLBase: AbstractParameterizedFunction
+else
+    """
+    $(TYPEDEF)
+    """
+    abstract type AbstractParameterizedFunction{iip} <: AbstractODEFunction{iip} end
+end
 
 """
 $(TYPEDEF)
