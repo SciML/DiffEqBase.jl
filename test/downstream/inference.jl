@@ -9,7 +9,24 @@ tspan = (0.0, 1.0)
 prob = ODEProblem(lorenz, u0, tspan)
 sol = solve(prob, Tsit5(), save_idxs = 1)
 @inferred solve(prob, Tsit5())
-@inferred solve(prob, Tsit5(), save_idxs = 1)
+@test_broken @inferred remake(prob, u0 = Float32[1.0; 0.0; 0.0])
+@test_broken @inferred solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])
+
+prob = ODEProblem{true,SciMLBase.FullSpecialize}(lorenz, u0, tspan)
+@inferred SciMLBase.wrapfun_iip(prob.f)
+@inferred remake(prob, u0 = [1.0; 0.0; 0.0])
+@inferred remake(prob, u0 = Float32[1.0; 0.0; 0.0])
+@test_broken @inferred solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])
+
+prob = ODEProblem(lorenz, Float32[1.0; 0.0; 0.0], tspan)
+sol = solve(prob, Tsit5(), save_idxs = 1)
+solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])
+remake(prob, u0 = [1.0; 0.0; 0.0])
+
+@inferred SciMLBase.wrapfun_iip(prob.f)
+@inferred ODEFunction{isinplace(prob), SciMLBase.FunctionWrapperSpecialize}(prob.f)
+@inferred remake(prob, u0 = [1.0; 0.0; 0.0])
+@test_broken @inferred solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])
 
 function f(du, u, p, t)
     du[1] = p.a

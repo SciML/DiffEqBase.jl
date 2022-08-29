@@ -67,8 +67,11 @@ function wrapfun_iip(ff, inputs::Tuple = ())
             throw(NoRecompileArgumentError(IT))
         end
     end
-    FunctionWrappersWrappers.FunctionWrappersWrapper(Void(ff), iip_arglists,
-                                                     iip_returnlists)
+
+    fwt = map(iip_arglists, iip_returnlists) do A, R
+        FunctionWrappersWrappers.FunctionWrappers.FunctionWrapper{R,A}(Void(ff))
+    end
+    FunctionWrappersWrappers.FunctionWrappersWrapper{typeof(fwt),false}(fwt)
 end
 
 function unwrap_fw(fw::FunctionWrapper)
