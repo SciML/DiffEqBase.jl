@@ -126,7 +126,7 @@ include("norecompile.jl")
 # This is only used for oop stiff solvers
 default_factorize(A) = lu(A; check = false)
 
-if isdefined(SciMLBase,:AbstractParameterizedFunction)
+if isdefined(SciMLBase, :AbstractParameterizedFunction)
     import SciMLBase: AbstractParameterizedFunction
 else
     """
