@@ -766,21 +766,25 @@ the extention to other types is straightforward.
 """
 function solve(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = nothing,
                u0 = nothing, p = nothing, kwargs...)
-    u0 = u0 !== nothing ? u0 : prob.u0
-    p = p !== nothing ? p : prob.p
+
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
 
     if (u0 !== nothing || p !== nothing) && prob.f isa ODEFunction &&
+       prob isa ODEFunction &&
        prob.f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper &&
        (!(typeof(u0) <: Vector{Float64}) ||
-        !(eltype(promote_tspan(prob.tspan)) <: Float64) ||
+        !(isdefined(prob, :tspan) && eltype(promote_tspan(prob.tspan)) <: Float64) ||
         !(typeof(p) <: Union{SciMLBase.NullParameters, Vector{Float64}}))
-        _prob = remake(prob, f = prob.f.f.fw[1].obj[], u0 = u0, p = p)
+        _prob = remake(prob, f = unwrapped_f(prob.f), u0 = u0, p = p)
     else
         _prob = prob
     end
+
+    u0 = u0 !== nothing ? u0 : prob.u0
+    p = p !== nothing ? p : prob.p
+    
     solve_up(_prob, sensealg, u0, p, args...; kwargs...)
 end
 
