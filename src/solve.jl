@@ -766,7 +766,6 @@ the extention to other types is straightforward.
 """
 function solve(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = nothing,
                u0 = nothing, p = nothing, kwargs...)
-
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
@@ -784,7 +783,7 @@ function solve(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = not
 
     u0 = u0 !== nothing ? u0 : prob.u0
     p = p !== nothing ? p : prob.p
-    
+
     solve_up(_prob, sensealg, u0, p, args...; kwargs...)
 end
 
