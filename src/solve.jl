@@ -965,7 +965,7 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
     @static if VERSION >= v"1.8-"
         f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractDiffEqOperator) &&
                ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
-                 recursive_unitless_eltype(u0) === eltype(u0) &&
+               RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
                  Tricks.static_hasmethod(ArrayInterfaceCore.promote_eltype,
                                          Tuple{Type{typeof(u0)}, Type{eltype(u0)}})) ||
                 (specialize === SciMLBase.FunctionWrapperSpecialize &&
