@@ -962,18 +962,21 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
         f = @set f.jac_prototype = similar(f.jac_prototype, uElType)
     end
 
-    f = if f isa ODEFunction && isinplace(f) &&
-           (specialize === SciMLBase.AutoSpecialize ||
-            specialize === SciMLBase.FunctionWrapperSpecialize) &&
-           !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper) &&
-           (typeof(u0) <: Vector{Float64} && eltype(t) <: Float64 &&
-            typeof(p) <: Union{SciMLBase.NullParameters, Vector{Float64}})
-        wrapfun_iip(f, (u0, u0, p, t))
+    @static if VERSION >= v"1.8-"
+        f = if f isa ODEFunction && isinplace(f) &&
+            (specialize === SciMLBase.AutoSpecialize ||
+                specialize === SciMLBase.FunctionWrapperSpecialize) &&
+            !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper) &&
+            (typeof(u0) <: Vector{Float64} && eltype(t) <: Float64 &&
+                typeof(p) <: Union{SciMLBase.NullParameters, Vector{Float64}})
+            wrapfun_iip(f, (u0, u0, p, t))
+        else
+            f
+        end
+        return f
     else
-        f
+        return f
     end
-
-    return f
 end
 
 function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t) where {specialize}
