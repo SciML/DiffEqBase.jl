@@ -388,30 +388,49 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywor
     end
 end
 
-function init(prob::DEProblem, args...; kwargs...)
+function init(prob::DEProblem, args...; sensealg = nothing,
+              u0 = nothing, p = nothing, kwargs...)
+    if sensealg === nothing && haskey(prob.kwargs, :sensealg)
+        sensealg = prob.kwargs[:sensealg]
+    end
+
+    u0 = u0 !== nothing ? u0 : prob.u0
+    p = p !== nothing ? p : prob.p
+
+    init_up(prob, sensealg, u0, p, args...; kwargs...)
+end
+
+function init(prob::AbstractJumpProblem, args...; kwargs...)
+    __init(prob, args...; kwargs...)
+end
+
+function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
     if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = kwargs[:alg]
         _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
-        check_prob_alg_pairing(_prob, alg)
+        _alg = prepare_alg(alg, u0, p, _prob)
+        check_prob_alg_pairing(_prob, alg) # alg for improved inference
         if length(args) === 1 && args[1] === nothing
-            init_call(_prob, alg; kwargs...)
+            init_call(_prob, _alg; kwargs...)
         else
-            init_call(_prob, alg, args[2:end]...; kwargs...)
+            init_call(_prob, _alg, args[2:end]...; kwargs...)
         end
     elseif haskey(prob.kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = prob.kwargs[:alg]
         _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
-        check_prob_alg_pairing(_prob, alg)
+        _alg = prepare_alg(alg, u0, p, _prob)
+        check_prob_alg_pairing(_prob, alg) # alg for improved inference
         if length(args) === 1 && args[1] === nothing
-            init_call(_prob, alg; kwargs...)
+            init_call(_prob, _alg; kwargs...)
         else
-            init_call(_prob, alg, args[2:end]...; kwargs...)
+            init_call(_prob, _alg, args[2:end]...; kwargs...)
         end
     elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
         alg = args[1]
         _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
         check_prob_alg_pairing(_prob, alg)
-        init_call(_prob, args...; kwargs...)
+        _alg = prepare_alg(alg, u0, p, _prob)
+        init_call(_prob, _alg, args[2:end]...; kwargs...)
     else
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); kwargs...)
         init_call(_prob, args...; kwargs...)
@@ -766,30 +785,22 @@ the extention to other types is straightforward.
 """
 function solve(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = nothing,
                u0 = nothing, p = nothing, kwargs...)
-    u0 = u0 !== nothing ? u0 : prob.u0
-    p = p !== nothing ? p : prob.p
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
 
-    if (u0 !== nothing || p !== nothing) && prob.f isa ODEFunction &&
-       prob.f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper &&
-       (!(typeof(u0) <: Vector{Float64}) ||
-        !(eltype(promote_tspan(prob.tspan)) <: Float64) ||
-        !(typeof(p) <: Union{SciMLBase.NullParameters, Vector{Float64}}))
-        _prob = remake(prob, f = prob.f.f.fw[1].obj[], u0 = u0, p = p)
-    else
-        _prob = prob
-    end
-    solve_up(_prob, sensealg, u0, p, args...; kwargs...)
+    u0 = u0 !== nothing ? u0 : prob.u0
+    p = p !== nothing ? p : prob.p
+
+    solve_up(prob, sensealg, u0, p, args...; kwargs...)
 end
 
 function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, args...;
                   kwargs...)
     if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = kwargs[:alg]
-        _alg = prepare_alg(alg, u0, p, prob)
-        _prob = get_concrete_problem(prob, isadaptive(_alg); u0 = u0, p = p, kwargs...)
+        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
+        _alg = prepare_alg(alg, u0, p, _prob)
         check_prob_alg_pairing(_prob, alg) # use alg for improved inference
         if length(args) === 1 && args[1] === nothing
             solve_call(_prob, _alg; kwargs...)
@@ -798,8 +809,8 @@ function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, arg
         end
     elseif haskey(prob.kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = prob.kwargs[:alg]
-        _alg = prepare_alg(alg, u0, p, prob)
-        _prob = get_concrete_problem(prob, isadaptive(_alg); u0 = u0, p = p, kwargs...)
+        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
+        _alg = prepare_alg(alg, u0, p, _prob)
         check_prob_alg_pairing(_prob, alg) # use alg for improved inference
         if length(args) === 1 && args[1] === nothing
             solve_call(_prob, _alg; kwargs...)
@@ -808,8 +819,8 @@ function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, arg
         end
     elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
         alg = args[1]
-        _alg = prepare_alg(alg, u0, p, prob)
-        _prob = get_concrete_problem(prob, isadaptive(_alg); u0 = u0, p = p, kwargs...)
+        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
+        _alg = prepare_alg(alg, u0, p, _prob)
         check_prob_alg_pairing(_prob, alg)
         solve_call(_prob, _alg, Base.tail(args)...; kwargs...)
     elseif isempty(args) # Default algorithm handling
@@ -892,7 +903,8 @@ function get_concrete_problem(prob, isadapt; kwargs...)
     tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
     u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
     u0_promote = promote_u0(u0, p, tspan[1])
-    f_promote = promote_f(prob.f, u0_promote)
+    f_promote = promote_f(prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
+                          tspan[1])
     tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
     if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
        prob.tspan == tspan && typeof(prob.tspan) === typeof(tspan_promote) &&
@@ -912,7 +924,8 @@ function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
     u0_promote = promote_u0(u0, p, tspan[1])
     du0_promote = promote_u0(du0, p, tspan[1])
 
-    f_promote = promote_f(prob.f, u0_promote)
+    f_promote = promote_f(prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
+                          tspan[1])
     tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
     if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
        isconcretedu0(prob, tspan[1], kwargs) && typeof(du0_promote) === typeof(prob.du0) &&
@@ -942,16 +955,28 @@ function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
     remake(prob; u0 = u0, tspan = tspan, p = p, constant_lags = constant_lags)
 end
 
-function promote_f(f::F, u0) where {F}
+function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
     # Ensure our jacobian will be of the same type as u0
     uElType = u0 === nothing ? Float64 : eltype(u0)
     if isdefined(f, :jac_prototype) && f.jac_prototype isa AbstractArray
         f = @set f.jac_prototype = similar(f.jac_prototype, uElType)
     end
+
+    f = if f isa ODEFunction && isinplace(f) &&
+           (specialize === SciMLBase.AutoSpecialize ||
+            specialize === SciMLBase.FunctionWrapperSpecialize) &&
+           !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper) &&
+           (typeof(u0) <: Vector{Float64} && eltype(t) <: Float64 &&
+            typeof(p) <: Union{SciMLBase.NullParameters, Vector{Float64}})
+        wrapfun_iip(f, (u0, u0, p, t))
+    else
+        f
+    end
+
     return f
 end
 
-function promote_f(f::SplitFunction, u0)
+function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t) where {specialize}
     typeof(f.cache) === typeof(u0) && isinplace(f) ? f : remake(f, cache = zero(u0))
 end
 prepare_alg(alg, u0, p, f) = alg

@@ -60,15 +60,18 @@ function wrapfun_oop(ff, inputs::Tuple = ())
                                                      oop_returnlists)
 end
 
-function wrapfun_iip(ff, inputs::Tuple = ())
+function wrapfun_iip(@nospecialize(ff), inputs::Tuple = ())
     if !isempty(inputs)
         IT = Tuple{map(typeof, inputs)...}
         if IT ∉ NORECOMPILE_IIP_SUPPORTED_ARGS
             throw(NoRecompileArgumentError(IT))
         end
     end
-    FunctionWrappersWrappers.FunctionWrappersWrapper(Void(ff), iip_arglists,
-                                                     iip_returnlists)
+
+    fwt = map(iip_arglists, iip_returnlists) do A, R
+        FunctionWrappersWrappers.FunctionWrappers.FunctionWrapper{R, A}(Void(ff))
+    end
+    FunctionWrappersWrappers.FunctionWrappersWrapper{typeof(fwt), false}(fwt)
 end
 
 function unwrap_fw(fw::FunctionWrapper)
