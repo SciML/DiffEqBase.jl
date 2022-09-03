@@ -400,6 +400,10 @@ function init(prob::DEProblem, args...; sensealg = nothing,
     init_up(prob, sensealg, u0, p, args...; kwargs...)
 end
 
+function init(prob::AbstractJumpProblem, args...; kwargs...)
+    __init(prob, args...; kwargs...)
+end
+
 function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
     if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = kwargs[:alg]
