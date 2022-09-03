@@ -961,13 +961,14 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
     if isdefined(f, :jac_prototype) && f.jac_prototype isa AbstractArray
         f = @set f.jac_prototype = similar(f.jac_prototype, uElType)
     end
-    
+
     @static if VERSION >= v"1.8-"
         f = if f isa ODEFunction && isinplace(f) &&
-                ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
-                Tricks.static_hasmethod(ArrayInterfaceCore.promote_eltype(typeof(u0),eltype(u0)))) ||
-                (specialize === SciMLBase.FunctionWrapperSpecialize && 
-                !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)))
+               ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
+                 Tricks.static_hasmethod(ArrayInterfaceCore.promote_eltype,
+                                         Tuple{Type{typeof(u0)}, Type{eltype(u0)}})) ||
+                (specialize === SciMLBase.FunctionWrapperSpecialize &&
+                 !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)))
             return wrapfun_iip(f, (u0, u0, p, t))
         else
             return f
