@@ -389,7 +389,7 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywor
 end
 
 function init(prob::DEProblem, args...; sensealg = nothing,
-    u0 = nothing, p = nothing, kwargs...)
+              u0 = nothing, p = nothing, kwargs...)
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
@@ -959,9 +959,9 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
     end
 
     f = if f isa ODEFunction && isinplace(f) &&
-            (specialize === SciMLBase.AutoSpecialize ||
+           (specialize === SciMLBase.AutoSpecialize ||
             specialize === SciMLBase.FunctionWrapperSpecialize) &&
-            !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper) &&
+           !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper) &&
            (typeof(u0) <: Vector{Float64} && eltype(t) <: Float64 &&
             typeof(p) <: Union{SciMLBase.NullParameters, Vector{Float64}})
         wrapfun_iip(f, (u0, u0, p, t))
