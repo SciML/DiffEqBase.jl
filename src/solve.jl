@@ -905,7 +905,7 @@ function get_concrete_problem(prob, isadapt; kwargs...)
     u0_promote = promote_u0(u0, p, tspan[1])
     tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
     f_promote = promote_f(prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
-                            tspan_promote[1])
+                          tspan_promote[1])
     if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
        prob.tspan == tspan && typeof(prob.tspan) === typeof(tspan_promote) &&
        p === prob.p && f_promote === prob.f
@@ -965,8 +965,8 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
     @static if VERSION >= v"1.8-"
         f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractDiffEqOperator) &&
                ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
-               RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
-               one(t) === oneunit(t) &&
+                 RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
+                 one(t) === oneunit(t) &&
                  Tricks.static_hasmethod(ArrayInterfaceCore.promote_eltype,
                                          Tuple{Type{typeof(u0)}, Type{eltype(u0)}})) ||
                 (specialize === SciMLBase.FunctionWrapperSpecialize &&

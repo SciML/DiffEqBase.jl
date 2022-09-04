@@ -57,7 +57,7 @@ function wrapfun_iip(@nospecialize(ff),
     dualT = dualgen(T)
     dualT1 = ArrayInterfaceCore.promote_eltype(T1, dualT)
     dualT2 = ArrayInterfaceCore.promote_eltype(T2, dualT)
-    dualT4 = dualgen(promote_type(T,T4))
+    dualT4 = dualgen(promote_type(T, T4))
 
     iip_arglists = (Tuple{T1, T2, T3, T4},
                     Tuple{dualT1, dualT2, T3, T4},
