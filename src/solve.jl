@@ -401,7 +401,7 @@ function init(prob::DEProblem, args...; sensealg = nothing,
 end
 
 function init(prob::AbstractJumpProblem, args...; kwargs...)
-    __init(prob, args...; kwargs...)
+    init_call(prob, args...; kwargs...)
 end
 
 function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
