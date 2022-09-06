@@ -20,6 +20,7 @@ jobs:
           - {user: SciML, repo: DelayDiffEq.jl, group: Interface}
           - {user: SciML, repo: DelayDiffEq.jl, group: Integrators}
           - {user: SciML, repo: DelayDiffEq.jl, group: Regression}
+          - {user: SciML, repo: JumpProcesses.jl, group: All}
           - {user: SciML, repo: DiffEqFlux.jl, group: DiffEqFlux}
           - {user: SciML, repo: OrdinaryDiffEq.jl, group: InterfaceI}
           - {user: SciML, repo: OrdinaryDiffEq.jl, group: InterfaceII}
