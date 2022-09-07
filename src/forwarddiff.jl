@@ -42,7 +42,7 @@ end
 # all be unrolled and optimized away.
 # Being unrolled also means const prop can work for things like
 # `mapreduce(f, op, propertynames(x))`
-# where `f` may call `getfield` and thus have return type dependent
+# where `f` may call `getproperty` and thus have return type dependent
 # on the particular symbol.
 # `mapreduce` hasn't received any such specialization.
 @inline diffeqmapreduce(f::F, op::OP, x::Tuple) where {F, OP} = reduce_tup(op, map(f, x))
@@ -57,7 +57,14 @@ struct DualEltypeChecker{T}
     counter::Int
     DualEltypeChecker(x::T, counter::Int) where {T} = new{T}(x, counter + 1)
 end
+
 function (dec::DualEltypeChecker)(::Val{Y}) where {Y}
+    isdefined(dec.x, Y) || return Any
+    anyeltypedual(getproperty(dec.x, Y), dec.counter)
+end
+
+# use `getfield` for `Pairs`, see https://github.com/JuliaLang/julia/pull/39448
+function (dec::DualEltypeChecker{<:Base.Pairs})(::Val{Y}) where {Y}
     isdefined(dec.x, Y) || return Any
     anyeltypedual(getfield(dec.x, Y), dec.counter)
 end
