@@ -42,7 +42,7 @@ end
 # all be unrolled and optimized away.
 # Being unrolled also means const prop can work for things like
 # `mapreduce(f, op, propertynames(x))`
-# where `f` may call `getproperty` and thus have return type dependent
+# where `f` may call `getfield` and thus have return type dependent
 # on the particular symbol.
 # `mapreduce` hasn't received any such specialization.
 @inline diffeqmapreduce(f::F, op::OP, x::Tuple) where {F, OP} = reduce_tup(op, map(f, x))
@@ -59,7 +59,7 @@ struct DualEltypeChecker{T}
 end
 function (dec::DualEltypeChecker)(::Val{Y}) where {Y}
     isdefined(dec.x, Y) || return Any
-    anyeltypedual(getproperty(dec.x, Y), dec.counter)
+    anyeltypedual(getfield(dec.x, Y), dec.counter)
 end
 
 # Untyped dispatch: catch composite types, check all of their fields
