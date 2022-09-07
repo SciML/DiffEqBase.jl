@@ -731,6 +731,9 @@ explanations of the timestepping algorithms, see the
   Defaults to true.
 * `merge_callbacks`: Toggles whether to merge `prob.callback` with the `solve` keyword
   argument `callback`. Defaults to `true`.
+* `nowrap`: Toggles whether to wrap the solution if `prob.problem_type` has a preferred
+  alternate wrapper type for the solution. Useful when speed, but not shape of solution
+  is important. Defaults to `false`.
 
 ### Progress Monitoring
 
@@ -784,7 +787,7 @@ the extention to other types is straightforward.
   `progress = true` you are enabling the progress bar.
 """
 function solve(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = nothing,
-               u0 = nothing, p = nothing, kwargs...)
+               u0 = nothing, p = nothing, nowrap = false, kwargs...)
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
@@ -792,7 +795,11 @@ function solve(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = not
     u0 = u0 !== nothing ? u0 : prob.u0
     p = p !== nothing ? p : prob.p
 
-    solve_up(prob, sensealg, u0, p, args...; kwargs...)
+    if nowrap
+        solve_up(prob, sensealg, u0, p, args...; kwargs...)
+    else
+        wrap_sol(solve_up(prob, sensealg, u0, p, args...; kwargs...))
+    end
 end
 
 function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, args...;
