@@ -57,9 +57,18 @@ struct DualEltypeChecker{T}
     counter::Int
     DualEltypeChecker(x::T, counter::Int) where {T} = new{T}(x, counter + 1)
 end
+
 function (dec::DualEltypeChecker)(::Val{Y}) where {Y}
     isdefined(dec.x, Y) || return Any
     anyeltypedual(getproperty(dec.x, Y), dec.counter)
+end
+
+# use `getfield` on `Pairs`, see https://github.com/JuliaLang/julia/pull/39448
+if VERSION >= v"1.7"
+    function (dec::DualEltypeChecker{<:Base.Pairs})(::Val{Y}) where {Y}
+        isdefined(dec.x, Y) || return Any
+        anyeltypedual(getfield(dec.x, Y), dec.counter)
+    end
 end
 
 # Untyped dispatch: catch composite types, check all of their fields
