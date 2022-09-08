@@ -401,7 +401,7 @@ function init(prob::DEProblem, args...; sensealg = nothing,
 end
 
 function init(prob::AbstractJumpProblem, args...; kwargs...)
-    __init(prob, args...; kwargs...)
+    init_call(prob, args...; kwargs...)
 end
 
 function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
@@ -978,7 +978,7 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
                                          Tuple{Type{typeof(u0)}, Type{eltype(u0)}})) ||
                 (specialize === SciMLBase.FunctionWrapperSpecialize &&
                  !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)))
-            return wrapfun_iip(f, (u0, u0, p, t))
+            return wrapfun_iip(f.f, (u0, u0, p, t))
         else
             return f
         end

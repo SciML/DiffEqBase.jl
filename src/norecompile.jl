@@ -51,7 +51,7 @@ function wrapfun_oop(ff, inputs::Tuple = ())
                                                      oop_returnlists)
 end
 
-function wrapfun_iip(@nospecialize(ff),
+function wrapfun_iip(ff,
                      inputs::Tuple{T1, T2, T3, T4}) where {T1, T2, T3, T4}
     T = eltype(T2)
     dualT = dualgen(T)
