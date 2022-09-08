@@ -60,18 +60,24 @@ function NLAnderson(; κ = 1 // 100, max_iter = 10, max_history::Int = 5, aa_sta
     NLAnderson(κ, fast_convergence_cutoff, max_iter, max_history, aa_start, droptol)
 end
 
-struct NLNewton{K, C1, C2} <: AbstractNLSolverAlgorithm
+struct NLNewton{K, C1, C2, R} <: AbstractNLSolverAlgorithm
     κ::K
     max_iter::Int
     fast_convergence_cutoff::C1
     new_W_dt_cutoff::C2
     always_new::Bool
     check_div::Bool
+    relax::R
 end
 
 function NLNewton(; κ = 1 // 100, max_iter = 10, fast_convergence_cutoff = 1 // 5,
-                  new_W_dt_cutoff = 1 // 5, always_new = false, check_div = true)
-    NLNewton(κ, max_iter, fast_convergence_cutoff, new_W_dt_cutoff, always_new, check_div)
+                  new_W_dt_cutoff = 1 // 5, always_new = false, check_div = true,
+                  relax = 0 // 1)
+    if !(0 <= relax < 1)
+        throw(ArgumentError("The relaxation parameter must be in [0, 1), got `relax = $relax`"))
+    end
+    NLNewton(κ, max_iter, fast_convergence_cutoff, new_W_dt_cutoff, always_new, check_div,
+             relax)
 end
 
 # caches
