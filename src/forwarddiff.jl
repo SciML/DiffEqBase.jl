@@ -63,10 +63,12 @@ function (dec::DualEltypeChecker)(::Val{Y}) where {Y}
     anyeltypedual(getproperty(dec.x, Y), dec.counter)
 end
 
-# use `getfield` for `Pairs`, see https://github.com/JuliaLang/julia/pull/39448
-function (dec::DualEltypeChecker{<:Base.Pairs})(::Val{Y}) where {Y}
-    isdefined(dec.x, Y) || return Any
-    anyeltypedual(getfield(dec.x, Y), dec.counter)
+# use `getfield` on `Pairs`, see https://github.com/JuliaLang/julia/pull/39448
+if VERSION >= v"1.7"
+    function (dec::DualEltypeChecker{<:Base.Pairs})(::Val{Y}) where {Y}
+        isdefined(dec.x, Y) || return Any
+        anyeltypedual(getfield(dec.x, Y), dec.counter)
+    end
 end
 
 # Untyped dispatch: catch composite types, check all of their fields

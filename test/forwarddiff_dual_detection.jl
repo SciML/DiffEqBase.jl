@@ -222,3 +222,7 @@ for p in p_possibilities_configs_not_inferred
     u0 = ForwardDiff.Dual(2.0)
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
 end
+
+# use `getfield` on `Pairs`, see https://github.com/JuliaLang/julia/pull/39448
+VERSION >= v"1.7" && 
+           @test_nowarn DiffEqBase.DualEltypeChecker(pairs((;)), 0)(Val(:data))
