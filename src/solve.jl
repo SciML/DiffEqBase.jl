@@ -969,9 +969,10 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
                  one(t) === oneunit(t) &&
                  Tricks.static_hasmethod(ArrayInterfaceCore.promote_eltype,
                                          Tuple{Type{typeof(u0)}, Type{dualgen(eltype(u0))}}) &&
-                 Tricks.static_hasmethod(promote_rule,Tuple{Type{eltype(u0)},Type{dualgen(eltype(u0))}}) &&
-                 Tricks.static_hasmethod(promote_rule,Tuple{Type{eltype(u0)},Type{typeof(t)}})                        
-               ) ||
+                 Tricks.static_hasmethod(promote_rule,
+                                         Tuple{Type{eltype(u0)}, Type{dualgen(eltype(u0))}}) &&
+                 Tricks.static_hasmethod(promote_rule,
+                                         Tuple{Type{eltype(u0)}, Type{typeof(t)}})) ||
                 (specialize === SciMLBase.FunctionWrapperSpecialize &&
                  !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)))
             return wrapfun_iip(f.f, (u0, u0, p, t))

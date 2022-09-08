@@ -11,15 +11,15 @@ integrator = init(ode, Tsit5())
 
 using OrdinaryDiffEq, ForwardDiff, Measurements
 x = 1.0 ± 0.0
-f = (du,u,p,t)-> du .= u
-tspan = (0.0,1.0)
+f = (du, u, p, t) -> du .= u
+tspan = (0.0, 1.0)
 prob = ODEProblem(f, [x], tspan)
 
 # Should not error during problem construction but should be unwrapped
 integ = init(prob, Tsit5(), dt = 0.1)
 @test integ.f.f === f
 
-tspan = (ForwardDiff.Dual(0.0,(0.01)),ForwardDiff.Dual(1.0,(0.01)))
+tspan = (ForwardDiff.Dual(0.0, (0.01)), ForwardDiff.Dual(1.0, (0.01)))
 prob = ODEProblem(f, [x], tspan)
 
 # Should not error during problem construction but should be unwrapped
