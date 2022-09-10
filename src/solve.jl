@@ -964,6 +964,9 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
 
     @static if VERSION >= v"1.8-"
         f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractDiffEqOperator) &&
+                # Some reinitialization code still uses NLSolvers stuff which doesn't
+                # properly tag, so opt-out if potentially a mass matrix DAE
+               f.mass_matrix === I &&
                ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
                  RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
                  one(t) === oneunit(t) &&
