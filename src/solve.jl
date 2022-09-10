@@ -975,7 +975,7 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
                                          Tuple{Type{eltype(u0)}, Type{typeof(t)}})) ||
                 (specialize === SciMLBase.FunctionWrapperSpecialize &&
                  !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)))
-            return wrapfun_iip(f.f, (u0, u0, p, t))
+            return unwrapped_f(f, wrapfun_iip(f.f, (u0, u0, p, t)))
         else
             return f
         end
