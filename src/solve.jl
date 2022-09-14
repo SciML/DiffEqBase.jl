@@ -739,7 +739,7 @@ explanations of the timestepping algorithms, see the
 
 These arguments control the usage of the progressbar in the Juno IDE.
 
-* `progress`: Turns on/off the Juno progressbar. Default is false.
+* `progress`: Turns on/off the Juno progressbar.Default is false.
 * `progress_steps`: Numbers of steps between updates of the progress bar.
   Default is 1000.
 * `progress_name`: Controls the name of the progressbar. Default is the name
