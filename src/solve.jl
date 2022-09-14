@@ -733,7 +733,7 @@ explanations of the timestepping algorithms, see the
   argument `callback`. Defaults to `true`.
 * `wrap`: Toggles whether to wrap the solution if `prob.problem_type` has a preferred
   alternate wrapper type for the solution. Useful when speed, but not shape of solution
-  is important. Defaults to `Val(true)`.`Val(false)` will cancel wrapping the solution.
+  is important. Defaults to `Val(true)`. `Val(false)` will cancel wrapping the solution.
 
 ### Progress Monitoring
 
