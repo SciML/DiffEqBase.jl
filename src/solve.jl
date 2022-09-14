@@ -971,14 +971,21 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
 
     @static if VERSION >= v"1.8-"
         f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractDiffEqOperator) &&
+               # Some reinitialization code still uses NLSolvers stuff which doesn't
+               # properly tag, so opt-out if potentially a mass matrix DAE
+               f.mass_matrix isa UniformScaling &&
                ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
                  RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
                  one(t) === oneunit(t) &&
                  Tricks.static_hasmethod(ArrayInterfaceCore.promote_eltype,
-                                         Tuple{Type{typeof(u0)}, Type{eltype(u0)}})) ||
+                                         Tuple{Type{typeof(u0)}, Type{dualgen(eltype(u0))}}) &&
+                 Tricks.static_hasmethod(promote_rule,
+                                         Tuple{Type{eltype(u0)}, Type{dualgen(eltype(u0))}}) &&
+                 Tricks.static_hasmethod(promote_rule,
+                                         Tuple{Type{eltype(u0)}, Type{typeof(t)}})) ||
                 (specialize === SciMLBase.FunctionWrapperSpecialize &&
                  !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)))
-            return wrapfun_iip(f.f, (u0, u0, p, t))
+            return unwrapped_f(f, wrapfun_iip(f.f, (u0, u0, p, t)))
         else
             return f
         end
