@@ -75,7 +75,9 @@ const allowedkeywords = (:dense,
                          # This is for DiffEqDevTools
                          :prob_choice,
                          # Jump problems
-                         :alias_jump)
+                         :alias_jump,
+                         # This is for copying/deepcopying noise in StochasticDiffEq
+                         :alias_noise)
 
 const KWARGWARN_MESSAGE = """
                           Unrecognized keyword arguments found. Future versions will error.
