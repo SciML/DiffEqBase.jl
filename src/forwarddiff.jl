@@ -1,3 +1,5 @@
+const DUALCHECK_RECURSION_MAX = 10
+
 """
     promote_dual(::Type{T},::Type{T2})
 
@@ -60,6 +62,7 @@ end
 
 function (dec::DualEltypeChecker)(::Val{Y}) where {Y}
     isdefined(dec.x, Y) || return Any
+    dec.counter >= DUALCHECK_RECURSION_MAX && return Any
     anyeltypedual(getproperty(dec.x, Y), dec.counter)
 end
 
@@ -67,6 +70,7 @@ end
 if VERSION >= v"1.7"
     function (dec::DualEltypeChecker{<:Base.Pairs})(::Val{Y}) where {Y}
         isdefined(dec.x, Y) || return Any
+        dec.counter >= DUALCHECK_RECURSION_MAX && return Any
         anyeltypedual(getfield(dec.x, Y), dec.counter)
     end
 end
@@ -97,7 +101,7 @@ https://discourse.julialang.org/t/typeerror-in-julia-turing-when-sampling-for-a-
 function anyeltypedual(x, counter = 0)
     if propertynames(x) === ()
         Any
-    elseif counter < 100
+    elseif counter < DUALCHECK_RECURSION_MAX
         diffeqmapreduce(DualEltypeChecker(x, counter), promote_dual,
                         map(Val, propertynames(x)))
     else
@@ -162,7 +166,7 @@ end
 function anyeltypedual(x::AbstractArray, counter = 0)
     if isconcretetype(eltype(x))
         anyeltypedual(eltype(x))
-    elseif !isempty(x) && all(i -> isassigned(x, i), 1:length(x)) && counter < 100
+    elseif !isempty(x) && all(i -> isassigned(x, i), 1:length(x)) && counter < DUALCHECK_RECURSION_MAX
         counter += 1
         mapreduce(y -> anyeltypedual(y, counter), promote_dual, x)
     else
