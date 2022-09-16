@@ -166,7 +166,8 @@ end
 function anyeltypedual(x::AbstractArray, counter = 0)
     if isconcretetype(eltype(x))
         anyeltypedual(eltype(x))
-    elseif !isempty(x) && all(i -> isassigned(x, i), 1:length(x)) && counter < DUALCHECK_RECURSION_MAX
+    elseif !isempty(x) && all(i -> isassigned(x, i), 1:length(x)) &&
+           counter < DUALCHECK_RECURSION_MAX
         counter += 1
         mapreduce(y -> anyeltypedual(y, counter), promote_dual, x)
     else
