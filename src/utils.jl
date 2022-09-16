@@ -18,18 +18,16 @@ end
 # Example of a failure is Rational
 function prob2dtmin(tspan, ::Union{AbstractFloat, ForwardDiff.Dual}, use_end_time)
     t1, t2 = tspan
-    # handle eps(Inf) -> NaN
-    t1f, t2f = map(isfinite, tspan)
-    !t1f && throw(ArgumentError("t0 in the tspan `(t0, t1)` must be finite"))
-    dtmin = max(eps(typeof(t1)), eps(t1))
-    if use_end_time
-        dtmin = t1f & t2f ? max(eps(t1), eps(t2)) : max(eps(typeof(t1)), eps(t1))
+    isfinite(t1) || throw(ArgumentError("t0 in the tspan `(t0, t1)` must be finite"))
+    if use_end_time && isfinite(t2-t1)
+        return max(eps(t2-t1))
+    else
+        return max(eps(typeof(t1)), eps(t1))
     end
-    return dtmin
 end
 prob2dtmin(tspan, ::Integer, ::Any) = 0
 # Multiplication is for putting the right units on the constant!
-prob2dtmin(tspan, onet, ::Any) = onet * 1 // 10^(10)
+prob2dtmin(tspan, onet, ::Any) = onet * 1 // Int64(2)^33 # roughly 10^10 but more likely to turn into a multiplication.
 
 function timedepentdtmin(integrator::DEIntegrator)
     timedepentdtmin(integrator.t, integrator.opts.dtmin)
