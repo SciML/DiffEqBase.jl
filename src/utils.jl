@@ -20,9 +20,9 @@ function prob2dtmin(tspan, ::Union{AbstractFloat, ForwardDiff.Dual}, use_end_tim
     t1, t2 = tspan
     isfinite(t1) || throw(ArgumentError("t0 in the tspan `(t0, t1)` must be finite"))
     if use_end_time && isfinite(t2 - t1)
-        return 10*eps(t2 - t1)
+        return 10 * eps(t2 - t1)
     else
-        return max(eps(typeof(t1)), 10*eps(t1))
+        return max(eps(typeof(t1)), 10 * eps(t1))
     end
 end
 prob2dtmin(tspan, ::Integer, ::Any) = 0
