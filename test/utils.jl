@@ -15,7 +15,7 @@ using DiffEqBase: prob2dtmin, timedepentdtmin
     @test approxoftype(tspan2dtmin((-10000.0, 100.0)), eps(10000.0))
     @test tspan2dtmin((1, 2)) === 0
     @test approxoftype(tspan2dtmin((1 // 10, 2 // 10)), 1 // 2^33)
-    @test approxoftype(tspan2dtmin((2 // 10, Inf)), eps(.2))
+    @test approxoftype(tspan2dtmin((2 // 10, Inf)), eps(1.0))
     @test approxoftype(tspan2dtmin((2 // 1, Inf)), eps(2.0))
     @test approxoftype(tspan2dtmin((0, Inf)), eps(1.0))
     @test approxoftype(tspan2dtmin((0.0, Inf)), eps(1.0))
