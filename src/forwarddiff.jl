@@ -219,7 +219,7 @@ end
 function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p, tspan, prob, kwargs)
     if (haskey(kwargs, :callback) && has_continuous_callback(kwargs[:callback])) ||
        (haskey(prob.kwargs, :callback) && has_continuous_callback(prob.kwargs[:callback]))
-        return eltype(u0).(tspan)
+        return _promote_tspan(eltype(u0).(tspan), kwargs)
     else
         return _promote_tspan(tspan, kwargs)
     end
