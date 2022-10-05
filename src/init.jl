@@ -1,8 +1,8 @@
 value(x) = x
 promote_tspan(u0, p, tspan, prob, kwargs) = _promote_tspan(tspan, kwargs)
 function _promote_tspan(tspan, kwargs)
-    if haskey(kwargs, :dt)
-        tspan1, tspan2, _ = promote(tspan..., kwargs[:dt])
+    if (dt = get(kwargs, :dt, nothing)) !== nothing
+        tspan1, tspan2, _ = promote(tspan..., dt)
         return (tspan1, tspan2)
     else
         return tspan
