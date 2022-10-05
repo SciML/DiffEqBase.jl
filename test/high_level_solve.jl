@@ -10,8 +10,9 @@ using Distributions
 # https://github.com/SciML/OrdinaryDiffEq.jl/issues/1776
 # promote_tspan(u0, p, tspan, prob, kwargs)
 @test DiffEqBase.promote_tspan((0, 1)) == (0, 1)
-@test DiffEqBase.promote_tspan(nothing, nothing, (0, 1), nothing, (dt=1,)) == (0, 1)
-@test DiffEqBase.promote_tspan(nothing, nothing, (0, 1), nothing, (dt=1/2,)) == (0.0, 1.0)
+@test DiffEqBase.promote_tspan(nothing, nothing, (0, 1), nothing, (dt = 1,)) == (0, 1)
+@test DiffEqBase.promote_tspan(nothing, nothing, (0, 1), nothing, (dt = 1 / 2,)) ==
+      (0.0, 1.0)
 
 prob = ODEProblem((u, p, t) -> u, (p, t0) -> p[1], (p) -> (0.0, p[2]), (2.0, 1.0))
 prob2 = DiffEqBase.get_concrete_problem(prob, true)
