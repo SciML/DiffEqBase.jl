@@ -522,7 +522,7 @@ solve(prob::DEProblem, alg::Union{DEAlgorithm,Nothing}; kwargs...)
 The only positional argument is `alg` which is optional. By default, `alg = nothing`.
 If `alg = nothing`, then `solve` dispatches to the DifferentialEquations.jl automated
 algorithm selection (if `using DifferentialEquations` was done, otherwise it will
-error with a MethodError`).
+error with a `MethodError`).
 
 ## Keyword Arguments
 
