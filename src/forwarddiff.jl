@@ -213,7 +213,7 @@ end
 
 function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p,
                        tspan::Tuple{<:ForwardDiff.Dual, <:ForwardDiff.Dual}, prob, kwargs)
-    return tspan
+    return _promote_tspan(tspan, kwargs)
 end
 
 function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p, tspan, prob, kwargs)
@@ -221,7 +221,7 @@ function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p, tspan, prob, kw
        (haskey(prob.kwargs, :callback) && has_continuous_callback(prob.kwargs[:callback]))
         return eltype(u0).(tspan)
     else
-        return tspan
+        return _promote_tspan(tspan, kwargs)
     end
 end
 

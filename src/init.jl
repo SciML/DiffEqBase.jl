@@ -1,5 +1,13 @@
 value(x) = x
-promote_tspan(u0, p, tspan, prob, kwargs) = tspan
+promote_tspan(u0, p, tspan, prob, kwargs) = _promote_tspan(tspan, kwargs)
+function _promote_tspan(tspan, kwargs)
+    if haskey(kwargs, :dt)
+        tspan1, tspan2, _ = promote(tspan..., kwargs[:dt])
+        return (tspan1, tspan2)
+    else
+        return tspan
+    end
+end
 isdistribution(u0) = false
 
 function SciMLBase.tmap(args...)
