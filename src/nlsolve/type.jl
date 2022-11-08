@@ -73,11 +73,10 @@ end
 function NLNewton(; κ = 1 // 100, max_iter = 10, fast_convergence_cutoff = 1 // 5,
                   new_W_dt_cutoff = 1 // 5, always_new = false, check_div = true,
                   relax = 0 // 1)
-    if !(0 <= relax < 1)
-        throw(ArgumentError("The relaxation parameter must be in [0, 1), got `relax = $relax`"))
-    end
+    _check_relax(r::Number) = (0 <= relax < 1) ? r : throw(ArgumentError("The relaxation parameter must be in [0, 1), got `relax = $relax`"))
+    _check_relax(r) = r # allow all non-numeric types?
     NLNewton(κ, max_iter, fast_convergence_cutoff, new_W_dt_cutoff, always_new, check_div,
-             relax)
+             _check_relax(relax))
 end
 
 # caches
