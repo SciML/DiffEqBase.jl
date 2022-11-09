@@ -38,9 +38,11 @@ prob_nojac = ODEProblem(f, u0, tspan)
 @test solve(prob_nojac, Rosenbrock23()).retcode == ReturnCode.Success
 @test solve(prob_nojac, Rosenbrock23(autodiff = false)).retcode == ReturnCode.Success
 @test solve(prob_nojac,
-            Rosenbrock23(autodiff = false, diff_type = Val{:central})).retcode == ReturnCode.Success
+            Rosenbrock23(autodiff = false, diff_type = Val{:central})).retcode ==
+      ReturnCode.Success
 @test solve(prob_nojac,
-            Rosenbrock23(autodiff = false, diff_type = Val{:complex})).retcode == ReturnCode.Success
+            Rosenbrock23(autodiff = false, diff_type = Val{:complex})).retcode ==
+      ReturnCode.Success
 
 #=
 prob_nojac_oop = ODEProblem{false}(f,u0,tspan)
