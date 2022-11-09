@@ -498,7 +498,7 @@ function build_null_solution(prob::DEProblem, args...;
 
     timeseries = [Float64[] for i in 1:length(ts)]
 
-    build_solution(prob, nothing, ts, timeseries, retcode = :Success)
+    build_solution(prob, nothing, ts, timeseries, retcode = ReturnCode.Success)
 end
 
 function build_null_solution(prob::Union{SteadyStateProblem, NonlinearProblem}, args...;
@@ -510,7 +510,7 @@ function build_null_solution(prob::Union{SteadyStateProblem, NonlinearProblem}, 
                              save_end = true,
                              kwargs...)
     SciMLBase.build_solution(prob, nothing, Float64[], nothing;
-                             retcode = :Success)
+                             retcode = ReturnCode.Success)
 end
 
 """
