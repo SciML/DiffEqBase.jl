@@ -16,26 +16,27 @@ end
 
 function ChainRulesCore.rrule(::Type{
                                      <:ODESolution{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10,
-                                                   T11
+                                                   T11, T12
                                                    }}, u,
-                              args...) where {T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11}
+                              args...) where {T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                                              T12}
     function ODESolutionAdjoint(ȳ)
         (NoTangent(), ȳ, ntuple(_ -> NoTangent(), length(args))...)
     end
 
-    ODESolution{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11}(u, args...),
+    ODESolution{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12}(u, args...),
     ODESolutionAdjoint
 end
 
-ZygoteRules.@adjoint function ODESolution{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
+ZygoteRules.@adjoint function ODESolution{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12
                                           }(u,
                                             args...) where {T1, T2, T3, T4, T5, T6, T7, T8,
-                                                            T9, T10, T11}
+                                                            T9, T10, T11, T12}
     function ODESolutionAdjoint(ȳ)
         (ȳ, ntuple(_ -> nothing, length(args))...)
     end
 
-    ODESolution{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11}(u, args...),
+    ODESolution{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12}(u, args...),
     ODESolutionAdjoint
 end
 
