@@ -360,10 +360,10 @@ end
 function bisection(f, tup, t_forward::Bool, rootfind::SciMLBase.RootfindOpt, abstol, reltol;
                    maxiters = 1000)
     if rootfind == SciMLBase.LeftRootFind
-        NonlinearSolve.solve(NonlinearSolve.NonlinearProblem{false}(f, tup),
+        NonlinearSolve.solve(NonlinearSolve.IntervalNonlinearProblem{false}(f, tup),
                              NonlinearSolve.Falsi(), abstol = abstol, reltol = reltol).left
     else
-        NonlinearSolve.solve(NonlinearSolve.NonlinearProblem{false}(f, tup),
+        NonlinearSolve.solve(NonlinearSolve.IntervalNonlinearProblem{false}(f, tup),
                              NonlinearSolve.Falsi(), abstol = abstol, reltol = reltol).right
     end
 end

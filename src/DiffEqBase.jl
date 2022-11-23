@@ -12,7 +12,7 @@ using FunctionWrappers: FunctionWrapper
 
 using MuladdMacro, Parameters
 
-using NonlinearSolve
+using SimpleNonlinearSolve
 
 using Reexport
 
