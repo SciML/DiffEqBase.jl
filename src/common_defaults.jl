@@ -22,20 +22,20 @@ end
 @inline ODE_DEFAULT_NORM(u::Union{AbstractFloat, Complex}, t) = @fastmath abs(u)
 
 @inline function ODE_DEFAULT_NORM(u::Array{T}, t) where {T <: Union{AbstractFloat, Complex}}
-    x = abs2(u[1])
-    @inbounds for i in 2:length(u)
-        x += abs2(u[i])
+    x = zero(T)
+    @inbounds @fastmath for ui in u
+        x += abs2(ui)
     end
-    Base.FastMath.sqrt_fast(real(x) / length(u))
+    Base.FastMath.sqrt_fast(real(x) / max(length(u), 1))
 end
 
 @inline function ODE_DEFAULT_NORM(u::StaticArrays.StaticArray{T},
                                   t) where {T <: Union{AbstractFloat, Complex}}
-    Base.FastMath.sqrt_fast(real(sum(abs2, u)) / length(u))
+    Base.FastMath.sqrt_fast(real(sum(abs2, u)) / max(length(u), 1))
 end
 
 @inline function ODE_DEFAULT_NORM(u::AbstractArray, t)
-    Base.FastMath.sqrt_fast(UNITLESS_ABS2(u) / recursive_length(u))
+    Base.FastMath.sqrt_fast(UNITLESS_ABS2(u) / max(recursive_length(u), 1))
 end
 @inline ODE_DEFAULT_NORM(u, t) = norm(u)
 
