@@ -142,8 +142,6 @@ end
 
 export initialize!, finalize!
 
-export NLNewton, NLFunctional, NLAnderson
-
 export SensitivityADPassThrough
 
 export KeywordArgError, KeywordArgWarn, KeywordArgSilent
