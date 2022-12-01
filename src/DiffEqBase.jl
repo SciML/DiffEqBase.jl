@@ -111,10 +111,6 @@ include("destats.jl")
 include("calculate_residuals.jl")
 include("tableaus.jl")
 
-include("nlsolve/type.jl")
-include("nlsolve/newton.jl")
-include("nlsolve/functional.jl")
-include("nlsolve/utils.jl")
 include("callbacks.jl")
 include("common_defaults.jl")
 include("solve.jl")
@@ -145,8 +141,6 @@ struct ConvergenceSetup{P, C}
 end
 
 export initialize!, finalize!
-
-export NLNewton, NLFunctional, NLAnderson
 
 export SensitivityADPassThrough
 
