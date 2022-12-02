@@ -34,6 +34,9 @@ using Setfield
 
 using ForwardDiff
 
+# Could be made optional/glue
+import PreallocationTools
+
 import FunctionWrappersWrappers
 @reexport using SciMLBase
 

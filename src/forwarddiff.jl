@@ -114,6 +114,10 @@ anyeltypedual(x::Union{ForwardDiff.AbstractConfig, Module}, counter = 0) = Any
 anyeltypedual(x::Type{T}, counter = 0) where {T <: ForwardDiff.AbstractConfig} = Any
 anyeltypedual(x::SciMLBase.RecipesBase.AbstractPlot, counter = 0) = Any
 
+if isdefined(PreallocationTools, :FixedSizeDiffCache)
+    anyeltypedual(x::PreallocationTools.FixedSizeDiffCache, counter = 0) = Any
+end
+
 Base.@pure function __anyeltypedual(::Type{T}) where {T}
     hasproperty(T, :parameters) ?
     mapreduce(anyeltypedual, promote_dual, T.parameters; init = Any) : T
