@@ -27,5 +27,5 @@ integ = init(prob, Tsit5(), dt = 0.1)
 @test integ.f.f === f
 
 # Handle functional initial conditions
-prob = ODEProblem((dx,x,p,t)->(dx.=0), (p,t)->zeros(2), (0,10))
+prob = ODEProblem((dx, x, p, t) -> (dx .= 0), (p, t) -> zeros(2), (0, 10))
 solve(prob, TRBDF2())

@@ -832,6 +832,7 @@ function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, arg
         alg = args[1]
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
         _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
+        check_prob_alg_pairing(_prob, alg) # use alg for improved inference
         solve_call(_prob, _alg, Base.tail(args)...; kwargs...)
     elseif isempty(args) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
