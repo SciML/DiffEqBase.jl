@@ -411,8 +411,9 @@ function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
     if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = kwargs[:alg]
         _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
-        _alg = prepare_alg(alg, u0, p, _prob)
+        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
         check_prob_alg_pairing(_prob, alg) # alg for improved inference
+
         if length(args) === 1 && args[1] === nothing
             init_call(_prob, _alg; kwargs...)
         else
@@ -421,7 +422,7 @@ function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
     elseif haskey(prob.kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = prob.kwargs[:alg]
         _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
-        _alg = prepare_alg(alg, u0, p, _prob)
+        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
         check_prob_alg_pairing(_prob, alg) # alg for improved inference
         if length(args) === 1 && args[1] === nothing
             init_call(_prob, _alg; kwargs...)
@@ -432,7 +433,7 @@ function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
         alg = args[1]
         _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
         check_prob_alg_pairing(_prob, alg)
-        _alg = prepare_alg(alg, u0, p, _prob)
+        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
         init_call(_prob, _alg, args[2:end]...; kwargs...)
     else
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); kwargs...)
@@ -810,7 +811,7 @@ function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, arg
     if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = kwargs[:alg]
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
-        _alg = prepare_alg(alg, u0, p, _prob)
+        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
         check_prob_alg_pairing(_prob, alg) # use alg for improved inference
         if length(args) === 1 && args[1] === nothing
             solve_call(_prob, _alg; kwargs...)
@@ -820,7 +821,7 @@ function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, arg
     elseif haskey(prob.kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = prob.kwargs[:alg]
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
-        _alg = prepare_alg(alg, u0, p, _prob)
+        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
         check_prob_alg_pairing(_prob, alg) # use alg for improved inference
         if length(args) === 1 && args[1] === nothing
             solve_call(_prob, _alg; kwargs...)
@@ -830,8 +831,8 @@ function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, arg
     elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
         alg = args[1]
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
-        _alg = prepare_alg(alg, u0, p, _prob)
-        check_prob_alg_pairing(_prob, alg)
+        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
+        check_prob_alg_pairing(_prob, alg) # use alg for improved inference
         solve_call(_prob, _alg, Base.tail(args)...; kwargs...)
     elseif isempty(args) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
