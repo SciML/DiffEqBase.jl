@@ -462,7 +462,7 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywo
             throw(NonConcreteEltypeError(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)))
         end
 
-        if _prob.u0 === nothing
+        if _prob.u0 === nothing || isempty(_prob.u0)
             return build_null_solution(_prob, args...; kwargs...)
         end
     end
@@ -496,8 +496,8 @@ function build_null_solution(prob::DEProblem, args...;
     else
         saveat
     end
-
-    timeseries = [Float64[] for i in 1:length(ts)]
+    u0type = isnothing(prob.u0) ? Float64 : eltype(prob.u0)
+    timeseries = [u0type[] for i in 1:length(ts)]
 
     build_solution(prob, nothing, ts, timeseries, retcode = ReturnCode.Success)
 end
@@ -510,7 +510,8 @@ function build_null_solution(prob::Union{SteadyStateProblem, NonlinearProblem}, 
                                               saveat isa Number || prob.tspan[1] in saveat,
                              save_end = true,
                              kwargs...)
-    SciMLBase.build_solution(prob, nothing, Float64[], nothing;
+    u0type = isnothing(prob.u0) ? Float64 : eltype(prob.u0)
+    SciMLBase.build_solution(prob, nothing, u0type[], nothing;
                              retcode = ReturnCode.Success)
 end
 
