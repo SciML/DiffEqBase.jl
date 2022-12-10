@@ -573,7 +573,7 @@ The following options are all related to output control. See the "Examples"
 section at the end of this page for some example usage.
 
 * `dense`: Denotes whether to save the extra pieces required for dense (continuous)
-  output. Default is `save_everystep && !isempty(saveat)` for algorithms which have
+  output. Default is `save_everystep && isempty(saveat)` for algorithms which have
   the ability to produce dense output, i.e. by default it's `true` unless the user
   has turned off saving on steps or has chosen a `saveat` value. If `dense=false`,
   the solution still acts like a function, and `sol(t)` is a linear interpolation
