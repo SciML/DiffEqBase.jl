@@ -1066,7 +1066,8 @@ function get_concrete_u0(prob, isadapt, t0, kwargs)
         throw(IncompatibleInitialConditionError())
     end
 
-    if prob.f.mass_matrix !== nothing && prob.f.mass_matrix isa AbstractArray &&
+    if isdefined(prob.f, :mass_matrix) && prob.f.mass_matrix !== nothing &&
+       prob.f.mass_matrix isa AbstractArray &&
        size(prob.f.mass_matrix, 1) !== length(_u0)
         throw(IncompatibleMassMatrixError(size(prob.f.mass_matrix, 1), length(_u0)))
     end
