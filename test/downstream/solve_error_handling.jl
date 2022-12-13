@@ -36,3 +36,8 @@ prob = ODEProblem{false}(f, (1.0, 1.0f0), tspan)
 
 prob = ODEProblem{false}(f, u0, (0.0 + im, 1.0))
 @test_throws DiffEqBase.ComplexTspanError solve(prob, Tsit5())
+
+u0 = [0.0, 0.0]
+fmm = ODEFunction(f, mass_matrix = zeros(3,3))
+prob = ODEProblem(fmm, u0, (0.0, 1.0))
+@test_throws DiffEqBase.IncompatibleMassMatrixError solve(prob, Tsit5())

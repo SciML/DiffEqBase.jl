@@ -367,6 +367,26 @@ function Base.showerror(io::IO, e::TupleStateError)
     println(io, TUPLE_STATE_ERROR_MESSAGE)
 end
 
+const MASS_MATRIX_ERROR_MESSAGE = """
+                                  Mass matrix size is incompatible with initial condition
+                                  sizing. The mass matrix must reprsent the `vec`
+                                  form of the initial condition `u0`, i.e.
+                                  `size(mm,1) == size(mm,2) == length(u)`
+                                  """
+
+struct IncompatibleMassMatrixError <: Exception
+    sz::Int
+    len::Int
+end
+
+function Base.showerror(io::IO, e::IncompatibleMassMatrixError)
+    println(io, MASS_MATRIX_ERROR_MESSAGE)
+    print(io, "size(prob.f.mass_matrix,1)": )
+    println(io, e.sz)
+    print(io, "length(u0): ")
+    println(e.len)
+end
+
 function init_call(_prob, args...; merge_callbacks = true, kwargshandle = KeywordArgWarn,
                    kwargs...)
     if has_kwargs(_prob)
@@ -1044,6 +1064,11 @@ function get_concrete_u0(prob, isadapt, t0, kwargs)
 
     if isinplace(prob) && (_u0 isa Number || _u0 isa SArray)
         throw(IncompatibleInitialConditionError())
+    end
+
+    if prob.f.mass_matrix !== nothing && prob.f.mass_matrix isa AbstractArray &&
+        size(prob.f.mass_matrix,1) !== length(_u0)
+        throw(IncompatibleMassMatrixError(size(prob.f.mass_matrix,1),length(_u0)))
     end
 
     if _u0 isa Tuple
