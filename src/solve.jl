@@ -381,7 +381,7 @@ end
 
 function Base.showerror(io::IO, e::IncompatibleMassMatrixError)
     println(io, MASS_MATRIX_ERROR_MESSAGE)
-    print(io, "size(prob.f.mass_matrix,1)": )
+    print(io, "size(prob.f.mass_matrix,1): ")
     println(io, e.sz)
     print(io, "length(u0): ")
     println(e.len)
@@ -1067,8 +1067,8 @@ function get_concrete_u0(prob, isadapt, t0, kwargs)
     end
 
     if prob.f.mass_matrix !== nothing && prob.f.mass_matrix isa AbstractArray &&
-        size(prob.f.mass_matrix,1) !== length(_u0)
-        throw(IncompatibleMassMatrixError(size(prob.f.mass_matrix,1),length(_u0)))
+       size(prob.f.mass_matrix, 1) !== length(_u0)
+        throw(IncompatibleMassMatrixError(size(prob.f.mass_matrix, 1), length(_u0)))
     end
 
     if _u0 isa Tuple
