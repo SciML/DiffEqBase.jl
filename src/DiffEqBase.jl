@@ -149,6 +149,6 @@ export SensitivityADPassThrough
 export KeywordArgError, KeywordArgWarn, KeywordArgSilent
 
 if !isdefined(Base, :get_extension)
-  include("../ext/DistributionsExt.jl")
+    include("../ext/DistributionsExt.jl")
 end
 end # module
