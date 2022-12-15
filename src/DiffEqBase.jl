@@ -22,7 +22,6 @@ using FastBroadcast: @.., True, False
 
 using Static: reduce_tup
 
-import Distributions
 import ChainRulesCore
 import RecursiveArrayTools
 import SparseArrays
@@ -149,4 +148,7 @@ export SensitivityADPassThrough
 
 export KeywordArgError, KeywordArgWarn, KeywordArgSilent
 
+if !isdefined(Base, :get_extension)
+  include("../ext/DistributionsExt.jl")
+end
 end # module
