@@ -1108,8 +1108,6 @@ function get_concrete_p(prob, kwargs)
 end
 
 handle_distribution_u0(_u0) = _u0
-handle_distribution_u0(_u0::Distributions.Sampleable) = rand(_u0)
-isdistribution(_u0::Distributions.Sampleable) = true
 
 eval_u0(u0::Function) = true
 eval_u0(u0) = false
