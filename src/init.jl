@@ -31,7 +31,7 @@ function __init__()
             using UnitfulExt
         end
 
-        @require GeneralizedGenerated="6b9d7cbe-bcb9-11e9-073f-15a7a543e2eb" begin 
+        @require GeneralizedGenerated="6b9d7cbe-bcb9-11e9-073f-15a7a543e2eb" begin
             include("../ext/GeneralizedGeneratedExt.jl")
             using GeneralizedGeneratedExt
         end
