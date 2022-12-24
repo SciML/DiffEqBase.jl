@@ -15,7 +15,7 @@ function SciMLBase.tmap(args...)
 end
 
 function __init__()
-    if VERSION <= v"1.9"
+    if !isdefined(Base, :get_extension)
         @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
             include("../ext/MeasurementsExt.jl")
             using MeasurementsExt
