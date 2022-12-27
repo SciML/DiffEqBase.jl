@@ -418,10 +418,10 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywor
 
     checkkwargs(kwargshandle; kwargs...)
 
-    if isnothing(_prob.u0)
+    if hasfield(typeof(_prob), :u0) && isnothing(_prob.u0)
         build_null_integrator(_prob, args...; kwargs...)
     elseif hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
-       typeof(_prob.f.f) <: EvalFunc
+           typeof(_prob.f.f) <: EvalFunc
         Base.invokelatest(__init, _prob, args...; kwargs...)#::T
     else
         __init(_prob, args...; kwargs...)#::T
