@@ -13,10 +13,16 @@ sol = solve(prob, Tsit5())
 @test sol[x] == [0.0, 0.0]
 @test sol[y] == [0.0, 0.0]
 
-integ = init(prob, Tsit5())
-sol = solve!(integ)
-@test sol[x] == [0.0, 0.0]
-@test sol[y] == [0.0, 0.0]
+for kwargs in [
+    Dict(:saveat => 0:0.1:1),
+    Dict(:save_start => false),
+    Dict(:save_end => false),
+]
+    sol = solve(prob, kwargs...)
+    init_sol = solve!(init(prob, kwargs...))
+    @test sol.u == init_sol.u
+    @test sol.t == init_sol.t
+end
 
 @variables t x y
 eqs = [0 ~ x - y
