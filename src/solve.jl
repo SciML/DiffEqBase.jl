@@ -418,7 +418,9 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywor
 
     checkkwargs(kwargshandle; kwargs...)
 
-    if hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
+    if isnothing(_prob.u0)
+        build_null_integrator(_prob, args...; kwargs...)
+    elseif hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
        typeof(_prob.f.f) <: EvalFunc
         Base.invokelatest(__init, _prob, args...; kwargs...)#::T
     else
@@ -508,6 +510,17 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywo
     else
         __solve(_prob, args...; kwargs...)#::T
     end
+end
+
+mutable struct NullODEIntegrator{ProbType, AlgType}
+    prob::ProbType
+    alg::AlgType
+end
+function build_null_integrator(prob::DEProblem, alg, args...; kwargs...)
+    return NullODEIntegrator(prob, alg)
+end
+function solve!(integ::NullODEIntegrator)
+    return build_null_solution(integ.prob, integ.alg)
 end
 
 function build_null_solution(prob::DEProblem, args...;
