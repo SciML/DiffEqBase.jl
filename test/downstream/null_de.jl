@@ -13,6 +13,11 @@ sol = solve(prob, Tsit5())
 @test sol[x] == [0.0, 0.0]
 @test sol[y] == [0.0, 0.0]
 
+integ = init(prob, Tsit5())
+sol = solve!(integ)
+@test sol[x] == [0.0, 0.0]
+@test sol[y] == [0.0, 0.0]
+
 @variables t x y
 eqs = [0 ~ x - y
        0 ~ y - x]
