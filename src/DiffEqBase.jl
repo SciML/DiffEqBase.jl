@@ -151,4 +151,9 @@ export KeywordArgError, KeywordArgWarn, KeywordArgSilent
 if !isdefined(Base, :get_extension)
     include("../ext/DistributionsExt.jl")
 end
+
+function alg_order(alg::AbstractODEAlgorithm)
+    error("Order is not defined for this algorithm")
+end
+
 end # module
