@@ -63,6 +63,7 @@ end
         @time @safetestset "Ensemble AD Tests" begin include("downstream/ensemble_ad.jl") end
         @time @safetestset "Community Callback Tests" begin include("downstream/community_callback_tests.jl") end
         @time @testset "Distributed Ensemble Tests" begin include("downstream/distributed_ensemble.jl") end
+        @time @safetestset "AD via ode with complex numbers" begin include("downstream/complex_number_ad.jl") end
     end
 
     if !is_APPVEYOR && GROUP == "GPU"
