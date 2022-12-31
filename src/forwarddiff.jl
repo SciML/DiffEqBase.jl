@@ -205,11 +205,12 @@ function anyeltypedual(x::NamedTuple, counter = 0)
     isempty(x) ? Any : diffeqmapreduce(anyeltypedual, promote_dual, values(x))
 end
 @inline function promote_u0(u0, p, t0)
-    if !(eltype(u0) <: ForwardDiff.Dual)
+    if !(real(eltype(u0)) <: ForwardDiff.Dual)
         T = anyeltypedual(p)
         T === Any && return u0
         if T <: ForwardDiff.Dual
-            return T.(u0)
+            Ts = promote_type(T, eltype(u0))
+            return Ts.(u0)
         end
     end
     u0
@@ -227,6 +228,10 @@ function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p, tspan, prob, kw
     else
         return _promote_tspan(tspan, kwargs)
     end
+end
+
+function promote_tspan(u0::AbstractArray{<:Complex{<:ForwardDiff.Dual}}, p, tspan, prob, kwargs)
+    return _promote_tspan(real(eltype(u0)).(tspan), kwargs)
 end
 
 value(x::Type{ForwardDiff.Dual{T, V, N}}) where {T, V, N} = V
