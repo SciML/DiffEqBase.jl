@@ -215,6 +215,18 @@ end
     u0
 end
 
+@inline function promote_u0(u0::AbstractArray{<:Complex}, p, t0)
+    if !(real(eltype(u0)) <: ForwardDiff.Dual)
+        T = anyeltypedual(p)
+        T === Any && return u0
+        if T <: ForwardDiff.Dual
+            Ts = promote_type(T, eltype(u0))
+            return Ts.(u0)
+        end
+    end
+    u0
+end
+
 function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p,
                        tspan::Tuple{<:ForwardDiff.Dual, <:ForwardDiff.Dual}, prob, kwargs)
     return _promote_tspan(tspan, kwargs)
@@ -227,6 +239,10 @@ function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p, tspan, prob, kw
     else
         return _promote_tspan(tspan, kwargs)
     end
+end
+
+function promote_tspan(u0::AbstractArray{<:Complex{<:ForwardDiff.Dual}}, p, tspan, prob, kwargs)
+    return _promote_tspan(real(eltype(u0)).(tspan), kwargs)
 end
 
 value(x::Type{ForwardDiff.Dual{T, V, N}}) where {T, V, N} = V
