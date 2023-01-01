@@ -205,6 +205,17 @@ function anyeltypedual(x::NamedTuple, counter = 0)
     isempty(x) ? Any : diffeqmapreduce(anyeltypedual, promote_dual, values(x))
 end
 @inline function promote_u0(u0, p, t0)
+    if !(eltype(u0) <: ForwardDiff.Dual)
+        T = anyeltypedual(p)
+        T === Any && return u0
+        if T <: ForwardDiff.Dual
+            return T.(u0)
+        end
+    end
+    u0
+end
+
+@inline function promote_u0(u0::AbstractArray{<:Complex}, p, t0)
     if !(real(eltype(u0)) <: ForwardDiff.Dual)
         T = anyeltypedual(p)
         T === Any && return u0
