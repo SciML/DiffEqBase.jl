@@ -28,7 +28,7 @@ cost(u) = abs2(tr(first(u)'u[2])) - abs2(tr(first(u)'last(u)))
 ## real loss function via complex ode
 function loss(p)
   prob = remake(prob0; p)
-  sol = solve(prob)
+  sol = solve(prob, Tsit5())
   cost(sol.u) + sum(p) / 10
 end
 
@@ -46,14 +46,14 @@ prob0_real = remake(prob0; f=real_f, u0=cat(real(prob0.u0), imag(prob0.u0); dims
 ### real loss function via real ode
 function loss_via_real(p)
   prob = remake(prob0_real; p)
-  sol = solve(prob)
+  sol = solve(prob, Tsit5())
   u = [complex.(selectdim(u,3,1), selectdim(u,3,2)) for u=sol.u]
   cost(u) + sum(p) / 10
 end
 
 # assert
-@assert eltype(last(solve(prob0     ).u)) <: Complex
-@assert eltype(last(solve(prob0_real).u)) <: Real
+@assert eltype(last(solve(prob0, Tsit5()     ).u)) <: Complex
+@assert eltype(last(solve(prob0_real, Tsit5()).u)) <: Real
 function assert_fun()
   p0 = rand(3)
   isapprox(loss(p0), loss_via_real(p0); rtol=1e-4)
