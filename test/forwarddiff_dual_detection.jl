@@ -43,10 +43,12 @@ for p in p_possibilities
     @test DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual
     local u0 = 2.0
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
     u0 = ForwardDiff.Dual(2.0)
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
     @inferred DiffEqBase.anyeltypedual(p)
 end
 
@@ -66,10 +68,12 @@ for p in higher_order_p_possibilities
           ForwardDiff.Dual{Nothing, ForwardDiff.Dual{MyStruct, Float64, 0}, 0}
     local u0 = 2.0
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
     u0 = ForwardDiff.Dual(2.0)
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
     @inferred DiffEqBase.anyeltypedual(p)
 end
 
@@ -89,10 +93,12 @@ for p in p_possibilities17
     @test DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual
     local u0 = 2.0
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
     u0 = ForwardDiff.Dual(2.0)
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
 
     if VERSION >= v"1.7"
         # v1.6 does not infer `getproperty` mapping
@@ -128,10 +134,12 @@ for p in p_possibilities_uninferrred
     @test DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual
     local u0 = 2.0
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
     u0 = ForwardDiff.Dual(2.0)
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
 end
 
 p_possibilities_missed = [
@@ -145,10 +153,12 @@ for p in p_possibilities_missed
     @test_broken DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual
     local u0 = 2.0
     @test_broken DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test_broken DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test_broken DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+                 AbstractArray{<:Complex{<:ForwardDiff.Dual}}
     u0 = ForwardDiff.Dual(2.0)
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
 end
 
 p_possibilities_notdual = [
@@ -160,10 +170,12 @@ for p in p_possibilities_notdual
     @test !(DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual)
     local u0 = 2.0
     @test !(DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual)
-    @test !(DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}})
+    @test !(DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+            AbstractArray{<:Complex{<:ForwardDiff.Dual}})
     u0 = ForwardDiff.Dual(2.0)
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
     @inferred DiffEqBase.anyeltypedual(p)
 end
 
@@ -203,10 +215,12 @@ for p in p_possibilities_notdual_uninferred
     @test !(DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual)
     local u0 = 2.0
     @test !(DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual)
-    @test !(DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}})
+    @test !(DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+            AbstractArray{<:Complex{<:ForwardDiff.Dual}})
     u0 = ForwardDiff.Dual(2.0)
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
 end
 
 f(du, u, p, t) = du .= u
@@ -221,10 +235,12 @@ for p in p_possibilities_configs
     @test !(DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual)
     local u0 = 2.0
     @test !(DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual)
-    @test !(DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}})
+    @test !(DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+            AbstractArray{<:Complex{<:ForwardDiff.Dual}})
     u0 = ForwardDiff.Dual(2.0)
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
     @inferred DiffEqBase.anyeltypedual(p)
 end
 
@@ -237,10 +253,12 @@ for p in p_possibilities_configs_not_inferred
     @test !(DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual)
     local u0 = 2.0
     @test !(DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual)
-    @test !(DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}})
+    @test !(DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+            AbstractArray{<:Complex{<:ForwardDiff.Dual}})
     u0 = ForwardDiff.Dual(2.0)
     @test DiffEqBase.promote_u0(u0, p, t0) isa ForwardDiff.Dual
-    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+    @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
+          AbstractArray{<:Complex{<:ForwardDiff.Dual}}
 end
 
 # use `getfield` on `Pairs`, see https://github.com/JuliaLang/julia/pull/39448

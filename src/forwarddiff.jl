@@ -241,7 +241,8 @@ function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p, tspan, prob, kw
     end
 end
 
-function promote_tspan(u0::AbstractArray{<:Complex{<:ForwardDiff.Dual}}, p, tspan, prob, kwargs)
+function promote_tspan(u0::AbstractArray{<:Complex{<:ForwardDiff.Dual}}, p, tspan, prob,
+                       kwargs)
     return _promote_tspan(real(eltype(u0)).(tspan), kwargs)
 end
 
