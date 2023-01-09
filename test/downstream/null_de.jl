@@ -20,8 +20,11 @@ for kwargs in [
 ]
     sol = solve(prob, kwargs...)
     init_sol = solve!(init(prob, kwargs...))
+    step_sol = step!(init(prob, kwargs...), prob.tspan[end]-prob.tspan[begin])
     @test sol.u == init_sol.u
     @test sol.t == init_sol.t
+    @test sol.u == step_sol.u
+    @test sol.t == step_sol.t
 end
 
 @variables t x y

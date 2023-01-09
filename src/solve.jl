@@ -512,44 +512,32 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywo
     end
 end
 
-mutable struct NullODEIntegrator{IIP, ProbType, T, TS} <:
+mutable struct NullODEIntegrator{IIP, ProbType, T, SolType} <:
                AbstractODEIntegrator{Nothing, IIP, Nothing, T}
     du::Nothing
     u::Nothing
     t::T
     prob::ProbType
-    ts::TS
+    sol::SolType
 end
 function build_null_integrator(prob::DEProblem, args...;
-                               saveat = (),
-                               save_everystep = true,
-                               save_on = true,
-                               save_start = save_everystep || isempty(saveat) ||
-                                                saveat isa Number ||
-                                                prob.tspan[1] in saveat,
-                               save_end = true,
                                kwargs...)
-    ts = if saveat === ()
-        if save_start && save_end
-            [prob.tspan[1], prob.tspan[2]]
-        elseif save_start && !save_end
-            [prob.tspan[1]]
-        elseif !save_start && save_end
-            [prob.tspan[2]]
-        else
-            eltype(prob.tspan)[]
-        end
-    else
-        saveat
-    end
-    return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(ts)}(nothing,
+    @show args, kwargs
+    sol = solve(prob, args...; kwargs...)
+    return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol)}(nothing,
                                                                                             nothing,
                                                                                             first(prob.tspan),
                                                                                             prob,
-                                                                                            ts)
+                                                                                            sol)
 end
-function solve!(integ::NullODEIntegrator)
-    return build_null_solution(integ.prob; saveat = integ.ts)
+solve!(integ::NullODEIntegrator) = integ.sol
+function step!(integ::NullODEIntegrator, dt=nothing, stop_at_tdt=false)
+    if !isnothing(dt)
+        integ.t += dt
+    else
+        integ.t = integ.sol[end]
+    end
+    return nothing
 end
 
 function build_null_solution(prob::DEProblem, args...;
@@ -570,6 +558,8 @@ function build_null_solution(prob::DEProblem, args...;
         else
             eltype(prob.tspan)[]
         end
+    elseif saveat isa Number
+        prob.tspan[1]:saveat:prob.tspan[2]
     else
         saveat
     end
