@@ -418,7 +418,7 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywor
 
     checkkwargs(kwargshandle; kwargs...)
 
-    if hasfield(typeof(_prob), :u0) && isnothing(_prob.u0)
+    if _prob isa DEProblem && isnothing(_prob.u0)
         build_null_integrator(_prob, args...; kwargs...)
     elseif hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
            typeof(_prob.f.f) <: EvalFunc
@@ -524,14 +524,15 @@ function build_null_integrator(prob::DEProblem, args...;
                                kwargs...)
     @show args, kwargs
     sol = solve(prob, args...; kwargs...)
-    return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol)}(nothing,
-                                                                                            nothing,
-                                                                                            first(prob.tspan),
-                                                                                            prob,
-                                                                                            sol)
+    return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol)
+                             }(nothing,
+                               nothing,
+                               first(prob.tspan),
+                               prob,
+                               sol)
 end
 solve!(integ::NullODEIntegrator) = integ.sol
-function step!(integ::NullODEIntegrator, dt=nothing, stop_at_tdt=false)
+function step!(integ::NullODEIntegrator, dt = nothing, stop_at_tdt = false)
     if !isnothing(dt)
         integ.t += dt
     else
