@@ -21,7 +21,7 @@ tspan = (0.0, 1.0)
 u0 = hcat(normalize(rand(ComplexF64, pd)), normalize(rand(pd)))
 
 ## ode problem
-prob0 = ODEProblem(f!, u0, tspan, rand(3); saveat = range(tspan..., 3), reltol = 1e-6,
+prob0 = ODEProblem(f!, u0, tspan, rand(3); saveat = range(tspan..., length=3), reltol = 1e-6,
                    alg = Tsit5())
 ## final state cost
 cost(u) = abs2(tr(first(u)'u[2])) - abs2(tr(first(u)'last(u)))
