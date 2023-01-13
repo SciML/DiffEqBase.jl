@@ -1,6 +1,7 @@
 module UnitfulExt
 
-using Unitful, DiffEqBase
+using DiffEqBase
+isdefined(Base, :get_extension) ? (using Unitful) : (using ..Unitful)
 
 # Support adaptive errors should be errorless for exponentiation
 DiffEqBase.value(x::Type{Unitful.AbstractQuantity{T, D, U}}) where {T, D, U} = T
