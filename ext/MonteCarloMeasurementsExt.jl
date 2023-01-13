@@ -1,6 +1,7 @@
 module MonteCarloMeasurementsExt
 
-using MonteCarloMeasurements, DiffEqBase
+using DiffEqBase
+isdefined(Base, :get_extension) ? (using MonteCarloMeasurements) : (using ..MonteCarloMeasurements)
 
 function DiffEqBase.promote_u0(u0::AbstractArray{<:MonteCarloMeasurements.AbstractParticles
                                                  },
