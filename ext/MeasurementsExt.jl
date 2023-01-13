@@ -1,6 +1,7 @@
 module MeasurementsExt
 
-using Measurements, DiffEqBase
+using DiffEqBase
+isdefined(Base, :get_extension) ? (using Measurements) : (using ..Measurements)
 
 function DiffEqBase.promote_u0(u0::AbstractArray{<:Measurements.Measurement},
                                p::AbstractArray{<:Measurements.Measurement}, t0)
