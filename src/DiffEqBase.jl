@@ -154,9 +154,5 @@ export KeywordArgError, KeywordArgWarn, KeywordArgSilent
 
 if !isdefined(Base, :get_extension)
     include("../ext/DistributionsExt.jl")
-    include("../ext/MeasurementsExt.jl")
-    include("../ext/MonteCarloMeasurementsExt.jl")
-    include("../ext/UnitfulExt.jl")
-    include("../ext/GeneralizedGeneratedExt.jl")
 end
 end # module
