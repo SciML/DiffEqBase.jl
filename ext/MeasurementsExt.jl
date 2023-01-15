@@ -1,6 +1,7 @@
 module MeasurementsExt
 
 using DiffEqBase
+import DiffEqBase: value
 isdefined(Base, :get_extension) ? (using Measurements) : (using ..Measurements)
 
 function DiffEqBase.promote_u0(u0::AbstractArray{<:Measurements.Measurement},
@@ -9,8 +10,8 @@ function DiffEqBase.promote_u0(u0::AbstractArray{<:Measurements.Measurement},
 end
 DiffEqBase.promote_u0(u0, p::AbstractArray{<:Measurements.Measurement}, t0) = eltype(p).(u0)
 
-DiffEqBase.value(x::Type{Measurements.Measurement{T}}) where {T} = T
-DiffEqBase.value(x::Measurements.Measurement) = Measurements.value(x)
+value(x::Type{Measurements.Measurement{T}}) where {T} = T
+value(x::Measurements.Measurement) = Measurements.value(x)
 
 @inline DiffEqBase.fastpow(x::Measurements.Measurement, y::Measurements.Measurement) = x^y
 
