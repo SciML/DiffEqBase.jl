@@ -16,8 +16,6 @@ using FunctionWrappers: FunctionWrapper
 
 using MuladdMacro, Parameters
 
-using SimpleNonlinearSolve
-
 using Reexport
 
 using Statistics
@@ -116,6 +114,7 @@ include("fastpow.jl")
 include("destats.jl")
 include("calculate_residuals.jl")
 include("tableaus.jl")
+include("internal_falsi.jl")
 
 include("callbacks.jl")
 include("common_defaults.jl")
