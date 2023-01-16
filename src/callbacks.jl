@@ -361,8 +361,8 @@ function bisection(f, tup, t_forward::Bool, rootfind::SciMLBase.RootfindOpt, abs
                    maxiters = 1000)
     if rootfind == SciMLBase.LeftRootFind
         solve(IntervalNonlinearProblem{false}(f, tup),
-                                   InternalFalsi(), abstol = abstol,
-                                   reltol = reltol).left
+              InternalFalsi(), abstol = abstol,
+              reltol = reltol).left
     else
         solve(IntervalNonlinearProblem{false}(f, tup),
               InternalFalsi(), abstol = abstol,
