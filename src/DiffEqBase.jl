@@ -1,8 +1,8 @@
 module DiffEqBase
 
 if !isdefined(Base, :get_extension)
-  using Requires
-end 
+    using Requires
+end
 
 using ArrayInterfaceCore
 

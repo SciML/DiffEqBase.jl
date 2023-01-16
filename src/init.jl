@@ -16,20 +16,12 @@ end
 
 function __init__()
     @static if !isdefined(Base, :get_extension)
-        @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin
-            include("../ext/MeasurementsExt.jl")
-        end
+        @require Measurements="eff96d63-e80a-5855-80a2-b1b0885c5ab7" begin include("../ext/MeasurementsExt.jl") end
 
-        @require MonteCarloMeasurements="0987c9cc-fe09-11e8-30f0-b96dd679fdca" begin
-            include("../ext/MonteCarloMeasurementsExt.jl")
-        end
+        @require MonteCarloMeasurements="0987c9cc-fe09-11e8-30f0-b96dd679fdca" begin include("../ext/MonteCarloMeasurementsExt.jl") end
 
-        @require Unitful="1986cc42-f94f-5a68-af5c-568840ba703d" begin
-            include("../ext/UnitfulExt.jl")
-        end
+        @require Unitful="1986cc42-f94f-5a68-af5c-568840ba703d" begin include("../ext/UnitfulExt.jl") end
 
-        @require GeneralizedGenerated="6b9d7cbe-bcb9-11e9-073f-15a7a543e2eb" begin
-            include("../ext/GeneralizedGeneratedExt.jl")
-        end
+        @require GeneralizedGenerated="6b9d7cbe-bcb9-11e9-073f-15a7a543e2eb" begin include("../ext/GeneralizedGeneratedExt.jl") end
     end
 end
