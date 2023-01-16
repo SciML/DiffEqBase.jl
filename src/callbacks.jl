@@ -364,7 +364,7 @@ function bisection(f, tup, t_forward::Bool, rootfind::SciMLBase.RootfindOpt, abs
                                    InternalFalsi(), abstol = abstol,
                                    reltol = reltol).left
     else
-        SimpleNonlinearSolve.solve(IntervalNonlinearProblem{false}(f, tup),
+        solve(IntervalNonlinearProblem{false}(f, tup),
                                    InternalFalsi(), abstol = abstol,
                                    reltol = reltol).right
     end
