@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, CUDA, LinearAlgebra, Test
+using OrdinaryDiffEq, CUDA, LinearAlgebra, Test, StaticArrays
 function f(u, p, t)
     A * u
 end
@@ -58,3 +58,14 @@ f_complex(u, nothing, t) = 5.0f-1 .* u
 u0 = cu(rand(32, 32) .+ 1im * rand(32, 32));
 prob = ODEProblem(f_complex, u0, (0.0f0, 1.0f0))
 @test_nowarn sol = solve(prob, Tsit5())
+
+# Calculating norm of Static Arrays in GPU kernel DiffEqBase.jl#864
+
+function test_SA_norm(u::T) where {T <: AbstractArray}
+    @cushow DiffEqBase.ODE_DEFAULT_NORM(u, 1.0)
+    return nothing
+end
+
+u = @SVector rand(100)
+
+@testset "Static arrays norm on GPU" begin @cuda test_SA_norm(u) end

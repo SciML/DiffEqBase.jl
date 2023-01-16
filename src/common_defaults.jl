@@ -29,7 +29,7 @@ end
     Base.FastMath.sqrt_fast(real(x) / max(length(u), 1))
 end
 
-@inline function ODE_DEFAULT_NORM(u::StaticArrays.StaticArray{T},
+@inline function ODE_DEFAULT_NORM(u::StaticArrays.StaticArray{<:Tuple, T},
                                   t) where {T <: Union{AbstractFloat, Complex}}
     Base.FastMath.sqrt_fast(real(sum(abs2, u)) / max(length(u), 1))
 end
