@@ -68,4 +68,6 @@ end
 
 u = @SVector rand(100)
 
-@testset "Static arrays norm on GPU" begin @cuda test_SA_norm(u) end
+@testset "Static arrays norm on GPU" begin
+    @cuda test_SA_norm(u)
+end
