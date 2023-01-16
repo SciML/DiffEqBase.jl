@@ -1,6 +1,10 @@
 module DiffEqBase
 
-using Requires, ArrayInterfaceCore
+if !isdefined(Base, :get_extension)
+  using Requires
+end 
+
+using ArrayInterfaceCore
 
 using StaticArrays # data arrays
 
