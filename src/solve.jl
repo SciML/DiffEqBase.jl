@@ -784,7 +784,9 @@ options control the errors which are calculated:
 
 ### Sensitivity Algorithms (`sensealg`)
 
-`sensealg` is used for
+`sensealg` is used for choosing the way the automatic differentiation is performed.
+For more information, see the documentation for SciMLSensitivity:
+https://docs.sciml.ai/SciMLSensitivity/stable/
 
 ## Examples
 
@@ -810,7 +812,64 @@ the extention to other types is straightforward.
   to save size or because the user does not care about the others. Finally, with
   `progress = true` you are enabling the progress bar.
 """
-function solve(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = nothing,
+function solve(prob::DEProblem, args...; sensealg = nothing,
+               u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
+    if sensealg === nothing && haskey(prob.kwargs, :sensealg)
+        sensealg = prob.kwargs[:sensealg]
+    end
+
+    u0 = u0 !== nothing ? u0 : prob.u0
+    p = p !== nothing ? p : prob.p
+
+    if wrap isa Val{true}
+        wrap_sol(solve_up(prob, sensealg, u0, p, args...; kwargs...))
+    else
+        solve_up(prob, sensealg, u0, p, args...; kwargs...)
+    end
+end
+
+"""
+```julia
+solve(prob::NonlinearProblem, alg::Union{AbstractNonlinearAlgorithm,Nothing}; kwargs...)
+```
+
+## Arguments
+
+The only positional argument is `alg` which is optional. By default, `alg = nothing`.
+If `alg = nothing`, then `solve` dispatches to the NonlinearSolve.jl automated
+algorithm selection (if `using NonlinearSolve` was done, otherwise it will
+error with a `MethodError`).
+
+## Keyword Arguments
+
+The NonlinearSolve.jl universe has a large set of common arguments available
+for the `solve` function. These arguments apply to `solve` on any problem type and
+are only limited by limitations of the specific implementations.
+
+Many of the defaults depend on the algorithm or the package the algorithm derives
+from. Not all of the interface is provided by every algorithm.
+For more detailed information on the defaults and the available options
+for specific algorithms / packages, see the manual pages for the solvers of specific
+problems.
+
+#### Error Control
+
+* `abstol`: Absolute tolerance.
+* `reltol`: Relative tolerance. 
+
+### Miscellaneous
+
+* `maxiters`: Maximum number of iterations before stopping. Defaults to 1e5.
+* `verbose`: Toggles whether warnings are thrown when the solver exits early.
+  Defaults to true.
+
+### Sensitivity Algorithms (`sensealg`)
+
+`sensealg` is used for choosing the way the automatic differentiation is performed.
+    For more information, see the documentation for SciMLSensitivity:
+    https://docs.sciml.ai/SciMLSensitivity/stable/
+"""
+function solve(prob::NonlinearProblem, args...; sensealg = nothing,
                u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
