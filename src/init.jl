@@ -23,5 +23,7 @@ function __init__()
         @require Unitful="1986cc42-f94f-5a68-af5c-568840ba703d" begin include("../ext/UnitfulExt.jl") end
 
         @require GeneralizedGenerated="6b9d7cbe-bcb9-11e9-073f-15a7a543e2eb" begin include("../ext/GeneralizedGeneratedExt.jl") end
+
+        @require MPI="da04e1cc-30fd-572f-bb4f-1f8673147195" begin include("../ext/MPI.jl") end
     end
 end
