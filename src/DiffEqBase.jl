@@ -1,5 +1,8 @@
 module DiffEqBase
-
+if isdefined(Base, :Experimental) &&
+   isdefined(Base.Experimental, Symbol("@max_methods"))
+  @eval Base.Experimental.@max_methods 1
+end
 if !isdefined(Base, :get_extension)
     using Requires
 end
