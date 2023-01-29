@@ -37,7 +37,14 @@ prob = ODEProblem{false}(f, (1.0, 1.0f0), tspan)
 prob = ODEProblem{false}(f, u0, (0.0 + im, 1.0))
 @test_throws DiffEqBase.ComplexTspanError solve(prob, Tsit5())
 
-u0 = [0.0, 0.0]
-fmm = ODEFunction(f, mass_matrix = zeros(3, 3))
-prob = ODEProblem(fmm, u0, (0.0, 1.0))
-@test_throws DiffEqBase.IncompatibleMassMatrixError solve(prob, Tsit5())
+for u0 = ([0.0, 0.0], nothing
+    fmm = ODEFunction(f, mass_matrix = zeros(3, 3))
+    prob = ODEProblem(fmm, u0, (0.0, 1.0))
+    @test_throws DiffEqBase.IncompatibleMassMatrixError solve(prob, Tsit5())
+end
+
+# Allow empty mass matrix for empty u0
+fmm = ODEFunction((du, u, t)->nothing, mass_matrix = zeros(0, 0))
+prob = ODEProblem(fmm, nothing, (0., 1.))
+sol = solve(prob, Tsit5())
+@test isa(sol, DiffEqBase.ODESolution)
