@@ -1125,10 +1125,11 @@ function get_concrete_u0(prob, isadapt, t0, kwargs)
         throw(IncompatibleInitialConditionError())
     end
 
+    nu0 = length(something(_u0, ()))
     if isdefined(prob.f, :mass_matrix) && prob.f.mass_matrix !== nothing &&
        prob.f.mass_matrix isa AbstractArray &&
-       size(prob.f.mass_matrix, 1) !== length(_u0)
-        throw(IncompatibleMassMatrixError(size(prob.f.mass_matrix, 1), length(_u0)))
+       size(prob.f.mass_matrix, 1) !== nu0
+        throw(IncompatibleMassMatrixError(size(prob.f.mass_matrix, 1), nu0))
     end
 
     if _u0 isa Tuple
