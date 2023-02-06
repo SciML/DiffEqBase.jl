@@ -1,4 +1,4 @@
-module GeneralizedGeneratedExt
+module DiffEqBaseGeneralizedGeneratedExt
 
 using DiffEqBase
 isdefined(Base, :get_extension) ? (using GeneralizedGenerated) :
