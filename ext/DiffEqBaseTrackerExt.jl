@@ -1,16 +1,8 @@
 module DiffEqBaseTrackerExt
 
-function RecursiveArrayTools.recursivecopy!(b::AbstractArray{T, N},
-                                            a::AbstractArray{T2, N}) where {
-                                                                            T <:
-                                                                            Tracker.TrackedArray,
-                                                                            T2 <:
-                                                                            Tracker.TrackedArray,
-                                                                            N}
-    @inbounds for i in eachindex(a)
-        b[i] = copy(a[i])
-    end
-end
+using DiffEqBase
+import DiffEqBase: value
+import Tracker
 
 DiffEqBase.value(x::Type{Tracker.TrackedReal{T}}) where {T} = T
 DiffEqBase.value(x::Type{Tracker.TrackedArray{T, N, A}}) where {T, N, A} = Array{T, N}

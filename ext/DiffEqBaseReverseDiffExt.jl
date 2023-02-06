@@ -1,5 +1,9 @@
 module DiffEqBaseReverseDiffExt
 
+using DiffEqBase
+import DiffEqBase: value
+import ReverseDiff
+
 DiffEqBase.value(x::ReverseDiff.TrackedReal) = x.value
 DiffEqBase.value(x::ReverseDiff.TrackedArray) = x.value
 
