@@ -63,21 +63,24 @@ end
 
 # `ReverseDiff.TrackedArray`
 function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
-                             sensealg::Union{DiffEqBase.AbstractOverloadingSensitivityAlgorithm,
+                             sensealg::Union{
+                                             DiffEqBase.AbstractOverloadingSensitivityAlgorithm,
                                              Nothing}, u0::ReverseDiff.TrackedArray,
                              p::ReverseDiff.TrackedArray, args...; kwargs...)
     ReverseDiff.track(DiffEqBase.solve_up, prob, sensealg, u0, p, args...; kwargs...)
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
-                             sensealg::Union{DiffEqBase.AbstractOverloadingSensitivityAlgorithm,
+                             sensealg::Union{
+                                             DiffEqBase.AbstractOverloadingSensitivityAlgorithm,
                                              Nothing}, u0, p::ReverseDiff.TrackedArray,
                              args...; kwargs...)
     ReverseDiff.track(DiffEqBase.solve_up, prob, sensealg, u0, p, args...; kwargs...)
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
-                             sensealg::Union{DiffEqBase.AbstractOverloadingSensitivityAlgorithm,
+                             sensealg::Union{
+                                             DiffEqBase.AbstractOverloadingSensitivityAlgorithm,
                                              Nothing}, u0::ReverseDiff.TrackedArray, p,
                              args...; kwargs...)
     ReverseDiff.track(DiffEqBase.solve_up, prob, sensealg, u0, p, args...; kwargs...)
@@ -85,7 +88,8 @@ end
 
 # `AbstractArray{<:ReverseDiff.TrackedReal}`
 function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
-                             sensealg::Union{DiffEqBase.AbstractOverloadingSensitivityAlgorithm,
+                             sensealg::Union{
+                                             DiffEqBase.AbstractOverloadingSensitivityAlgorithm,
                                              Nothing},
                              u0::AbstractArray{<:ReverseDiff.TrackedReal},
                              p::AbstractArray{<:ReverseDiff.TrackedReal}, args...;
@@ -95,7 +99,8 @@ function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
-                             sensealg::Union{DiffEqBase.AbstractOverloadingSensitivityAlgorithm,
+                             sensealg::Union{
+                                             DiffEqBase.AbstractOverloadingSensitivityAlgorithm,
                                              Nothing}, u0,
                              p::AbstractArray{<:ReverseDiff.TrackedReal},
                              args...; kwargs...)
@@ -103,7 +108,8 @@ function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
-                             sensealg::Union{DiffEqBase.AbstractOverloadingSensitivityAlgorithm,
+                             sensealg::Union{
+                                             DiffEqBase.AbstractOverloadingSensitivityAlgorithm,
                                              Nothing},
                              u0::AbstractArray{<:ReverseDiff.TrackedReal}, p,
                              args...; kwargs...)
