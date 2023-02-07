@@ -2,7 +2,7 @@ module DiffEqBaseReverseDiffExt
 
 using DiffEqBase
 import DiffEqBase: value
-import ReverseDiff
+isdefined(Base, :get_extension) ? (import ReverseDiff) : (import ..ReverseDiff)
 
 DiffEqBase.value(x::ReverseDiff.TrackedReal) = x.value
 DiffEqBase.value(x::ReverseDiff.TrackedArray) = x.value
