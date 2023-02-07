@@ -1,4 +1,4 @@
-module UnitfulExt
+module DiffEqBaseUnitfulExt
 
 using DiffEqBase
 import DiffEqBase: value

@@ -1,4 +1,4 @@
-module MonteCarloMeasurementsExt
+module DiffEqBaseMonteCarloMeasurementsExt
 
 using DiffEqBase
 import DiffEqBase: value
