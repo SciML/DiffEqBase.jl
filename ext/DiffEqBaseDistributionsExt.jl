@@ -1,4 +1,4 @@
-module DistributionsExt
+module DiffEqBaseDistributionsExt
 
 using Distributions, DiffEqBase
 

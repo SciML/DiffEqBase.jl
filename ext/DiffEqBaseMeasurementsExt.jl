@@ -1,4 +1,4 @@
-module MeasurementsExt
+module DiffEqBaseMeasurementsExt
 
 using DiffEqBase
 import DiffEqBase: value

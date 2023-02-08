@@ -1,4 +1,4 @@
-module MPIExt
+module DiffEqBaseMPIExt
 
 import DiffEqBase
 isdefined(Base, :get_extension) ? (import MPI) : (import ..MPI)

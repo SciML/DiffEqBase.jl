@@ -44,7 +44,7 @@ for u0 in ([0.0, 0.0], nothing)
 end
 
 # Allow empty mass matrix for empty u0
-fmm = ODEFunction((du, u, t)->nothing, mass_matrix = zeros(0, 0))
-prob = ODEProblem(fmm, nothing, (0., 1.))
+fmm = ODEFunction((du, u, t) -> nothing, mass_matrix = zeros(0, 0))
+prob = ODEProblem(fmm, nothing, (0.0, 1.0))
 sol = solve(prob, Tsit5())
 @test isa(sol, DiffEqBase.ODESolution)
