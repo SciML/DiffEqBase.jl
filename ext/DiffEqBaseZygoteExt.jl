@@ -41,11 +41,11 @@ function ∇responsible_map(cx, f, args...)
     end
 end
 
-ZygoteRules.@adjoint function SciMLBase.tmap(f, args::Union{AbstractArray, Tuple}...)
+Zygote.ZygoteRules.@adjoint function SciMLBase.tmap(f, args::Union{AbstractArray, Tuple}...)
     ∇tmap(__context__, f, args...)
 end
 
-ZygoteRules.@adjoint function SciMLBase.responsible_map(f,
+Zygote.ZygoteRules.@adjoint function SciMLBase.responsible_map(f,
                                                         args::Union{AbstractArray, Tuple
                                                                     }...)
     ∇responsible_map(__context__, f, args...)
