@@ -46,8 +46,8 @@ Zygote.@adjoint function SciMLBase.tmap(f, args::Union{AbstractArray, Tuple}...)
 end
 
 Zygote.@adjoint function SciMLBase.responsible_map(f,
-                                                        args::Union{AbstractArray, Tuple
-                                                                    }...)
+                                                   args::Union{AbstractArray, Tuple
+                                                               }...)
     ∇responsible_map(__context__, f, args...)
 end
 
