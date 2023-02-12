@@ -78,7 +78,9 @@ const allowedkeywords = (:dense,
                          # Jump problems
                          :alias_jump,
                          # This is for copying/deepcopying noise in StochasticDiffEq
-                         :alias_noise)
+                         :alias_noise,
+                         # This is for SimpleNonlinearSolve handling for batched Nonlinear Solves
+                         :batch)
 
 const KWARGWARN_MESSAGE = """
                           Unrecognized keyword arguments found. Future versions will error.
