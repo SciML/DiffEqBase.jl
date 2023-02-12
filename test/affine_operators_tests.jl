@@ -1,8 +1,9 @@
 using DiffEqBase
+using SciMLBase
 using Test
 using Random
 
-mutable struct TestDiffEqOperator{T} <: DiffEqBase.AbstractDiffEqLinearOperator{T}
+mutable struct TestDiffEqOperator{T} <: SciMLBase.AbstractDiffEqLinearOperator{T}
     m::Int
     n::Int
 end

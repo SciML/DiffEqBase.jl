@@ -44,8 +44,8 @@ import PreallocationTools
 import FunctionWrappersWrappers
 @reexport using SciMLBase
 
-using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
-                 AbstractDiffEqLinearOperator, AbstractDiffEqInterpolation,
+using SciMLBase: @def, DEIntegrator, DEProblem, AbstractSciMLOperator,
+                 AbstractDiffEqInterpolation,
                  DECallback, AbstractDEOptions, DECache, AbstractContinuousCallback,
                  AbstractDiscreteCallback, AbstractLinearProblem, AbstractNonlinearProblem,
                  AbstractOptimizationProblem, AbstractSteadyStateProblem,
