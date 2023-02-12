@@ -4,8 +4,12 @@ using DiffEqBase
 import DiffEqBase: value
 isdefined(Base, :get_extension) ? (import ReverseDiff) : (import ..ReverseDiff)
 
-DiffEqBase.value(x::Type{ReverseDiff.TrackedReal{V,D,O}}) where {V, D, O} = V
-DiffEqBase.value(x::Type{ReverseDiff.TrackedArray{V, D, N, VA, DA}}) where {V, D, N, VA, DA} = Array{V, N}
+DiffEqBase.value(x::Type{ReverseDiff.TrackedReal{V, D, O}}) where {V, D, O} = V
+function DiffEqBase.value(x::Type{ReverseDiff.TrackedArray{V, D, N, VA, DA}}) where {V, D,
+                                                                                     N, VA,
+                                                                                     DA}
+    Array{V, N}
+end
 DiffEqBase.value(x::ReverseDiff.TrackedReal) = x.value
 DiffEqBase.value(x::ReverseDiff.TrackedArray) = x.value
 
