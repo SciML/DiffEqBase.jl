@@ -926,6 +926,14 @@ function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, arg
     end
 end
 
+function solve_call(prob::SteadyStateProblem,
+                    alg::SciMLBase.AbstractNonlinearAlgorithm, args...;
+                    kwargs...)
+    solve_call(NonlinearProblem(prob),
+               alg, args...;
+               kwargs...)
+end
+
 function solve(prob::EnsembleProblem, args...; kwargs...)
     if isempty(args) || length(args) == 1 && typeof(args[1]) <: EnsembleAlgorithm
         __solve(prob, nothing, args...; kwargs...)
