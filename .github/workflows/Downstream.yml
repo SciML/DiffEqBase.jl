@@ -37,6 +37,8 @@ jobs:
           - {user: SciML, repo: StochasticDiffEq.jl, group: AlgConvergence}
           - {user: SciML, repo: Sundials.jl, group: All}
           - {user: SciML, repo: SteadyStateDiffEq.jl, group: All}
+          - {user: SciML, repo: DifferentialEquations.jl, group: All}
+          - {user: SciML, repo: ModelingToolkit.jl, group: All}
 
     steps:
       - uses: actions/checkout@v2
