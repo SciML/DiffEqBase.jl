@@ -9,7 +9,7 @@ end
 
 using ArrayInterfaceCore
 
-using StaticArrays # data arrays
+using StaticArraysCore # data arrays
 
 using LinearAlgebra, Printf
 
