@@ -5,8 +5,9 @@
 [![Build status](https://badge.buildkite.com/99cbd352c336779c3117e4da61255a1ed8e7e7c084c3c2516c.svg)](https://buildkite.com/julialang/diffeqbase-dot-jl)
 
 DiffEqBase.jl is a component package in the DiffEq ecosystem. It holds the
-common types and utility functions which are shared by other component packages
-in order to reduce the size of dependencies. This is so that the packages for the common interface do not require one another, allowing users to use the functionality of individual packages if they so please. Users interested in using this
+common types and utility functions which are shared by other solver packages
+to promote code reuse in the differential equation solver code.
+Users interested in using this
 functionality in full should check out [DifferentialEquations.jl](https://github.com/JuliaDiffEq/DifferentialEquations.jl)
 
 The documentation for the interfaces here can be found in [DiffEqDocs.jl](https://diffeq.sciml.ai/dev/) and [DiffEqDevDocs.jl](https://devdocs.sciml.ai/dev).

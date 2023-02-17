@@ -21,7 +21,7 @@ end
     AbsSafeBest
 end
 
-struct NLSolveSafeTerminationOptions{T1,T2,T3}
+struct NLSolveSafeTerminationOptions{T1, T2, T3}
     protective_threshold::T1
     patience_steps::Int
     patience_objective_multiplier::T2
@@ -53,23 +53,23 @@ Define the termination criteria for the NonlinearProblem or SteadyStateProblem.
 
 #### Termination on Absolute Tolerance
 
-  * `SteadyStateTerminationMode.Abs`: Terminates if ``all \left( | \frac{\partial u}{\partial t} | \leq abstol \right)``
-  * `SteadyStateTerminationMode.AbsNorm`: Terminates if ``\| \frac{\partial u}{\partial t} \| \leq abstol``
-  * `SteadyStateTerminationMode.AbsSafe`: Essentially `abs_norm` + terminate if there has been no improvement for the last 30 steps + terminate if the solution blows up (diverges)
-  * `SteadyStateTerminationMode.AbsSafeBest`: Same as `SteadyStateTerminationMode.AbsSafe` but uses the best solution found so far, i.e. deviates only if the solution has not converged
+  * `NLSolveTerminationMode.Abs`: Terminates if ``all \left( | \frac{\partial u}{\partial t} | \leq abstol \right)``
+  * `NLSolveTerminationMode.AbsNorm`: Terminates if ``\| \frac{\partial u}{\partial t} \| \leq abstol``
+  * `NLSolveTerminationMode.AbsSafe`: Essentially `abs_norm` + terminate if there has been no improvement for the last 30 steps + terminate if the solution blows up (diverges)
+  * `NLSolveTerminationMode.AbsSafeBest`: Same as `NLSolveTerminationMode.AbsSafe` but uses the best solution found so far, i.e. deviates only if the solution has not converged
 
 #### Termination on Relative Tolerance
 
-  * `SteadyStateTerminationMode.Rel`: Terminates if ``all \left(| \frac{\partial u}{\partial t} | \leq reltol \times | u | \right)``
-  * `SteadyStateTerminationMode.RelNorm`: Terminates if ``\| \frac{\partial u}{\partial t} \| \leq reltol \times \| \frac{\partial u}{\partial t} + u \|``
-  * `SteadyStateTerminationMode.RelSafe`: Essentially `rel_norm` + terminate if there has been no improvement for the last 30 steps + terminate if the solution blows up (diverges)
-  * `SteadyStateTerminationMode.RelSafeBest`: Same as `SteadyStateTerminationMode.RelSafe` but uses the best solution found so far, i.e. deviates only if the solution has not converged
+  * `NLSolveTerminationMode.Rel`: Terminates if ``all \left(| \frac{\partial u}{\partial t} | \leq reltol \times | u | \right)``
+  * `NLSolveTerminationMode.RelNorm`: Terminates if ``\| \frac{\partial u}{\partial t} \| \leq reltol \times \| \frac{\partial u}{\partial t} + u \|``
+  * `NLSolveTerminationMode.RelSafe`: Essentially `rel_norm` + terminate if there has been no improvement for the last 30 steps + terminate if the solution blows up (diverges)
+  * `NLSolveTerminationMode.RelSafeBest`: Same as `NLSolveTerminationMode.RelSafe` but uses the best solution found so far, i.e. deviates only if the solution has not converged
 
 #### Termination using both Absolute and Relative Tolerances
 
-  * `SteadyStateTerminationMode.Norm`: Terminates if ``\| \frac{\partial u}{\partial t} \| \leq reltol \times \| \frac{\partial u}{\partial t} + u \|`` or ``\| \frac{\partial u}{\partial t} \| \leq abstol``
-  * `SteadyStateTerminationMode.SteadyStateDefault`: Check if all values of the derivative is close to zero wrt both relative and absolute tolerance. This is usable for small problems but doesn't scale well for neural networks.
-  * `SteadyStateTerminationMode.NLSolveDefault`: Check if all values of the derivative is close to zero wrt both relative and absolute tolerance. Or check that the value of the current and previous state is within the specified tolerances. This is usable for small problems but doesn't scale well for neural networks.
+  * `NLSolveTerminationMode.Norm`: Terminates if ``\| \frac{\partial u}{\partial t} \| \leq reltol \times \| \frac{\partial u}{\partial t} + u \|`` or ``\| \frac{\partial u}{\partial t} \| \leq abstol``
+  * `NLSolveTerminationMode.SteadyStateDefault`: Check if all values of the derivative is close to zero wrt both relative and absolute tolerance. This is usable for small problems but doesn't scale well for neural networks.
+  * `NLSolveTerminationMode.NLSolveDefault`: Check if all values of the derivative is close to zero wrt both relative and absolute tolerance. Or check that the value of the current and previous state is within the specified tolerances. This is usable for small problems but doesn't scale well for neural networks.
 
 ## General Arguments
 
@@ -90,13 +90,16 @@ struct NLSolveTerminationCondition{mode, T,
 end
 
 function Base.show(io::IO, s::NLSolveTerminationCondition{mode}) where {mode}
-    print(io, "NLSolveTerminationCondition(mode = $(mode), abstol = $(s.abstol), reltol = $(s.reltol)")
+    print(io,
+          "NLSolveTerminationCondition(mode = $(mode), abstol = $(s.abstol), reltol = $(s.reltol)")
     if mode ∈ SAFE_TERMINATION_MODES
         print(io, ", safe_termination_options = ", s.safe_termination_options, ")")
     else
         print(io, ")")
     end
 end
+
+get_termination_mode(::NLSolveTerminationCondition{mode}) where {mode} = mode
 
 # Don't specify `mode` since the defaults would depend on the package
 function NLSolveTerminationCondition(mode; abstol::T = 1e-8, reltol::T = 1e-6,
@@ -110,11 +113,11 @@ function NLSolveTerminationCondition(mode; abstol::T = 1e-8, reltol::T = 1e-6,
     else
         nothing
     end
-    return NLSolveTerminationCriteria{mode, T, typeof(options)}(abstol, reltol, options)
+    return NLSolveTerminationCondition{mode, T, typeof(options)}(abstol, reltol, options)
 end
 
-function get_termination_condition(cond::NLSolveTerminationCondition{mode},
-                                   storage::Union{<:AbstractDict, Nothing}) where {mode}
+function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict, Nothing})
+    mode = get_termination_mode(cond)
     # We need both the dispatches to support solvers that don't use the integrator
     # interface like SimpleNonlinearSolve
     if mode in BASIC_TERMINATION_MODES
@@ -122,29 +125,26 @@ function get_termination_condition(cond::NLSolveTerminationCondition{mode},
             return _termination_condition_closure_basic(get_du(integrator), integrator.u,
                                                         integrator.uprev, abstol, reltol)
         end
-        function _termination_condition_closure_basic(du, u, uprev, abstol = cond.abstol,
-                                                      reltol = cond.reltol)
+        function _termination_condition_closure_basic(du, u, uprev, abstol, reltol)
             return _has_converged(du, u, uprev, cond, abstol, reltol)
         end
         return _termination_condition_closure_basic
     else
         mode ∈ SAFE_BEST_TERMINATION_MODES && @assert storage !== nothing
+        nstep::Int = 0
 
         function _termination_condition_closure_safe(integrator, abstol, reltol, min_t)
             return _termination_condition_closure_safe(get_du(integrator), integrator.u,
                                                        integrator.uprev, abstol, reltol)
         end
-        @inbounds function _termination_condition_closure_safe(du, u, uprev,
-                                                               abstol = cond.abstol,
-                                                               reltol = cond.reltol)
-            aType = typeof(cond.abstol)
-            nstep = 0
+        @inbounds function _termination_condition_closure_safe(du, u, uprev, abstol, reltol)
+            aType = typeof(abstol)
             protective_threshold = aType(cond.safe_termination_options.protective_threshold)
             objective_values = aType[]
             patience_objective_multiplier = cond.safe_termination_options.patience_objective_multiplier
 
             if mode ∈ SAFE_BEST_TERMINATION_MODES
-                storage[:best_objective_value] = oftype(Inf)
+                storage[:best_objective_value] = aType(Inf)
                 storage[:best_objective_value_iteration] = 0
             end
 
@@ -200,9 +200,8 @@ function get_termination_condition(cond::NLSolveTerminationCondition{mode},
     end
 end
 
-
 # Convergence Criterions
-@inline function _has_converged(du, u, uprev, cond::NLSolveTerminationCriteria{mode},
+@inline function _has_converged(du, u, uprev, cond::NLSolveTerminationCondition{mode},
                                 abstol = cond.abstol, reltol = cond.reltol) where {mode}
     return _has_converged(du, u, uprev, mode, abstol, reltol)
 end
@@ -214,18 +213,18 @@ end
     elseif mode == NLSolveTerminationMode.Rel
         return all(abs.(du) .<= reltol .* abs.(u))
     elseif mode ∈ (NLSolveTerminationMode.RelNorm, NLSolveTerminationMode.RelSafe,
-                   NLSolveTerminationMode.RelSafeBest)
+            NLSolveTerminationMode.RelSafeBest)
         return norm(du) <= reltol * norm(du .+ u)
     elseif mode == NLSolveTerminationMode.Abs
         return all(abs.(du) .<= abstol)
     elseif mode ∈ (NLSolveTerminationMode.AbsNorm, NLSolveTerminationMode.AbsSafe,
-                   NLSolveTerminationMode.AbsSafeBest)
+            NLSolveTerminationMode.AbsSafeBest)
         return norm(du) <= abstol
     elseif mode == NLSolveTerminationMode.SteadyStateDefault
-        return all((abs.(du) .<= abstol) .|| (abs.(du) .<= reltol .* abs.(u)))
+        return all((abs.(du) .<= abstol) .| (abs.(du) .<= reltol .* abs.(u)))
     elseif mode == NLSolveTerminationMode.NLSolveDefault
         atol, rtol = abstol, reltol
-        return all((abs.(du) .<= abstol) .|| (abs.(du) .<= reltol .* abs.(u))) ||
+        return all((abs.(du) .<= abstol) .| (abs.(du) .<= reltol .* abs.(u))) ||
                isapprox(u, uprev; atol, rtol)
     else
         throw(ArgumentError("Unknown termination mode: $mode"))
