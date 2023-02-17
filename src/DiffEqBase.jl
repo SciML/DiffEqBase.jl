@@ -38,6 +38,8 @@ using Setfield
 
 using ForwardDiff
 
+using EnumX
+
 @reexport using SciMLBase
 
 using SciMLBase: @def, DEIntegrator, DEProblem, AbstractDiffEqOperator,
@@ -126,6 +128,8 @@ include("init.jl")
 include("forwarddiff.jl")
 include("chainrules.jl")
 
+include("termination_conditions.jl")
+
 include("precompile.jl")
 
 """
@@ -152,5 +156,7 @@ export LinSolveFactorize, LinSolveGPUFactorize, DefaultLinSolve, DEFAULT_LINSOLV
 export NLNewton, NLFunctional, NLAnderson
 
 export SensitivityADPassThrough
+
+export NLSolveTerminationMode, NLSolveSafeTerminationOptions, NLSolveTerminationCondition
 
 end # module
