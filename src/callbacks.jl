@@ -193,7 +193,7 @@ end
     next_sign = @view(integrator.callback_cache.next_sign[1:(callback.len)])
 
     if integrator.event_last_time == counter &&
-       minimum(ODE_DEFAULT_NORM(ArrayInterfaceCore.allowed_getindex(previous_condition,
+       minimum(ODE_DEFAULT_NORM(ArrayInterface.allowed_getindex(previous_condition,
                                                                     ivec), integrator.t)) <=
        100ODE_DEFAULT_NORM(integrator.last_event_error, integrator.t)
 
@@ -473,9 +473,9 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                 min_t = nextfloat(top_t)
                 min_event_idx = -1
                 for idx in 1:length(event_idx)
-                    if ArrayInterfaceCore.allowed_getindex(event_idx, idx) != 0
+                    if ArrayInterface.allowed_getindex(event_idx, idx) != 0
                         function zero_func(abst, p = nothing)
-                            ArrayInterfaceCore.allowed_getindex(get_condition(integrator,
+                            ArrayInterface.allowed_getindex(get_condition(integrator,
                                                                               callback,
                                                                               abst), idx)
                         end
@@ -538,7 +538,7 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
         error("Callback handling failed. Please file an issue with code to reproduce.")
     end
 
-    new_t, ArrayInterfaceCore.allowed_getindex(prev_sign, min_event_idx),
+    new_t, ArrayInterface.allowed_getindex(prev_sign, min_event_idx),
     event_occurred::Bool, min_event_idx::Int
 end
 

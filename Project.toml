@@ -4,7 +4,7 @@ authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 version = "6.118.0"
 
 [deps]
-ArrayInterfaceCore = "30b0a656-2188-435a-8636-2ec0e6a096e2"
+ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
@@ -54,7 +54,7 @@ DiffEqBaseUnitfulExt = "Unitful"
 DiffEqBaseMPIExt = "MPI"
 
 [compat]
-ArrayInterfaceCore = "0.1.26"
+ArrayInterface = "7"
 ChainRulesCore = "1"
 DataStructures = "0.18"
 Distributions = "0.25"
