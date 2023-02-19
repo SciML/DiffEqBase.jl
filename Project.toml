@@ -54,7 +54,7 @@ DiffEqBaseUnitfulExt = "Unitful"
 DiffEqBaseMPIExt = "MPI"
 
 [compat]
-ArrayInterface = "7"
+ArrayInterface = "6, 7"
 ChainRulesCore = "1"
 DataStructures = "0.18"
 Distributions = "0.25"
