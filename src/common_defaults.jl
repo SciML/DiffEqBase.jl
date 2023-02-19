@@ -15,7 +15,10 @@ end
 @inline recursive_length(u::AbstractArray{<:AbstractArray}) = sum(recursive_length, u)
 @inline recursive_length(u::RecursiveArrayTools.ArrayPartition) = sum(recursive_length, u.x)
 @inline recursive_length(u::RecursiveArrayTools.VectorOfArray) = sum(recursive_length, u.u)
-@inline function recursive_length(u::AbstractArray{<:StaticArraysCore.StaticArray{S, <:Number}}) where {S}
+@inline function recursive_length(u::AbstractArray{
+                                                   <:StaticArraysCore.StaticArray{S,
+                                                                                  <:Number}
+                                                   }) where {S}
     prod(Size(eltype(u))) * length(u)
 end
 

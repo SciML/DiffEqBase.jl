@@ -38,6 +38,10 @@ using Setfield
 
 using ForwardDiff
 
+using EnumX
+
+using Markdown
+
 # Could be made optional/glue
 import PreallocationTools
 
@@ -127,6 +131,8 @@ include("init.jl")
 include("forwarddiff.jl")
 include("chainrules.jl")
 
+include("termination_conditions.jl")
+
 include("norecompile.jl")
 # This is only used for oop stiff solvers
 default_factorize(A) = lu(A; check = false)
@@ -152,9 +158,12 @@ export initialize!, finalize!
 
 export SensitivityADPassThrough
 
+export NLSolveTerminationMode, NLSolveSafeTerminationOptions, NLSolveTerminationCondition
+
 export KeywordArgError, KeywordArgWarn, KeywordArgSilent
 
 if !isdefined(Base, :get_extension)
     include("../ext/DiffEqBaseDistributionsExt.jl")
 end
+
 end # module
