@@ -559,7 +559,7 @@ from. Not all of the interface is provided by every algorithm.
 For more detailed information on the defaults and the available options
 for specific algorithms / packages, see the manual pages for the solvers of specific
 problems. To see whether a specific package is compaible with the use of a
-given option, see the [Solver Compatibility Chart](@ref)
+given option, see the [Solver Compatibility Chart](https://docs.sciml.ai/DiffEqDocs/stable/basics/compatibility_chart/#Solver-Compatibility-Chart)
 
 ### Default Algorithm Hinting
 
@@ -638,7 +638,7 @@ section at the end of this page for some example usage.
 
 Note that `dense` requires `save_everystep=true` and `saveat=false`. If you need
 additional saving while keeping dense output, see
-[the SavingCallback in the Callback Library](@ref saving_callback).
+[the SavingCallback in the Callback Library](https://docs.sciml.ai/DiffEqCallbacks/stable/output_saving/#DiffEqCallbacks.SavingCallback).
 
 ### Stepsize Control
 
@@ -693,19 +693,21 @@ Note that if a method does not have adaptivity, the following rules apply:
   each value in `tstops`
 * If neither `dt` nor `tstops` are set, the solver will throw an error.
 
-#### [Advanced Adaptive Stepsize Control](@id advanced_adaptive_stepsize_control)
+#### [Advanced Adaptive Stepsize Control](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/)
 
 These arguments control more advanced parts of the internals of adaptive timestepping
 and are mostly used to make it more efficient on specific problems. For detained
 explanations of the timestepping algorithms, see the
-[timestepping descriptions](@ref timestepping)
+[timestepping descriptions](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/#timestepping)
 
 * `internalnorm`: The norm function `internalnorm(u,t)` which error estimates
   are calculated. Required are two dispatches: one dispatch for the state variable
   and the other on the elements of the state variable (scalar norm).
   Defaults are package-dependent.
-* `controller`: Possible examples are [`IController`](@ref),
-  [`PIController`](@ref), [`PIDController`](@ref), [`PredictiveController`](@ref).
+* `controller`: Possible examples are [`IController`](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/#OrdinaryDiffEq.IController),
+  [`PIController`](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/#OrdinaryDiffEq.PIController),
+  [`PIDController`](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/#OrdinaryDiffEq.PIDController),
+  [`PredictiveController`](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/#OrdinaryDiffEq.PredictiveController).
   Default is algorithm-dependent.
 * `gamma`: The risk-factor γ in the q equation for adaptive timestepping
   of the controllers using it.
@@ -747,7 +749,7 @@ explanations of the timestepping algorithms, see the
 * `maxiters`: Maximum number of iterations before stopping. Defaults to 1e5.
 * `callback`: Specifies a callback. Defaults to a callback function which
   performs the saving routine. For more information, see the
-  [Event Handling and Callback Functions manual page](@ref callbacks).
+  [Event Handling and Callback Functions manual page](https://docs.sciml.ai/DiffEqCallbacks/stable/).
 * `isoutofdomain`: Specifies a function `isoutofdomain(u,p,t)` where, when it
   returns true, it will reject the timestep. Disabled by default.
 * `unstable_check`: Specifies a function `unstable_check(dt,u,p,t)` where, when
