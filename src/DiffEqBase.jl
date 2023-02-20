@@ -7,7 +7,7 @@ if !isdefined(Base, :get_extension)
     using Requires
 end
 
-using ArrayInterfaceCore
+using ArrayInterface
 
 using StaticArraysCore # data arrays
 

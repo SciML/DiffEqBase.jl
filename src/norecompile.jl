@@ -55,8 +55,8 @@ function wrapfun_iip(ff,
                      inputs::Tuple{T1, T2, T3, T4}) where {T1, T2, T3, T4}
     T = eltype(T2)
     dualT = dualgen(T)
-    dualT1 = ArrayInterfaceCore.promote_eltype(T1, dualT)
-    dualT2 = ArrayInterfaceCore.promote_eltype(T2, dualT)
+    dualT1 = ArrayInterface.promote_eltype(T1, dualT)
+    dualT2 = ArrayInterface.promote_eltype(T2, dualT)
     dualT4 = dualgen(promote_type(T, T4))
 
     iip_arglists = (Tuple{T1, T2, T3, T4},
