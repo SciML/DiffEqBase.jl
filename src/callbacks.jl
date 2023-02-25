@@ -194,7 +194,7 @@ end
 
     if integrator.event_last_time == counter &&
        minimum(ODE_DEFAULT_NORM(ArrayInterface.allowed_getindex(previous_condition,
-                                                                    ivec), integrator.t)) <=
+                                                                ivec), integrator.t)) <=
        100ODE_DEFAULT_NORM(integrator.last_event_error, integrator.t)
 
         # If there was a previous event, utilize the derivative at the start to
@@ -476,8 +476,8 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                     if ArrayInterface.allowed_getindex(event_idx, idx) != 0
                         function zero_func(abst, p = nothing)
                             ArrayInterface.allowed_getindex(get_condition(integrator,
-                                                                              callback,
-                                                                              abst), idx)
+                                                                          callback,
+                                                                          abst), idx)
                         end
                         if zero_func(top_t) == 0
                             Θ = top_t
