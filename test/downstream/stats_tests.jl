@@ -16,7 +16,7 @@ end
 affect! = function (integrator) end
 cb = ContinuousCallback(condtion, affect!)
 sol = solve(prob, Vern9(), callback = cb)
-@test x[] == sol.destats.ncondition
+@test x[] == sol.stats.ncondition
 
 condtion = function (u, t, integrator)
     x[] += 1
@@ -25,7 +25,7 @@ end
 x[] = 0
 cb = ContinuousCallback(condtion, affect!)
 sol = solve(prob, Vern9(), callback = cb)
-@test x[] == sol.destats.ncondition
+@test x[] == sol.stats.ncondition
 
 condtion = function (u, t, integrator)
     x[] += 1
@@ -34,7 +34,7 @@ end
 x[] = 0
 cb = ContinuousCallback(condtion, affect!)
 sol = solve(prob, Vern9(), callback = cb)
-@test x[] == sol.destats.ncondition
+@test x[] == sol.stats.ncondition
 
 condtion = function (u, t, integrator)
     x[] += 1
@@ -43,4 +43,4 @@ end
 x[] = 0
 cb = DiscreteCallback(condtion, affect!)
 sol = solve(prob, Vern9(), callback = cb)
-@test x[] == sol.destats.ncondition
+@test x[] == sol.stats.ncondition

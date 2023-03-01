@@ -59,7 +59,7 @@ end
         @time @safetestset "Prob Kwargs" begin include("downstream/prob_kwargs.jl") end
         @time @safetestset "Unwrapping" begin include("downstream/unwrapping.jl") end
         @time @safetestset "Callback BigFloats" begin include("downstream/bigfloat_events.jl") end
-        @time @safetestset "DE stats" begin include("downstream/destats_tests.jl") end
+        @time @safetestset "DE stats" begin include("downstream/stats_tests.jl") end
         @time @safetestset "Ensemble AD Tests" begin include("downstream/ensemble_ad.jl") end
         @time @safetestset "Community Callback Tests" begin include("downstream/community_callback_tests.jl") end
         @time @testset "Distributed Ensemble Tests" begin include("downstream/distributed_ensemble.jl") end

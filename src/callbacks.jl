@@ -106,7 +106,7 @@ function get_condition(integrator::DEIntegrator, callback, abst)
         # ismutable && !(callback.idxs isa Number) ? integrator(tmp,abst,Val{0},idxs=callback.idxs) :
         #                                                 tmp = integrator(abst,Val{0},idxs=callback.idxs)
     end
-    integrator.sol.destats.ncondition += 1
+    integrator.sol.stats.ncondition += 1
     if callback isa VectorContinuousCallback
         callback.condition(@view(integrator.callback_cache.tmp_condition[1:(callback.len)]),
                            tmp, abst, integrator)
@@ -186,7 +186,7 @@ end
         callback.condition(previous_condition, integrator.uprev[callback.idxs],
                            integrator.tprev, integrator)
     end
-    integrator.sol.destats.ncondition += 1
+    integrator.sol.stats.ncondition += 1
 
     ivec = integrator.vector_event_last_time
     prev_sign = @view(integrator.callback_cache.prev_sign[1:(callback.len)])
@@ -295,7 +295,7 @@ end
         @views previous_condition = callback.condition(integrator.uprev[callback.idxs],
                                                        integrator.tprev, integrator)
     end
-    integrator.sol.destats.ncondition += 1
+    integrator.sol.stats.ncondition += 1
 
     prev_sign = 0.0
     next_sign = 0.0
@@ -609,7 +609,7 @@ end
             saved_in_cb = true
         end
     end
-    integrator.sol.destats.ncondition += 1
+    integrator.sol.stats.ncondition += 1
     integrator.u_modified, saved_in_cb
 end
 

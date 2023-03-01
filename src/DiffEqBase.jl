@@ -77,7 +77,7 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractSciMLOperator,
                  AbstractODEIntegrator, AbstractSDEIntegrator, AbstractRODEIntegrator,
                  AbstractDDEIntegrator, AbstractSDDEIntegrator,
                  AbstractDAEIntegrator, unwrap_cache, has_reinit, reinit!,
-                 postamble!, last_step_failed, islinear, has_destats,
+                 postamble!, last_step_failed, islinear, has_stats,
                  initialize_dae!, build_solution, solution_new_retcode,
                  solution_new_tslocation, plot_indices,
                  NullParameters, isinplace, AbstractADType, AbstractDiscretization,
@@ -121,7 +121,7 @@ import SciMLBase: Void, unwrapped_f
 
 include("utils.jl")
 include("fastpow.jl")
-include("destats.jl")
+include("stats.jl")
 include("calculate_residuals.jl")
 include("tableaus.jl")
 include("internal_falsi.jl")
