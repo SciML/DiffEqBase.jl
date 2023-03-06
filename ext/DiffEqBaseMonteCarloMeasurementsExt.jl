@@ -1,9 +1,14 @@
 module DiffEqBaseMonteCarloMeasurementsExt
 
-using DiffEqBase
-import DiffEqBase: value
-isdefined(Base, :get_extension) ? (using MonteCarloMeasurements) :
-(using ..MonteCarloMeasurements)
+if isdefined(Base, :get_extension)
+    using DiffEqBase
+    import DiffEqBase: value
+    using MonteCarloMeasurements
+else
+    using ..DiffEqBase
+    import ..DiffEqBase: value
+    using ..MonteCarloMeasurements
+end
 
 function DiffEqBase.promote_u0(u0::AbstractArray{<:MonteCarloMeasurements.AbstractParticles
                                                  },

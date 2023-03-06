@@ -1,7 +1,12 @@
 module DiffEqBaseMPIExt
 
-import DiffEqBase
-isdefined(Base, :get_extension) ? (import MPI) : (import ..MPI)
+if isdefined(Base, :get_extension)
+    using DiffEqBase
+    import MPI
+else
+    using ..DiffEqBase
+    import ..MPI
+end
 
 if isdefined(MPI, :AbstractMultiRequest)
     function DiffEqBase.anyeltypedual(::Type{T},

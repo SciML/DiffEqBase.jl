@@ -1,8 +1,14 @@
 module DiffEqBaseZygoteExt
 
-using DiffEqBase
-import DiffEqBase: value
-isdefined(Base, :get_extension) ? (import Zygote) : (import ..Zygote)
+if isdefined(Base, :get_extension)
+    using DiffEqBase
+    import DiffEqBase: value
+    import Zygote
+else
+    using ..DiffEqBase
+    import ..DiffEqBase: value
+    import ..Zygote
+end
 
 function ∇tmap(cx, f, args...)
     ys_and_backs = SciMLBase.tmap((args...) -> Zygote._pullback(cx, f, args...), args...)

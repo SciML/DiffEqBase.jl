@@ -1,8 +1,14 @@
 module DiffEqBaseTrackerExt
 
-using DiffEqBase
-import DiffEqBase: value
-isdefined(Base, :get_extension) ? (import Tracker) : (import ..Tracker)
+if isdefined(Base, :get_extension)
+    using DiffEqBase
+    import DiffEqBase: value
+    import Tracker
+else
+    using ..DiffEqBase
+    import ..DiffEqBase: value
+    import ..Tracker
+end
 
 DiffEqBase.value(x::Type{Tracker.TrackedReal{T}}) where {T} = T
 DiffEqBase.value(x::Type{Tracker.TrackedArray{T, N, A}}) where {T, N, A} = Array{T, N}
