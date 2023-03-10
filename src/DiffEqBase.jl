@@ -91,7 +91,7 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractSciMLOperator,
                  calculate_ensemble_errors, DEFAULT_UPDATE_FUNC, isconstant,
                  DEFAULT_REDUCTION, isautodifferentiable,
                  isadaptive, isdiscrete, has_syms, AbstractAnalyticalSolution,
-                 RECOMPILE_BY_DEFAULT, wrap_sol
+                 RECOMPILE_BY_DEFAULT, wrap_sol, get_destats
 
 import SciMLBase: solve, init, solve!, __init, __solve, update_coefficients!,
                   update_coefficients, isadaptive, wrapfun_oop, wrapfun_iip,
