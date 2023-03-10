@@ -31,7 +31,7 @@ sol = solve(ODEProblem(f, [5.0, 6.0, 0.0, 0.0], (0.0, T)),
             reltol = 1e-3,
             abstol = 1e-3)
 
-@show sol.destats
+@show sol.stats
 
 # https://github.com/SciML/DiffEqBase.jl/issues/553 : Floating point issue is resolved but some other error occurss
 function model(du, u, p, t)

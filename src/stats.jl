@@ -24,7 +24,7 @@ Statistics from the differential equation solver about the solution process.
 - maxeig: Maximum eigenvalue over the solution. This is only computed if the
   method is an auto-switching algorithm.
 """
-mutable struct DEStats
+mutable struct Stats
     nf::Int
     nf2::Int
     nw::Int
@@ -38,9 +38,11 @@ mutable struct DEStats
     maxeig::Float64
 end
 
-DEStats(x::Int = -1) = DEStats(x, x, x, x, x, x, x, x, x, x, 0.0)
+Base.@deprecate_binding DEStats Stats false
 
-function Base.show(io::IO, s::DEStats)
+Stats(x::Int = -1) = Stats(x, x, x, x, x, x, x, x, x, x, 0.0)
+
+function Base.show(io::IO, s::Stats)
     println(io, summary(s))
     @printf io "%-50s %-d\n" "Number of function 1 evaluations:" s.nf
     @printf io "%-50s %-d\n" "Number of function 2 evaluations:" s.nf2
