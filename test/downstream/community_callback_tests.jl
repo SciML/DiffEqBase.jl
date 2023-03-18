@@ -33,7 +33,7 @@ sol = solve(ODEProblem(f, [5.0, 6.0, 0.0, 0.0], (0.0, T)),
 
 @show sol.stats
 
-# https://github.com/SciML/DiffEqBase.jl/issues/553 : Floating point issue is resolved but some other error occurss
+# https://github.com/SciML/DiffEqBase.jl/issues/553 : Floating point issue is resolved but some other error occurs
 function model(du, u, p, t)
     du[1] = 0.0
     for i in 2:(length(du) - 1)
@@ -164,7 +164,7 @@ function affect!(integrator, idx)
                        2 / (1 + 1) *
                        (dot(v₂ - v₁, x₂ - x₁) / sum(abs2, x₂ - x₁) * (x₂ - x₁)))
 
-                println("Collision handeled.")
+                println("Collision handled.")
 
                 m = (x₁ + x₂) / 2
 

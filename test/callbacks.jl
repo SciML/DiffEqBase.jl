@@ -1,6 +1,6 @@
 using DiffEqBase, Test
 
-condtion = function (u, t, integrator) # Event when event_f(u,t,k) == 0
+condition = function (u, t, integrator) # Event when event_f(u,t,k) == 0
     t - 2.95
 end
 
@@ -10,7 +10,7 @@ end
 
 rootfind = true
 save_positions = (true, true)
-callback = ContinuousCallback(condtion, affect!; save_positions = save_positions)
+callback = ContinuousCallback(condition, affect!; save_positions = save_positions)
 
 cbs = CallbackSet(nothing)
 @test typeof(cbs.discrete_callbacks) <: Tuple
@@ -22,12 +22,12 @@ cbs = CallbackSet(callback, CallbackSet())
 @test typeof(cbs.discrete_callbacks) <: Tuple
 @test typeof(cbs.continuous_callbacks) <: Tuple
 
-condtion = function (integrator)
+condition = function (integrator)
     true
 end
 affect! = function (integrator) end
 save_positions = (true, false)
-saving_callback = DiscreteCallback(condtion, affect!; save_positions = save_positions)
+saving_callback = DiscreteCallback(condition, affect!; save_positions = save_positions)
 
 cbs1 = CallbackSet(callback, saving_callback)
 

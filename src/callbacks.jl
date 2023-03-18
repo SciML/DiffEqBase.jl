@@ -132,26 +132,26 @@ function find_first_continuous_callback(integrator, callback::AbstractContinuous
 end
 
 function find_first_continuous_callback(integrator, tmin::Number, upcrossing::Number,
-                                        event_occured::Bool, event_idx::Int, idx::Int,
+                                        event_occurred::Bool, event_idx::Int, idx::Int,
                                         counter::Int,
                                         callback2)
     counter += 1 # counter is idx for callback2.
     tmin2, upcrossing2, event_occurred2, event_idx2 = find_callback_time(integrator,
                                                                          callback2, counter)
 
-    if event_occurred2 && (tmin2 < tmin || !event_occured)
+    if event_occurred2 && (tmin2 < tmin || !event_occurred)
         return tmin2, upcrossing2, true, event_idx2, counter, counter
     else
-        return tmin, upcrossing, event_occured, event_idx, idx, counter
+        return tmin, upcrossing, event_occurred, event_idx, idx, counter
     end
 end
 
 function find_first_continuous_callback(integrator, tmin::Number, upcrossing::Number,
-                                        event_occured::Bool, event_idx::Int, idx::Int,
+                                        event_occurred::Bool, event_idx::Int, idx::Int,
                                         counter::Int, callback2, args...)
     find_first_continuous_callback(integrator,
                                    find_first_continuous_callback(integrator, tmin,
-                                                                  upcrossing, event_occured,
+                                                                  upcrossing, event_occurred,
                                                                   event_idx, idx, counter,
                                                                   callback2)..., args...)
 end
@@ -176,7 +176,7 @@ end
     =#
 
     interp_index = 0
-    # Check if the event occured
+    # Check if the event occurred
     previous_condition = @views(integrator.callback_cache.previous_condition[1:(callback.len)])
 
     if callback.idxs === nothing
@@ -199,8 +199,8 @@ end
 
         # If there was a previous event, utilize the derivative at the start to
         # chose the previous sign. If the derivative is positive at tprev, then
-        # we treat `prev_sign` as negetive, and if the derivative is negative then we
-        # treat `prev_sign` as positive, regardless of the postiivity/negativity
+        # we treat `prev_sign` as negative, and if the derivative is negative then we
+        # treat `prev_sign` as positive, regardless of the positivity/negativity
         # of the true value due to it being =0 sans floating point issues.
 
         # Only due this if the discontinuity did not move it far away from an event
@@ -287,7 +287,7 @@ end
 
     interp_index = 0
 
-    # Check if the event occured
+    # Check if the event occurred
     if callback.idxs === nothing
         previous_condition = callback.condition(integrator.uprev, integrator.tprev,
                                                 integrator)
@@ -306,8 +306,8 @@ end
 
         # If there was a previous event, utilize the derivative at the start to
         # chose the previous sign. If the derivative is positive at tprev, then
-        # we treat `prev_sign` as negetive, and if the derivative is negative then we
-        # treat `prev_sign` as positive, regardless of the postiivity/negativity
+        # we treat `prev_sign` as negative, and if the derivative is negative then we
+        # treat `prev_sign` as positive, regardless of the positivity/negativity
         # of the true value due to it being =0 sans floating point issues.
 
         # Only due this if the discontinuity did not move it far away from an event
