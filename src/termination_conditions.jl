@@ -200,7 +200,7 @@ function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict, Noth
     end
 end
 
-# Convergence Criterions
+# Convergence Criteria
 @inline function _has_converged(du, u, uprev, cond::NLSolveTerminationCondition{mode},
                                 abstol = cond.abstol, reltol = cond.reltol) where {mode}
     return _has_converged(du, u, uprev, mode, abstol, reltol)

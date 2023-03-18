@@ -39,7 +39,7 @@ function promote_dual(::Type{T},
 end
 
 # `reduce` and `map` are specialized on tuples to be unrolled (via recursion)
-# Therefore, they can be type stable even with heterogenous input types.
+# Therefore, they can be type stable even with heterogeneous input types.
 # We also don't care about allocating any temporaries with them, as it should
 # all be unrolled and optimized away.
 # Being unrolled also means const prop can work for things like
@@ -89,7 +89,7 @@ to a dual number before the solve. Worse still, this needs to be done in the cas
 `f(du,u,p,t) = du[1] = p*u[1]`, and thus running `f` and taking the return value is not a valid
 way to calculate the required state type.
 
-But given the properties of automatic differentiation requiring that differntiation of parameters
+But given the properties of automatic differentiation requiring that differentiation of parameters
 implies differentiation of state, we assume any dual parameters implies differentiation of state
 and then attempt to upconvert `u0` to match that dual-ness. Because this changes types, this needs
 to be specified at compiled time and thus cannot have a Bool-based opt out, so in the future this

@@ -383,7 +383,7 @@ end
 
 const MASS_MATRIX_ERROR_MESSAGE = """
                                   Mass matrix size is incompatible with initial condition
-                                  sizing. The mass matrix must reprsent the `vec`
+                                  sizing. The mass matrix must represent the `vec`
                                   form of the initial condition `u0`, i.e.
                                   `size(mm,1) == size(mm,2) == length(u)`
                                   """
@@ -571,7 +571,7 @@ Many of the defaults depend on the algorithm or the package the algorithm derive
 from. Not all of the interface is provided by every algorithm.
 For more detailed information on the defaults and the available options
 for specific algorithms / packages, see the manual pages for the solvers of specific
-problems. To see whether a specific package is compaible with the use of a
+problems. To see whether a specific package is compatible with the use of a
 given option, see the [Solver Compatibility Chart](https://docs.sciml.ai/DiffEqDocs/stable/basics/compatibility_chart/#Solver-Compatibility-Chart)
 
 ### Default Algorithm Hinting
@@ -624,7 +624,7 @@ section at the end of this page for some example usage.
   Defaults to saving all indices. For example, if you are solving a 3-dimensional ODE,
   and given `save_idxs = [1, 3]`, only the first and third components of the
   solution will be outputted.
-  Notice that of course in this case the outputed solution will be two-dimensional.
+  Notice that of course in this case the outputted solution will be two-dimensional.
 * `tstops`: Denotes *extra* times that the timestepping algorithm must step to.
   This should be used to help the solver deal with discontinuities and
   singularities, since stepping exactly at the time of the discontinuity will
@@ -639,7 +639,7 @@ section at the end of this page for some example usage.
 * `save_everystep`: Saves the result at every step.
   Default is true if `isempty(saveat)`.
 * `save_on`: Denotes whether intermediate solutions are saved. This overrides the
-  settings of `dense`, `saveat` and `save_everystep` and is used by some applicatioins
+  settings of `dense`, `saveat` and `save_everystep` and is used by some applications
   to manually turn off saving temporarily. Everyday use of the solvers should leave
   this unchanged. Defaults to `true`.
 * `save_start`: Denotes whether the initial condition should be included in
@@ -809,7 +809,7 @@ https://docs.sciml.ai/SciMLSensitivity/stable/
 
 The following lines are examples of how one could use the configuration of
 `solve()`. For these examples a 3-dimensional ODE problem is assumed, however
-the extention to other types is straightforward.
+the extension to other types is straightforward.
 
 1. `solve(prob, AlgorithmName())` : The "default" setting, with a user-specified
   algorithm (given by `AlgorithmName()`). All parameters get their default values.
