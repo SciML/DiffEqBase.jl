@@ -10,12 +10,12 @@ end
 initialize!(cb::CallbackSet{Tuple{}, Tuple{}}, u, t, integrator::DEIntegrator) = false
 function initialize!(u, t, integrator::DEIntegrator, any_modified::Bool,
                      c::DECallback, cs::DECallback...)
-    c.initialize(c, u, t, integrator)
+    c.initialize(c, c.affect!, u, t, integrator)
     initialize!(u, t, integrator, any_modified || integrator.u_modified, cs...)
 end
 function initialize!(u, t, integrator::DEIntegrator, any_modified::Bool,
                      c::DECallback)
-    c.initialize(c, u, t, integrator)
+    c.initialize(c, c.affect!, u, t, integrator)
     any_modified || integrator.u_modified
 end
 
@@ -30,12 +30,12 @@ end
 finalize!(cb::CallbackSet{Tuple{}, Tuple{}}, u, t, integrator::DEIntegrator) = false
 function finalize!(u, t, integrator::DEIntegrator, any_modified::Bool,
                    c::DECallback, cs::DECallback...)
-    c.finalize(c, u, t, integrator)
+    c.finalize(c, c.affect!, u, t, integrator)
     finalize!(u, t, integrator, any_modified || integrator.u_modified, cs...)
 end
 function finalize!(u, t, integrator::DEIntegrator, any_modified::Bool,
                    c::DECallback)
-    c.finalize(c, u, t, integrator)
+    c.finalize(c, c.affect!, u, t, integrator)
     any_modified || integrator.u_modified
 end
 
