@@ -102,9 +102,9 @@ end
 ZygoteRules.@adjoint function ZygoteRules.literal_getproperty(sol::SciMLBase.OptimizationSolution,
                                                               ::Val{:u})
     function solu_adjoint(Δ)
-        zerou = zero(sol.prob.u0)
+        zerou = zero(sol.u)
         _Δ = @. ifelse(Δ == nothing, zerou, Δ)
-        (DiffEqBase.build_solution(sol.prob, sol.alg, _Δ, sol.minimum),)
+        (DiffEqBase.build_solution(sol.cache, sol.alg, _Δ, sol.objective),)
     end
     sol.u, solu_adjoint
 end
