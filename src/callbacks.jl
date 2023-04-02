@@ -151,7 +151,8 @@ function find_first_continuous_callback(integrator, tmin::Number, upcrossing::Nu
                                         counter::Int, callback2, args...)
     find_first_continuous_callback(integrator,
                                    find_first_continuous_callback(integrator, tmin,
-                                                                  upcrossing, event_occurred,
+                                                                  upcrossing,
+                                                                  event_occurred,
                                                                   event_idx, idx, counter,
                                                                   callback2)..., args...)
 end
