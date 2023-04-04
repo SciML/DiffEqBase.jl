@@ -426,7 +426,7 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywor
     end
 end
 
-function init(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = nothing,
+function init(prob::DEProblem, args...; sensealg = nothing,
               u0 = nothing, p = nothing, kwargs...)
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
@@ -902,7 +902,7 @@ function solve(prob::NonlinearProblem, args...; sensealg = nothing,
     end
 end
 
-function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, args...;
+function solve_up(prob::DEProblem, sensealg, u0, p, args...;
                   kwargs...)
     if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = kwargs[:alg]
