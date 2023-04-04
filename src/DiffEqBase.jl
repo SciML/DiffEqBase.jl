@@ -93,7 +93,7 @@ using SciMLBase: @def, DEIntegrator, DEProblem, AbstractSciMLOperator,
                  isadaptive, isdiscrete, has_syms, AbstractAnalyticalSolution,
                  RECOMPILE_BY_DEFAULT, wrap_sol, has_destats
 
-import SciMLBase: solve, init, solve!, __init, __solve, update_coefficients!,
+import SciMLBase: solve, init, step!, solve!, __init, __solve, update_coefficients!,
                   update_coefficients, isadaptive, wrapfun_oop, wrapfun_iip,
                   unwrap_fw, promote_tspan, set_u!, set_t!, set_ut!
 
