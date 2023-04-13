@@ -161,7 +161,8 @@ export initialize!, finalize!
 
 export SensitivityADPassThrough
 
-export NLSolveTerminationMode, NLSolveSafeTerminationOptions, NLSolveTerminationCondition
+export NLSolveTerminationMode, NLSolveSafeTerminationOptions, NLSolveTerminationCondition,
+       NLSolveSafeTerminationResult
 
 export KeywordArgError, KeywordArgWarn, KeywordArgSilent
 
