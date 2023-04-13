@@ -19,12 +19,14 @@ for kwargs in [
     Dict(:save_end => false),
 ]
     sol = solve(prob, kwargs...)
-    init_sol = solve!(init(prob, kwargs...))
-    step_sol = step!(init(prob, kwargs...), prob.tspan[end] - prob.tspan[begin])
-    @test sol.u == init_sol.u
-    @test sol.t == init_sol.t
-    @test sol.u == step_sol.u
-    @test sol.t == step_sol.t
+    init_integ = init(prob, kwargs...)
+    solve!(init_integ)
+    step_integ = init(prob, kwargs...)
+    step_sol = step!(step_integ, prob.tspan[end] - prob.tspan[begin])
+    @test sol.u == init_integ.u
+    @test sol.t == init_integ.t
+    @test sol.u == step_integ.u
+    @test sol.t == step_integ.t
 end
 
 @variables t x y
