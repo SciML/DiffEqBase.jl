@@ -22,11 +22,11 @@ for kwargs in [
     init_integ = init(prob, kwargs...)
     solve!(init_integ)
     step_integ = init(prob, kwargs...)
-    step_sol = step!(step_integ, prob.tspan[end] - prob.tspan[begin])
-    @test sol.u == init_integ.u
-    @test sol.t == init_integ.t
-    @test sol.u == step_integ.u
-    @test sol.t == step_integ.t
+    step!(step_integ, prob.tspan[end] - prob.tspan[begin])
+    @test sol.u[end] == init_integ.u
+    @test sol.t[end] == init_integ.t
+    @test sol.u[end] == step_integ.u
+    @test sol.t[end] == step_integ.t
 end
 
 @variables t x y

@@ -514,8 +514,8 @@ end
 
 mutable struct NullODEIntegrator{IIP, ProbType, T, SolType} <:
                AbstractODEIntegrator{Nothing, IIP, Nothing, T}
-    du::Nothing
-    u::Nothing
+    du::Vector{Float64}
+    u::Vector{Float64}
     t::T
     prob::ProbType
     sol::SolType
@@ -524,13 +524,16 @@ function build_null_integrator(prob::DEProblem, args...;
                                kwargs...)
     sol = solve(prob, args...; kwargs...)
     return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol)
-                             }(nothing,
-                               nothing,
+                             }(Float64[],
+                               Float64[],
                                first(prob.tspan),
                                prob,
                                sol)
 end
-solve!(integ::NullODEIntegrator) = integ.sol
+function solve!(integ::NullODEIntegrator)
+    integ.t = integ.sol.t[end]
+    return nothing
+end
 function step!(integ::NullODEIntegrator, dt = nothing, stop_at_tdt = false)
     if !isnothing(dt)
         integ.t += dt
