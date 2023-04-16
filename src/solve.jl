@@ -418,8 +418,10 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywor
 
     checkkwargs(kwargshandle; kwargs...)
 
-    if hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
-       typeof(_prob.f.f) <: EvalFunc
+    if _prob isa Union{ODEProblem, DAEProblem} && isnothing(_prob.u0)
+        build_null_integrator(_prob, args...; kwargs...)
+    elseif hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
+           typeof(_prob.f.f) <: EvalFunc
         Base.invokelatest(__init, _prob, args...; kwargs...)#::T
     else
         __init(_prob, args...; kwargs...)#::T
@@ -510,6 +512,37 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywo
     end
 end
 
+mutable struct NullODEIntegrator{IIP, ProbType, T, SolType} <:
+               AbstractODEIntegrator{Nothing, IIP, Nothing, T}
+    du::Vector{Float64}
+    u::Vector{Float64}
+    t::T
+    prob::ProbType
+    sol::SolType
+end
+function build_null_integrator(prob::DEProblem, args...;
+                               kwargs...)
+    sol = solve(prob, args...; kwargs...)
+    return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol)
+                             }(Float64[],
+                               Float64[],
+                               first(prob.tspan),
+                               prob,
+                               sol)
+end
+function solve!(integ::NullODEIntegrator)
+    integ.t = integ.sol.t[end]
+    return nothing
+end
+function step!(integ::NullODEIntegrator, dt = nothing, stop_at_tdt = false)
+    if !isnothing(dt)
+        integ.t += dt
+    else
+        integ.t = integ.sol[end]
+    end
+    return nothing
+end
+
 function build_null_solution(prob::DEProblem, args...;
                              saveat = (),
                              save_everystep = true,
@@ -528,6 +561,8 @@ function build_null_solution(prob::DEProblem, args...;
         else
             eltype(prob.tspan)[]
         end
+    elseif saveat isa Number
+        prob.tspan[1]:saveat:prob.tspan[2]
     else
         saveat
     end
@@ -872,7 +907,7 @@ problems.
 #### Error Control
 
 * `abstol`: Absolute tolerance.
-* `reltol`: Relative tolerance. 
+* `reltol`: Relative tolerance.
 
 ### Miscellaneous
 
