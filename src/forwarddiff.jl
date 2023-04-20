@@ -252,7 +252,11 @@ value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
 @inline fastpow(x::ForwardDiff.Dual, y::ForwardDiff.Dual) = x^y
 
 sse(x::Number) = x^2
-sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
+function sse(x::ForwardDiff.Dual)
+    primal_norm = sse(ForwardDiff.value(x))
+    partial_norm = sum(x -> isnan(x) ? zero(x) : sse(x), ForwardDiff.partials(x))
+    primal_norm + partial_norm
+end
 totallength(x::Number) = 1
 function totallength(x::ForwardDiff.Dual)
     totallength(ForwardDiff.value(x)) + sum(totallength, ForwardDiff.partials(x))
