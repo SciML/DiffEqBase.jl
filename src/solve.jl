@@ -512,23 +512,27 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywo
     end
 end
 
-mutable struct NullODEIntegrator{IIP, ProbType, T, SolType} <:
+mutable struct NullODEIntegrator{IIP, ProbType, T, SolType, F, P} <:
                AbstractODEIntegrator{Nothing, IIP, Nothing, T}
     du::Vector{Float64}
     u::Vector{Float64}
     t::T
     prob::ProbType
     sol::SolType
+    f::F
+    p::P
 end
 function build_null_integrator(prob::DEProblem, args...;
                                kwargs...)
     sol = solve(prob, args...; kwargs...)
-    return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol)
+    return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol), typeof(prob.f), typeof(prob.p)
                              }(Float64[],
                                Float64[],
                                first(prob.tspan),
                                prob,
-                               sol)
+                               sol,
+                               prob.f,
+                               prob.p)
 end
 function solve!(integ::NullODEIntegrator)
     integ.t = integ.sol.t[end]
