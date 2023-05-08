@@ -526,7 +526,7 @@ function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
     end
 end
 
-function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = KeywordArgWarn,
+function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = KeywordArgError,
     kwargs...)
     if has_kwargs(_prob)
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
