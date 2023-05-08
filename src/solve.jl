@@ -88,7 +88,7 @@ const allowedkeywords = (:dense,
     :linsolve_kwargs)
 
 const KWARGWARN_MESSAGE = """
-                          Unrecognized keyword arguments found. Future versions will error.
+                          Unrecognized keyword arguments found.
                           The only allowed keyword arguments to `solve` are:
                           $allowedkeywords
 
@@ -450,7 +450,7 @@ function Base.showerror(io::IO, e::IncompatibleMassMatrixError)
     println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
-function init_call(_prob, args...; merge_callbacks = true, kwargshandle = KeywordArgWarn,
+function init_call(_prob, args...; merge_callbacks = true, kwargshandle = KeywordArgError,
     kwargs...)
     if has_kwargs(_prob)
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
