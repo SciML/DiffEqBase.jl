@@ -49,7 +49,7 @@ import PreallocationTools
 import FunctionWrappersWrappers
 @reexport using SciMLBase
 
-using SciMLBase.SciMLOperators: AbstractSciMLOperator, AbstractSciMLScalarOperator
+using SciMLOperators: AbstractSciMLOperator, AbstractSciMLScalarOperator
 
 using SciMLBase: @def, DEIntegrator, DEProblem,
                  AbstractDiffEqInterpolation,
