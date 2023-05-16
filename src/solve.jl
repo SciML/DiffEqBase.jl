@@ -525,7 +525,8 @@ end
 function build_null_integrator(prob::DEProblem, args...;
                                kwargs...)
     sol = solve(prob, args...; kwargs...)
-    return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol), typeof(prob.f), typeof(prob.p)
+    return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol),
+                             typeof(prob.f), typeof(prob.p)
                              }(Float64[],
                                Float64[],
                                first(prob.tspan),
