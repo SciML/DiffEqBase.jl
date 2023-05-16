@@ -85,7 +85,7 @@ p_possibilities17 = [
     (Mod, ForwardDiff.Dual(2.0)), (() -> 2.0, ForwardDiff.Dual(2.0)),
     (Base.pointer([2.0]), ForwardDiff.Dual(2.0)),
 ]
-VERSION >= v"1.7" &&
+VERSION >= v"1.7" && VERSION < v"1.9" &&
     push!(p_possibilities17, Returns((a = 2, b = 1.3, c = ForwardDiff.Dual(2.0f0))))
 
 for p in p_possibilities17
@@ -128,6 +128,9 @@ p_possibilities_uninferrred = [
     (; x = Vector{Float64}(undef, 2), y = [[MyStruct3(ForwardDiff.Dual(2.0))]]),
     (; x = Matrix{Any}(undef, 2, 2), y = [[MyStruct3(ForwardDiff.Dual(2.0))]]),
 ]
+VERSION >= v"1.9" &&
+    push!(p_possibilities_uninferrred,
+          Returns((a = 2, b = 1.3, c = ForwardDiff.Dual(2.0f0))))
 
 for p in p_possibilities_uninferrred
     @show p
