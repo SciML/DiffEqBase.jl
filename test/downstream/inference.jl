@@ -52,7 +52,9 @@ function solve_ode(f::F, p::P, ensemblealg; kwargs...) where {F, P}
     prob = ODEProblem{true}(f, [0.0, 0.0], tspan, p)
     # prob = ODEProblem(f, [0., 0.], tspan, p)
 
-    prob_func = (prob, i, repeat) -> begin remake(prob, tspan = (T[i + 1], t[1])) end
+    prob_func = (prob, i, repeat) -> begin
+        remake(prob, tspan = (T[i + 1], t[1]))
+    end
 
     # ensemble problem
     odes = EnsembleProblem(prob, prob_func = prob_func)
