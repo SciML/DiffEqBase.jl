@@ -7,8 +7,7 @@ using Aqua
     # https://github.com/JuliaLang/julia/issues/29393
     # Aqua.test_unbound_args(DiffEqBase) # fails
     ua = Aqua.detect_unbound_args_recursively(DiffEqBase)
-    @warn "Number of method ambiguities: $(length(ua))"
-    @test length(ua) ≤ 2
+    @test length(ua) == 0
     # Uncomment for debugging:
     # @show ua
 

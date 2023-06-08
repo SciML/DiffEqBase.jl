@@ -152,17 +152,18 @@ function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
     anyeltypedual(T)
 end
 function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
-    counter = 0) where {N,
+    counter = 0) where {
     T <: Union{
         AbstractArray{
             <:Number,
         },
         Set{
             <:Number,
-        },
-        NTuple{N,
-            <:Number,
         }}}
+    anyeltypedual(eltype(x))
+end
+function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
+    counter = 0) where {N, T <: NTuple{N, <:Number}}
     anyeltypedual(eltype(x))
 end
 
