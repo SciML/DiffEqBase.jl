@@ -12,29 +12,29 @@ space for solving the equation.
 promote_dual(::Type{T}, ::Type{T2}) where {T, T2} = T
 promote_dual(::Type{T}, ::Type{T2}) where {T <: ForwardDiff.Dual, T2} = T
 function promote_dual(::Type{T},
-                      ::Type{T2}) where {T <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
+    ::Type{T2}) where {T <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
     T
 end
 promote_dual(::Type{T}, ::Type{T2}) where {T, T2 <: ForwardDiff.Dual} = T2
 
 function promote_dual(::Type{T},
-                      ::Type{T2}) where {T3, T4, V, V2 <: ForwardDiff.Dual, N, N2,
-                                         T <: ForwardDiff.Dual{T3, V, N},
-                                         T2 <: ForwardDiff.Dual{T4, V2, N2}}
+    ::Type{T2}) where {T3, T4, V, V2 <: ForwardDiff.Dual, N, N2,
+    T <: ForwardDiff.Dual{T3, V, N},
+    T2 <: ForwardDiff.Dual{T4, V2, N2}}
     T2
 end
 function promote_dual(::Type{T},
-                      ::Type{T2}) where {T3, T4, V <: ForwardDiff.Dual, V2, N, N2,
-                                         T <: ForwardDiff.Dual{T3, V, N},
-                                         T2 <: ForwardDiff.Dual{T4, V2, N2}}
+    ::Type{T2}) where {T3, T4, V <: ForwardDiff.Dual, V2, N, N2,
+    T <: ForwardDiff.Dual{T3, V, N},
+    T2 <: ForwardDiff.Dual{T4, V2, N2}}
     T
 end
 function promote_dual(::Type{T},
-                      ::Type{T2}) where {
-                                         T3, V <: ForwardDiff.Dual, V2 <: ForwardDiff.Dual,
-                                         N,
-                                         T <: ForwardDiff.Dual{T3, V, N},
-                                         T2 <: ForwardDiff.Dual{T3, V2, N}}
+    ::Type{T2}) where {
+    T3, V <: ForwardDiff.Dual, V2 <: ForwardDiff.Dual,
+    N,
+    T <: ForwardDiff.Dual{T3, V, N},
+    T2 <: ForwardDiff.Dual{T3, V2, N}}
     ForwardDiff.Dual{T3, promote_dual(V, V2), N}
 end
 
@@ -103,7 +103,7 @@ function anyeltypedual(x, counter = 0)
         Any
     elseif counter < DUALCHECK_RECURSION_MAX
         diffeqmapreduce(DualEltypeChecker(x, counter), promote_dual,
-                        map(Val, propertynames(x)))
+            map(Val, propertynames(x)))
     else
         Any
     end
@@ -144,25 +144,25 @@ anyeltypedual(x::SciMLBase.NullParameters, counter = 0) = Any
 anyeltypedual(x::Number, counter = 0) = anyeltypedual(typeof(x))
 anyeltypedual(x::Union{String, Symbol}, counter = 0) = typeof(x)
 function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
-                       counter = 0) where {
-                                           T <:
-                                           Union{Number,
-                                                 Symbol,
-                                                 String}}
+    counter = 0) where {
+    T <:
+    Union{Number,
+        Symbol,
+        String}}
     anyeltypedual(T)
 end
 function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
-                       counter = 0) where {N,
-                                           T <: Union{
-                                                 AbstractArray{
-                                                               <:Number
-                                                               },
-                                                 Set{
-                                                     <:Number
-                                                     },
-                                                 NTuple{N,
-                                                        <:Number
-                                                        }}}
+    counter = 0) where {N,
+    T <: Union{
+        AbstractArray{
+            <:Number,
+        },
+        Set{
+            <:Number,
+        },
+        NTuple{N,
+            <:Number,
+        }}}
     anyeltypedual(eltype(x))
 end
 
@@ -228,7 +228,7 @@ end
 end
 
 function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p,
-                       tspan::Tuple{<:ForwardDiff.Dual, <:ForwardDiff.Dual}, prob, kwargs)
+    tspan::Tuple{<:ForwardDiff.Dual, <:ForwardDiff.Dual}, prob, kwargs)
     return _promote_tspan(tspan, kwargs)
 end
 
@@ -242,7 +242,7 @@ function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p, tspan, prob, kw
 end
 
 function promote_tspan(u0::AbstractArray{<:Complex{<:ForwardDiff.Dual}}, p, tspan, prob,
-                       kwargs)
+    kwargs)
     return _promote_tspan(real(eltype(u0)).(tspan), kwargs)
 end
 

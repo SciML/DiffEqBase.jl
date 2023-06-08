@@ -73,12 +73,12 @@ f_1delay = function (du, u, h, p, t)
 end
 prob = DDEProblem(f_1delay, ones(1), t -> zeros(1), (0.0, 10.0), constant_lags = ones(1))
 prob = DDEProblem{true}(f_1delay, ones(1), t -> zeros(1), (0.0, 10.0),
-                        dependent_lags = ones(1))
+    dependent_lags = ones(1))
 
 @test_broken @inferred DDEProblem(f_1delay, ones(1), t -> zeros(1), (0.0, 10.0),
-                                  constant_lags = ones(1))
+    constant_lags = ones(1))
 @test_broken @inferred DDEProblem{true}(f_1delay, ones(1), t -> zeros(1), (0.0, 10.0),
-                                        dependent_lags = ones(1))
+    dependent_lags = ones(1))
 
 function f(r, yp, y, p, tres)
     r[1] = -0.04 * y[1] + 1.0e4 * y[2] * y[3]
@@ -99,7 +99,7 @@ prob_dae_resrob = DAEProblem{true}(f, du0, u0, (0.0, 100000.0))
 # Ensures uniform dimensionality of u0, du0, and differential_vars
 @test_throws ArgumentError DAEProblem(f, du0, u0[1:(end - 1)], (0.0, 100000.0))
 @test_throws ArgumentError DAEProblem(f, du0, u0, (0.0, 100000.0);
-                                      differential_vars = differential_vars[1:(end - 1)])
+    differential_vars = differential_vars[1:(end - 1)])
 
 f(u, t, W) = 1.01u .+ 0.87u .* W
 u0 = 1.00

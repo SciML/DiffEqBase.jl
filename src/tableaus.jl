@@ -17,12 +17,12 @@ mutable struct ExplicitRKTableau{MType <: AbstractMatrix, VType <: AbstractVecto
     stability_size::S
 end
 function ExplicitRKTableau(A::MType, c::VType, α::VType, order;
-                           adaptiveorder = 0, αEEst = similar(α, 0),
-                           fsal = false, stability_size = 0.0,
-                           d = similar(α, 0)) where {MType, VType}
+    adaptiveorder = 0, αEEst = similar(α, 0),
+    fsal = false, stability_size = 0.0,
+    d = similar(α, 0)) where {MType, VType}
     S = typeof(stability_size)
     ExplicitRKTableau{MType, VType, S}(A, c, α, αEEst, d, length(α), order, adaptiveorder,
-                                       fsal, stability_size)
+        fsal, stability_size)
 end
 
 """
@@ -41,6 +41,6 @@ mutable struct ImplicitRKTableau{MType <: AbstractMatrix, VType <: AbstractVecto
     adaptiveorder::Int #The lower order of the pair. Only used for adaptivity.
 end
 function ImplicitRKTableau(A::MType, c::VType, α::VType, order;
-                           adaptiveorder = 0, αEEst = VType()) where {MType, VType}
+    adaptiveorder = 0, αEEst = VType()) where {MType, VType}
     ImplicitRKTableau{MType, VType}(A, c, α, αEEst, length(α), order, adaptiveorder)
 end

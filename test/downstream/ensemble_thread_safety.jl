@@ -14,9 +14,9 @@ function prob_func(prob, i, repeat)
 end
 ensemble_prob = EnsembleProblem(prob, prob_func = prob_func)
 sim_1 = solve(ensemble_prob, Tsit5(), EnsembleThreads(),
-              trajectories = 100)
+    trajectories = 100)
 sim_2 = solve(ensemble_prob, Tsit5(), EnsembleDistributed(),
-              trajectories = 100)
+    trajectories = 100)
 ss_sol_1 = hcat(collect(EnsembleAnalysis.get_timepoint(sim_1, 0))...);
 ss_sol_2 = hcat(collect(EnsembleAnalysis.get_timepoint(sim_2, 0))...);
 

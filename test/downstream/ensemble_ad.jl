@@ -27,9 +27,9 @@ function test_loss(p1, prob)
     ensembleprob = EnsembleProblem(prob, prob_func = prob_func)
 
     u = Array(solve(ensembleprob, Tsit5(), EnsembleThreads(), trajectories = n_par,
-                    p = p1,
-                    sensealg = ForwardDiffSensitivity(),
-                    saveat = 0.1, dt = 0.001))[:, end, :]
+        p = p1,
+        sensealg = ForwardDiffSensitivity(),
+        saveat = 0.1, dt = 0.001))[:, end, :]
     loss = sum(u)
     return loss
 end
@@ -65,22 +65,22 @@ eu0 = rand(N, 2)
 ep = rand(N, 4)
 
 ensemble_prob = EnsembleProblem(prob,
-                                prob_func = (prob, i, repeat) -> remake(prob,
-                                                                        u0 = eu0[i, :],
-                                                                        p = ep[i, :],
-                                                                        saveat = 0.1))
+    prob_func = (prob, i, repeat) -> remake(prob,
+        u0 = eu0[i, :],
+        p = ep[i, :],
+        saveat = 0.1))
 esol = solve(ensemble_prob, Tsit5(), trajectories = N)
 
 cache = Ref{Any}()
 
 function sum_of_e_solution(p)
     ensemble_prob = EnsembleProblem(prob,
-                                    prob_func = (prob, i, repeat) -> remake(prob,
-                                                                            u0 = eu0[i, :],
-                                                                            p = p[i, :],
-                                                                            saveat = 0.1))
+        prob_func = (prob, i, repeat) -> remake(prob,
+            u0 = eu0[i, :],
+            p = p[i, :],
+            saveat = 0.1))
     sol = solve(ensemble_prob, Tsit5(), EnsembleSerial(), trajectories = N, abstol = 1e-12,
-                reltol = 1e-12)
+        reltol = 1e-12)
     z = Array(sol[1])
     cache[] = sol[1].t
     sum(z) # just test for the first solutions, gradients should be zero for others

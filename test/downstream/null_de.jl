@@ -2,7 +2,7 @@ using ModelingToolkit, OrdinaryDiffEq, SteadyStateDiffEq, Test
 
 @variables t x(t) y(t)
 eqs = [0 ~ x - y
-       0 ~ y - x]
+    0 ~ y - x]
 
 @named sys = ODESystem(eqs, t)
 sys = structural_simplify(sys)
@@ -31,7 +31,7 @@ end
 
 @variables t x y
 eqs = [0 ~ x - y
-       0 ~ y - x]
+    0 ~ y - x]
 
 @named sys = NonlinearSystem(eqs, [x, y], [])
 sys = structural_simplify(sys)
