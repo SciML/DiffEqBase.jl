@@ -21,7 +21,7 @@ end
     if GROUP == "All" || GROUP == "Core"
         @time @safetestset "Fast Power" begin include("fastpow.jl") end
         @time @safetestset "Callbacks" begin include("callbacks.jl") end
-        @time @safetestset "Plot Variables" begin include("plot_vars.jl") end
+        @time @safetestset "Plot Vars" begin include("plot_vars.jl") end
         @time @safetestset "Problem Creation Tests" begin include("problem_creation_tests.jl") end
         @time @safetestset "Affine differential equation operators" begin include("affine_operators_tests.jl") end
         @time @safetestset "Export tests" begin include("export_tests.jl") end
