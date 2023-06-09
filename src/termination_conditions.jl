@@ -36,11 +36,37 @@ Base.@kwdef mutable struct NLSolveSafeTerminationResult{T}
     return_code::NLSolveSafeTerminationReturnCode.T = NLSolveSafeTerminationReturnCode.Failure
 end
 
+# NOTE: Eventually we want to just have this type, however introducing it directly requires
+#       a breaking change since, we need to specify the initial `u`. We could get around
+#       this by making `u` untyped, but that would lead to type instability in the final
+#       return type.
+Base.@kwdef struct NLSolveSafeTerminationResultWithState{uType, T}
+    u::uType
+    best_objective_value::Base.RefValue{T} = Ref(Inf64)
+    best_objective_value_iteration::Base.RefValue{Int64} = Ref(0)
+    return_code::Base.RefValue{NLSolveSafeTerminationReturnCode.T} = Ref(NLSolveSafeTerminationReturnCode.Failure)
+end
+
 # Remove once support for AbstractDict has been dropped
-function __setproperty!(n::NLSolveSafeTerminationResult, prop::Symbol, value)
+__get(n::NLSolveSafeTerminationResultWithState, ::Val{:u}) = n.u
+__get(n::NLSolveSafeTerminationResultWithState, ::Val{prop}) where {prop} = getproperty(n, prop)[]
+__get(n::NLSolveSafeTerminationResult, ::Val{prop}) where {prop} = getproperty(n, prop)
+__get(d::AbstractDict, ::Val{prop}) where {prop} = d[prop]
+
+function __setproperty!(n::NLSolveSafeTerminationResultWithState, ::Val{:u}, value)
+    n.u .= value
+end
+function __setproperty!(n::NLSolveSafeTerminationResultWithState, ::Val{prop}, value) where {prop}
+    setindex!(getproperty(n, prop), value)
+end
+function __setproperty!(n::NLSolveSafeTerminationResult, ::Val{prop}, value) where {prop}
+    Base.depwarn("Using storage of type $(typeof(n)) in NLSolveTerminationCondition is deprecated. Use `NLSolveSafeTerminationResultWithState` instead.",
+                 :__setproperty!)
     setproperty!(n, prop, value)
 end
-function __setproperty!(d::AbstractDict, prop::Symbol, value)
+function __setproperty!(d::AbstractDict, ::Val{prop}, value) where {prop}
+    Base.depwarn("Using storage of type $(typeof(d)) in NLSolveTerminationCondition is deprecated. Use `NLSolveSafeTerminationResultWithState` instead.",
+                 :__setproperty!)
     d[prop] = value
 end
 
@@ -136,6 +162,7 @@ end
 
 function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict,
     NLSolveSafeTerminationResult,
+    NLSolveSafeTerminationResultWithState,
     Nothing})
     mode = get_termination_mode(cond)
     if storage isa AbstractDict
@@ -168,8 +195,8 @@ function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict,
             patience_objective_multiplier = cond.safe_termination_options.patience_objective_multiplier
 
             if mode ∈ SAFE_BEST_TERMINATION_MODES
-                __setproperty!(storage, :best_objective_value, aType(Inf))
-                __setproperty!(storage, :best_objective_value_iteration, 0)
+                __setproperty!(storage, Val(:best_objective_value), aType(Inf))
+                __setproperty!(storage, Val(:best_objective_value_iteration), 0)
             end
 
             if mode ∈ SAFE_BEST_TERMINATION_MODES
@@ -181,15 +208,18 @@ function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict,
             end
 
             if mode ∈ SAFE_BEST_TERMINATION_MODES
-                if objective < storage[:best_objective_value]
-                    __setproperty!(storage, :best_objective_value, objective)
-                    __setproperty!(storage, :best_objective_value_iteration, nstep + 1)
+                if objective < __get(storage, Val(:best_objective_value))
+                    __setproperty!(storage, Val(:best_objective_value), objective)
+                    __setproperty!(storage, Val(:best_objective_value_iteration), nstep + 1)
+                    if storage isa NLSolveSafeTerminationResultWithState
+                        __setproperty!(storage, Val(:u), u)
+                    end
                 end
             end
 
             # Main Termination Criteria
-            if objective <= criteria
-                __setproperty!(storage, :return_code,
+            if objective ≤ criteria
+                __setproperty!(storage, Val(:return_code),
                     NLSolveSafeTerminationReturnCode.Success)
                 return true
             end
@@ -198,15 +228,15 @@ function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict,
             nstep += 1
             push!(objective_values, objective)
 
-            if objective <= typeof(criteria)(patience_objective_multiplier) * criteria
-                if nstep >= cond.safe_termination_options.patience_steps
+            if objective ≤ typeof(criteria)(patience_objective_multiplier) * criteria
+                if nstep ≥ cond.safe_termination_options.patience_steps
                     last_k_values = objective_values[max(1,
                         length(objective_values) -
                         cond.safe_termination_options.patience_steps):end]
                     if maximum(last_k_values) <
                        typeof(criteria)(cond.safe_termination_options.min_max_factor) *
                        minimum(last_k_values)
-                        __setproperty!(storage, :return_code,
+                        __setproperty!(storage, Val(:return_code),
                             NLSolveSafeTerminationReturnCode.PatienceTermination)
                         return true
                     end
@@ -214,13 +244,13 @@ function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict,
             end
 
             # Protective break
-            if objective >= objective_values[1] * protective_threshold * length(du)
-                __setproperty!(storage, :return_code,
+            if objective ≥ objective_values[1] * protective_threshold * length(du)
+                __setproperty!(storage, Val(:return_code),
                     NLSolveSafeTerminationReturnCode.ProtectiveTermination)
                 return true
             end
 
-            __setproperty!(storage, :return_code, NLSolveSafeTerminationReturnCode.Failure)
+            __setproperty!(storage, Val(:return_code), NLSolveSafeTerminationReturnCode.Failure)
             return false
         end
         return _termination_condition_closure_safe

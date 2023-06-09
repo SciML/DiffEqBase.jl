@@ -165,7 +165,7 @@ export SensitivityADPassThrough
 
 export NLSolveTerminationMode,
     NLSolveSafeTerminationOptions, NLSolveTerminationCondition,
-    NLSolveSafeTerminationResult
+    NLSolveSafeTerminationResult, NLSolveSafeTerminationResultWithState
 
 export KeywordArgError, KeywordArgWarn, KeywordArgSilent
 
