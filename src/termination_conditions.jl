@@ -47,27 +47,24 @@ Base.@kwdef struct NLSolveSafeTerminationResultWithState{uType, T}
     return_code::Base.RefValue{NLSolveSafeTerminationReturnCode.T} = Ref(NLSolveSafeTerminationReturnCode.Failure)
 end
 
-# Remove once support for AbstractDict has been dropped
 __get(n::NLSolveSafeTerminationResultWithState, ::Val{:u}) = n.u
-__get(n::NLSolveSafeTerminationResultWithState, ::Val{prop}) where {prop} = getproperty(n, prop)[]
+function __get(n::NLSolveSafeTerminationResultWithState, ::Val{prop}) where {prop}
+    getproperty(n, prop)[]
+end
 __get(n::NLSolveSafeTerminationResult, ::Val{prop}) where {prop} = getproperty(n, prop)
-__get(d::AbstractDict, ::Val{prop}) where {prop} = d[prop]
 
 function __setproperty!(n::NLSolveSafeTerminationResultWithState, ::Val{:u}, value)
     n.u .= value
 end
-function __setproperty!(n::NLSolveSafeTerminationResultWithState, ::Val{prop}, value) where {prop}
+function __setproperty!(n::NLSolveSafeTerminationResultWithState,
+    ::Val{prop},
+    value) where {prop}
     setindex!(getproperty(n, prop), value)
 end
 function __setproperty!(n::NLSolveSafeTerminationResult, ::Val{prop}, value) where {prop}
     Base.depwarn("Using storage of type $(typeof(n)) in NLSolveTerminationCondition is deprecated. Use `NLSolveSafeTerminationResultWithState` instead.",
-                 :__setproperty!)
+        :__setproperty!)
     setproperty!(n, prop, value)
-end
-function __setproperty!(d::AbstractDict, ::Val{prop}, value) where {prop}
-    Base.depwarn("Using storage of type $(typeof(d)) in NLSolveTerminationCondition is deprecated. Use `NLSolveSafeTerminationResultWithState` instead.",
-                 :__setproperty!)
-    d[prop] = value
 end
 
 const BASIC_TERMINATION_MODES = (NLSolveTerminationMode.SteadyStateDefault,
@@ -160,15 +157,11 @@ function NLSolveTerminationCondition(mode; abstol::T = 1e-8, reltol::T = 1e-6,
     return NLSolveTerminationCondition{mode, T, typeof(options)}(abstol, reltol, options)
 end
 
-function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict,
+function (cond::NLSolveTerminationCondition)(storage::Union{
     NLSolveSafeTerminationResult,
     NLSolveSafeTerminationResultWithState,
     Nothing})
     mode = get_termination_mode(cond)
-    if storage isa AbstractDict
-        Base.depwarn("`storage` of type ($(typeof(storage)) <: AbstractDict) has been deprecated. Pass in a `NLSolveSafeTerminationResult` instance instead",
-            :NLSolveTerminationCondition)
-    end
     # We need both the dispatches to support solvers that don't use the integrator
     # interface like SimpleNonlinearSolve
     if mode in BASIC_TERMINATION_MODES
@@ -250,7 +243,9 @@ function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict,
                 return true
             end
 
-            __setproperty!(storage, Val(:return_code), NLSolveSafeTerminationReturnCode.Failure)
+            __setproperty!(storage,
+                Val(:return_code),
+                NLSolveSafeTerminationReturnCode.Failure)
             return false
         end
         return _termination_condition_closure_safe
