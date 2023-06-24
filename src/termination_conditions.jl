@@ -30,18 +30,20 @@ end
 
 TruncatedStacktraces.@truncate_stacktrace NLSolveSafeTerminationOptions
 
-Base.@kwdef mutable struct NLSolveSafeTerminationResult{T}
-    best_objective_value::T = Inf64
-    best_objective_value_iteration::Int = 0
-    return_code::NLSolveSafeTerminationReturnCode.T = NLSolveSafeTerminationReturnCode.Failure
+mutable struct NLSolveSafeTerminationResult{T, uType}
+    u::uType
+    best_objective_value::T
+    best_objective_value_iteration::Int
+    return_code::NLSolveSafeTerminationReturnCode.T
 end
 
-# Remove once support for AbstractDict has been dropped
-function __setproperty!(n::NLSolveSafeTerminationResult, prop::Symbol, value)
-    setproperty!(n, prop, value)
-end
-function __setproperty!(d::AbstractDict, prop::Symbol, value)
-    d[prop] = value
+function NLSolveSafeTerminationResult(u = nothing; best_objective_value = Inf64,
+    best_objective_value_iteration = 0,
+    return_code = NLSolveSafeTerminationReturnCode.Failure)
+    u = u !== nothing ? copy(u) : u
+    return NLSolveSafeTerminationResult{typeof(best_objective_value), typeof(u)}(u,
+        best_objective_value,
+        best_objective_value_iteration, return_code)
 end
 
 const BASIC_TERMINATION_MODES = (NLSolveTerminationMode.SteadyStateDefault,
@@ -134,14 +136,11 @@ function NLSolveTerminationCondition(mode; abstol::T = 1e-8, reltol::T = 1e-6,
     return NLSolveTerminationCondition{mode, T, typeof(options)}(abstol, reltol, options)
 end
 
-function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict,
+function (cond::NLSolveTerminationCondition)(storage::Union{
     NLSolveSafeTerminationResult,
-    Nothing})
+    Nothing,
+})
     mode = get_termination_mode(cond)
-    if storage isa AbstractDict
-        Base.depwarn("`storage` of type ($(typeof(storage)) <: AbstractDict) has been deprecated. Pass in a `NLSolveSafeTerminationResult` instance instead",
-            :NLSolveTerminationCondition)
-    end
     # We need both the dispatches to support solvers that don't use the integrator
     # interface like SimpleNonlinearSolve
     if mode in BASIC_TERMINATION_MODES
@@ -168,8 +167,8 @@ function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict,
             patience_objective_multiplier = cond.safe_termination_options.patience_objective_multiplier
 
             if mode ∈ SAFE_BEST_TERMINATION_MODES
-                __setproperty!(storage, :best_objective_value, aType(Inf))
-                __setproperty!(storage, :best_objective_value_iteration, 0)
+                storage.best_objective_value = aType(Inf)
+                storage.best_objective_value_iteration = 0
             end
 
             if mode ∈ SAFE_BEST_TERMINATION_MODES
@@ -181,16 +180,18 @@ function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict,
             end
 
             if mode ∈ SAFE_BEST_TERMINATION_MODES
-                if objective < storage[:best_objective_value]
-                    __setproperty!(storage, :best_objective_value, objective)
-                    __setproperty!(storage, :best_objective_value_iteration, nstep + 1)
+                if objective < storage.best_objective_value
+                    storage.best_objective_value = objective
+                    storage.best_objective_value_iteration = nstep + 1
+                    if storage.u !== nothing
+                        storage.u .= u
+                    end
                 end
             end
 
             # Main Termination Criteria
-            if objective <= criteria
-                __setproperty!(storage, :return_code,
-                    NLSolveSafeTerminationReturnCode.Success)
+            if objective ≤ criteria
+                storage.return_code = NLSolveSafeTerminationReturnCode.Success
                 return true
             end
 
@@ -198,29 +199,27 @@ function (cond::NLSolveTerminationCondition)(storage::Union{<:AbstractDict,
             nstep += 1
             push!(objective_values, objective)
 
-            if objective <= typeof(criteria)(patience_objective_multiplier) * criteria
-                if nstep >= cond.safe_termination_options.patience_steps
+            if objective ≤ typeof(criteria)(patience_objective_multiplier) * criteria
+                if nstep ≥ cond.safe_termination_options.patience_steps
                     last_k_values = objective_values[max(1,
                         length(objective_values) -
                         cond.safe_termination_options.patience_steps):end]
                     if maximum(last_k_values) <
                        typeof(criteria)(cond.safe_termination_options.min_max_factor) *
                        minimum(last_k_values)
-                        __setproperty!(storage, :return_code,
-                            NLSolveSafeTerminationReturnCode.PatienceTermination)
+                        storage.return_code = NLSolveSafeTerminationReturnCode.PatienceTermination
                         return true
                     end
                 end
             end
 
             # Protective break
-            if objective >= objective_values[1] * protective_threshold * length(du)
-                __setproperty!(storage, :return_code,
-                    NLSolveSafeTerminationReturnCode.ProtectiveTermination)
+            if objective ≥ objective_values[1] * protective_threshold * length(du)
+                storage.return_code = NLSolveSafeTerminationReturnCode.ProtectiveTermination
                 return true
             end
 
-            __setproperty!(storage, :return_code, NLSolveSafeTerminationReturnCode.Failure)
+            storage.return_code = NLSolveSafeTerminationReturnCode.Failure
             return false
         end
         return _termination_condition_closure_safe
@@ -236,22 +235,22 @@ end
 @inline @inbounds function _has_converged(du, u, uprev, mode, abstol, reltol)
     if mode == NLSolveTerminationMode.Norm
         du_norm = norm(du)
-        return du_norm <= abstol || du_norm <= reltol * norm(du + u)
+        return du_norm ≤ abstol || du_norm ≤ reltol * norm(du + u)
     elseif mode == NLSolveTerminationMode.Rel
-        return all(abs.(du) .<= reltol .* abs.(u))
+        return all(abs.(du) .≤ reltol .* abs.(u))
     elseif mode ∈ (NLSolveTerminationMode.RelNorm, NLSolveTerminationMode.RelSafe,
         NLSolveTerminationMode.RelSafeBest)
-        return norm(du) <= reltol * norm(du .+ u)
+        return norm(du) ≤ reltol * norm(du .+ u)
     elseif mode == NLSolveTerminationMode.Abs
-        return all(abs.(du) .<= abstol)
+        return all(abs.(du) .≤ abstol)
     elseif mode ∈ (NLSolveTerminationMode.AbsNorm, NLSolveTerminationMode.AbsSafe,
         NLSolveTerminationMode.AbsSafeBest)
-        return norm(du) <= abstol
+        return norm(du) ≤ abstol
     elseif mode == NLSolveTerminationMode.SteadyStateDefault
-        return all((abs.(du) .<= abstol) .| (abs.(du) .<= reltol .* abs.(u)))
+        return all((abs.(du) .≤ abstol) .| (abs.(du) .≤ reltol .* abs.(u)))
     elseif mode == NLSolveTerminationMode.NLSolveDefault
         atol, rtol = abstol, reltol
-        return all((abs.(du) .<= abstol) .| (abs.(du) .<= reltol .* abs.(u))) ||
+        return all((abs.(du) .≤ abstol) .| (abs.(du) .≤ reltol .* abs.(u))) ||
                isapprox(u, uprev; atol, rtol)
     else
         throw(ArgumentError("Unknown termination mode: $mode"))
