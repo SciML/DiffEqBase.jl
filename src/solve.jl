@@ -996,7 +996,9 @@ function solve(prob::EnsembleProblem, args...; kwargs...)
         __solve(prob, args...; kwargs...)
     end
 end
-
+function solve(prob::SciMLBase.WeightedEnsembleProblem, args...; kwargs...)
+  SciMLBase.WeightedEnsembleSolution(solve(prob.ensembleprob), prob.weights)
+end
 function solve(prob::AbstractNoiseProblem, args...; kwargs...)
     __solve(prob, args...; kwargs...)
 end
