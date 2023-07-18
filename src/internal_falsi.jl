@@ -126,7 +126,7 @@ end
 
 function SciMLBase.solve(prob::IntervalNonlinearProblem{uType, iip,
     <:ForwardDiff.Dual{T, V, P}},
-    alg::InteralFalsi, args...;
+    alg::InternalFalsi, args...;
     kwargs...) where {uType, iip, T, V, P}
     sol, partials = scalar_nlsolve_ad(prob, alg, args...; kwargs...)
     return SciMLBase.build_solution(prob, alg, Dual{T, V, P}(sol.u, partials),
@@ -141,7 +141,7 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{uType, iip,
             V,
             P},
     }},
-    alg::InteralFalsi, args...;
+    alg::InternalFalsi, args...;
     kwargs...) where {uType, iip, T, V, P}
     sol, partials = scalar_nlsolve_ad(prob, alg, args...; kwargs...)
     
