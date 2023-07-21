@@ -64,10 +64,11 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T,T}}, alg::In
 
         ## Update ##
         yp = f(xp)
-        if yp > 0
+        yps = f(xp)*sign(fr)
+        if yps > 0
             right = xp
             fr = yp
-        elseif yp < 0
+        elseif yps < 0
             left = xp
             fl = yp
         else
