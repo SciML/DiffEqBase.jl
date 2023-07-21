@@ -46,7 +46,7 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T,T}}, alg::In
         δ = k1 * (span^k2)
 
         ## Interpolation step ##
-        x_f = (fr * left - fl * right) / (fr - fl)
+        x_f = left + (right - left) * (fl/(fl - fr))
 
         ## Truncation step ##
         σ = sign(mid - x_f)
@@ -66,8 +66,8 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T,T}}, alg::In
         ## Update ##
         tmax = max(left, right)
         tmin = min(left, right)
-        xp >= tmax && (xp = prevfloat_tdir(tmax, prob.tspan...))
-        xp <= tmin && (xp = nextfloat_tdir(tmin, prob.tspan...))
+        xp >= tmax && (xp = prevfloat(tmax))
+        xp <= tmin && (xp = nextfloat(tmin))
         yp = f(xp)
         yps = yp * sign(fr)
         if yps > 0
