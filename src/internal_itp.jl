@@ -63,6 +63,8 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T,T}}, alg::In
         end
 
         ## Update ##
+        right == xp && (xp = prevfloat_tdir(xp, prob.tspan...))
+        left == xp && (xp = nextfloat_tdir(xp, prob.tspan...))
         yp = f(xp)
         yps = f(xp)*sign(fr)
         if yps > 0
@@ -72,16 +74,19 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T,T}}, alg::In
             left = xp
             fl = yp
         else
-            left = xp
+            left = prevfloat_tdir(xp, prob.tspan...)
             right = xp
+            return SciMLBase.build_solution(prob, alg, left, f(left);
+                                            retcode = ReturnCode.Success, left = left,
+                                            right = right)
         end
         i += 1
         mid = (left + right) / 2
         ϵ_s /= 2
 
-        if (right - left < 2 * ϵ)
-            return SciMLBase.build_solution(prob, alg, mid, f(mid);
-                retcode = ReturnCode.Success, left = left,
+        if nextfloat_tdir(left, prob.tspan...) == right
+            return SciMLBase.build_solution(prob, alg, left, fl;
+                retcode = ReturnCode.FloatingPointLimit, left = left,
                 right = right)
         end
     end
