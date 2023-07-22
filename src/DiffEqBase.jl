@@ -127,6 +127,7 @@ include("stats.jl")
 include("calculate_residuals.jl")
 include("tableaus.jl")
 include("internal_falsi.jl")
+include("internal_itp.jl")
 
 include("callbacks.jl")
 include("common_defaults.jl")

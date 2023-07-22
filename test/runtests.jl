@@ -25,6 +25,9 @@ end
         @time @safetestset "Callbacks" begin
             include("callbacks.jl")
         end
+        @time @safetestset "Internal Rootfinders" begin
+            include("internal_rootfinder.jl")
+        end
         @time @safetestset "Plot Vars" begin
             include("plot_vars.jl")
         end
