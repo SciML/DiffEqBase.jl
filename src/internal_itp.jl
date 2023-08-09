@@ -29,7 +29,7 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T,T}}, alg::In
     k1 = alg.k1
     k2 = alg.k2
     n0 = alg.n0
-    n_h = ceil(log2((right - left) / (2 * ϵ)))
+    n_h = ceil(log2(abs(right - left) / (2 * ϵ)))
     mid = (left + right) / 2
     x_f = (fr * left - fl * right) / (fr - fl)
     xt = left
@@ -64,8 +64,7 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T,T}}, alg::In
         end
 
         ## Update ##
-        tmax = max(left, right)
-        tmin = min(left, right)
+        tmin, tmax = minmax(left, right)
         xp >= tmax && (xp = prevfloat(tmax))
         xp <= tmin && (xp = nextfloat(tmin))
         yp = f(xp)
