@@ -116,45 +116,42 @@ function get_condition(integrator::DEIntegrator, callback, abst)
     end
 end
 
-# Use Recursion to find the first callback for type-stability
-
-# Base Case: Only one callback
-function find_first_continuous_callback(integrator, callback::AbstractContinuousCallback)
-    (find_callback_time(integrator, callback, 1)..., 1, 1)
+# Use a generated function for type stability even when many callbacks are given
+@inline function find_first_continuous_callback(integrator,
+                                                callbacks::Vararg{
+                                                                  AbstractContinuousCallback,
+                                                                  N}) where {N}
+    find_first_continuous_callback(integrator, tuple(callbacks...))
 end
-
-# Starting Case: Compute on the first callback
-function find_first_continuous_callback(integrator, callback::AbstractContinuousCallback,
-    args...)
-    find_first_continuous_callback(integrator,
-        find_callback_time(integrator, callback, 1)..., 1, 1,
-        args...)
-end
-
-function find_first_continuous_callback(integrator, tmin::Number, upcrossing::Number,
-    event_occurred::Bool, event_idx::Int, idx::Int,
-    counter::Int,
-    callback2)
-    counter += 1 # counter is idx for callback2.
-    tmin2, upcrossing2, event_occurred2, event_idx2 = find_callback_time(integrator,
-        callback2, counter)
-
-    if event_occurred2 && (tmin2 < tmin || !event_occurred)
-        return tmin2, upcrossing2, true, event_idx2, counter, counter
-    else
-        return tmin, upcrossing, event_occurred, event_idx, idx, counter
+@generated function find_first_continuous_callback(integrator,
+                                                   callbacks::NTuple{N,
+                                                                     AbstractContinuousCallback
+                                                                     }) where {N}
+    ex = quote
+        tmin, upcrossing, event_occurred, event_idx = find_callback_time(integrator,
+                                                                         callbacks[1], 1)
+        identified_idx = 1
     end
-end
-
-function find_first_continuous_callback(integrator, tmin::Number, upcrossing::Number,
-    event_occurred::Bool, event_idx::Int, idx::Int,
-    counter::Int, callback2, args...)
-    find_first_continuous_callback(integrator,
-        find_first_continuous_callback(integrator, tmin,
-            upcrossing,
-            event_occurred,
-            event_idx, idx, counter,
-            callback2)..., args...)
+    for i in 2:N
+        ex = quote
+            $ex
+            tmin2, upcrossing2, event_occurred2, event_idx2 = find_callback_time(integrator,
+                                                                                 callbacks[$i],
+                                                                                 $i)
+            if event_occurred2 && (tmin2 < tmin || !event_occurred)
+                tmin = tmin2
+                upcrossing = upcrossing2
+                event_occurred = true
+                event_idx = event_idx2
+                identified_idx = $i
+            end
+        end
+    end
+    ex = quote
+        $ex
+        return tmin, upcrossing, event_occurred, event_idx, identified_idx, $N
+    end
+    ex
 end
 
 @inline function determine_event_occurance(integrator, callback::VectorContinuousCallback,
