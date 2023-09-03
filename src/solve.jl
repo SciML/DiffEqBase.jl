@@ -1308,7 +1308,7 @@ function check_prob_alg_pairing(prob, alg)
 
     @show "here?"
 
-    if prob isa SDEProblem && noise_rate_prototype !=== nothing &&
+    if prob isa SDEProblem && noise_rate_prototype !== nothing &&
         prob.noise !== nothing && size(prob.noise_rate_prototype,2) != length(prob.noise.W[1])
         throw(NoiseSizeIncompatabilityError(size(prob.noise_rate_prototype,2), length(prob.noise.W[1])))
     end
