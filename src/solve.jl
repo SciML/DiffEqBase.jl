@@ -192,6 +192,15 @@ const NOISE_SIZE_MESSAGE = """
                            `noise_rate_prototype` does not match the number of noise terms in the defined
                            `AbstractNoiseProcess`. Please ensure that 
                            size(prob.noise_rate_prototype,2) == length(prob.noise.W[1]).
+
+                           Note: Noise process definitions require that users specify `u0`, and this value is
+                           directly used in the definition. For example, if `noise = WienerProcess(0.0,0.0)`,
+                           then the noise process is a scalar with `u0=0.0`. If `noise = WienerProcess(0.0,[0.0])`,
+                           then the noise process is a vector with `u0=0.0`. If `noise_rate_prototype = zeros(2,4)`,
+                           then the noise process must be a 4-dimensional process, for example
+                           `noise = WienerProcess(0.0,zeros(4))`. This error is a sign that the user definition
+                           of `noise_rate_prototype` and `noise` are not aligned in this manner and the definitions should
+                           be double checked.
                            """
 
 struct NoiseSizeIncompatabilityError <: Exception 
