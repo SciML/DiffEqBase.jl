@@ -62,4 +62,4 @@ function g(du, u, p, t)
 end
 
 prob = SDEProblem(f, g, randn(ComplexF64,2), (0.0, 1.0), noise_rate_prototype =complex(zeros(2, 4)),noise=StochasticDiffEq.RealWienerProcess(0.0,zeros(3)))
-@test_throws DiffEqBase.NoiseSizeIncompatabilityError solve(prob, LambdaEM())
+@test_throws DiffEqBase.NoiseSizeIncompatabilityError solve(prob, LambaEM())
