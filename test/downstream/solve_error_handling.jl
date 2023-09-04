@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, Test, Sundials
+using OrdinaryDiffEq, StochasticDiffEq, Test, Sundials
 
 f(u, p, t) = 2u
 u0 = 0.5
@@ -48,3 +48,18 @@ fmm = ODEFunction((du, u, t) -> nothing, mass_matrix = zeros(0, 0))
 prob = ODEProblem(fmm, nothing, (0.0, 1.0))
 sol = solve(prob, Tsit5())
 @test isa(sol, DiffEqBase.ODESolution)
+
+f(du, u, p, t) = du .= 1.01u
+function g(du, u, p, t)
+    du[1, 1] = 0.3u[1]
+    du[1, 2] = 0.6u[1]
+    du[1, 3] = 0.9u[1]
+    du[1, 4] = 0.12u[1]
+    du[2, 1] = 1.2u[2]
+    du[2, 2] = 0.2u[2]
+    du[2, 3] = 0.3u[2]
+    du[2, 4] = 1.8u[2]
+end
+
+prob = SDEProblem(f, g, randn(ComplexF64,2), (0.0, 1.0), noise_rate_prototype =complex(zeros(2, 4)),noise=StochasticDiffEq.RealWienerProcess(0.0,zeros(3)))
+@test_throws DiffEqBase.NoiseSizeIncompatabilityError solve(prob, LambaEM())

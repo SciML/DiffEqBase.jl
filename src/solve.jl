@@ -187,6 +187,34 @@ function Base.showerror(io::IO, e::NonSolverError)
     println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
+const NOISE_SIZE_MESSAGE = """
+                           Noise sizes are incompatible. The expected number of noise terms in the defined
+                           `noise_rate_prototype` does not match the number of noise terms in the defined
+                           `AbstractNoiseProcess`. Please ensure that 
+                           size(prob.noise_rate_prototype,2) == length(prob.noise.W[1]).
+
+                           Note: Noise process definitions require that users specify `u0`, and this value is
+                           directly used in the definition. For example, if `noise = WienerProcess(0.0,0.0)`,
+                           then the noise process is a scalar with `u0=0.0`. If `noise = WienerProcess(0.0,[0.0])`,
+                           then the noise process is a vector with `u0=0.0`. If `noise_rate_prototype = zeros(2,4)`,
+                           then the noise process must be a 4-dimensional process, for example
+                           `noise = WienerProcess(0.0,zeros(4))`. This error is a sign that the user definition
+                           of `noise_rate_prototype` and `noise` are not aligned in this manner and the definitions should
+                           be double checked.
+                           """
+
+struct NoiseSizeIncompatabilityError <: Exception 
+    prototypesize::Int
+    noisesize::Int
+end
+
+function Base.showerror(io::IO, e::NoiseSizeIncompatabilityError)
+    println(io, NOISE_SIZE_MESSAGE)
+    println(io, "size(prob.noise_rate_prototype,2) = $(e.prototypesize)")
+    println(io, "length(prob.noise.W[1]) = $(e.noisesize)")
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
+end
+
 const PROBSOLVER_PAIRING_MESSAGE = """
                                    Incompatible problem+solver pairing.
                                    For example, this can occur if an ODE solver is passed with an SDEProblem.
@@ -1276,6 +1304,11 @@ function check_prob_alg_pairing(prob, alg)
     if isdefined(prob, :u0) && eltype(prob.u0) <: ForwardDiff.Dual &&
        !SciMLBase.isautodifferentiable(alg)
         throw(DirectAutodiffError())
+    end
+
+    if prob isa SDEProblem && prob.noise_rate_prototype !== nothing &&
+        prob.noise !== nothing && size(prob.noise_rate_prototype,2) != length(prob.noise.W[1])
+        throw(NoiseSizeIncompatabilityError(size(prob.noise_rate_prototype,2), length(prob.noise.W[1])))
     end
 
     # Complex number support comes before arbitrary number support for a more direct
