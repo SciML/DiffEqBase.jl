@@ -20,7 +20,7 @@ for Rootfinder in (InternalFalsi, InternalITP)
 
     # https://github.com/SciML/DiffEqBase.jl/issues/916 
     inp = IntervalNonlinearProblem((t, p) -> min(-1.0 + 0.001427344607477125 * t, 1e-9),
-                                   (699.0079267259368, 700.6176418816023))
+        (699.0079267259368, 700.6176418816023))
     @test solve(inp, rf).u ≈ 700.6016590257979
 
     # Flipped signs & reversed tspan test for bracketing algorithms

@@ -36,8 +36,8 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem, alg::InternalFalsi, arg
 
     if iszero(fr)
         return SciMLBase.build_solution(prob, alg, right, fr;
-        retcode = ReturnCode.ExactSolutionLeft, left = left,
-        right = right)
+            retcode = ReturnCode.ExactSolutionLeft, left = left,
+            right = right)
     end
 
     i = 1
@@ -129,7 +129,7 @@ function scalar_nlsolve_ad(prob, alg::InternalFalsi, args...; kwargs...)
 end
 
 function SciMLBase.solve(prob::IntervalNonlinearProblem{uType, iip,
-    <:ForwardDiff.Dual{T, V, P}},
+        <:ForwardDiff.Dual{T, V, P}},
     alg::InternalFalsi, args...;
     kwargs...) where {uType, iip, T, V, P}
     sol, partials = scalar_nlsolve_ad(prob, alg, args...; kwargs...)
@@ -140,15 +140,15 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{uType, iip,
 end
 
 function SciMLBase.solve(prob::IntervalNonlinearProblem{uType, iip,
-    <:AbstractArray{
-        <:ForwardDiff.Dual{T,
-            V,
-            P},
-    }},
+        <:AbstractArray{
+            <:ForwardDiff.Dual{T,
+                V,
+                P},
+        }},
     alg::InternalFalsi, args...;
     kwargs...) where {uType, iip, T, V, P}
     sol, partials = scalar_nlsolve_ad(prob, alg, args...; kwargs...)
-    
+
     return SciMLBase.build_solution(prob, alg, ForwardDiff.Dual{T, V, P}(sol.u, partials),
         sol.resid; retcode = sol.retcode,
         left = ForwardDiff.Dual{T, V, P}(sol.left, partials),
