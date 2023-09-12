@@ -113,7 +113,10 @@ end
 anyeltypedual(x::Union{ForwardDiff.AbstractConfig, Module}, counter = 0) = Any
 anyeltypedual(x::Type{T}, counter = 0) where {T <: ForwardDiff.AbstractConfig} = Any
 anyeltypedual(x::SciMLBase.RecipesBase.AbstractPlot, counter = 0) = Any
-anyeltypedual(x::Returns, counter = 0) = anyeltypedual(x.value, counter)
+
+if VERSION >= v"1.7"
+    anyeltypedual(x::Returns, counter = 0) = anyeltypedual(x.value, counter)
+end
 
 if isdefined(PreallocationTools, :FixedSizeDiffCache)
     anyeltypedual(x::PreallocationTools.FixedSizeDiffCache, counter = 0) = Any
