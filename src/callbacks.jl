@@ -118,26 +118,26 @@ end
 
 # Use a generated function for type stability even when many callbacks are given
 @inline function find_first_continuous_callback(integrator,
-                                                callbacks::Vararg{
-                                                                  AbstractContinuousCallback,
-                                                                  N}) where {N}
+    callbacks::Vararg{
+        AbstractContinuousCallback,
+        N}) where {N}
     find_first_continuous_callback(integrator, tuple(callbacks...))
 end
 @generated function find_first_continuous_callback(integrator,
-                                                   callbacks::NTuple{N,
-                                                                     AbstractContinuousCallback
-                                                                     }) where {N}
+    callbacks::NTuple{N,
+        AbstractContinuousCallback,
+    }) where {N}
     ex = quote
         tmin, upcrossing, event_occurred, event_idx = find_callback_time(integrator,
-                                                                         callbacks[1], 1)
+            callbacks[1], 1)
         identified_idx = 1
     end
     for i in 2:N
         ex = quote
             $ex
             tmin2, upcrossing2, event_occurred2, event_idx2 = find_callback_time(integrator,
-                                                                                 callbacks[$i],
-                                                                                 $i)
+                callbacks[$i],
+                $i)
             if event_occurred2 && (tmin2 < tmin || !event_occurred)
                 tmin = tmin2
                 upcrossing = upcrossing2

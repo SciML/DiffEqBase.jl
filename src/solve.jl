@@ -203,7 +203,7 @@ const NOISE_SIZE_MESSAGE = """
                            be double checked.
                            """
 
-struct NoiseSizeIncompatabilityError <: Exception 
+struct NoiseSizeIncompatabilityError <: Exception
     prototypesize::Int
     noisesize::Int
 end
@@ -1025,7 +1025,7 @@ function solve(prob::EnsembleProblem, args...; kwargs...)
     end
 end
 function solve(prob::SciMLBase.WeightedEnsembleProblem, args...; kwargs...)
-  SciMLBase.WeightedEnsembleSolution(solve(prob.ensembleprob), prob.weights)
+    SciMLBase.WeightedEnsembleSolution(solve(prob.ensembleprob), prob.weights)
 end
 function solve(prob::AbstractNoiseProblem, args...; kwargs...)
     __solve(prob, args...; kwargs...)
@@ -1307,8 +1307,10 @@ function check_prob_alg_pairing(prob, alg)
     end
 
     if prob isa SDEProblem && prob.noise_rate_prototype !== nothing &&
-        prob.noise !== nothing && size(prob.noise_rate_prototype,2) != length(prob.noise.W[1])
-        throw(NoiseSizeIncompatabilityError(size(prob.noise_rate_prototype,2), length(prob.noise.W[1])))
+       prob.noise !== nothing &&
+       size(prob.noise_rate_prototype, 2) != length(prob.noise.W[1])
+        throw(NoiseSizeIncompatabilityError(size(prob.noise_rate_prototype, 2),
+            length(prob.noise.W[1])))
     end
 
     # Complex number support comes before arbitrary number support for a more direct

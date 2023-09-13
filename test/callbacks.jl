@@ -58,11 +58,11 @@ struct EmptyIntegrator
     u::Vector{Float64}
 end
 function DiffEqBase.find_callback_time(integrator::EmptyIntegrator,
-                                       callback::ContinuousCallback, counter)
+    callback::ContinuousCallback, counter)
     1.0 + counter, 0.9 + counter, true, counter
 end
 function DiffEqBase.find_callback_time(integrator::EmptyIntegrator,
-                                       callback::VectorContinuousCallback, counter)
+    callback::VectorContinuousCallback, counter)
     1.0 + counter, 0.9 + counter, true, counter
 end
 find_first_integrator = EmptyIntegrator([1.0, 2.0])
@@ -82,21 +82,21 @@ cond_9(u, t, integrator) = t - 1.8
 cond_10(u, t, integrator) = t - 1.9
 # Setup a lot of callbacks so the recursive inference failure happens
 callbacks = (ContinuousCallback(cond_1, affect!),
-             ContinuousCallback(cond_2, affect!),
-             ContinuousCallback(cond_3, affect!),
-             ContinuousCallback(cond_4, affect!),
-             ContinuousCallback(cond_5, affect!),
-             ContinuousCallback(cond_6, affect!),
-             ContinuousCallback(cond_7, affect!),
-             ContinuousCallback(cond_8, affect!),
-             ContinuousCallback(cond_9, affect!),
-             ContinuousCallback(cond_10, affect!),
-             VectorContinuousCallback(cond_1, vector_affect!, 2),
-             VectorContinuousCallback(cond_2, vector_affect!, 2),
-             VectorContinuousCallback(cond_3, vector_affect!, 2),
-             VectorContinuousCallback(cond_4, vector_affect!, 2),
-             VectorContinuousCallback(cond_5, vector_affect!, 2),
-             VectorContinuousCallback(cond_6, vector_affect!, 2));
+    ContinuousCallback(cond_2, affect!),
+    ContinuousCallback(cond_3, affect!),
+    ContinuousCallback(cond_4, affect!),
+    ContinuousCallback(cond_5, affect!),
+    ContinuousCallback(cond_6, affect!),
+    ContinuousCallback(cond_7, affect!),
+    ContinuousCallback(cond_8, affect!),
+    ContinuousCallback(cond_9, affect!),
+    ContinuousCallback(cond_10, affect!),
+    VectorContinuousCallback(cond_1, vector_affect!, 2),
+    VectorContinuousCallback(cond_2, vector_affect!, 2),
+    VectorContinuousCallback(cond_3, vector_affect!, 2),
+    VectorContinuousCallback(cond_4, vector_affect!, 2),
+    VectorContinuousCallback(cond_5, vector_affect!, 2),
+    VectorContinuousCallback(cond_6, vector_affect!, 2));
 function test_find_first_callback(callbacks, int)
     @timed(DiffEqBase.find_first_continuous_callback(int, callbacks...))
 end
