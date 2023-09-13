@@ -80,7 +80,12 @@ const allowedkeywords = (:dense,
     # This is for copying/deepcopying noise in StochasticDiffEq
     :alias_noise,
     # This is for SimpleNonlinearSolve handling for batched Nonlinear Solves
-    :batch)
+    :batch,
+    # `problem_type` is for BVPs. needed in Ensemble Solve
+    :problem_type,
+    # Shooting method in BVP needs to differentiate between these two categories
+    :nlsolve_kwargs,
+    :odesolve_kwargs)
 
 const KWARGWARN_MESSAGE = """
                           Unrecognized keyword arguments found. Future versions will error.
