@@ -169,6 +169,21 @@ function Base.showerror(io::IO, e::NoTspanError)
     println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
+const NAN_TSPAN_MESSAGE = """
+                          NaN tspan is set in the problem or chosen in the init/solve call.
+                          Note that -Inf and Inf values are allowed in the timespan for solves
+                          which are terminated via callbacks, however NaN values are not allowed
+                          since the direction of time is undetermined.
+                          """
+
+struct NaNTspanError <: Exception end
+
+function Base.showerror(io::IO, e::NaNTspanError)
+    print(io, NAN_TSPAN_MESSAGE)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
+end
+
+
 const NON_SOLVER_MESSAGE = """
                            The arguments to solve are incorrect.
                            The second argument must be a solver choice, `solve(prob,alg)`
@@ -1191,6 +1206,8 @@ function get_concrete_tspan(prob, isadapt, kwargs, p)
     end
 
     isadapt && eltype(tspan) <: Integer && (tspan = float.(tspan))
+
+    any(isnan, tspan) && throw(NaNTspanError())
 
     tspan
 end
