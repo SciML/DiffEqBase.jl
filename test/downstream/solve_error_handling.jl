@@ -28,7 +28,10 @@ prob = ODEProblem{false}(f, 1.0 + im, tspan)
 prob = ODEProblem{false}(f, u0, (nothing, nothing))
 @test_throws DiffEqBase.NoTspanError solve(prob, Tsit5())
 
-prob = ODEProblem{false}(f, u0, (nothing, nothing))
+prob = ODEProblem{false}(f, u0, (NaN, 1.0))
+@test_throws DiffEqBase.NaNTspanError solve(prob, Tsit5())
+
+prob = ODEProblem{false}(f, u0, (1.0, NaN))
 @test_throws DiffEqBase.NaNTspanError solve(prob, Tsit5())
 
 prob = ODEProblem{false}(f, Any[1.0, 1.0f0], tspan)
