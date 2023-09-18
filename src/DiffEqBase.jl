@@ -7,7 +7,9 @@ if !isdefined(Base, :get_extension)
     using Requires
 end
 
-@recompile_invalidations begin
+import PrecompileTools
+
+PrecompileTools.@recompile_invalidations begin
     using ArrayInterface
 
     using StaticArraysCore # data arrays
