@@ -7,101 +7,104 @@ if !isdefined(Base, :get_extension)
     using Requires
 end
 
-using ArrayInterface
+@recompile_invalidations begin
+    using ArrayInterface
 
-using StaticArraysCore # data arrays
+    using StaticArraysCore # data arrays
 
-using LinearAlgebra, Printf
+    using LinearAlgebra, Printf
 
-using DocStringExtensions
+    using DocStringExtensions
 
-using FunctionWrappers: FunctionWrapper
+    using FunctionWrappers: FunctionWrapper
 
-using MuladdMacro, Parameters
+    using MuladdMacro, Parameters
 
-using Reexport
+    using Reexport
 
-using Statistics
+    using Statistics
 
-using FastBroadcast: @.., True, False
+    using FastBroadcast: @.., True, False
 
-using Static: reduce_tup
+    using Static: reduce_tup
 
-import ChainRulesCore
-import RecursiveArrayTools
-import SparseArrays
-import TruncatedStacktraces
+    import ChainRulesCore
+    import RecursiveArrayTools
+    import SparseArrays
+    import TruncatedStacktraces
 
-import ChainRulesCore: NoTangent, @non_differentiable
-import ZygoteRules
+    import ChainRulesCore: NoTangent, @non_differentiable
+    import ZygoteRules
 
-using Setfield
+    using Setfield
 
-using ForwardDiff
+    using ForwardDiff
 
-using EnumX
+    using EnumX
 
-using Markdown
+    using Markdown
 
-# Could be made optional/glue
-import PreallocationTools
+    # Could be made optional/glue
+    import PreallocationTools
 
-import FunctionWrappersWrappers
-@reexport using SciMLBase
+    import FunctionWrappersWrappers
+    @reexport using SciMLBase
 
-using SciMLOperators: AbstractSciMLOperator, AbstractSciMLScalarOperator
+    using SciMLOperators: AbstractSciMLOperator, AbstractSciMLScalarOperator
 
-using SciMLBase: @def, DEIntegrator, DEProblem,
-    AbstractDiffEqInterpolation,
-    DECallback, AbstractDEOptions, DECache, AbstractContinuousCallback,
-    AbstractDiscreteCallback, AbstractLinearProblem, AbstractNonlinearProblem,
-    AbstractOptimizationProblem, AbstractSteadyStateProblem,
-    AbstractJumpProblem,
-    AbstractNoiseProblem, AbstractEnsembleProblem, AbstractDynamicalODEProblem,
-    DEAlgorithm, StandardODEProblem, AbstractIntegralProblem,
-    AbstractSensitivityAlgorithm, AbstractODEAlgorithm,
-    AbstractSDEAlgorithm, AbstractDDEAlgorithm, AbstractDAEAlgorithm,
-    AbstractSDDEAlgorithm, AbstractRODEAlgorithm, DAEInitializationAlgorithm,
-    AbstractSteadyStateAlgorithm, AbstractODEProblem, AbstractDiscreteProblem,
-    AbstractSDEProblem, AbstractRODEProblem, AbstractDDEProblem,
-    AbstractDAEProblem, AbstractSDDEProblem, AbstractBVProblem,
-    AbstractTimeseriesSolution, AbstractNoTimeSolution, numargs,
-    AbstractODEFunction, AbstractSDEFunction, AbstractRODEFunction,
-    AbstractDDEFunction, AbstractSDDEFunction, AbstractDAEFunction,
-    AbstractNonlinearFunction, AbstractEnsembleSolution,
-    AbstractODESolution, AbstractRODESolution, AbstractDAESolution,
-    AbstractDDESolution,
-    EnsembleAlgorithm, EnsembleSolution, EnsembleSummary,
-    NonlinearSolution,
-    TimeGradientWrapper, TimeDerivativeWrapper, UDerivativeWrapper,
-    UJacobianWrapper, ParamJacobianWrapper, JacobianWrapper,
-    check_error!, has_jac, has_tgrad, has_Wfact, has_Wfact_t, has_paramjac,
-    AbstractODEIntegrator, AbstractSDEIntegrator, AbstractRODEIntegrator,
-    AbstractDDEIntegrator, AbstractSDDEIntegrator,
-    AbstractDAEIntegrator, unwrap_cache, has_reinit, reinit!,
-    postamble!, last_step_failed, islinear, has_stats,
-    initialize_dae!, build_solution, solution_new_retcode,
-    solution_new_tslocation, plot_indices,
-    NullParameters, isinplace, AbstractADType, AbstractDiscretization,
-    DISCRETE_OUTOFPLACE_DEFAULT, DISCRETE_INPLACE_DEFAULT,
-    has_analytic, calculate_solution_errors!, AbstractNoiseProcess,
-    has_colorvec, parameterless_type, undefined_exports,
-    is_diagonal_noise, AbstractDiffEqFunction, sensitivity_solution,
-    interp_summary, AbstractHistoryFunction, LinearInterpolation,
-    ConstantInterpolation, HermiteInterpolation, SensitivityInterpolation,
-    NoAD, @add_kwonly,
-    calculate_ensemble_errors, DEFAULT_UPDATE_FUNC, isconstant,
-    DEFAULT_REDUCTION, isautodifferentiable,
-    isadaptive, isdiscrete, has_syms, AbstractAnalyticalSolution,
-    RECOMPILE_BY_DEFAULT, wrap_sol, has_destats
+    using SciMLBase: @def, DEIntegrator, DEProblem,
+        AbstractDiffEqInterpolation,
+        DECallback, AbstractDEOptions, DECache, AbstractContinuousCallback,
+        AbstractDiscreteCallback, AbstractLinearProblem, AbstractNonlinearProblem,
+        AbstractOptimizationProblem, AbstractSteadyStateProblem,
+        AbstractJumpProblem,
+        AbstractNoiseProblem, AbstractEnsembleProblem, AbstractDynamicalODEProblem,
+        DEAlgorithm, StandardODEProblem, AbstractIntegralProblem,
+        AbstractSensitivityAlgorithm, AbstractODEAlgorithm,
+        AbstractSDEAlgorithm, AbstractDDEAlgorithm, AbstractDAEAlgorithm,
+        AbstractSDDEAlgorithm, AbstractRODEAlgorithm, DAEInitializationAlgorithm,
+        AbstractSteadyStateAlgorithm, AbstractODEProblem, AbstractDiscreteProblem,
+        AbstractSDEProblem, AbstractRODEProblem, AbstractDDEProblem,
+        AbstractDAEProblem, AbstractSDDEProblem, AbstractBVProblem,
+        AbstractTimeseriesSolution, AbstractNoTimeSolution, numargs,
+        AbstractODEFunction, AbstractSDEFunction, AbstractRODEFunction,
+        AbstractDDEFunction, AbstractSDDEFunction, AbstractDAEFunction,
+        AbstractNonlinearFunction, AbstractEnsembleSolution,
+        AbstractODESolution, AbstractRODESolution, AbstractDAESolution,
+        AbstractDDESolution,
+        EnsembleAlgorithm, EnsembleSolution, EnsembleSummary,
+        NonlinearSolution,
+        TimeGradientWrapper, TimeDerivativeWrapper, UDerivativeWrapper,
+        UJacobianWrapper, ParamJacobianWrapper, JacobianWrapper,
+        check_error!, has_jac, has_tgrad, has_Wfact, has_Wfact_t, has_paramjac,
+        AbstractODEIntegrator, AbstractSDEIntegrator, AbstractRODEIntegrator,
+        AbstractDDEIntegrator, AbstractSDDEIntegrator,
+        AbstractDAEIntegrator, unwrap_cache, has_reinit, reinit!,
+        postamble!, last_step_failed, islinear, has_stats,
+        initialize_dae!, build_solution, solution_new_retcode,
+        solution_new_tslocation, plot_indices,
+        NullParameters, isinplace, AbstractADType, AbstractDiscretization,
+        DISCRETE_OUTOFPLACE_DEFAULT, DISCRETE_INPLACE_DEFAULT,
+        has_analytic, calculate_solution_errors!, AbstractNoiseProcess,
+        has_colorvec, parameterless_type, undefined_exports,
+        is_diagonal_noise, AbstractDiffEqFunction, sensitivity_solution,
+        interp_summary, AbstractHistoryFunction, LinearInterpolation,
+        ConstantInterpolation, HermiteInterpolation, SensitivityInterpolation,
+        NoAD, @add_kwonly,
+        calculate_ensemble_errors, DEFAULT_UPDATE_FUNC, isconstant,
+        DEFAULT_REDUCTION, isautodifferentiable,
+        isadaptive, isdiscrete, has_syms, AbstractAnalyticalSolution,
+        RECOMPILE_BY_DEFAULT, wrap_sol, has_destats
 
-import SciMLBase: solve, init, step!, solve!, __init, __solve, update_coefficients!,
-    update_coefficients, isadaptive, wrapfun_oop, wrapfun_iip,
-    unwrap_fw, promote_tspan, set_u!, set_t!, set_ut!
+    import SciMLBase: solve, init, step!, solve!, __init, __solve, update_coefficients!,
+        update_coefficients, isadaptive, wrapfun_oop, wrapfun_iip,
+        unwrap_fw, promote_tspan, set_u!, set_t!, set_ut!
 
-import SciMLBase: AbstractDiffEqLinearOperator # deprecation path
+    import SciMLBase: AbstractDiffEqLinearOperator # deprecation path
 
-import Tricks
+    import Tricks
+end
+
 SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
 """
