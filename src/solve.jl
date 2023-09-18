@@ -81,11 +81,11 @@ const allowedkeywords = (:dense,
     :alias_noise,
     # This is for SimpleNonlinearSolve handling for batched Nonlinear Solves
     :batch,
-    # `problem_type` is for BVPs. needed in Ensemble Solve
-    :problem_type,
     # Shooting method in BVP needs to differentiate between these two categories
     :nlsolve_kwargs,
-    :odesolve_kwargs)
+    :odesolve_kwargs,
+    # If Solvers which internally use linsolve
+    :linsolve_kwargs)
 
 const KWARGWARN_MESSAGE = """
                           Unrecognized keyword arguments found. Future versions will error.
@@ -195,7 +195,7 @@ end
 const NOISE_SIZE_MESSAGE = """
                            Noise sizes are incompatible. The expected number of noise terms in the defined
                            `noise_rate_prototype` does not match the number of noise terms in the defined
-                           `AbstractNoiseProcess`. Please ensure that 
+                           `AbstractNoiseProcess`. Please ensure that
                            size(prob.noise_rate_prototype,2) == length(prob.noise.W[1]).
 
                            Note: Noise process definitions require that users specify `u0`, and this value is
