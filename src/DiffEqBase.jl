@@ -22,8 +22,6 @@ PrecompileTools.@recompile_invalidations begin
 
     using MuladdMacro, Parameters
 
-    using Reexport
-
     using Statistics
 
     using FastBroadcast: @.., True, False
@@ -50,7 +48,8 @@ PrecompileTools.@recompile_invalidations begin
     import PreallocationTools
 
     import FunctionWrappersWrappers
-    @reexport using SciMLBase
+    
+    using SciMLBase
 
     using SciMLOperators: AbstractSciMLOperator, AbstractSciMLScalarOperator
 
@@ -106,6 +105,9 @@ PrecompileTools.@recompile_invalidations begin
 
     import Tricks
 end
+
+using Reexport
+Reexport.@reexport using SciMLBase
 
 SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
