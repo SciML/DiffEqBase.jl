@@ -104,7 +104,7 @@ end
         @time @safetestset "Table Inference Tests" begin
             include("downstream/tables.jl")
         end
-        @time @safetestset "Default linsolve with structure" begin
+        VERSION >= v"1.7" && @time @safetestset "Default linsolve with structure" begin
             include("downstream/default_linsolve_structure.jl")
         end
         @time @safetestset "Callback Merging Tests" begin
