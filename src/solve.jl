@@ -450,8 +450,12 @@ function Base.showerror(io::IO, e::IncompatibleMassMatrixError)
     println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
-function init_call(_prob, args...; merge_callbacks = true, kwargshandle = KeywordArgError,
+function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
     kwargs...)
+
+    kwargshandle = kwargshandle === nothing ? KeywordArgError : kwargshandle
+    kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ? _prob.kwargs[:kwargshandle] : kwargshandle
+
     if has_kwargs(_prob)
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
@@ -526,8 +530,12 @@ function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
     end
 end
 
-function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = KeywordArgError,
+function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
     kwargs...)
+
+    kwargshandle = kwargshandle === nothing ? KeywordArgError : kwargshandle
+    kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ? _prob.kwargs[:kwargshandle] : kwargshandle
+
     if has_kwargs(_prob)
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
