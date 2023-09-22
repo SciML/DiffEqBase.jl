@@ -61,8 +61,8 @@ prob2 = @inferred remake(prob1; u0 = prob1.u0 .+ 1, callback = :test)
 # Test remake with SplitFunction:
 prob1 = SplitODEProblem((u, p, t) -> u / 2, (u, p, t) -> 2u, 1.0, (0.0, 1.0))
 prob2 = remake(prob1;  # prob1 is a ODEProblem
-               f = remake(prob1.f;  # prob1.f is a SplitFunction
-                          f2 = (u, p, t) -> 3u))
+    f = remake(prob1.f;  # prob1.f is a SplitFunction
+        f2 = (u, p, t) -> 3u))
 
 # Test remake with NoiseProblem (a struct w/o isinplace type parameter):
 struct DummyNoiseProcess <: SciMLBase.AbstractNoiseProcess{Int, 1, Nothing, true}

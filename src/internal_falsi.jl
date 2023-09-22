@@ -22,37 +22,47 @@ simpler dependencies.
 struct InternalFalsi end
 
 function SciMLBase.solve(prob::IntervalNonlinearProblem, alg::InternalFalsi, args...;
-                         maxiters = 1000,
-                         kwargs...)
+    maxiters = 1000,
+    kwargs...)
     f = Base.Fix2(prob.f, prob.p)
     left, right = prob.tspan
     fl, fr = f(left), f(right)
 
     if iszero(fl)
         return SciMLBase.build_solution(prob, alg, left, fl;
-                                        retcode = ReturnCode.ExactSolutionLeft, left = left,
-                                        right = right)
+            retcode = ReturnCode.ExactSolutionLeft, left = left,
+            right = right)
+    end
+
+    if iszero(fr)
+        return SciMLBase.build_solution(prob, alg, right, fr;
+            retcode = ReturnCode.ExactSolutionLeft, left = left,
+            right = right)
     end
 
     i = 1
-    if !iszero(fr)
-        while i < maxiters
+    using_falsi_steps = true
+    while i < maxiters
+        # First, perform a regula falsi iteration
+        if using_falsi_steps
             if nextfloat_tdir(left, prob.tspan...) == right
                 return SciMLBase.build_solution(prob, alg, left, fl;
-                                                retcode = ReturnCode.FloatingPointLimit,
-                                                left = left, right = right)
+                    retcode = ReturnCode.FloatingPointLimit,
+                    left = left, right = right)
             end
             mid = (fr * left - fl * right) / (fr - fl)
             for i in 1:10
                 mid = max_tdir(left, prevfloat_tdir(mid, prob.tspan...), prob.tspan...)
             end
             if mid == right || mid == left
-                break
+                using_falsi_steps = false
+                continue
             end
             fm = f(mid)
             if iszero(fm)
                 right = mid
-                break
+                using_falsi_steps = false
+                continue
             end
             if sign(fl) == sign(fm)
                 fl = fm
@@ -63,14 +73,13 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem, alg::InternalFalsi, arg
             end
             i += 1
         end
-    end
 
-    while i < maxiters
+        # Then, perform a bisection iteration
         mid = (left + right) / 2
         (mid == left || mid == right) &&
             return SciMLBase.build_solution(prob, alg, left, fl;
-                                            retcode = ReturnCode.FloatingPointLimit,
-                                            left = left, right = right)
+                retcode = ReturnCode.FloatingPointLimit,
+                left = left, right = right)
         fm = f(mid)
         if iszero(fm)
             right = mid
@@ -86,5 +95,62 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem, alg::InternalFalsi, arg
     end
 
     return SciMLBase.build_solution(prob, alg, left, fl; retcode = ReturnCode.MaxIters,
-                                    left = left, right = right)
+        left = left, right = right)
+end
+
+function scalar_nlsolve_ad(prob, alg::InternalFalsi, args...; kwargs...)
+    f = prob.f
+    p = value(prob.p)
+
+    if prob isa IntervalNonlinearProblem
+        tspan = value(prob.tspan)
+        newprob = IntervalNonlinearProblem(f, tspan, p; prob.kwargs...)
+    else
+        u0 = value(prob.u0)
+        newprob = NonlinearProblem(f, u0, p; prob.kwargs...)
+    end
+
+    sol = solve(newprob, alg, args...; kwargs...)
+
+    uu = sol.u
+    if p isa Number
+        f_p = ForwardDiff.derivative(Base.Fix1(f, uu), p)
+    else
+        f_p = ForwardDiff.gradient(Base.Fix1(f, uu), p)
+    end
+
+    f_x = ForwardDiff.derivative(Base.Fix2(f, p), uu)
+    pp = prob.p
+    sumfun = let f_x′ = -f_x
+        ((fp, p),) -> (fp / f_x′) * ForwardDiff.partials(p)
+    end
+    partials = sum(sumfun, zip(f_p, pp))
+    return sol, partials
+end
+
+function SciMLBase.solve(prob::IntervalNonlinearProblem{uType, iip,
+        <:ForwardDiff.Dual{T, V, P}},
+    alg::InternalFalsi, args...;
+    kwargs...) where {uType, iip, T, V, P}
+    sol, partials = scalar_nlsolve_ad(prob, alg, args...; kwargs...)
+    return SciMLBase.build_solution(prob, alg, ForwardDiff.Dual{T, V, P}(sol.u, partials),
+        sol.resid; retcode = sol.retcode,
+        left = ForwardDiff.Dual{T, V, P}(sol.left, partials),
+        right = ForwardDiff.Dual{T, V, P}(sol.right, partials))
+end
+
+function SciMLBase.solve(prob::IntervalNonlinearProblem{uType, iip,
+        <:AbstractArray{
+            <:ForwardDiff.Dual{T,
+                V,
+                P},
+        }},
+    alg::InternalFalsi, args...;
+    kwargs...) where {uType, iip, T, V, P}
+    sol, partials = scalar_nlsolve_ad(prob, alg, args...; kwargs...)
+
+    return SciMLBase.build_solution(prob, alg, ForwardDiff.Dual{T, V, P}(sol.u, partials),
+        sol.resid; retcode = sol.retcode,
+        left = ForwardDiff.Dual{T, V, P}(sol.left, partials),
+        right = ForwardDiff.Dual{T, V, P}(sol.right, partials))
 end

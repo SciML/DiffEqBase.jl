@@ -15,7 +15,10 @@ end
 @inline recursive_length(u::AbstractArray{<:AbstractArray}) = sum(recursive_length, u)
 @inline recursive_length(u::RecursiveArrayTools.ArrayPartition) = sum(recursive_length, u.x)
 @inline recursive_length(u::RecursiveArrayTools.VectorOfArray) = sum(recursive_length, u.u)
-@inline function recursive_length(u::AbstractArray{<:StaticArray{S, <:Number}}) where {S}
+@inline function recursive_length(u::AbstractArray{
+    <:StaticArraysCore.StaticArray{S,
+        <:Number},
+}) where {S}
     prod(Size(eltype(u))) * length(u)
 end
 
@@ -29,8 +32,8 @@ end
     Base.FastMath.sqrt_fast(real(x) / max(length(u), 1))
 end
 
-@inline function ODE_DEFAULT_NORM(u::StaticArrays.StaticArray{<:Tuple, T},
-                                  t) where {T <: Union{AbstractFloat, Complex}}
+@inline function ODE_DEFAULT_NORM(u::StaticArraysCore.StaticArray{<:Tuple, T},
+    t) where {T <: Union{AbstractFloat, Complex}}
     Base.FastMath.sqrt_fast(real(sum(abs2, u)) / max(length(u), 1))
 end
 

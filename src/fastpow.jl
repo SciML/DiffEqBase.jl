@@ -36,21 +36,21 @@ end
 #
 # https://github.com/JuliaMath/openlibm/blob/cca41bc1abd01804afa4862bbd2c79cc9803171a/src/s_exp2f.c
 const EXP2FT = (Float32(0x1.6a09e667f3bcdp-1),
-                Float32(0x1.7a11473eb0187p-1),
-                Float32(0x1.8ace5422aa0dbp-1),
-                Float32(0x1.9c49182a3f090p-1),
-                Float32(0x1.ae89f995ad3adp-1),
-                Float32(0x1.c199bdd85529cp-1),
-                Float32(0x1.d5818dcfba487p-1),
-                Float32(0x1.ea4afa2a490dap-1),
-                Float32(0x1.0000000000000p+0),
-                Float32(0x1.0b5586cf9890fp+0),
-                Float32(0x1.172b83c7d517bp+0),
-                Float32(0x1.2387a6e756238p+0),
-                Float32(0x1.306fe0a31b715p+0),
-                Float32(0x1.3dea64c123422p+0),
-                Float32(0x1.4bfdad5362a27p+0),
-                Float32(0x1.5ab07dd485429p+0))
+    Float32(0x1.7a11473eb0187p-1),
+    Float32(0x1.8ace5422aa0dbp-1),
+    Float32(0x1.9c49182a3f090p-1),
+    Float32(0x1.ae89f995ad3adp-1),
+    Float32(0x1.c199bdd85529cp-1),
+    Float32(0x1.d5818dcfba487p-1),
+    Float32(0x1.ea4afa2a490dap-1),
+    Float32(0x1.0000000000000p+0),
+    Float32(0x1.0b5586cf9890fp+0),
+    Float32(0x1.172b83c7d517bp+0),
+    Float32(0x1.2387a6e756238p+0),
+    Float32(0x1.306fe0a31b715p+0),
+    Float32(0x1.3dea64c123422p+0),
+    Float32(0x1.4bfdad5362a27p+0),
+    Float32(0x1.5ab07dd485429p+0))
 @inline function _exp2(x::Float32)
     TBLBITS = UInt32(4)
     TBLSIZE = UInt32(1 << TBLBITS)

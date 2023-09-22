@@ -4,84 +4,91 @@ end
 (f::EvalFunc)(args...) = f.f(args...)
 
 NO_TSPAN_PROBS = Union{AbstractLinearProblem, AbstractNonlinearProblem,
-                       AbstractIntegralProblem, AbstractSteadyStateProblem,
-                       AbstractJumpProblem}
+    AbstractIntegralProblem, AbstractSteadyStateProblem,
+    AbstractJumpProblem}
 
 has_kwargs(_prob::DEProblem) = has_kwargs(typeof(_prob))
 Base.@pure __has_kwargs(::Type{T}) where {T} = :kwargs ∈ fieldnames(T)
 has_kwargs(::Type{T}) where {T} = __has_kwargs(T)
 
 const allowedkeywords = (:dense,
-                         :saveat,
-                         :save_idxs,
-                         :tstops,
-                         :tspan,
-                         :d_discontinuities,
-                         :save_everystep,
-                         :save_on,
-                         :save_start,
-                         :save_end,
-                         :initialize_save,
-                         :adaptive,
-                         :abstol,
-                         :reltol,
-                         :dt,
-                         :dtmax,
-                         :dtmin,
-                         :force_dtmin,
-                         :internalnorm,
-                         :controller,
-                         :gamma,
-                         :beta1,
-                         :beta2,
-                         :qmax,
-                         :qmin,
-                         :qsteady_min,
-                         :qsteady_max,
-                         :qoldinit,
-                         :failfactor,
-                         :calck,
-                         :alias_u0,
-                         :maxiters,
-                         :callback,
-                         :isoutofdomain,
-                         :unstable_check,
-                         :verbose,
-                         :merge_callbacks,
-                         :progress,
-                         :progress_steps,
-                         :progress_name,
-                         :progress_message,
-                         :timeseries_errors,
-                         :dense_errors,
-                         :weak_timeseries_errors,
-                         :weak_dense_errors,
-                         :wrap,
-                         :calculate_error,
-                         :initializealg,
-                         :alg,
-                         :save_noise,
-                         :delta,
-                         :seed,
-                         :alg_hints,
-                         :kwargshandle,
-                         :trajectories,
-                         :batch_size,
-                         :sensealg,
-                         :advance_to_tstop,
-                         :stop_at_next_tstop,
-                         # These two are from the default algorithm handling
-                         :default_set,
-                         :second_time,
-                         # This is for DiffEqDevTools
-                         :prob_choice,
-                         # Jump problems
-                         :alias_jump,
-                         # This is for copying/deepcopying noise in StochasticDiffEq
-                         :alias_noise)
+    :saveat,
+    :save_idxs,
+    :tstops,
+    :tspan,
+    :d_discontinuities,
+    :save_everystep,
+    :save_on,
+    :save_start,
+    :save_end,
+    :initialize_save,
+    :adaptive,
+    :abstol,
+    :reltol,
+    :dt,
+    :dtmax,
+    :dtmin,
+    :force_dtmin,
+    :internalnorm,
+    :controller,
+    :gamma,
+    :beta1,
+    :beta2,
+    :qmax,
+    :qmin,
+    :qsteady_min,
+    :qsteady_max,
+    :qoldinit,
+    :failfactor,
+    :calck,
+    :alias_u0,
+    :maxiters,
+    :callback,
+    :isoutofdomain,
+    :unstable_check,
+    :verbose,
+    :merge_callbacks,
+    :progress,
+    :progress_steps,
+    :progress_name,
+    :progress_message,
+    :timeseries_errors,
+    :dense_errors,
+    :weak_timeseries_errors,
+    :weak_dense_errors,
+    :wrap,
+    :calculate_error,
+    :initializealg,
+    :alg,
+    :save_noise,
+    :delta,
+    :seed,
+    :alg_hints,
+    :kwargshandle,
+    :trajectories,
+    :batch_size,
+    :sensealg,
+    :advance_to_tstop,
+    :stop_at_next_tstop,
+    # These two are from the default algorithm handling
+    :default_set,
+    :second_time,
+    # This is for DiffEqDevTools
+    :prob_choice,
+    # Jump problems
+    :alias_jump,
+    # This is for copying/deepcopying noise in StochasticDiffEq
+    :alias_noise,
+    # This is for SimpleNonlinearSolve handling for batched Nonlinear Solves
+    :batch,
+    # Shooting method in BVP needs to differentiate between these two categories
+    :nlsolve_kwargs,
+    :odesolve_kwargs,
+    # If Solvers which internally use linsolve
+    :linsolve_kwargs)
 
 const KWARGWARN_MESSAGE = """
-                          Unrecognized keyword arguments found. Future versions will error.
+                          Unrecognized keyword arguments found.
                           The only allowed keyword arguments to `solve` are:
                           $allowedkeywords
 
@@ -110,6 +117,7 @@ function Base.showerror(io::IO, e::CommonKwargError)
     print(io, "Unrecognized keyword arguments: ")
     printstyled(io, unrecognized; bold = true, color = :red)
     print(io, "\n\n")
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 @enum KeywordArgError KeywordArgWarn KeywordArgSilent
@@ -135,6 +143,7 @@ struct IncompatibleInitialConditionError <: Exception end
 
 function Base.showerror(io::IO, e::IncompatibleInitialConditionError)
     print(io, INCOMPATIBLE_U0_MESSAGE)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 const NO_DEFAULT_ALGORITHM_MESSAGE = """
@@ -151,6 +160,7 @@ struct NoDefaultAlgorithmError <: Exception end
 
 function Base.showerror(io::IO, e::NoDefaultAlgorithmError)
     print(io, NO_DEFAULT_ALGORITHM_MESSAGE)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 const NO_TSPAN_MESSAGE = """
@@ -161,7 +171,23 @@ struct NoTspanError <: Exception end
 
 function Base.showerror(io::IO, e::NoTspanError)
     print(io, NO_TSPAN_MESSAGE)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
+
+const NAN_TSPAN_MESSAGE = """
+                          NaN tspan is set in the problem or chosen in the init/solve call.
+                          Note that -Inf and Inf values are allowed in the timespan for solves
+                          which are terminated via callbacks, however NaN values are not allowed
+                          since the direction of time is undetermined.
+                          """
+
+struct NaNTspanError <: Exception end
+
+function Base.showerror(io::IO, e::NaNTspanError)
+    print(io, NAN_TSPAN_MESSAGE)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
+end
+
 
 const NON_SOLVER_MESSAGE = """
                            The arguments to solve are incorrect.
@@ -178,6 +204,35 @@ struct NonSolverError <: Exception end
 
 function Base.showerror(io::IO, e::NonSolverError)
     print(io, NON_SOLVER_MESSAGE)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
+end
+
+const NOISE_SIZE_MESSAGE = """
+                           Noise sizes are incompatible. The expected number of noise terms in the defined
+                           `noise_rate_prototype` does not match the number of noise terms in the defined
+                           `AbstractNoiseProcess`. Please ensure that
+                           size(prob.noise_rate_prototype,2) == length(prob.noise.W[1]).
+
+                           Note: Noise process definitions require that users specify `u0`, and this value is
+                           directly used in the definition. For example, if `noise = WienerProcess(0.0,0.0)`,
+                           then the noise process is a scalar with `u0=0.0`. If `noise = WienerProcess(0.0,[0.0])`,
+                           then the noise process is a vector with `u0=0.0`. If `noise_rate_prototype = zeros(2,4)`,
+                           then the noise process must be a 4-dimensional process, for example
+                           `noise = WienerProcess(0.0,zeros(4))`. This error is a sign that the user definition
+                           of `noise_rate_prototype` and `noise` are not aligned in this manner and the definitions should
+                           be double checked.
+                           """
+
+struct NoiseSizeIncompatabilityError <: Exception
+    prototypesize::Int
+    noisesize::Int
+end
+
+function Base.showerror(io::IO, e::NoiseSizeIncompatabilityError)
+    println(io, NOISE_SIZE_MESSAGE)
+    println(io, "size(prob.noise_rate_prototype,2) = $(e.prototypesize)")
+    println(io, "length(prob.noise.W[1]) = $(e.noisesize)")
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 const PROBSOLVER_PAIRING_MESSAGE = """
@@ -197,7 +252,8 @@ function Base.showerror(io::IO, e::ProblemSolverPairingError)
     println(io, "Problem type: $(SciMLBase.__parameterless_type(typeof(e.prob)))")
     println(io, "Solver type: $(SciMLBase.__parameterless_type(typeof(e.alg)))")
     println(io,
-            "Problem types compatible with the chosen solver: $(compatible_problem_types(e.prob,e.alg))")
+        "Problem types compatible with the chosen solver: $(compatible_problem_types(e.prob,e.alg))")
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 function compatible_problem_types(prob, alg)
@@ -238,6 +294,7 @@ struct DirectAutodiffError <: Exception end
 
 function Base.showerror(io::IO, e::DirectAutodiffError)
     println(io, DIRECT_AUTODIFF_INCOMPATABILITY_MESSAGE)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 const NONCONCRETE_ELTYPE_MESSAGE = """
@@ -271,6 +328,7 @@ end
 function Base.showerror(io::IO, e::NonConcreteEltypeError)
     print(io, NONCONCRETE_ELTYPE_MESSAGE)
     print(io, e.eltype)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 const GENERIC_NUMBER_TYPE_ERROR_MESSAGE = """
@@ -296,6 +354,7 @@ function Base.showerror(io::IO, e::GenericNumberTypeError)
     println(io, "Solver: $(e.alg)")
     println(io, "u0 type: $(e.uType)")
     print(io, "Timespan type: $(e.tType)")
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 const COMPLEX_SUPPORT_ERROR_MESSAGE = """
@@ -314,6 +373,7 @@ end
 function Base.showerror(io::IO, e::ComplexSupportError)
     println(io, COMPLEX_SUPPORT_ERROR_MESSAGE)
     println(io, "Solver: $(e.alg)")
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 const COMPLEX_TSPAN_ERROR_MESSAGE = """
@@ -328,6 +388,7 @@ struct ComplexTspanError <: Exception end
 
 function Base.showerror(io::IO, e::ComplexTspanError)
     println(io, COMPLEX_TSPAN_ERROR_MESSAGE)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 const TUPLE_STATE_ERROR_MESSAGE = """
@@ -365,11 +426,12 @@ struct TupleStateError <: Exception end
 
 function Base.showerror(io::IO, e::TupleStateError)
     println(io, TUPLE_STATE_ERROR_MESSAGE)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 const MASS_MATRIX_ERROR_MESSAGE = """
                                   Mass matrix size is incompatible with initial condition
-                                  sizing. The mass matrix must reprsent the `vec`
+                                  sizing. The mass matrix must represent the `vec`
                                   form of the initial condition `u0`, i.e.
                                   `size(mm,1) == size(mm,2) == length(u)`
                                   """
@@ -385,17 +447,22 @@ function Base.showerror(io::IO, e::IncompatibleMassMatrixError)
     println(io, e.sz)
     print(io, "length(u0): ")
     println(e.len)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
-function init_call(_prob, args...; merge_callbacks = true, kwargshandle = KeywordArgWarn,
-                   kwargs...)
+function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
+    kwargs...)
+
+    kwargshandle = kwargshandle === nothing ? KeywordArgError : kwargshandle
+    kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ? _prob.kwargs[:kwargshandle] : kwargshandle
+
     if has_kwargs(_prob)
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
-                                     Base.diff_names(Base._nt_names(values(kwargs)),
-                                                     (:callback,))}(values(kwargs))
+                Base.diff_names(Base._nt_names(values(kwargs)),
+                    (:callback,))}(values(kwargs))
             callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(_prob.kwargs[:callback],
-                                                                         values(kwargs).callback),))
+                values(kwargs).callback),))
             kwargs = merge(kwargs_temp, callbacks)
         end
         kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
@@ -403,8 +470,10 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywor
 
     checkkwargs(kwargshandle; kwargs...)
 
-    if hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
-       typeof(_prob.f.f) <: EvalFunc
+    if _prob isa Union{ODEProblem, DAEProblem} && isnothing(_prob.u0)
+        build_null_integrator(_prob, args...; kwargs...)
+    elseif hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
+           typeof(_prob.f.f) <: EvalFunc
         Base.invokelatest(__init, _prob, args...; kwargs...)#::T
     else
         __init(_prob, args...; kwargs...)#::T
@@ -412,7 +481,7 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywor
 end
 
 function init(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = nothing,
-              u0 = nothing, p = nothing, kwargs...)
+    u0 = nothing, p = nothing, kwargs...)
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
@@ -461,15 +530,19 @@ function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
     end
 end
 
-function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = KeywordArgWarn,
-                    kwargs...)
+function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
+    kwargs...)
+
+    kwargshandle = kwargshandle === nothing ? KeywordArgError : kwargshandle
+    kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ? _prob.kwargs[:kwargshandle] : kwargshandle
+
     if has_kwargs(_prob)
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
-                                     Base.diff_names(Base._nt_names(values(kwargs)),
-                                                     (:callback,))}(values(kwargs))
+                Base.diff_names(Base._nt_names(values(kwargs)),
+                    (:callback,))}(values(kwargs))
             callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(_prob.kwargs[:callback],
-                                                                         values(kwargs).callback),))
+                values(kwargs).callback),))
             kwargs = merge(kwargs_temp, callbacks)
         end
         kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
@@ -495,14 +568,50 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = Keywo
     end
 end
 
+mutable struct NullODEIntegrator{IIP, ProbType, T, SolType, F, P} <:
+               AbstractODEIntegrator{Nothing, IIP, Nothing, T}
+    du::Vector{Float64}
+    u::Vector{Float64}
+    t::T
+    prob::ProbType
+    sol::SolType
+    f::F
+    p::P
+end
+function build_null_integrator(prob::DEProblem, args...;
+    kwargs...)
+    sol = solve(prob, args...; kwargs...)
+    return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol),
+        typeof(prob.f), typeof(prob.p),
+    }(Float64[],
+        Float64[],
+        first(prob.tspan),
+        prob,
+        sol,
+        prob.f,
+        prob.p)
+end
+function solve!(integ::NullODEIntegrator)
+    integ.t = integ.sol.t[end]
+    return nothing
+end
+function step!(integ::NullODEIntegrator, dt = nothing, stop_at_tdt = false)
+    if !isnothing(dt)
+        integ.t += dt
+    else
+        integ.t = integ.sol[end]
+    end
+    return nothing
+end
+
 function build_null_solution(prob::DEProblem, args...;
-                             saveat = (),
-                             save_everystep = true,
-                             save_on = true,
-                             save_start = save_everystep || isempty(saveat) ||
-                                              saveat isa Number || prob.tspan[1] in saveat,
-                             save_end = true,
-                             kwargs...)
+    saveat = (),
+    save_everystep = true,
+    save_on = true,
+    save_start = save_everystep || isempty(saveat) ||
+                     saveat isa Number || prob.tspan[1] in saveat,
+    save_end = true,
+    kwargs...)
     ts = if saveat === ()
         if save_start && save_end
             [prob.tspan[1], prob.tspan[2]]
@@ -513,6 +622,8 @@ function build_null_solution(prob::DEProblem, args...;
         else
             eltype(prob.tspan)[]
         end
+    elseif saveat isa Number
+        prob.tspan[1]:saveat:prob.tspan[2]
     else
         saveat
     end
@@ -523,15 +634,15 @@ function build_null_solution(prob::DEProblem, args...;
 end
 
 function build_null_solution(prob::Union{SteadyStateProblem, NonlinearProblem}, args...;
-                             saveat = (),
-                             save_everystep = true,
-                             save_on = true,
-                             save_start = save_everystep || isempty(saveat) ||
-                                              saveat isa Number || prob.tspan[1] in saveat,
-                             save_end = true,
-                             kwargs...)
+    saveat = (),
+    save_everystep = true,
+    save_on = true,
+    save_start = save_everystep || isempty(saveat) ||
+                     saveat isa Number || prob.tspan[1] in saveat,
+    save_end = true,
+    kwargs...)
     SciMLBase.build_solution(prob, nothing, Float64[], nothing;
-                             retcode = ReturnCode.Success)
+        retcode = ReturnCode.Success)
 end
 
 """
@@ -556,8 +667,8 @@ Many of the defaults depend on the algorithm or the package the algorithm derive
 from. Not all of the interface is provided by every algorithm.
 For more detailed information on the defaults and the available options
 for specific algorithms / packages, see the manual pages for the solvers of specific
-problems. To see whether a specific package is compaible with the use of a
-given option, see the [Solver Compatibility Chart](@ref)
+problems. To see whether a specific package is compatible with the use of a
+given option, see the [Solver Compatibility Chart](https://docs.sciml.ai/DiffEqDocs/stable/basics/compatibility_chart/#Solver-Compatibility-Chart)
 
 ### Default Algorithm Hinting
 
@@ -609,7 +720,7 @@ section at the end of this page for some example usage.
   Defaults to saving all indices. For example, if you are solving a 3-dimensional ODE,
   and given `save_idxs = [1, 3]`, only the first and third components of the
   solution will be outputted.
-  Notice that of course in this case the outputed solution will be two-dimensional.
+  Notice that of course in this case the outputted solution will be two-dimensional.
 * `tstops`: Denotes *extra* times that the timestepping algorithm must step to.
   This should be used to help the solver deal with discontinuities and
   singularities, since stepping exactly at the time of the discontinuity will
@@ -624,7 +735,7 @@ section at the end of this page for some example usage.
 * `save_everystep`: Saves the result at every step.
   Default is true if `isempty(saveat)`.
 * `save_on`: Denotes whether intermediate solutions are saved. This overrides the
-  settings of `dense`, `saveat` and `save_everystep` and is used by some applicatioins
+  settings of `dense`, `saveat` and `save_everystep` and is used by some applications
   to manually turn off saving temporarily. Everyday use of the solvers should leave
   this unchanged. Defaults to `true`.
 * `save_start`: Denotes whether the initial condition should be included in
@@ -636,7 +747,7 @@ section at the end of this page for some example usage.
 
 Note that `dense` requires `save_everystep=true` and `saveat=false`. If you need
 additional saving while keeping dense output, see
-[the SavingCallback in the Callback Library](@ref saving_callback).
+[the SavingCallback in the Callback Library](https://docs.sciml.ai/DiffEqCallbacks/stable/output_saving/#DiffEqCallbacks.SavingCallback).
 
 ### Stepsize Control
 
@@ -691,19 +802,21 @@ Note that if a method does not have adaptivity, the following rules apply:
   each value in `tstops`
 * If neither `dt` nor `tstops` are set, the solver will throw an error.
 
-#### [Advanced Adaptive Stepsize Control](@id advanced_adaptive_stepsize_control)
+#### [Advanced Adaptive Stepsize Control](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/)
 
 These arguments control more advanced parts of the internals of adaptive timestepping
 and are mostly used to make it more efficient on specific problems. For detained
 explanations of the timestepping algorithms, see the
-[timestepping descriptions](@ref timestepping)
+[timestepping descriptions](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/#timestepping)
 
 * `internalnorm`: The norm function `internalnorm(u,t)` which error estimates
   are calculated. Required are two dispatches: one dispatch for the state variable
   and the other on the elements of the state variable (scalar norm).
   Defaults are package-dependent.
-* `controller`: Possible examples are [`IController`](@ref),
-  [`PIController`](@ref), [`PIDController`](@ref), [`PredictiveController`](@ref).
+* `controller`: Possible examples are [`IController`](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/#OrdinaryDiffEq.IController),
+  [`PIController`](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/#OrdinaryDiffEq.PIController),
+  [`PIDController`](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/#OrdinaryDiffEq.PIDController),
+  [`PredictiveController`](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/#OrdinaryDiffEq.PredictiveController).
   Default is algorithm-dependent.
 * `gamma`: The risk-factor γ in the q equation for adaptive timestepping
   of the controllers using it.
@@ -745,7 +858,7 @@ explanations of the timestepping algorithms, see the
 * `maxiters`: Maximum number of iterations before stopping. Defaults to 1e5.
 * `callback`: Specifies a callback. Defaults to a callback function which
   performs the saving routine. For more information, see the
-  [Event Handling and Callback Functions manual page](@ref callbacks).
+  [Event Handling and Callback Functions manual page](https://docs.sciml.ai/DiffEqCallbacks/stable/).
 * `isoutofdomain`: Specifies a function `isoutofdomain(u,p,t)` where, when it
   returns true, it will reject the timestep. Disabled by default.
 * `unstable_check`: Specifies a function `unstable_check(dt,u,p,t)` where, when
@@ -792,7 +905,7 @@ https://docs.sciml.ai/SciMLSensitivity/stable/
 
 The following lines are examples of how one could use the configuration of
 `solve()`. For these examples a 3-dimensional ODE problem is assumed, however
-the extention to other types is straightforward.
+the extension to other types is straightforward.
 
 1. `solve(prob, AlgorithmName())` : The "default" setting, with a user-specified
   algorithm (given by `AlgorithmName()`). All parameters get their default values.
@@ -813,7 +926,7 @@ the extention to other types is straightforward.
   `progress = true` you are enabling the progress bar.
 """
 function solve(prob::DEProblem, args...; sensealg = nothing,
-               u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
+    u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
@@ -855,7 +968,7 @@ problems.
 #### Error Control
 
 * `abstol`: Absolute tolerance.
-* `reltol`: Relative tolerance. 
+* `reltol`: Relative tolerance.
 
 ### Miscellaneous
 
@@ -870,7 +983,7 @@ problems.
     https://docs.sciml.ai/SciMLSensitivity/stable/
 """
 function solve(prob::NonlinearProblem, args...; sensealg = nothing,
-               u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
+    u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
@@ -886,7 +999,7 @@ function solve(prob::NonlinearProblem, args...; sensealg = nothing,
 end
 
 function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, args...;
-                  kwargs...)
+    kwargs...)
     if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = kwargs[:alg]
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
@@ -915,13 +1028,21 @@ function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, arg
         solve_call(_prob, _alg, Base.tail(args)...; kwargs...)
     elseif isempty(args) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
-                                     p = p, kwargs...)
+            p = p, kwargs...)
         solve_call(_prob, args...; kwargs...)
     else
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
-                                     p = p, kwargs...)
+            p = p, kwargs...)
         solve_call(_prob, args...; kwargs...)
     end
+end
+
+function solve_call(prob::SteadyStateProblem,
+    alg::SciMLBase.AbstractNonlinearAlgorithm, args...;
+    kwargs...)
+    solve_call(NonlinearProblem(prob),
+        alg, args...;
+        kwargs...)
 end
 
 function solve(prob::EnsembleProblem, args...; kwargs...)
@@ -931,7 +1052,9 @@ function solve(prob::EnsembleProblem, args...; kwargs...)
         __solve(prob, args...; kwargs...)
     end
 end
-
+function solve(prob::SciMLBase.WeightedEnsembleProblem, args...; kwargs...)
+    SciMLBase.WeightedEnsembleSolution(solve(prob.ensembleprob), prob.weights)
+end
 function solve(prob::AbstractNoiseProblem, args...; kwargs...)
     __solve(prob, args...; kwargs...)
 end
@@ -979,12 +1102,12 @@ function get_concrete_problem(prob::AbstractEnsembleProblem, isadapt; kwargs...)
 end
 
 function solve(prob::PDEProblem, alg::DiffEqBase.DEAlgorithm, args...;
-               kwargs...)
+    kwargs...)
     solve(prob.prob, alg, args...; kwargs...)
 end
 
 function init(prob::PDEProblem, alg::DiffEqBase.DEAlgorithm, args...;
-              kwargs...)
+    kwargs...)
     init(prob.prob, alg, args...; kwargs...)
 end
 
@@ -995,7 +1118,7 @@ function get_concrete_problem(prob, isadapt; kwargs...)
     u0_promote = promote_u0(u0, p, tspan[1])
     tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
     f_promote = promote_f(prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
-                          tspan_promote[1])
+        tspan_promote[1])
     if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
        prob.tspan == tspan && typeof(prob.tspan) === typeof(tspan_promote) &&
        p === prob.p && f_promote === prob.f
@@ -1016,7 +1139,7 @@ function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
     tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
 
     f_promote = promote_f(prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
-                          tspan_promote[1])
+        tspan_promote[1])
     if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
        isconcretedu0(prob, tspan[1], kwargs) && typeof(du0_promote) === typeof(prob.du0) &&
        prob.tspan == tspan && typeof(prob.tspan) === typeof(tspan_promote) &&
@@ -1024,7 +1147,7 @@ function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
         return prob
     else
         return remake(prob; f = f_promote, du0 = du0_promote, u0 = u0_promote, p = p,
-                      tspan = tspan_promote)
+            tspan = tspan_promote)
     end
 end
 
@@ -1053,7 +1176,7 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
     end
 
     @static if VERSION >= v"1.8-"
-        f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractDiffEqOperator) &&
+        f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractSciMLOperator) &&
                # Some reinitialization code still uses NLSolvers stuff which doesn't
                # properly tag, so opt-out if potentially a mass matrix DAE
                f.mass_matrix isa UniformScaling &&
@@ -1062,12 +1185,12 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
                ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
                  RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
                  one(t) === oneunit(t) &&
-                 Tricks.static_hasmethod(ArrayInterfaceCore.promote_eltype,
-                                         Tuple{Type{typeof(u0)}, Type{dualgen(eltype(u0))}}) &&
+                 Tricks.static_hasmethod(ArrayInterface.promote_eltype,
+                     Tuple{Type{typeof(u0)}, Type{dualgen(eltype(u0))}}) &&
                  Tricks.static_hasmethod(promote_rule,
-                                         Tuple{Type{eltype(u0)}, Type{dualgen(eltype(u0))}}) &&
+                     Tuple{Type{eltype(u0)}, Type{dualgen(eltype(u0))}}) &&
                  Tricks.static_hasmethod(promote_rule,
-                                         Tuple{Type{eltype(u0)}, Type{typeof(t)}})) ||
+                     Tuple{Type{eltype(u0)}, Type{typeof(t)}})) ||
                 (specialize === SciMLBase.FunctionWrapperSpecialize &&
                  !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)))
             return unwrapped_f(f, wrapfun_iip(f.f, (u0, u0, p, t)))
@@ -1096,6 +1219,8 @@ function get_concrete_tspan(prob, isadapt, kwargs, p)
     end
 
     isadapt && eltype(tspan) <: Integer && (tspan = float.(tspan))
+
+    any(isnan, tspan) && throw(NaNTspanError())
 
     tspan
 end
@@ -1173,26 +1298,26 @@ eval_u0(u0::Function) = true
 eval_u0(u0) = false
 
 function __solve(prob::DEProblem, args...; default_set = false, second_time = false,
-                 kwargs...)
+    kwargs...)
     if second_time
         throw(NoDefaultAlgorithmError())
     elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing, DEAlgorithm})
         throw(NonSolverError())
     else
         __solve(prob::DEProblem, nothing, args...; default_set = false, second_time = true,
-                kwargs...)
+            kwargs...)
     end
 end
 
 function __init(prob::DEProblem, args...; default_set = false, second_time = false,
-                kwargs...)
+    kwargs...)
     if second_time
         throw(NoDefaultAlgorithmError())
     elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing, DEAlgorithm})
         throw(NonSolverError())
     else
         __init(prob::DEProblem, nothing, args...; default_set = false, second_time = true,
-               kwargs...)
+            kwargs...)
     end
 end
 
@@ -1209,6 +1334,13 @@ function check_prob_alg_pairing(prob, alg)
     if isdefined(prob, :u0) && eltype(prob.u0) <: ForwardDiff.Dual &&
        !SciMLBase.isautodifferentiable(alg)
         throw(DirectAutodiffError())
+    end
+
+    if prob isa SDEProblem && prob.noise_rate_prototype !== nothing &&
+       prob.noise !== nothing &&
+       size(prob.noise_rate_prototype, 2) != length(prob.noise.W[1])
+        throw(NoiseSizeIncompatabilityError(size(prob.noise_rate_prototype, 2),
+            length(prob.noise.W[1])))
     end
 
     # Complex number support comes before arbitrary number support for a more direct
@@ -1231,10 +1363,10 @@ function check_prob_alg_pairing(prob, alg)
             if Base.isconcretetype(uType) &&
                !(uType <: Union{Float32, Float64, ComplexF32, ComplexF64})
                 throw(GenericNumberTypeError(alg,
-                                             isdefined(prob, :u0) ? typeof(prob.u0) :
-                                             nothing,
-                                             isdefined(prob, :tspan) ? typeof(prob.tspan) :
-                                             nothing))
+                    isdefined(prob, :u0) ? typeof(prob.u0) :
+                    nothing,
+                    isdefined(prob, :tspan) ? typeof(prob.tspan) :
+                    nothing))
             end
         end
 
@@ -1243,10 +1375,10 @@ function check_prob_alg_pairing(prob, alg)
             if Base.isconcretetype(tType) &&
                !(tType <: Union{Float32, Float64, ComplexF32, ComplexF64})
                 throw(GenericNumberTypeError(alg,
-                                             isdefined(prob, :u0) ? typeof(prob.u0) :
-                                             nothing,
-                                             isdefined(prob, :tspan) ? typeof(prob.tspan) :
-                                             nothing))
+                    isdefined(prob, :u0) ? typeof(prob.u0) :
+                    nothing,
+                    isdefined(prob, :tspan) ? typeof(prob.tspan) :
+                    nothing))
             end
         end
     end
@@ -1262,19 +1394,19 @@ discrete sensitivity algorithms.
 struct SensitivityADPassThrough <: SciMLBase.DEAlgorithm end
 
 function ChainRulesCore.frule(::typeof(solve_up), prob,
-                              sensealg::Union{Nothing, AbstractSensitivityAlgorithm},
-                              u0, p, args...;
-                              kwargs...)
+    sensealg::Union{Nothing, AbstractSensitivityAlgorithm},
+    u0, p, args...;
+    kwargs...)
     _solve_forward(prob, sensealg, u0, p, SciMLBase.ChainRulesOriginator(), args...;
-                   kwargs...)
+        kwargs...)
 end
 
 function ChainRulesCore.rrule(::typeof(solve_up), prob::SciMLBase.DEProblem,
-                              sensealg::Union{Nothing, AbstractSensitivityAlgorithm},
-                              u0, p, args...;
-                              kwargs...)
+    sensealg::Union{Nothing, AbstractSensitivityAlgorithm},
+    u0, p, args...;
+    kwargs...)
     _solve_adjoint(prob, sensealg, u0, p, SciMLBase.ChainRulesOriginator(), args...;
-                   kwargs...)
+        kwargs...)
 end
 
 ###
@@ -1282,15 +1414,15 @@ end
 ###
 
 @deprecate concrete_solve(prob::SciMLBase.DEProblem,
-                          alg::Union{SciMLBase.DEAlgorithm, Nothing},
-                          u0 = prob.u0, p = prob.p, args...; kwargs...) solve(prob, alg,
-                                                                              args...;
-                                                                              u0 = u0,
-                                                                              p = p,
-                                                                              kwargs...)
+    alg::Union{SciMLBase.DEAlgorithm, Nothing},
+    u0 = prob.u0, p = prob.p, args...; kwargs...) solve(prob, alg,
+    args...;
+    u0 = u0,
+    p = p,
+    kwargs...)
 
 function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
-                        kwargs...)
+    kwargs...)
     _prob = if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = kwargs[:alg]
         get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
@@ -1299,19 +1431,19 @@ function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callba
         get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     elseif isempty(args) # Default algorithm handling
         get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0, p = p,
-                             kwargs...)
+            kwargs...)
     else
         get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0, p = p,
-                             kwargs...)
+            kwargs...)
     end
 
     if has_kwargs(_prob)
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
-                                     Base.diff_names(Base._nt_names(values(kwargs)),
-                                                     (:callback,))}(values(kwargs))
+                Base.diff_names(Base._nt_names(values(kwargs)),
+                    (:callback,))}(values(kwargs))
             callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(_prob.kwargs[:callback],
-                                                                         values(kwargs).callback),))
+                values(kwargs).callback),))
             kwargs = merge(kwargs_temp, callbacks)
         end
         kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
@@ -1321,12 +1453,12 @@ function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callba
         _concrete_solve_adjoint(_prob, nothing, sensealg, u0, p, originator; kwargs...)
     else
         _concrete_solve_adjoint(_prob, args[1], sensealg, u0, p, originator,
-                                Base.tail(args)...; kwargs...)
+            Base.tail(args)...; kwargs...)
     end
 end
 
 function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
-                        kwargs...)
+    kwargs...)
     _prob = if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = kwargs[:alg]
         get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
@@ -1335,19 +1467,19 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
         get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     elseif isempty(args) # Default algorithm handling
         get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0, p = p,
-                             kwargs...)
+            kwargs...)
     else
         get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0, p = p,
-                             kwargs...)
+            kwargs...)
     end
 
     if has_kwargs(_prob)
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
-                                     Base.diff_names(Base._nt_names(values(kwargs)),
-                                                     (:callback,))}(values(kwargs))
+                Base.diff_names(Base._nt_names(values(kwargs)),
+                    (:callback,))}(values(kwargs))
             callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(_prob.kwargs[:callback],
-                                                                         values(kwargs).callback),))
+                values(kwargs).callback),))
             kwargs = merge(kwargs_temp, callbacks)
         end
         kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
@@ -1357,7 +1489,7 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
         _concrete_solve_forward(prob, nothing, sensealg, u0, p; kwargs...)
     else
         _concrete_solve_forward(prob, args[1], sensealg, u0, p, Base.tail(args)...;
-                                kwargs...)
+            kwargs...)
     end
 end
 
@@ -1374,6 +1506,7 @@ struct AdjointNotFoundError <: Exception end
 
 function Base.showerror(io::IO, e::AdjointNotFoundError)
     print(io, ADJOINT_NOT_FOUND_MESSAGE)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 function _concrete_solve_adjoint(args...; kwargs...)
@@ -1390,6 +1523,7 @@ struct ForwardSensitivityNotFoundError <: Exception end
 
 function Base.showerror(io::IO, e::ForwardSensitivityNotFoundError)
     print(io, FORWARD_SENSITIVITY_NOT_FOUND_MESSAGE)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
 function _concrete_solve_forward(args...; kwargs...)

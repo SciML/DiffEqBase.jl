@@ -22,18 +22,18 @@ f(u, p, t) = begin
 end
 
 sol = solve(ODEProblem(f, [5.0, 6.0, 0.0, 0.0], (0.0, T)),
-            # Euler(),
-            # dt=0.005,
-            Rosenbrock23(),
-            callback = ContinuousCallback((u, _, _) -> u[1],
-                                          (integrator) -> (integrator.u[1] = 0; integrator.u[3] = 0)),
-            # callback = ContinuousCallback((u, _, _) -> u[1], (integrator) -> (integrator.u[3] = 0)),
-            reltol = 1e-3,
-            abstol = 1e-3)
+    # Euler(),
+    # dt=0.005,
+    Rosenbrock23(),
+    callback = ContinuousCallback((u, _, _) -> u[1],
+        (integrator) -> (integrator.u[1] = 0; integrator.u[3] = 0)),
+    # callback = ContinuousCallback((u, _, _) -> u[1], (integrator) -> (integrator.u[3] = 0)),
+    reltol = 1e-3,
+    abstol = 1e-3)
 
-@show sol.destats
+@show sol.stats
 
-# https://github.com/SciML/DiffEqBase.jl/issues/553 : Floating point issue is resolved but some other error occurss
+# https://github.com/SciML/DiffEqBase.jl/issues/553 : Floating point issue is resolved but some other error occurs
 function model(du, u, p, t)
     du[1] = 0.0
     for i in 2:(length(du) - 1)
@@ -79,12 +79,12 @@ affect2!(i) = (t_half_1 = i.t)
 
 prob = ODEProblem(model, u0, tspan, perror)
 sol = solve(prob,
-            Rosenbrock23();
-            callback = CallbackSet(PositiveDomain(),
-                                   DiscreteCallback(condition, affect!),
-                                   ContinuousCallback(condition2, affect2!, terminate!)),
-            tstops = [1.0],
-            force_dtmin = true)
+    Rosenbrock23();
+    callback = CallbackSet(PositiveDomain(),
+        DiscreteCallback(condition, affect!),
+        ContinuousCallback(condition2, affect2!, terminate!)),
+    tstops = [1.0],
+    force_dtmin = true)
 
 # https://github.com/SciML/DiffEqBase.jl/issues/515 : Fixed
 
@@ -124,12 +124,12 @@ struct PhysicsLaw{T <: AbstractMultiScaleArray, B <: Number} <:
 end
 
 Newton = construct(PhysicsLaw,
-                   [
-                       Thingy([-700.0, -350.0, 0.0, 0.0]),
-                       Thingy([-550.0, -150.0, 0.0, 0.0]),
-                       Thingy([-600.0, 15.0, 0.0, 10.0]),
-                       Thingy([200.0, -200.0, 5.0, -5.0]),
-                   ])
+    [
+        Thingy([-700.0, -350.0, 0.0, 0.0]),
+        Thingy([-550.0, -150.0, 0.0, 0.0]),
+        Thingy([-600.0, 15.0, 0.0, 10.0]),
+        Thingy([200.0, -200.0, 5.0, -5.0]),
+    ])
 
 parameters = [1e-2, 0.06]
 
@@ -164,7 +164,7 @@ function affect!(integrator, idx)
                        2 / (1 + 1) *
                        (dot(v₂ - v₁, x₂ - x₁) / sum(abs2, x₂ - x₁) * (x₂ - x₁)))
 
-                println("Collision handeled.")
+                println("Collision handled.")
 
                 m = (x₁ + x₂) / 2
 
@@ -174,7 +174,7 @@ function affect!(integrator, idx)
                 set_u!(integrator, u)
                 println(sqrt(sum(abs2, x₁ .- x₂)) - 100, ":", v₁ ./ v₂)
                 println(norm(v₁), ":", norm(v₂), ":", integrator.t, ":",
-                        integrator.t - t_last)
+                    integrator.t - t_last)
                 global t_last = integrator.t
                 break
             end
@@ -183,8 +183,8 @@ function affect!(integrator, idx)
 end
 
 cback = VectorContinuousCallback(condition,
-                                 affect!,
-                                 (x -> Int(((x - 1) * x) / 2))(length(Newton.nodes)))
+    affect!,
+    (x -> Int(((x - 1) * x) / 2))(length(Newton.nodes)))
 
 problemp = ODEProblem(attactor, Newton, (0.0, Inf), parameters)
 

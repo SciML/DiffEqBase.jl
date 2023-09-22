@@ -12,34 +12,34 @@ space for solving the equation.
 promote_dual(::Type{T}, ::Type{T2}) where {T, T2} = T
 promote_dual(::Type{T}, ::Type{T2}) where {T <: ForwardDiff.Dual, T2} = T
 function promote_dual(::Type{T},
-                      ::Type{T2}) where {T <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
+    ::Type{T2}) where {T <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
     T
 end
 promote_dual(::Type{T}, ::Type{T2}) where {T, T2 <: ForwardDiff.Dual} = T2
 
 function promote_dual(::Type{T},
-                      ::Type{T2}) where {T3, T4, V, V2 <: ForwardDiff.Dual, N, N2,
-                                         T <: ForwardDiff.Dual{T3, V, N},
-                                         T2 <: ForwardDiff.Dual{T4, V2, N2}}
+    ::Type{T2}) where {T3, T4, V, V2 <: ForwardDiff.Dual, N, N2,
+    T <: ForwardDiff.Dual{T3, V, N},
+    T2 <: ForwardDiff.Dual{T4, V2, N2}}
     T2
 end
 function promote_dual(::Type{T},
-                      ::Type{T2}) where {T3, T4, V <: ForwardDiff.Dual, V2, N, N2,
-                                         T <: ForwardDiff.Dual{T3, V, N},
-                                         T2 <: ForwardDiff.Dual{T4, V2, N2}}
+    ::Type{T2}) where {T3, T4, V <: ForwardDiff.Dual, V2, N, N2,
+    T <: ForwardDiff.Dual{T3, V, N},
+    T2 <: ForwardDiff.Dual{T4, V2, N2}}
     T
 end
 function promote_dual(::Type{T},
-                      ::Type{T2}) where {
-                                         T3, V <: ForwardDiff.Dual, V2 <: ForwardDiff.Dual,
-                                         N,
-                                         T <: ForwardDiff.Dual{T3, V, N},
-                                         T2 <: ForwardDiff.Dual{T3, V2, N}}
+    ::Type{T2}) where {
+    T3, V <: ForwardDiff.Dual, V2 <: ForwardDiff.Dual,
+    N,
+    T <: ForwardDiff.Dual{T3, V, N},
+    T2 <: ForwardDiff.Dual{T3, V2, N}}
     ForwardDiff.Dual{T3, promote_dual(V, V2), N}
 end
 
 # `reduce` and `map` are specialized on tuples to be unrolled (via recursion)
-# Therefore, they can be type stable even with heterogenous input types.
+# Therefore, they can be type stable even with heterogeneous input types.
 # We also don't care about allocating any temporaries with them, as it should
 # all be unrolled and optimized away.
 # Being unrolled also means const prop can work for things like
@@ -89,7 +89,7 @@ to a dual number before the solve. Worse still, this needs to be done in the cas
 `f(du,u,p,t) = du[1] = p*u[1]`, and thus running `f` and taking the return value is not a valid
 way to calculate the required state type.
 
-But given the properties of automatic differentiation requiring that differntiation of parameters
+But given the properties of automatic differentiation requiring that differentiation of parameters
 implies differentiation of state, we assume any dual parameters implies differentiation of state
 and then attempt to upconvert `u0` to match that dual-ness. Because this changes types, this needs
 to be specified at compiled time and thus cannot have a Bool-based opt out, so in the future this
@@ -103,7 +103,7 @@ function anyeltypedual(x, counter = 0)
         Any
     elseif counter < DUALCHECK_RECURSION_MAX
         diffeqmapreduce(DualEltypeChecker(x, counter), promote_dual,
-                        map(Val, propertynames(x)))
+            map(Val, propertynames(x)))
     else
         Any
     end
@@ -113,6 +113,10 @@ end
 anyeltypedual(x::Union{ForwardDiff.AbstractConfig, Module}, counter = 0) = Any
 anyeltypedual(x::Type{T}, counter = 0) where {T <: ForwardDiff.AbstractConfig} = Any
 anyeltypedual(x::SciMLBase.RecipesBase.AbstractPlot, counter = 0) = Any
+
+if VERSION >= v"1.7"
+    anyeltypedual(x::Returns, counter = 0) = anyeltypedual(x.value, counter)
+end
 
 if isdefined(PreallocationTools, :FixedSizeDiffCache)
     anyeltypedual(x::PreallocationTools.FixedSizeDiffCache, counter = 0) = Any
@@ -144,25 +148,26 @@ anyeltypedual(x::SciMLBase.NullParameters, counter = 0) = Any
 anyeltypedual(x::Number, counter = 0) = anyeltypedual(typeof(x))
 anyeltypedual(x::Union{String, Symbol}, counter = 0) = typeof(x)
 function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
-                       counter = 0) where {
-                                           T <:
-                                           Union{Number,
-                                                 Symbol,
-                                                 String}}
+    counter = 0) where {
+    T <:
+    Union{Number,
+        Symbol,
+        String}}
     anyeltypedual(T)
 end
 function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
-                       counter = 0) where {N,
-                                           T <: Union{
-                                                 AbstractArray{
-                                                               <:Number
-                                                               },
-                                                 Set{
-                                                     <:Number
-                                                     },
-                                                 NTuple{N,
-                                                        <:Number
-                                                        }}}
+    counter = 0) where {
+    T <: Union{
+        AbstractArray{
+            <:Number,
+        },
+        Set{
+            <:Number,
+        }}}
+    anyeltypedual(eltype(x))
+end
+function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
+    counter = 0) where {N, T <: NTuple{N, <:Number}}
     anyeltypedual(eltype(x))
 end
 
@@ -228,7 +233,7 @@ end
 end
 
 function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p,
-                       tspan::Tuple{<:ForwardDiff.Dual, <:ForwardDiff.Dual}, prob, kwargs)
+    tspan::Tuple{<:ForwardDiff.Dual, <:ForwardDiff.Dual}, prob, kwargs)
     return _promote_tspan(tspan, kwargs)
 end
 
@@ -242,7 +247,7 @@ function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p, tspan, prob, kw
 end
 
 function promote_tspan(u0::AbstractArray{<:Complex{<:ForwardDiff.Dual}}, p, tspan, prob,
-                       kwargs)
+    kwargs)
     return _promote_tspan(real(eltype(u0)).(tspan), kwargs)
 end
 

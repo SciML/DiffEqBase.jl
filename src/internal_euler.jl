@@ -13,10 +13,10 @@ struct FwdEulerAlg <: EulerAlgs end
 struct BwdEulerAlg <: EulerAlgs end
 
 function DiffEqBase.solve(prob::DiffEqBase.AbstractODEProblem{uType, tType, isinplace},
-                          Alg::FwdEulerAlg;
-                          dt = (prob.tspan[2] - prob.tspan[1]) / 100,
-                          tstops = tType[],
-                          kwargs...) where {uType, tType, isinplace}
+    Alg::FwdEulerAlg;
+    dt = (prob.tspan[2] - prob.tspan[1]) / 100,
+    tstops = tType[],
+    kwargs...) where {uType, tType, isinplace}
     u0 = prob.u0
     f = prob.f
     tspan = prob.tspan
@@ -46,12 +46,12 @@ function DiffEqBase.solve(prob::DiffEqBase.AbstractODEProblem{uType, tType, isin
 end
 
 function DiffEqBase.solve(prob::DiffEqBase.AbstractODEProblem{uType, tType, isinplace},
-                          Alg::BwdEulerAlg;
-                          dt = (prob.tspan[2] - prob.tspan[1]) / 100,
-                          tstops = tType[],
-                          tol = 1e-5,
-                          maxiter = 100,
-                          kwargs...) where {uType, tType, isinplace}
+    Alg::BwdEulerAlg;
+    dt = (prob.tspan[2] - prob.tspan[1]) / 100,
+    tstops = tType[],
+    tol = 1e-5,
+    maxiter = 100,
+    kwargs...) where {uType, tType, isinplace}
     u0 = prob.u0
     f = prob.f
     tspan = prob.tspan
