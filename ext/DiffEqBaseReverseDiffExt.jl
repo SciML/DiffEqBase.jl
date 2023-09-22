@@ -1,8 +1,14 @@
 module DiffEqBaseReverseDiffExt
 
-using DiffEqBase
-import DiffEqBase: value
-isdefined(Base, :get_extension) ? (import ReverseDiff) : (import ..ReverseDiff)
+if isdefined(Base, :get_extension)
+    using DiffEqBase
+    import DiffEqBase: value
+    import ReverseDiff
+else
+    using ..DiffEqBase
+    import ..DiffEqBase: value
+    import ..ReverseDiff
+end
 
 DiffEqBase.value(x::Type{ReverseDiff.TrackedReal{V, D, O}}) where {V, D, O} = V
 function DiffEqBase.value(x::Type{

@@ -1,8 +1,14 @@
 module DiffEqBaseMeasurementsExt
 
-using DiffEqBase
-import DiffEqBase: value
-isdefined(Base, :get_extension) ? (using Measurements) : (using ..Measurements)
+if isdefined(Base, :get_extension)
+    using DiffEqBase
+    import DiffEqBase: value
+    using Measurements
+else
+    using ..DiffEqBase
+    import ..DiffEqBase: value
+    using ..Measurements
+end
 
 function DiffEqBase.promote_u0(u0::AbstractArray{<:Measurements.Measurement},
     p::AbstractArray{<:Measurements.Measurement}, t0)
