@@ -47,5 +47,9 @@ end
         @require MPI="da04e1cc-30fd-572f-bb4f-1f8673147195" begin
             include("../ext/DiffEqBaseMPIExt.jl")
         end
+        
+        @require Enzyme="7da242da-08ed-463a-9acd-ee780be4f1d9" begin
+            include("../ext/DiffEqBaseEnzymeExt.jl")
+        end
     end
 end
