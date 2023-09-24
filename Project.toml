@@ -51,6 +51,7 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [extensions]
 DiffEqBaseDistributionsExt = "Distributions"
+DiffEqBaseEnzymeExt = "Enzyme"
 DiffEqBaseGeneralizedGeneratedExt = "GeneralizedGenerated"
 DiffEqBaseMPIExt = "MPI"
 DiffEqBaseMeasurementsExt = "Measurements"
@@ -59,7 +60,6 @@ DiffEqBaseReverseDiffExt = "ReverseDiff"
 DiffEqBaseTrackerExt = "Tracker"
 DiffEqBaseUnitfulExt = "Unitful"
 DiffEqBaseZygoteExt = "Zygote"
-DiffEqBaseEnzymeExt = "Enzyme"
 
 [compat]
 ArrayInterface = "7"
@@ -68,6 +68,7 @@ DataStructures = "0.18"
 Distributions = "0.25"
 DocStringExtensions = "0.9"
 EnumX = "1"
+EnzymeCore = "0.5"
 FastBroadcast = "0.2"
 ForwardDiff = "0.10"
 FunctionWrappers = "1.0"
