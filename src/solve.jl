@@ -190,7 +190,6 @@ function Base.showerror(io::IO, e::NaNTspanError)
     println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
-
 const NON_SOLVER_MESSAGE = """
                            The arguments to solve are incorrect.
                            The second argument must be a solver choice, `solve(prob,alg)`
@@ -454,9 +453,9 @@ end
 
 function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
     kwargs...)
-
     kwargshandle = kwargshandle === nothing ? KeywordArgError : kwargshandle
-    kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ? _prob.kwargs[:kwargshandle] : kwargshandle
+    kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ?
+                   _prob.kwargs[:kwargshandle] : kwargshandle
 
     if has_kwargs(_prob)
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
@@ -534,9 +533,9 @@ end
 
 function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
     kwargs...)
-
     kwargshandle = kwargshandle === nothing ? KeywordArgError : kwargshandle
-    kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ? _prob.kwargs[:kwargshandle] : kwargshandle
+    kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ?
+                   _prob.kwargs[:kwargshandle] : kwargshandle
 
     if has_kwargs(_prob)
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
@@ -1452,9 +1451,9 @@ function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callba
     end
 
     if isempty(args)
-        _concrete_solve_adjoint(_prob, nothing, sensealg, u0, p, originator; kwargs...)
+        _concrete_solve_adjoint(_prob, alg, sensealg, u0, p, originator; kwargs...)
     else
-        _concrete_solve_adjoint(_prob, args[1], sensealg, u0, p, originator,
+        _concrete_solve_adjoint(_prob, alg, sensealg, u0, p, originator,
             Base.tail(args)...; kwargs...)
     end
 end
