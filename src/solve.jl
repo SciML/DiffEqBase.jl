@@ -1027,11 +1027,7 @@ function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, arg
         _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
         check_prob_alg_pairing(_prob, alg) # use alg for improved inference
         solve_call(_prob, _alg, Base.tail(args)...; kwargs...)
-    elseif isempty(args) # Default algorithm handling
-        _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
-            p = p, kwargs...)
-        solve_call(_prob, args...; kwargs...)
-    else
+    else # Default algorithm handling
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
             p = p, kwargs...)
         solve_call(_prob, args...; kwargs...)
@@ -1430,11 +1426,7 @@ function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callba
     elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
         alg = args[1]
         alg, get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
-    elseif isempty(args) # Default algorithm handling
-        alg = !(typeof(prob) <: DiscreteProblem)
-        alg, get_concrete_problem(prob, alg; u0 = u0, p = p,
-            kwargs...)
-    else
+    else # Default algorithm handling
         alg = !(typeof(prob) <: DiscreteProblem)
         alg, get_concrete_problem(prob, alg; u0 = u0, p = p,
             kwargs...)
@@ -1468,11 +1460,7 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
     elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
         alg = args[1]
         alg, get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
-    elseif isempty(args) # Default algorithm handling
-        alg = !(typeof(prob) <: DiscreteProblem)
-        alg, get_concrete_problem(prob, alg; u0 = u0, p = p,
-            kwargs...)
-    else
+    else # Default algorithm handling
         alg = !(typeof(prob) <: DiscreteProblem)
         alg, get_concrete_problem(prob, alg; u0 = u0, p = p,
             kwargs...)
