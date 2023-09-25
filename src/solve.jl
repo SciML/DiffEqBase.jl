@@ -1424,17 +1424,19 @@ end
 
 function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
     kwargs...)
-    _prob = if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
+    alg, _prob = if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = kwargs[:alg]
-        get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
+        alg, get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
         alg = args[1]
-        get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
+        alg, get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     elseif isempty(args) # Default algorithm handling
-        get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0, p = p,
+        alg = !(typeof(prob) <: DiscreteProblem)
+        alg, get_concrete_problem(prob, alg; u0 = u0, p = p,
             kwargs...)
     else
-        get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0, p = p,
+        alg = !(typeof(prob) <: DiscreteProblem)
+        alg, get_concrete_problem(prob, alg; u0 = u0, p = p,
             kwargs...)
     end
 
@@ -1460,17 +1462,19 @@ end
 
 function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
     kwargs...)
-    _prob = if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
+    alg, _prob = if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
         alg = kwargs[:alg]
-        get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
+        alg, get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
         alg = args[1]
-        get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
+        alg, get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     elseif isempty(args) # Default algorithm handling
-        get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0, p = p,
+        alg = !(typeof(prob) <: DiscreteProblem)
+        alg, get_concrete_problem(prob, alg; u0 = u0, p = p,
             kwargs...)
     else
-        get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0, p = p,
+        alg = !(typeof(prob) <: DiscreteProblem)
+        alg, get_concrete_problem(prob, alg; u0 = u0, p = p,
             kwargs...)
     end
 
@@ -1487,10 +1491,10 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
     end
 
     if isempty(args)
-        _concrete_solve_forward(prob, nothing, sensealg, u0, p; kwargs...)
+        _concrete_solve_forward(_prob, alg, sensealg, u0, p, originator; kwargs...)
     else
-        _concrete_solve_forward(prob, args[1], sensealg, u0, p, Base.tail(args)...;
-            kwargs...)
+        _concrete_solve_forward(_prob, alg, sensealg, u0, p, originator,
+            Base.tail(args)...; kwargs...)
     end
 end
 
