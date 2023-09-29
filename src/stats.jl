@@ -56,3 +56,19 @@ function Base.show(io::IO, s::Stats)
     @printf io "%-50s %-d" "Number of rejected steps:" s.nreject
     iszero(s.maxeig) || @printf io "\n%-50s %-d" "Maximum eigenvalue recorded:" s.maxeig
 end
+
+function Base.merge(a::Stats, b::Stats)
+    Stats(
+        a.nf + b.nf,
+        a.nf2 + b.nf2,
+        a.nw + b.nw,
+        a.nsolve + b.nsolve,
+        a.njacs + b.njacs,
+        a.nnonliniter + b.nnonliniter,
+        a.nnonlinconvfail + b.nnonlinconvfail,
+        a.ncondition + b.ncondition,
+        a.naccept + b.naccept,
+        a.nreject + b.nreject,
+        max(a.maxeig, b.maxeig),
+    ) 
+end
