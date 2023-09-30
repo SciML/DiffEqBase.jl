@@ -875,7 +875,7 @@ explanations of the timestepping algorithms, see the
 
 ### Progress Monitoring
 
-These arguments control the usage of the progressbar in the Juno IDE.
+These arguments control the usage of the progressbar in ProgressLogging.jl compatible environments.
 
 * `progress`: Turns on/off the Juno progressbar. Default is false.
 * `progress_steps`: Numbers of steps between updates of the progress bar.
@@ -884,6 +884,7 @@ These arguments control the usage of the progressbar in the Juno IDE.
   of the problem type.
 * `progress_message`: Controls the message with the progressbar. Defaults to
   showing `dt`, `t`, the maximum of `u`.
+* `progress_id`: Controls the ID of the progress log message to distinguish simultaneous simulations.
 
 ### Error Calculations
 
