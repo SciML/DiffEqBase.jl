@@ -70,6 +70,8 @@ const allowedkeywords = (:dense,
     :sensealg,
     :advance_to_tstop,
     :stop_at_next_tstop,
+    :u0,
+    :p,
     # These two are from the default algorithm handling
     :default_set,
     :second_time,
