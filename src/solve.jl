@@ -1427,8 +1427,8 @@ function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callba
         alg = args[1]
         alg, get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     else # Default algorithm handling
-        alg = !(typeof(prob) <: DiscreteProblem)
-        alg, get_concrete_problem(prob, alg; u0 = u0, p = p,
+        alg = isempty(args) ? nothing : args[1]
+        alg, get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0, p = p,
             kwargs...)
     end
 
@@ -1461,8 +1461,8 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
         alg = args[1]
         alg, get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     else # Default algorithm handling
-        alg = !(typeof(prob) <: DiscreteProblem)
-        alg, get_concrete_problem(prob, alg; u0 = u0, p = p,
+        alg = isempty(args) ? nothing : args[1]
+        alg, get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0, p = p,
             kwargs...)
     end
 
