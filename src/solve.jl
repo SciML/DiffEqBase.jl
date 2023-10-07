@@ -7,7 +7,7 @@ NO_TSPAN_PROBS = Union{AbstractLinearProblem, AbstractNonlinearProblem,
     AbstractIntegralProblem, AbstractSteadyStateProblem,
     AbstractJumpProblem}
 
-has_kwargs(_prob::DEProblem) = has_kwargs(typeof(_prob))
+has_kwargs(_prob::AbstractDEProblem) = has_kwargs(typeof(_prob))
 Base.@pure __has_kwargs(::Type{T}) where {T} = :kwargs ∈ fieldnames(T)
 has_kwargs(::Type{T}) where {T} = __has_kwargs(T)
 
@@ -196,7 +196,7 @@ end
 const NON_SOLVER_MESSAGE = """
                            The arguments to solve are incorrect.
                            The second argument must be a solver choice, `solve(prob,alg)`
-                           where `alg` is a `<: DEAlgorithm`, e.g. `Tsit5()`.
+                           where `alg` is a `<: AbstractDEAlgorithm`, e.g. `Tsit5()`.
 
                            Please double check the arguments being sent to the solver.
 
@@ -484,7 +484,7 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothin
     end
 end
 
-function init(prob::Union{DEProblem, NonlinearProblem}, args...; sensealg = nothing,
+function init(prob::Union{AbstractDEProblem, NonlinearProblem}, args...; sensealg = nothing,
     u0 = nothing, p = nothing, kwargs...)
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
@@ -500,7 +500,7 @@ function init(prob::AbstractJumpProblem, args...; kwargs...)
     init_call(prob, args...; kwargs...)
 end
 
-function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
+function init_up(prob::AbstractDEProblem, sensealg, u0, p, args...; kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
@@ -566,7 +566,7 @@ mutable struct NullODEIntegrator{IIP, ProbType, T, SolType, F, P} <:
     f::F
     p::P
 end
-function build_null_integrator(prob::DEProblem, args...;
+function build_null_integrator(prob::AbstractDEProblem, args...;
     kwargs...)
     sol = solve(prob, args...; kwargs...)
     return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol),
@@ -592,7 +592,7 @@ function step!(integ::NullODEIntegrator, dt = nothing, stop_at_tdt = false)
     return nothing
 end
 
-function build_null_solution(prob::DEProblem, args...;
+function build_null_solution(prob::AbstractDEProblem, args...;
     saveat = (),
     save_everystep = true,
     save_on = true,
@@ -635,7 +635,7 @@ end
 
 """
 ```julia
-solve(prob::DEProblem, alg::Union{DEAlgorithm,Nothing}; kwargs...)
+solve(prob::AbstractDEProblem, alg::Union{AbstractDEAlgorithm,Nothing}; kwargs...)
 ```
 
 ## Arguments
@@ -914,7 +914,7 @@ the extension to other types is straightforward.
   to save size or because the user does not care about the others. Finally, with
   `progress = true` you are enabling the progress bar.
 """
-function solve(prob::DEProblem, args...; sensealg = nothing,
+function solve(prob::AbstractDEProblem, args...; sensealg = nothing,
     u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
@@ -987,8 +987,8 @@ function solve(prob::NonlinearProblem, args...; sensealg = nothing,
     end
 end
 
-function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, args...;
-    kwargs...)
+function solve_up(prob::Union{AbstractDEProblem, NonlinearProblem}, sensealg, u0, p,
+    args...; kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
@@ -1070,12 +1070,12 @@ function get_concrete_problem(prob::AbstractEnsembleProblem, isadapt; kwargs...)
     prob
 end
 
-function solve(prob::PDEProblem, alg::DiffEqBase.DEAlgorithm, args...;
+function solve(prob::PDEProblem, alg::AbstractDEAlgorithm, args...;
     kwargs...)
     solve(prob.prob, alg, args...; kwargs...)
 end
 
-function init(prob::PDEProblem, alg::DiffEqBase.DEAlgorithm, args...;
+function init(prob::PDEProblem, alg::AbstractDEAlgorithm, args...;
     kwargs...)
     init(prob.prob, alg, args...; kwargs...)
 end
@@ -1266,27 +1266,27 @@ handle_distribution_u0(_u0) = _u0
 eval_u0(u0::Function) = true
 eval_u0(u0) = false
 
-function __solve(prob::DEProblem, args...; default_set = false, second_time = false,
+function __solve(prob::AbstractDEProblem, args...; default_set = false, second_time = false,
     kwargs...)
     if second_time
         throw(NoDefaultAlgorithmError())
-    elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing, DEAlgorithm})
+    elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing, AbstractDEAlgorithm})
         throw(NonSolverError())
     else
-        __solve(prob::DEProblem, nothing, args...; default_set = false, second_time = true,
-            kwargs...)
+        __solve(prob::AbstractDEProblem, nothing, args...; default_set = false,
+            second_time = true, kwargs...)
     end
 end
 
-function __init(prob::DEProblem, args...; default_set = false, second_time = false,
+function __init(prob::AbstractDEProblem, args...; default_set = false, second_time = false,
     kwargs...)
     if second_time
         throw(NoDefaultAlgorithmError())
-    elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing, DEAlgorithm})
+    elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing, AbstractDEAlgorithm})
         throw(NonSolverError())
     else
-        __init(prob::DEProblem, nothing, args...; default_set = false, second_time = true,
-            kwargs...)
+        __init(prob::AbstractDEProblem, nothing, args...; default_set = false,
+            second_time = true, kwargs...)
     end
 end
 
@@ -1360,7 +1360,7 @@ Ignores all adjoint definitions (i.e. `sensealg`) and proceeds to do standard
 AD through the `solve` functions. Generally only used internally for implementing
 discrete sensitivity algorithms.
 """
-struct SensitivityADPassThrough <: SciMLBase.DEAlgorithm end
+struct SensitivityADPassThrough <: AbstractDEAlgorithm end
 
 function ChainRulesCore.frule(::typeof(solve_up), prob,
     sensealg::Union{Nothing, AbstractSensitivityAlgorithm},
@@ -1370,7 +1370,7 @@ function ChainRulesCore.frule(::typeof(solve_up), prob,
         kwargs...)
 end
 
-function ChainRulesCore.rrule(::typeof(solve_up), prob::SciMLBase.DEProblem,
+function ChainRulesCore.rrule(::typeof(solve_up), prob::AbstractDEProblem,
     sensealg::Union{Nothing, AbstractSensitivityAlgorithm},
     u0, p, args...;
     kwargs...)
@@ -1382,8 +1382,8 @@ end
 ### Legacy Dispatches to be Non-Breaking
 ###
 
-@deprecate concrete_solve(prob::SciMLBase.DEProblem,
-    alg::Union{SciMLBase.DEAlgorithm, Nothing},
+@deprecate concrete_solve(prob::AbstractDEProblem,
+    alg::Union{AbstractDEAlgorithm, Nothing},
     u0 = prob.u0, p = prob.p, args...; kwargs...) solve(prob, alg,
     args...;
     u0 = u0,
@@ -1459,7 +1459,7 @@ end
         else
             nothing
         end
-    elseif solve_args[1] isa DEAlgorithm
+    elseif solve_args[1] isa AbstractDEAlgorithm
         solve_args[1]
     else
         nothing

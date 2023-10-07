@@ -76,7 +76,7 @@ end
 end
 
 # `ReverseDiff.TrackedArray`
-function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
+function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
     sensealg::Union{
         SciMLBase.AbstractOverloadingSensitivityAlgorithm,
         Nothing}, u0::ReverseDiff.TrackedArray,
@@ -84,7 +84,7 @@ function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
     ReverseDiff.track(DiffEqBase.solve_up, prob, sensealg, u0, p, args...; kwargs...)
 end
 
-function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
+function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
     sensealg::Union{
         SciMLBase.AbstractOverloadingSensitivityAlgorithm,
         Nothing}, u0, p::ReverseDiff.TrackedArray,
@@ -92,7 +92,7 @@ function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
     ReverseDiff.track(DiffEqBase.solve_up, prob, sensealg, u0, p, args...; kwargs...)
 end
 
-function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
+function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
     sensealg::Union{
         SciMLBase.AbstractOverloadingSensitivityAlgorithm,
         Nothing}, u0::ReverseDiff.TrackedArray, p,
@@ -101,7 +101,7 @@ function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
 end
 
 # `AbstractArray{<:ReverseDiff.TrackedReal}`
-function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
+function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
     sensealg::Union{
         SciMLBase.AbstractOverloadingSensitivityAlgorithm,
         Nothing},
@@ -112,7 +112,7 @@ function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
         kwargs...)
 end
 
-function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
+function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
     sensealg::Union{
         SciMLBase.AbstractOverloadingSensitivityAlgorithm,
         Nothing}, u0,
@@ -121,7 +121,7 @@ function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
     DiffEqBase.solve_up(prob, sensealg, u0, reduce(vcat, p), args...; kwargs...)
 end
 
-function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
+function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
     sensealg::Union{
         SciMLBase.AbstractOverloadingSensitivityAlgorithm,
         Nothing},

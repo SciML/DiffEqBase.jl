@@ -67,7 +67,7 @@ end
 end
 @inline DiffEqBase.ODE_DEFAULT_NORM(u::Tracker.TrackedReal, t::Tracker.TrackedReal) = abs(u)
 
-function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
+function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
     sensealg::Union{
         SciMLBase.AbstractOverloadingSensitivityAlgorithm,
         Nothing}, u0::Tracker.TrackedArray,
@@ -75,7 +75,7 @@ function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
     Tracker.track(DiffEqBase.solve_up, prob, sensealg, u0, p, args...; kwargs...)
 end
 
-function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
+function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
     sensealg::Union{
         SciMLBase.AbstractOverloadingSensitivityAlgorithm,
         Nothing}, u0::Tracker.TrackedArray, p, args...;
@@ -83,7 +83,7 @@ function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
     Tracker.track(DiffEqBase.solve_up, prob, sensealg, u0, p, args...; kwargs...)
 end
 
-function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
+function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
     sensealg::Union{
         SciMLBase.AbstractOverloadingSensitivityAlgorithm,
         Nothing}, u0, p::Tracker.TrackedArray, args...;

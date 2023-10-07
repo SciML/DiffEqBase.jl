@@ -48,19 +48,19 @@ PrecompileTools.@recompile_invalidations begin
     import PreallocationTools
 
     import FunctionWrappersWrappers
-    
+
     using SciMLBase
 
     using SciMLOperators: AbstractSciMLOperator, AbstractSciMLScalarOperator
 
-    using SciMLBase: @def, DEIntegrator, DEProblem,
+    using SciMLBase: @def, DEIntegrator, AbstractDEProblem,
         AbstractDiffEqInterpolation,
         DECallback, AbstractDEOptions, DECache, AbstractContinuousCallback,
         AbstractDiscreteCallback, AbstractLinearProblem, AbstractNonlinearProblem,
         AbstractOptimizationProblem, AbstractSteadyStateProblem,
         AbstractJumpProblem,
         AbstractNoiseProblem, AbstractEnsembleProblem, AbstractDynamicalODEProblem,
-        DEAlgorithm, StandardODEProblem, AbstractIntegralProblem,
+        AbstractDEAlgorithm, StandardODEProblem, AbstractIntegralProblem,
         AbstractSensitivityAlgorithm, AbstractODEAlgorithm,
         AbstractSDEAlgorithm, AbstractDDEAlgorithm, AbstractDAEAlgorithm,
         AbstractSDDEAlgorithm, AbstractRODEAlgorithm, DAEInitializationAlgorithm,
