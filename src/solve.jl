@@ -503,10 +503,11 @@ end
 function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) # Default algorithm handling
-        _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); kwargs...)
+        _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
+            p = p, kwargs...)
         init_call(_prob, args...; kwargs...)
     else
-        _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
+        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
         _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
         check_prob_alg_pairing(_prob, alg) # alg for improved inference
         if length(args) > 1
