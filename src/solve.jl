@@ -501,36 +501,19 @@ function init(prob::AbstractJumpProblem, args...; kwargs...)
 end
 
 function init_up(prob::DEProblem, sensealg, u0, p, args...; kwargs...)
-    if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
-        alg = kwargs[:alg]
-        _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
-        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
-        check_prob_alg_pairing(_prob, alg) # alg for improved inference
-
-        if length(args) <= 1
-            init_call(_prob, _alg; kwargs...)
-        else
-            init_call(_prob, _alg, Base.tail(args)...; kwargs...)
-        end
-    elseif haskey(prob.kwargs, :alg) && (isempty(args) || args[1] === nothing)
-        alg = prob.kwargs[:alg]
-        _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
-        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
-        check_prob_alg_pairing(_prob, alg) # alg for improved inference
-        if length(args) <= 1
-            init_call(_prob, _alg; kwargs...)
-        else
-            init_call(_prob, _alg, Base.tail(args)...; kwargs...)
-        end
-    elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
-        alg = args[1]
-        _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
-        check_prob_alg_pairing(_prob, alg)
-        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
-        init_call(_prob, _alg, Base.tail(args)...; kwargs...)
-    else # Default algorithm handling
+    alg = extract_alg(args, kwargs, prob.kwargs)
+    if isnothing(alg) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); kwargs...)
         init_call(_prob, args...; kwargs...)
+    else
+        _prob = get_concrete_problem(prob, isadaptive(alg); kwargs...)
+        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
+        check_prob_alg_pairing(_prob, alg) # alg for improved inference
+        if length(args) > 1
+            init_call(_prob, _alg, Base.tail(args)...; kwargs...)
+        else
+            init_call(_prob, _alg; kwargs...)
+        end
     end
 end
 
@@ -1005,36 +988,20 @@ end
 
 function solve_up(prob::Union{DEProblem, NonlinearProblem}, sensealg, u0, p, args...;
     kwargs...)
-    if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
-        alg = kwargs[:alg]
-        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
-        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
-        check_prob_alg_pairing(_prob, alg) # use alg for improved inference
-        if length(args) <= 1
-            solve_call(_prob, _alg; kwargs...)
-        else
-            solve_call(_prob, _alg, Base.tail(args)...; kwargs...)
-        end
-    elseif haskey(prob.kwargs, :alg) && (isempty(args) || args[1] === nothing)
-        alg = prob.kwargs[:alg]
-        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
-        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
-        check_prob_alg_pairing(_prob, alg) # use alg for improved inference
-        if length(args) <= 1
-            solve_call(_prob, _alg; kwargs...)
-        else
-            solve_call(_prob, _alg, Base.tail(args)...; kwargs...)
-        end
-    elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
-        alg = args[1]
-        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
-        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
-        check_prob_alg_pairing(_prob, alg) # use alg for improved inference
-        solve_call(_prob, _alg, Base.tail(args)...; kwargs...)
-    else # Default algorithm handling
+    alg = extract_alg(args, kwargs, prob.kwargs)
+    if isnothing(alg) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
             p = p, kwargs...)
         solve_call(_prob, args...; kwargs...)
+    else
+        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
+        _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
+        check_prob_alg_pairing(_prob, alg) # use alg for improved inference
+        if length(args) > 1
+            solve_call(_prob, _alg, Base.tail(args)...; kwargs...)
+        else
+            solve_call(_prob, _alg; kwargs...)
+        end
     end
 end
 
@@ -1424,16 +1391,12 @@ end
 
 function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
     kwargs...)
-    alg, _prob = if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
-        alg = kwargs[:alg]
-        alg, get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
-    elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
-        alg = args[1]
-        alg, get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
-    else # Default algorithm handling
-        alg = isempty(args) ? nothing : args[1]
-        alg, get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0, p = p,
-            kwargs...)
+    alg = extract_alg(args, kwargs, prob.kwargs)
+    if isnothing(alg) # Default algorithm handling
+        _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
+            p = p, kwargs...)
+    else
+        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     end
 
     if has_kwargs(_prob)
@@ -1458,16 +1421,12 @@ end
 
 function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
     kwargs...)
-    alg, _prob = if haskey(kwargs, :alg) && (isempty(args) || args[1] === nothing)
-        alg = kwargs[:alg]
-        alg, get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
-    elseif !isempty(args) && typeof(args[1]) <: DEAlgorithm
-        alg = args[1]
-        alg, get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
-    else # Default algorithm handling
-        alg = isempty(args) ? nothing : args[1]
-        alg, get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0, p = p,
-            kwargs...)
+    alg = extract_alg(args, kwargs, prob.kwargs)
+    if isnothing(alg) # Default algorithm handling
+        _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
+            p = p, kwargs...)
+    else
+        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     end
 
     if has_kwargs(_prob)
@@ -1487,6 +1446,22 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
     else
         _concrete_solve_forward(_prob, alg, sensealg, u0, p, originator,
             Base.tail(args)...; kwargs...)
+    end
+end
+
+@inline function extract_alg(solve_args, solve_kwargs, prob_kwargs)
+    if isempty(solve_args) || isnothing(solve_args[1])
+        if haskey(solve_kwargs, :alg)
+            solve_kwargs[:alg]
+        elseif haskey(prob_kwargs, :alg)
+            prob_kwargs[:alg]
+        else
+            nothing
+        end
+    elseif solve_args[1] isa DEAlgorithm
+        solve_args[1]
+    else
+        nothing
     end
 end
 
