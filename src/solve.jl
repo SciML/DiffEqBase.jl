@@ -1273,8 +1273,7 @@ function __solve(prob::AbstractDEProblem, args...; default_set = false, second_t
     elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing, AbstractDEAlgorithm})
         throw(NonSolverError())
     else
-        __solve(prob::AbstractDEProblem, nothing, args...; default_set = false,
-            second_time = true, kwargs...)
+        __solve(prob, nothing, args...; default_set = false, second_time = true, kwargs...)
     end
 end
 
@@ -1285,8 +1284,7 @@ function __init(prob::AbstractDEProblem, args...; default_set = false, second_ti
     elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing, AbstractDEAlgorithm})
         throw(NonSolverError())
     else
-        __init(prob::AbstractDEProblem, nothing, args...; default_set = false,
-            second_time = true, kwargs...)
+        __init(prob, nothing, args...; default_set = false, second_time = true, kwargs...)
     end
 end
 
