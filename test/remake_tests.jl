@@ -78,8 +78,8 @@ noise2 = remake(noise1; tspan = tspan2);
 @test noise1.tspan != noise2.tspan
 
 # Test remake with TwoPointBVPFunction (manually defined):
-f1 = SciMLBase.TwoPointBVPFunction((u, p, t) -> 1, ((u_a, u_b), p) -> 2)
-@test_broken f2 = remake(f1; bc = ((u_a, u_b), p) -> 3)
+f1 = SciMLBase.TwoPointBVPFunction((u, p, t) -> 1, ((u_a, p) -> 2, (u_b, p) -> 2))
+@test_broken f2 = remake(f1; bc =  ((u_a, p) -> 3, (u_b, p) -> 4))
 @test_broken f1.bc() == 1
 @test_broken f2.bc() == 2
 
