@@ -39,6 +39,7 @@ mutable struct Stats
 end
 
 Base.@deprecate_binding DEStats Stats false
+Base.deprecate(@__MODULE__, :Stats)
 
 Stats(x::Int = -1) = Stats(x, x, x, x, x, x, x, x, x, x, 0.0)
 
