@@ -502,7 +502,7 @@ end
 
 function init_up(prob::AbstractDEProblem, sensealg, u0, p, args...; kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
-    if isnothing(alg) # Default algorithm handling
+    if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
             p = p, kwargs...)
         init_call(_prob, args...; kwargs...)
@@ -990,7 +990,7 @@ end
 function solve_up(prob::Union{AbstractDEProblem, NonlinearProblem}, sensealg, u0, p,
     args...; kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
-    if isnothing(alg) # Default algorithm handling
+    if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
             p = p, kwargs...)
         solve_call(_prob, args...; kwargs...)
@@ -1408,7 +1408,7 @@ end
 function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
     kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
-    if isnothing(alg) # Default algorithm handling
+    if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
             p = p, kwargs...)
     else
@@ -1438,7 +1438,7 @@ end
 function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
     kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
-    if isnothing(alg) # Default algorithm handling
+    if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
             p = p, kwargs...)
     else
