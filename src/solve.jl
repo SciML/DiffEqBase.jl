@@ -1352,6 +1352,22 @@ function check_prob_alg_pairing(prob, alg)
     end
 end
 
+@inline function extract_alg(solve_args, solve_kwargs, prob_kwargs)
+    if isempty(solve_args) || isnothing(first(solve_args))
+        if haskey(solve_kwargs, :alg)
+            solve_kwargs[:alg]
+        elseif haskey(prob_kwargs, :alg)
+            prob_kwargs[:alg]
+        else
+            nothing
+        end
+    elseif first(solve_args) isa SciMLBase.AbstractSciMLAlgorithm
+        first(solve_args)
+    else
+        nothing
+    end
+end
+
 ################### Differentiation
 
 """
@@ -1446,22 +1462,6 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
     else
         _concrete_solve_forward(_prob, alg, sensealg, u0, p, originator,
             Base.tail(args)...; kwargs...)
-    end
-end
-
-@inline function extract_alg(solve_args, solve_kwargs, prob_kwargs)
-    if isempty(solve_args) || isnothing(first(solve_args))
-        if haskey(solve_kwargs, :alg)
-            solve_kwargs[:alg]
-        elseif haskey(prob_kwargs, :alg)
-            prob_kwargs[:alg]
-        else
-            nothing
-        end
-    elseif first(solve_args) isa SciMLBase.AbstractSciMLAlgorithm
-        first(solve_args)
-    else
-        nothing
     end
 end
 
