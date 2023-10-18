@@ -1015,10 +1015,11 @@ function solve_call(prob::SteadyStateProblem,
 end
 
 function solve(prob::EnsembleProblem, args...; kwargs...)
-    if isempty(args) || length(args) == 1 && typeof(first(args)) <: EnsembleAlgorithm
-        __solve(prob, nothing, args...; kwargs...)
+    alg = extract_alg(args, kwargs, prob.kwargs)
+    if length(args) > 1
+        __solve(prob, alg, Base.tail(args)...; kwargs...)
     else
-        __solve(prob, args...; kwargs...)
+        __solve(prob, alg; kwargs...)
     end
 end
 function solve(prob::SciMLBase.WeightedEnsembleProblem, args...; kwargs...)
