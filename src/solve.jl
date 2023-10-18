@@ -573,7 +573,7 @@ function build_null_integrator(prob::AbstractDEProblem, args...;
         typeof(prob.f), typeof(prob.p),
     }(Float64[],
         Float64[],
-        first(prob.tspan),
+        prob.tspan[1],
         prob,
         sol,
         prob.f,
@@ -1015,7 +1015,7 @@ function solve_call(prob::SteadyStateProblem,
 end
 
 function solve(prob::EnsembleProblem, args...; kwargs...)
-    if isempty(args) || length(args) == 1 && typeof(args[1]) <: EnsembleAlgorithm
+    if isempty(args) || length(args) == 1 && typeof(first(args)) <: EnsembleAlgorithm
         __solve(prob, nothing, args...; kwargs...)
     else
         __solve(prob, args...; kwargs...)
@@ -1270,7 +1270,7 @@ function __solve(prob::AbstractDEProblem, args...; default_set = false, second_t
     kwargs...)
     if second_time
         throw(NoDefaultAlgorithmError())
-    elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing, AbstractDEAlgorithm})
+    elseif length(args) > 0 && !(typeof(first(args)) <: Union{Nothing, AbstractDEAlgorithm})
         throw(NonSolverError())
     else
         __solve(prob, nothing, args...; default_set = false, second_time = true, kwargs...)
@@ -1281,7 +1281,7 @@ function __init(prob::AbstractDEProblem, args...; default_set = false, second_ti
     kwargs...)
     if second_time
         throw(NoDefaultAlgorithmError())
-    elseif length(args) > 0 && !(typeof(args[1]) <: Union{Nothing, AbstractDEAlgorithm})
+    elseif length(args) > 0 && !(typeof(first(args)) <: Union{Nothing, AbstractDEAlgorithm})
         throw(NonSolverError())
     else
         __init(prob, nothing, args...; default_set = false, second_time = true, kwargs...)
@@ -1449,7 +1449,7 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
 end
 
 @inline function extract_alg(solve_args, solve_kwargs, prob_kwargs)
-    if isempty(solve_args) || isnothing(solve_args[1])
+    if isempty(solve_args) || isnothing(first(solve_args))
         if haskey(solve_kwargs, :alg)
             solve_kwargs[:alg]
         elseif haskey(prob_kwargs, :alg)
@@ -1457,8 +1457,8 @@ end
         else
             nothing
         end
-    elseif solve_args[1] isa SciMLBase.AbstractSciMLAlgorithm
-        solve_args[1]
+    elseif first(solve_args) isa SciMLBase.AbstractSciMLAlgorithm
+        first(solve_args)
     else
         nothing
     end
