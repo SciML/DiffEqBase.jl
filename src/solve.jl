@@ -1457,7 +1457,7 @@ end
         else
             nothing
         end
-    elseif solve_args[1] isa AbstractDEAlgorithm
+    elseif solve_args[1] isa SciMLBase.AbstractSciMLAlgorithm
         solve_args[1]
     else
         nothing
