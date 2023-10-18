@@ -1427,11 +1427,11 @@ function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callba
         kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
     end
 
-    if isempty(args)
-        _concrete_solve_adjoint(_prob, alg, sensealg, u0, p, originator; kwargs...)
-    else
+    if length(args) > 1
         _concrete_solve_adjoint(_prob, alg, sensealg, u0, p, originator,
             Base.tail(args)...; kwargs...)
+    else
+        _concrete_solve_adjoint(_prob, alg, sensealg, u0, p, originator; kwargs...)
     end
 end
 
@@ -1457,11 +1457,11 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
         kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
     end
 
-    if isempty(args)
-        _concrete_solve_forward(_prob, alg, sensealg, u0, p, originator; kwargs...)
-    else
+    if length(args) > 1
         _concrete_solve_forward(_prob, alg, sensealg, u0, p, originator,
             Base.tail(args)...; kwargs...)
+    else
+        _concrete_solve_forward(_prob, alg, sensealg, u0, p, originator; kwargs...)
     end
 end
 
