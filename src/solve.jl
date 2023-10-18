@@ -477,7 +477,7 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothin
     if _prob isa Union{ODEProblem, DAEProblem} && isnothing(_prob.u0)
         build_null_integrator(_prob, args...; kwargs...)
     elseif hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
-           typeof(_prob.f.f) <: EvalFunc
+           _prob.f.f isa EvalFunc
         Base.invokelatest(__init, _prob, args...; kwargs...)#::T
     else
         __init(_prob, args...; kwargs...)#::T
@@ -503,7 +503,7 @@ end
 function init_up(prob::AbstractDEProblem, sensealg, u0, p, args...; kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
-        _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
+        _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
             p = p, kwargs...)
         init_call(_prob, args...; kwargs...)
     else
@@ -549,7 +549,7 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothi
     end
 
     if hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
-       typeof(_prob.f.f) <: EvalFunc
+       _prob.f.f isa EvalFunc
         Base.invokelatest(__solve, _prob, args...; kwargs...)#::T
     else
         __solve(_prob, args...; kwargs...)#::T
@@ -991,7 +991,7 @@ function solve_up(prob::Union{AbstractDEProblem, NonlinearProblem}, sensealg, u0
     args...; kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
-        _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
+        _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
             p = p, kwargs...)
         solve_call(_prob, args...; kwargs...)
     else
@@ -1271,7 +1271,7 @@ function __solve(prob::AbstractDEProblem, args...; default_set = false, second_t
     kwargs...)
     if second_time
         throw(NoDefaultAlgorithmError())
-    elseif length(args) > 0 && !(typeof(first(args)) <: Union{Nothing, AbstractDEAlgorithm})
+    elseif length(args) > 0 && !(first(args) isa Union{Nothing, AbstractDEAlgorithm})
         throw(NonSolverError())
     else
         __solve(prob, nothing, args...; default_set = false, second_time = true, kwargs...)
@@ -1282,7 +1282,7 @@ function __init(prob::AbstractDEProblem, args...; default_set = false, second_ti
     kwargs...)
     if second_time
         throw(NoDefaultAlgorithmError())
-    elseif length(args) > 0 && !(typeof(first(args)) <: Union{Nothing, AbstractDEAlgorithm})
+    elseif length(args) > 0 && !(first(args) isa Union{Nothing, AbstractDEAlgorithm})
         throw(NonSolverError())
     else
         __init(prob, nothing, args...; default_set = false, second_time = true, kwargs...)
@@ -1409,7 +1409,7 @@ function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callba
     kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
-        _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
+        _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
             p = p, kwargs...)
     else
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
@@ -1439,7 +1439,7 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
     kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
-        _prob = get_concrete_problem(prob, !(typeof(prob) <: DiscreteProblem); u0 = u0,
+        _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
             p = p, kwargs...)
     else
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
