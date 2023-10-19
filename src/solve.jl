@@ -1015,7 +1015,7 @@ function solve_call(prob::SteadyStateProblem,
 end
 
 function solve(prob::EnsembleProblem, args...; kwargs...)
-    alg = extract_alg(args, kwargs, prob.kwargs)
+    alg = extract_alg(args, kwargs, kwargs)
     if length(args) > 1
         __solve(prob, alg, Base.tail(args)...; kwargs...)
     else
