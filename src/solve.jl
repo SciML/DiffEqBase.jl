@@ -90,7 +90,9 @@ const allowedkeywords = (:dense,
     # If Solvers which internally use linsolve
     :linsolve_kwargs,
     # Solvers internally using EnsembleProblem
-    :ensemblealg)
+    :ensemblealg,
+    # Termination condition for solvers
+    :termination_condition)
 
 const KWARGWARN_MESSAGE = """
                           Unrecognized keyword arguments found.
