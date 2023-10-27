@@ -6,6 +6,9 @@ end
 @inline function UNITLESS_ABS2(x::AbstractArray)
     mapreduce(UNITLESS_ABS2, abs2_and_sum, x, init = zero(real(value(eltype(x)))))
 end
+@inline function UNITLESS_ABS2(x::RecursiveArrayTools.AbstractVectorOfArray)
+    mapreduce(UNITLESS_ABS2, abs2_and_sum, x.u, init = zero(real(value(eltype(x)))))
+end
 @inline function UNITLESS_ABS2(x::RecursiveArrayTools.ArrayPartition)
     mapreduce(UNITLESS_ABS2, abs2_and_sum, x.x, init = zero(real(value(eltype(x)))))
 end
@@ -64,7 +67,11 @@ end
     Base.FastMath.sqrt_fast(real(sum(abs2 ∘ f, u)) / max(length(u), 1))
 end
 
-@inline function ODE_DEFAULT_NORM(u::AbstractArray, t)
+@inline function ODE_DEFAULT_NORM(u::Union{
+        AbstractArray,
+        RecursiveArrayTools.AbstractVectorOfArray,
+    },
+    t)
     Base.FastMath.sqrt_fast(UNITLESS_ABS2(u) / max(recursive_length(u), 1))
 end
 
@@ -90,7 +97,8 @@ end
 @inline NAN_CHECK(x::Number) = isnan(x)
 @inline NAN_CHECK(x::Float64) = isnan(x) || (x > 1e50)
 @inline NAN_CHECK(x::Enum) = false
-@inline NAN_CHECK(x::AbstractArray) = any(NAN_CHECK, x)
+@inline NAN_CHECK(x::Union{AbstractArray, RecursiveArrayTools.AbstractVectorOfArray}) = any(NAN_CHECK,
+    x)
 @inline NAN_CHECK(x::RecursiveArrayTools.ArrayPartition) = any(NAN_CHECK, x.x)
 @inline function NAN_CHECK(x::SparseArrays.AbstractSparseMatrixCSC)
     any(NAN_CHECK, SparseArrays.nonzeros(x))
