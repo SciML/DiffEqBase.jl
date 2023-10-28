@@ -172,10 +172,11 @@ function (cond::NLSolveTerminationCondition)(storage::Union{
             end
 
             if mode ∈ SAFE_BEST_TERMINATION_MODES
-                objective = norm(du)
+                objective = NLSOLVE_DEFAULT_NORM(du)
                 criteria = abstol
             else
-                objective = norm(du) / (norm(du .+ u) + eps(aType))
+                objective = NLSOLVE_DEFAULT_NORM(du) /
+                            (NLSOLVE_DEFAULT_NORM(du .+ u) + eps(aType))
                 criteria = reltol
             end
 
@@ -234,18 +235,18 @@ end
 
 @inline @inbounds function _has_converged(du, u, uprev, mode, abstol, reltol)
     if mode == NLSolveTerminationMode.Norm
-        du_norm = norm(du)
-        return du_norm ≤ abstol || du_norm ≤ reltol * norm(du + u)
+        du_norm = NLSOLVE_DEFAULT_NORM(du)
+        return du_norm ≤ abstol || du_norm ≤ reltol * NLSOLVE_DEFAULT_NORM(du + u)
     elseif mode == NLSolveTerminationMode.Rel
         return all(abs.(du) .≤ reltol .* abs.(u))
     elseif mode ∈ (NLSolveTerminationMode.RelNorm, NLSolveTerminationMode.RelSafe,
         NLSolveTerminationMode.RelSafeBest)
-        return norm(du) ≤ reltol * norm(du .+ u)
+        return NLSOLVE_DEFAULT_NORM(du) ≤ reltol * NLSOLVE_DEFAULT_NORM(du .+ u)
     elseif mode == NLSolveTerminationMode.Abs
         return all(abs.(du) .≤ abstol)
     elseif mode ∈ (NLSolveTerminationMode.AbsNorm, NLSolveTerminationMode.AbsSafe,
         NLSolveTerminationMode.AbsSafeBest)
-        return norm(du) ≤ abstol
+        return NLSOLVE_DEFAULT_NORM(du) ≤ abstol
     elseif mode == NLSolveTerminationMode.SteadyStateDefault
         return all((abs.(du) .≤ abstol) .| (abs.(du) .≤ reltol .* abs.(u)))
     elseif mode == NLSolveTerminationMode.NLSolveDefault
