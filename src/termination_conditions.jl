@@ -109,11 +109,11 @@ end
 function (cache::NonlinearTerminationModeCache)(mode::AbstractSafeNonlinearTerminationMode,
     du, u, uprev)
     if mode isa AbsSafeTerminationMode || mode isa AbsSafeBestTerminationMode
-        objective = NLSOLVE_DEFAULT_NORM(du)
+        objective = NONLINEARSOLVE_DEFAULT_NORM(du)
         criteria = cache.abstol
     else
-        objective = NLSOLVE_DEFAULT_NORM(du) /
-                    (NLSOLVE_DEFAULT_NORM(du .+ u) + eps(cache.abstol))
+        objective = NONLINEARSOLVE_DEFAULT_NORM(du) /
+                    (NONLINEARSOLVE_DEFAULT_NORM(du .+ u) + eps(cache.abstol))
         criteria = cache.reltol
     end
 
@@ -138,7 +138,7 @@ function (cache::NonlinearTerminationModeCache)(mode::AbstractSafeNonlinearTermi
     if objective ≤ cache.mode.patience_objective_multiplier * criteria
         if cache.nsteps ≥ cache.mode.patience_steps
             if cache.nsteps < length(cache.objectives_trace)
-                min_obj, max_obj = extrema(@view(cache.objectives_trace[1:cache.nsteps]))
+                min_obj, max_obj = extrema(@view(cache.objectives_trace[1:(cache.nsteps)]))
             else
                 min_obj, max_obj = extrema(cache.objectives_trace)
             end
@@ -169,22 +169,23 @@ function check_convergence(::SimpleNonlinearSolveTerminationMode, duₙ, uₙ, u
            isapprox(uₙ, uₙ₋₁; atol = abstol, rtol = reltol)
 end
 function check_convergence(::NormTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    du_norm = NLSOLVE_DEFAULT_NORM(duₙ)
-    return du_norm ≤ abstol || du_norm ≤ reltol * NLSOLVE_DEFAULT_NORM(duₙ .+ uₙ)
+    du_norm = NONLINEARSOLVE_DEFAULT_NORM(duₙ)
+    return du_norm ≤ abstol || du_norm ≤ reltol * NONLINEARSOLVE_DEFAULT_NORM(duₙ .+ uₙ)
 end
 function check_convergence(::RelNormTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
     return all(abs.(duₙ) .≤ reltol .* abs.(uₙ))
 end
 function check_convergence(::Union{RelNormTerminationMode, RelSafeTerminationMode,
         RelSafeBestTerminationMode}, duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    return NLSOLVE_DEFAULT_NORM(duₙ) ≤ reltol * NLSOLVE_DEFAULT_NORM(duₙ .+ uₙ)
+    return NONLINEARSOLVE_DEFAULT_NORM(duₙ) ≤
+           reltol * NONLINEARSOLVE_DEFAULT_NORM(duₙ .+ uₙ)
 end
 function check_convergence(::AbsTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
     return all(abs.(duₙ) .≤ abstol)
 end
 function check_convergence(::Union{AbsNormTerminationMode, AbsSafeTerminationMode,
         AbsSafeBestTerminationMode}, duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    return NLSOLVE_DEFAULT_NORM(duₙ) ≤ abstol
+    return NONLINEARSOLVE_DEFAULT_NORM(duₙ) ≤ abstol
 end
 
 # NOTE: Deprecate the following API eventually. This API leads to quite a bit of type
@@ -363,11 +364,11 @@ function (cond::NLSolveTerminationCondition)(storage::Union{
             end
 
             if mode ∈ SAFE_BEST_TERMINATION_MODES
-                objective = NLSOLVE_DEFAULT_NORM(du)
+                objective = NONLINEARSOLVE_DEFAULT_NORM(du)
                 criteria = abstol
             else
-                objective = NLSOLVE_DEFAULT_NORM(du) /
-                            (NLSOLVE_DEFAULT_NORM(du .+ u) + eps(aType))
+                objective = NONLINEARSOLVE_DEFAULT_NORM(du) /
+                            (NONLINEARSOLVE_DEFAULT_NORM(du .+ u) + eps(aType))
                 criteria = reltol
             end
 
@@ -426,18 +427,19 @@ end
 
 @inline @inbounds function _has_converged(du, u, uprev, mode, abstol, reltol)
     if mode == NLSolveTerminationMode.Norm
-        du_norm = NLSOLVE_DEFAULT_NORM(du)
-        return du_norm ≤ abstol || du_norm ≤ reltol * NLSOLVE_DEFAULT_NORM(du + u)
+        du_norm = NONLINEARSOLVE_DEFAULT_NORM(du)
+        return du_norm ≤ abstol || du_norm ≤ reltol * NONLINEARSOLVE_DEFAULT_NORM(du + u)
     elseif mode == NLSolveTerminationMode.Rel
         return all(abs.(du) .≤ reltol .* abs.(u))
     elseif mode ∈ (NLSolveTerminationMode.RelNorm, NLSolveTerminationMode.RelSafe,
         NLSolveTerminationMode.RelSafeBest)
-        return NLSOLVE_DEFAULT_NORM(du) ≤ reltol * NLSOLVE_DEFAULT_NORM(du .+ u)
+        return NONLINEARSOLVE_DEFAULT_NORM(du) ≤
+               reltol * NONLINEARSOLVE_DEFAULT_NORM(du .+ u)
     elseif mode == NLSolveTerminationMode.Abs
         return all(abs.(du) .≤ abstol)
     elseif mode ∈ (NLSolveTerminationMode.AbsNorm, NLSolveTerminationMode.AbsSafe,
         NLSolveTerminationMode.AbsSafeBest)
-        return NLSOLVE_DEFAULT_NORM(du) ≤ abstol
+        return NONLINEARSOLVE_DEFAULT_NORM(du) ≤ abstol
     elseif mode == NLSolveTerminationMode.SteadyStateDefault
         return all((abs.(du) .≤ abstol) .| (abs.(du) .≤ reltol .* abs.(u)))
     elseif mode == NLSolveTerminationMode.NLSolveDefault
