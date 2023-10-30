@@ -35,7 +35,7 @@ for mode in (:RelSafeBestTerminationMode, :AbsSafeBestTerminationMode)
     @eval begin
         Base.@kwdef struct $(mode){T1, T2, T3} <: AbstractSafeBestNonlinearTerminationMode
             protective_threshold::T1 = 1000
-            patience_steps::Int = 30
+            patience_steps::Int = 100
             patience_objective_multiplier::T2 = 3
             min_max_factor::T3 = 1.3
         end
