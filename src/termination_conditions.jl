@@ -55,6 +55,10 @@ mutable struct NonlinearTerminationModeCache{uType, T,
     nsteps::Int
 end
 
+get_termination_mode(cache::NonlinearTerminationModeCache) = cache.mode
+get_abstol(cache::NonlinearTerminationModeCache) = cache.abstol
+get_reltol(cache::NonlinearTerminationModeCache) = cache.reltol
+
 function __update_u!!(cache::NonlinearTerminationModeCache, u)
     cache.u === nothing && return
     if ArrayInterface.can_setindex(cache.u)
@@ -73,8 +77,9 @@ function _get_tolerance(::Nothing, ::Type{T}) where {T}
     return _get_tolerance(η, T)
 end
 
-function SciMLBase.init(u::AbstractArray{T}, mode::AbstractNonlinearTerminationMode;
-    abstol = nothing, reltol = nothing, kwargs...) where {T}
+function SciMLBase.init(u::Union{AbstractArray{T}, T},
+    mode::AbstractNonlinearTerminationMode; abstol = nothing, reltol = nothing,
+    kwargs...) where {T <: Number}
     abstol = _get_tolerance(abstol, T)
     reltol = _get_tolerance(reltol, T)
     best_value = __cvt_real(T, Inf)
