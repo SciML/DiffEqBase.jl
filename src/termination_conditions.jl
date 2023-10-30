@@ -184,7 +184,7 @@ function check_convergence(::NormTerminationMode, duₙ, uₙ, uₙ₋₁, absto
     du_norm = NONLINEARSOLVE_DEFAULT_NORM(duₙ)
     return du_norm ≤ abstol || du_norm ≤ reltol * NONLINEARSOLVE_DEFAULT_NORM(duₙ .+ uₙ)
 end
-function check_convergence(::RelNormTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
+function check_convergence(::RelTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
     return all(abs.(duₙ) .≤ reltol .* abs.(uₙ))
 end
 function check_convergence(::Union{RelNormTerminationMode, RelSafeTerminationMode,
