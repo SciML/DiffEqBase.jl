@@ -42,7 +42,7 @@ end
 end
 @inline ODE_DEFAULT_NORM(u, t) = norm(u)
 
-@inline NLSOLVE_DEFAULT_NORM(u) = ODE_DEFAULT_NORM(u, nothing)
+@inline NONLINEARSOLVE_DEFAULT_NORM(u) = ODE_DEFAULT_NORM(u, nothing)
 
 @inline ODE_DEFAULT_ISOUTOFDOMAIN(u, p, t) = false
 @inline function ODE_DEFAULT_PROG_MESSAGE(dt, u::Array, p, t)

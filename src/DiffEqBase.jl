@@ -171,9 +171,13 @@ export initialize!, finalize!
 
 export SensitivityADPassThrough
 
+export SteadyStateDiffEqTerminationMode, SimpleNonlinearSolveTerminationMode,
+    NormTerminationMode, RelTerminationMode, RelNormTerminationMode, AbsTerminationMode,
+    AbsNormTerminationMode, RelSafeTerminationMode, AbsSafeTerminationMode,
+    RelSafeBestTerminationMode, AbsSafeBestTerminationMode
+# Deprecated API
 export NLSolveTerminationMode,
-    NLSolveSafeTerminationOptions, NLSolveTerminationCondition,
-    NLSolveSafeTerminationResult
+    NLSolveSafeTerminationOptions, NLSolveTerminationCondition, NLSolveSafeTerminationResult
 
 export KeywordArgError, KeywordArgWarn, KeywordArgSilent
 
