@@ -1051,8 +1051,6 @@ function checkkwargs(kwargshandle; kwargs...)
     end
 end
 
-@non_differentiable checkkwargs(kwargshandle)
-
 function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
     prob
 end
@@ -1395,22 +1393,6 @@ AD through the `solve` functions. Generally only used internally for implementin
 discrete sensitivity algorithms.
 """
 struct SensitivityADPassThrough <: AbstractDEAlgorithm end
-
-function ChainRulesCore.frule(::typeof(solve_up), prob,
-    sensealg::Union{Nothing, AbstractSensitivityAlgorithm},
-    u0, p, args...;
-    kwargs...)
-    _solve_forward(prob, sensealg, u0, p, SciMLBase.ChainRulesOriginator(), args...;
-        kwargs...)
-end
-
-function ChainRulesCore.rrule(::typeof(solve_up), prob::AbstractDEProblem,
-    sensealg::Union{Nothing, AbstractSensitivityAlgorithm},
-    u0, p, args...;
-    kwargs...)
-    _solve_adjoint(prob, sensealg, u0, p, SciMLBase.ChainRulesOriginator(), args...;
-        kwargs...)
-end
 
 ###
 ### Legacy Dispatches to be Non-Breaking
