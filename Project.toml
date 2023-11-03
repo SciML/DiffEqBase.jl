@@ -46,8 +46,9 @@ Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [extensions]
+DiffEqBaseChainRulesCoreExt = "ChainRulesCore"
 DiffEqBaseDistributionsExt = "Distributions"
-DiffEqBaseEnzymeExt = "Enzyme"
+DiffEqBaseEnzymeExt = ["ChainRulesCore","Enzyme"]
 DiffEqBaseGeneralizedGeneratedExt = "GeneralizedGenerated"
 DiffEqBaseMPIExt = "MPI"
 DiffEqBaseMeasurementsExt = "Measurements"
