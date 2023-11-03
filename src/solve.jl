@@ -1051,8 +1051,6 @@ function checkkwargs(kwargshandle; kwargs...)
     end
 end
 
-@non_differentiable checkkwargs(kwargshandle)
-
 function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
     prob
 end
@@ -1144,6 +1142,17 @@ function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
     tspan = promote_tspan(u0, p, tspan, prob, kwargs)
 
     remake(prob; u0 = u0, tspan = tspan, p = p, constant_lags = constant_lags)
+end
+
+# Most are extensions
+promote_tspan(u0, p, tspan, prob, kwargs) = _promote_tspan(tspan, kwargs)
+function _promote_tspan(tspan, kwargs)
+    if (dt = get(kwargs, :dt, nothing)) !== nothing
+        tspan1, tspan2, _ = promote(tspan..., dt)
+        return (tspan1, tspan2)
+    else
+        return tspan
+    end
 end
 
 function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
@@ -1384,22 +1393,6 @@ AD through the `solve` functions. Generally only used internally for implementin
 discrete sensitivity algorithms.
 """
 struct SensitivityADPassThrough <: AbstractDEAlgorithm end
-
-function ChainRulesCore.frule(::typeof(solve_up), prob,
-    sensealg::Union{Nothing, AbstractSensitivityAlgorithm},
-    u0, p, args...;
-    kwargs...)
-    _solve_forward(prob, sensealg, u0, p, SciMLBase.ChainRulesOriginator(), args...;
-        kwargs...)
-end
-
-function ChainRulesCore.rrule(::typeof(solve_up), prob::AbstractDEProblem,
-    sensealg::Union{Nothing, AbstractSensitivityAlgorithm},
-    u0, p, args...;
-    kwargs...)
-    _solve_adjoint(prob, sensealg, u0, p, SciMLBase.ChainRulesOriginator(), args...;
-        kwargs...)
-end
 
 ###
 ### Legacy Dispatches to be Non-Breaking
