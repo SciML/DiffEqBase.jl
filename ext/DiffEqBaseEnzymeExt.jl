@@ -2,14 +2,13 @@ module DiffEqBaseEnzymeExt
 
 using DiffEqBase
 import DiffEqBase: value
-isdefined(Base, :get_extension) ? (import Enzyme) : (import ..Enzyme)
-
+using Enzyme
+import Enzyme: Const
 using ChainRulesCore
-using EnzymeCore
 
-function EnzymeCore.EnzymeRules.augmented_primal(config::EnzymeCore.EnzymeRules.ConfigWidth{1}, func::Const{typeof(DiffEqBase.solve_up)}, ::Type{Duplicated{RT}}, prob, sensealg::Union{Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm}}, u0, p, args...; kwargs...) where RT
+function Enzyme.EnzymeRules.augmented_primal(config::Enzyme.EnzymeRules.ConfigWidth{1}, func::Const{typeof(DiffEqBase.solve_up)}, ::Type{Duplicated{RT}}, prob, sensealg::Union{Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm}}, u0, p, args...; kwargs...) where RT
     @inline function copy_or_reuse(val, idx)
-        if EnzymeCore.EnzymeRules.overwritten(config)[idx] && ismutable(val)
+        if Enzyme.EnzymeRules.overwritten(config)[idx] && ismutable(val)
             return deepcopy(val)
         else
             return val
@@ -28,15 +27,15 @@ function EnzymeCore.EnzymeRules.augmented_primal(config::EnzymeCore.EnzymeRules.
         v.= 0
     end
     tup = (dres, res[2])
-    return EnzymeCore.EnzymeRules.AugmentedReturn{RT, RT, Any}(res[1], dres, tup::Any)
+    return Enzyme.EnzymeRules.AugmentedReturn{RT, RT, Any}(res[1], dres, tup::Any)
 end
 
-function EnzymeCore.EnzymeRules.reverse(config::EnzymeCore.EnzymeRules.ConfigWidth{1}, func::Const{typeof(DiffEqBase.solve_up)}, ::Type{<:Duplicated{RT}}, tape, prob, sensealg::Union{Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm}}, u0, p, args...; kwargs...) where RT
+function Enzyme.reverse(config::Enzyme.EnzymeRules.ConfigWidth{1}, func::Const{typeof(DiffEqBase.solve_up)}, ::Type{<:Duplicated{RT}}, tape, prob, sensealg::Union{Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm}}, u0, p, args...; kwargs...) where RT
 	dres, clos = tape
     dres = dres::RT
 	dargs = clos(dres)
     for (darg, ptr) in zip(dargs, (func, prob, sensealg, u0, p, args...))
-        if ptr isa EnzymeCore.Const
+        if ptr isa Enzyme.Const
             continue
         end
         if darg == ChainRulesCore.NoTangent()
