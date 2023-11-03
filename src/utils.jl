@@ -1,3 +1,7 @@
+# Handled in Extensions
+value(x) = x
+isdistribution(u0) = false
+
 _vec(v) = vec(v)
 _vec(v::Number) = v
 _vec(v::AbstractSciMLScalarOperator) = v

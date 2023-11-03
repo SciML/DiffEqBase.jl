@@ -3,9 +3,6 @@ if isdefined(Base, :Experimental) &&
    isdefined(Base.Experimental, Symbol("@max_methods"))
     @eval Base.Experimental.@max_methods 1
 end
-if !isdefined(Base, :get_extension)
-    using Requires
-end
 
 import PrecompileTools
 
@@ -28,13 +25,9 @@ PrecompileTools.@recompile_invalidations begin
 
     using Static: reduce_tup
 
-    import ChainRulesCore
     import RecursiveArrayTools
     import SparseArrays
     import TruncatedStacktraces
-
-    import ChainRulesCore: NoTangent, @non_differentiable
-    import ZygoteRules
 
     using Setfield
 
@@ -140,13 +133,10 @@ include("callbacks.jl")
 include("common_defaults.jl")
 include("solve.jl")
 include("internal_euler.jl")
-include("init.jl")
 include("forwarddiff.jl")
-include("chainrules.jl")
-
 include("termination_conditions.jl")
-
 include("norecompile.jl")
+
 # This is only used for oop stiff solvers
 default_factorize(A) = lu(A; check = false)
 
@@ -180,9 +170,5 @@ export NLSolveTerminationMode,
     NLSolveSafeTerminationOptions, NLSolveTerminationCondition, NLSolveSafeTerminationResult
 
 export KeywordArgError, KeywordArgWarn, KeywordArgSilent
-
-if !isdefined(Base, :get_extension)
-    include("../ext/DiffEqBaseDistributionsExt.jl")
-end
 
 end # module
