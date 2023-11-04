@@ -1251,6 +1251,28 @@ function get_concrete_u0(prob, isadapt, t0, kwargs)
     _u0
 end
 
+function get_concrete_u0(prob::BVProblem, isadapt, t0, kwargs)
+    if haskey(kwargs, :u0)
+        u0 = kwargs[:u0]
+    else
+        u0 = prob.u0
+    end
+
+    isadapt && eltype(u0) <: Integer && (u0 = float.(u0))
+
+    _u0 = handle_distribution_u0(u0)
+
+    if isinplace(prob) && (_u0 isa Number || _u0 isa SArray)
+        throw(IncompatibleInitialConditionError())
+    end
+
+    if _u0 isa Tuple
+        throw(TupleStateError())
+    end
+
+    return _u0
+end
+
 function get_concrete_du0(prob, isadapt, t0, kwargs)
     if eval_u0(prob.du0)
         du0 = prob.du0(prob.p, t0)
