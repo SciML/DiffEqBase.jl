@@ -56,10 +56,10 @@ const EXP2FT = (Float32(0x1.6a09e667f3bcdp-1),
     TBLSIZE = UInt32(1 << TBLBITS)
 
     redux = Float32(0x1.8p23f) / TBLSIZE
-    P1 = Float32(0x1.62e430p-1f)
-    P2 = Float32(0x1.ebfbe0p-3f)
-    P3 = Float32(0x1.c6b348p-5f)
-    P4 = Float32(0x1.3b2c9cp-7f)
+    P1 = Float32(0x1.62e430p-1)
+    P2 = Float32(0x1.ebfbe0p-3)
+    P3 = Float32(0x1.c6b348p-5)
+    P4 = Float32(0x1.3b2c9cp-7)
 
     # Reduce x, computing z, i0, and k.
     t::Float32 = x + redux
