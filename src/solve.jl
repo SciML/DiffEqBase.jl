@@ -1400,7 +1400,8 @@ end
         else
             nothing
         end
-    elseif first(solve_args) isa SciMLBase.AbstractSciMLAlgorithm
+    elseif first(solve_args) isa SciMLBase.AbstractSciMLAlgorithm &&
+        !(first(solve_args) isa SciMLBase.EnsembleAlgorithm)
         first(solve_args)
     else
         nothing
