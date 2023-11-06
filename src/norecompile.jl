@@ -63,7 +63,7 @@ function wrapfun_iip(ff,
         Tuple{dualT1, dualT2, T3, T4},
         Tuple{dualT1, T2, T3, dualT4})
 
-    iip_returnlists = ntuple(x -> Nothing, 4)
+    iip_returnlists = ntuple(x -> Nothing, 3)
 
     fwt = map(iip_arglists, iip_returnlists) do A, R
         FunctionWrappersWrappers.FunctionWrappers.FunctionWrapper{R, A}(Void(ff))
