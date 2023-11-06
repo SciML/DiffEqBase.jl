@@ -61,8 +61,7 @@ function wrapfun_iip(ff,
 
     iip_arglists = (Tuple{T1, T2, T3, T4},
         Tuple{dualT1, dualT2, T3, T4},
-        Tuple{dualT1, T2, T3, dualT4},
-        Tuple{dualT1, dualT2, T3, dualT4})
+        Tuple{dualT1, T2, T3, dualT4})
 
     iip_returnlists = ntuple(x -> Nothing, 4)
 
