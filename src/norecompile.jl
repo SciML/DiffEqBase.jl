@@ -58,10 +58,12 @@ function wrapfun_iip(ff,
     dualT1 = ArrayInterface.promote_eltype(T1, dualT)
     dualT2 = ArrayInterface.promote_eltype(T2, dualT)
     dualT4 = dualgen(T4)
+    dualT4_T = promote_dual(dualT4, dualT)
 
-    iip_arglists = (Tuple{T1, T2, T3, T4}, # primal
-        Tuple{dualT1, dualT2, T3, T4},     # vjp
-        Tuple{dualT1, T2, T3, dualT4},     # tgrad
+    iip_arglists = (Tuple{T1, T2, T3, T4},    # primal
+        Tuple{dualT1, dualT2, T3, T4},        # vjp
+        Tuple{dualT1, T2, T3, dualT4},        # tgrad
+        Tuple{dualT1, T2, T3, dualT4_T},      # tgrad inside gradient wrt initial conditions
         )
 
     iip_returnlists = ntuple(x -> Nothing, length(iip_arglists))
