@@ -3,6 +3,7 @@ using Test
 using DiffEqBase, ForwardDiff
 using DiffEqBase: prob2dtmin, timedepentdtmin, _rate_prototype
 using Unitful
+using ForwardDiff: Dual, Tag
 
 @testset "tspan2dtmin" begin
     # we only need to test very rough equality since timestepping isn't science.
