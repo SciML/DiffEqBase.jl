@@ -62,4 +62,5 @@ function default_logger(logger)
     LoggingExtras.TeeLogger(logger1, logger2)
 end
 
-_rate_prototype(u, t::T, onet::T) where {T} = u / oneunit(t)
+# for the non-unitful case the correct type is just u
+_rate_prototype(u, t::T, onet::T) where {T} = u

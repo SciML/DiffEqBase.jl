@@ -30,5 +30,5 @@ end
     real(abs2(x) / oneunit(x) * oneunit(x))
 end
 
-_rate_prototype(u, t, onet) = u / unit(t)
+DiffEqBase._rate_prototype(u, t, onet) = u / unit(t)
 end

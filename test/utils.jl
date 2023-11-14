@@ -1,7 +1,8 @@
 using Test
 
 using DiffEqBase, ForwardDiff
-using DiffEqBase: prob2dtmin, timedepentdtmin
+using DiffEqBase: prob2dtmin, timedepentdtmin, _rate_prototype
+using Unitful
 
 @testset "tspan2dtmin" begin
     # we only need to test very rough equality since timestepping isn't science.
@@ -31,4 +32,13 @@ end
     @test prob2dtmin((0.0, 10.0), 1.0, false) == eps(Float64)
     @test prob2dtmin((0.0f0, 10.0f0), 1.0f0, false) == eps(Float32)
     @test prob2dtmin((0.0, 10.0), ForwardDiff.Dual(1.0), false) == eps(Float64)
+end
+
+@testset "_rate_prototype" begin
+    @test _rate_prototype([1f0], 1.0, 1.0) isa Vector{Float32}
+    td = Dual{Tag{typeof(+), Float64}}(2.0,1.0)
+    @test _rate_prototype([1f0], td, td) isa Vector{Float32}
+    xd = [Dual{Tag{typeof(+), Float32}}(2.0,1.0)]
+    @test _rate_prototype(xd, 1.0, 1.0) isa typeof(xd)
+    @test _rate_prototype([u"1f0m"], u"1.0s", 1.0) isa typeof([u"1f0m/s"])
 end
