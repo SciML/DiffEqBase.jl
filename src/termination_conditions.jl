@@ -161,7 +161,7 @@ RelSafeBestTerminationMode(; protective_threshold = 1e3, patience_steps = 100,
 ```
 """
 Base.@kwdef struct RelSafeBestTerminationMode{T1, T2, T3} <:
-                   AbstractSafeNonlinearTerminationMode
+                   AbstractSafeBestNonlinearTerminationMode
     protective_threshold::T1 = 1000
     patience_steps::Int = 100
     patience_objective_multiplier::T2 = 3
@@ -181,7 +181,7 @@ AbsSafeBestTerminationMode(; protective_threshold = 1e3, patience_steps = 100,
 ```
 """
 Base.@kwdef struct AbsSafeBestTerminationMode{T1, T2, T3} <:
-                   AbstractSafeNonlinearTerminationMode
+                   AbstractSafeBestNonlinearTerminationMode
     protective_threshold::T1 = 1000
     patience_steps::Int = 100
     patience_objective_multiplier::T2 = 3
