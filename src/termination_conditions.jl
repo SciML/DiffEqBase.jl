@@ -161,7 +161,7 @@ RelSafeBestTerminationMode(; protective_threshold = 1e3, patience_steps = 100,
 ```
 """
 Base.@kwdef struct RelSafeBestTerminationMode{T1, T2, T3} <:
-                   AbstractSafeNonlinearTerminationMode
+                   AbstractSafeBestNonlinearTerminationMode
     protective_threshold::T1 = 1000
     patience_steps::Int = 100
     patience_objective_multiplier::T2 = 3
@@ -181,7 +181,7 @@ AbsSafeBestTerminationMode(; protective_threshold = 1e3, patience_steps = 100,
 ```
 """
 Base.@kwdef struct AbsSafeBestTerminationMode{T1, T2, T3} <:
-                   AbstractSafeNonlinearTerminationMode
+                   AbstractSafeBestNonlinearTerminationMode
     protective_threshold::T1 = 1000
     patience_steps::Int = 100
     patience_objective_multiplier::T2 = 3
@@ -189,7 +189,7 @@ Base.@kwdef struct AbsSafeBestTerminationMode{T1, T2, T3} <:
 end
 
 mutable struct NonlinearTerminationModeCache{uType, T,
-    M <: AbstractNonlinearTerminationMode, I, OT}
+    M <: AbstractNonlinearTerminationMode, I, OT, SV}
     u::uType
     retcode::NonlinearSafeTerminationReturnCode.T
     abstol::T
@@ -199,11 +199,13 @@ mutable struct NonlinearTerminationModeCache{uType, T,
     initial_objective::I
     objectives_trace::OT
     nsteps::Int
+    saved_values::SV
 end
 
 get_termination_mode(cache::NonlinearTerminationModeCache) = cache.mode
 get_abstol(cache::NonlinearTerminationModeCache) = cache.abstol
 get_reltol(cache::NonlinearTerminationModeCache) = cache.reltol
+get_saved_values(cache::NonlinearTerminationModeCache) = cache.saved_values
 
 function __update_u!!(cache::NonlinearTerminationModeCache, u)
     cache.u === nothing && return
@@ -224,8 +226,8 @@ function _get_tolerance(::Nothing, ::Type{T}) where {T}
 end
 
 function SciMLBase.init(du::Union{AbstractArray{T}, T}, u::Union{AbstractArray{T}, T},
-        mode::AbstractNonlinearTerminationMode; abstol = nothing, reltol = nothing,
-        kwargs...) where {T <: Number}
+        mode::AbstractNonlinearTerminationMode, saved_value_prototype...;
+        abstol = nothing, reltol = nothing, kwargs...) where {T <: Number}
     abstol = _get_tolerance(abstol, T)
     reltol = _get_tolerance(reltol, T)
     TT = typeof(abstol)
@@ -245,26 +247,35 @@ function SciMLBase.init(du::Union{AbstractArray{T}, T}, u::Union{AbstractArray{T
         objectives_trace = nothing
         best_value = __cvt_real(T, Inf)
     end
+
+    length(saved_value_prototype) == 0 && (saved_value_prototype = nothing)
+
     return NonlinearTerminationModeCache{typeof(u_), TT, typeof(mode),
-        typeof(initial_objective), typeof(objectives_trace)}(u_,
-        NonlinearSafeTerminationReturnCode.Default, abstol, reltol, best_value, mode,
-        initial_objective, objectives_trace, 0)
+        typeof(initial_objective), typeof(objectives_trace),
+        typeof(saved_value_prototype)}(u_, NonlinearSafeTerminationReturnCode.Default,
+        abstol, reltol, best_value, mode, initial_objective, objectives_trace, 0,
+        saved_value_prototype)
 end
 
 # This dispatch is needed based on how Terminating Callback works!
 # This intentially drops the `abstol` and `reltol` arguments
-function (cache::NonlinearTerminationModeCache)(integrator, _, _, min_t)
-    return cache(cache.mode, get_du(integrator), integrator.u, integrator.uprev)
+function (cache::NonlinearTerminationModeCache)(integrator::AbstractODEIntegrator,
+        abstol::Number, reltol::Number, min_t)
+    retval = cache(cache.mode, get_du(integrator), integrator.u, integrator.uprev)
+    (min_t === nothing || integrator.t ≥ min_t) && return retval
+    return false
 end
-(cache::NonlinearTerminationModeCache)(du, u, uprev) = cache(cache.mode, du, u, uprev)
+function (cache::NonlinearTerminationModeCache)(du, u, uprev, args...)
+    return cache(cache.mode, du, u, uprev, args...)
+end
 
 function (cache::NonlinearTerminationModeCache)(mode::AbstractNonlinearTerminationMode, du,
-        u, uprev)
+        u, uprev, args...)
     return check_convergence(mode, du, u, uprev, cache.abstol, cache.reltol)
 end
 
 function (cache::NonlinearTerminationModeCache)(mode::AbstractSafeNonlinearTerminationMode,
-        du, u, uprev)
+        du, u, uprev, args...)
     if mode isa AbsSafeTerminationMode || mode isa AbsSafeBestTerminationMode
         objective = NONLINEARSOLVE_DEFAULT_NORM(du)
         criteria = cache.abstol
@@ -286,6 +297,9 @@ function (cache::NonlinearTerminationModeCache)(mode::AbstractSafeNonlinearTermi
        objective < cache.best_objective_value
         cache.best_objective_value = objective
         __update_u!!(cache, u)
+        if cache.saved_values !== nothing && length(args) ≥ 1
+            cache.saved_values = args
+        end
     end
 
     # Main Termination Condition
