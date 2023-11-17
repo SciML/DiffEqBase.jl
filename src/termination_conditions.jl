@@ -287,7 +287,7 @@ function (cache::NonlinearTerminationModeCache)(mode::AbstractSafeNonlinearTermi
 
     # Protective Break
     if isinf(objective) || isnan(objective) ||
-       (objective ≥ cache.initial_objective * cache.mode.protective_threshold * length(du))
+       (objective > cache.initial_objective * cache.mode.protective_threshold * length(du))
         cache.retcode = NonlinearSafeTerminationReturnCode.ProtectiveTermination
         return true
     end
