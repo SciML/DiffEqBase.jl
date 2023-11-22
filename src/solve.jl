@@ -91,6 +91,10 @@ const allowedkeywords = (:dense,
     :linsolve_kwargs,
     # Solvers internally using EnsembleProblem
     :ensemblealg,
+    # Fine Grained Control of Tracing (Storing and Logging) during Solve
+    :show_trace,
+    :trace_level,
+    :store_trace,
     # Termination condition for solvers
     :termination_condition)
 
