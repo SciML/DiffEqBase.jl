@@ -331,21 +331,25 @@ function (cache::NonlinearTerminationModeCache)(mode::AbstractSafeNonlinearTermi
     return false
 end
 
+# NOTE: The `zip` based implementation ensures that code is non-allocating. However, these
+# ones will fail for non scalar-indexable types. We make sure to never default to those
+# modes in the first place, so it the user asks for them we can assume that they know
+# what they are doing. (or ideally we can extend them via extensions)
 function check_convergence(::SteadyStateDiffEqTerminationMode, duₙ, uₙ, uₙ₋₁, abstol,
         reltol)
-    return all((abs.(duₙ) .≤ abstol) .| (abs.(duₙ) .≤ reltol .* abs.(uₙ)))
+    return all(((x, y),) -> (abs(x) ≤ abstol) | (abs(x) ≤ reltol * abs(y)), zip(duₙ, uₙ))
 end
 function check_convergence(::SimpleNonlinearSolveTerminationMode, duₙ, uₙ, uₙ₋₁, abstol,
         reltol)
-    return all((abs.(duₙ) .≤ abstol) .| (abs.(duₙ) .≤ reltol .* abs.(uₙ))) ||
-           isapprox(uₙ, uₙ₋₁; atol = abstol, rtol = reltol)
+    return all(((x, y),) -> (abs(x) ≤ abstol) | (abs(x) ≤ reltol * abs(y)), zip(duₙ, uₙ)) ||
+           isapprox(uₙ, uₙ₋₁; atol = abstol, rtol = reltol)  # isapprox allocates
 end
 function check_convergence(::NormTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
     du_norm = NONLINEARSOLVE_DEFAULT_NORM(duₙ)
     return du_norm ≤ abstol || du_norm ≤ reltol * NONLINEARSOLVE_DEFAULT_NORM(duₙ .+ uₙ)
 end
 function check_convergence(::RelTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    return all(abs.(duₙ) .≤ reltol .* abs.(uₙ))
+    return all(((x, y),) -> abs(x) ≤ reltol * abs(y), zip(duₙ, uₙ))
 end
 function check_convergence(::Union{RelNormTerminationMode, RelSafeTerminationMode,
             RelSafeBestTerminationMode}, duₙ, uₙ, uₙ₋₁, abstol, reltol)
@@ -353,7 +357,7 @@ function check_convergence(::Union{RelNormTerminationMode, RelSafeTerminationMod
            reltol * NONLINEARSOLVE_DEFAULT_NORM(duₙ .+ uₙ)
 end
 function check_convergence(::AbsTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    return all(abs.(duₙ) .≤ abstol)
+    return all(x -> abs(x) ≤ abstol, duₙ)
 end
 function check_convergence(::Union{AbsNormTerminationMode, AbsSafeTerminationMode,
             AbsSafeBestTerminationMode}, duₙ, uₙ, uₙ₋₁, abstol, reltol)
