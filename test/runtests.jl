@@ -70,6 +70,9 @@ end
         @time @safetestset "ODE default unstable check" begin
             include("ode_default_unstable_check.jl")
         end
+        @time @safetestset "Termination Conditions" begin
+            include("termination_conditions.jl")
+        end
     end
 
     if !is_APPVEYOR && GROUP == "Downstream"
@@ -147,6 +150,9 @@ end
         activate_gpu_env()
         @time @safetestset "Simple GPU" begin
             include("gpu/simple_gpu.jl")
+        end
+        @time @safetestset "GPU Termination Conditions" begin
+            include("gpu/termination_conditions.jl")
         end
     end
 end
