@@ -44,3 +44,10 @@ prob2 = DiffEqBase.get_concrete_problem(prob, true)
 @test prob2.u0 == 2.0
 @test prob2.tspan == (0.0, 3.0)
 @test prob2.constant_lags == [1.0]
+
+prob = SteadyStateProblem((u, p, t) -> u, [1.0, 2.0])
+prob2 = DiffEqBase.get_concrete_problem(prob, true; u0 = [2.0, 3.0])
+@test prob2.u0 == [2.0, 3.0]
+prob3 = DiffEqBase.get_concrete_problem(prob, true; u0 = [1.0, 3.0], p = 3.0)
+@test prob3.u0 == [1.0, 3.0]
+@test prob3.p == 3.0

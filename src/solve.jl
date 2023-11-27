@@ -1062,19 +1062,22 @@ end
 function get_concrete_problem(prob::SteadyStateProblem, isadapt; kwargs...)
     u0 = get_concrete_u0(prob, isadapt, Inf, kwargs)
     u0 = promote_u0(u0, prob.p, nothing)
-    remake(prob; u0 = u0)
+    p = get_concrete_p(prob, kwargs)
+    remake(prob; u0 = u0, p = p)
 end
 
 function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
     u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
     u0 = promote_u0(u0, prob.p, nothing)
-    remake(prob; u0 = u0)
+    p = get_concrete_p(prob, kwargs)
+    remake(prob; u0 = u0, p = p)
 end
 
 function get_concrete_problem(prob::NonlinearLeastSquaresProblem, isadapt; kwargs...)
     u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
     u0 = promote_u0(u0, prob.p, nothing)
-    remake(prob; u0 = u0)
+    p = get_concrete_p(prob, kwargs)
+    remake(prob; u0 = u0, p = p)
 end
 
 function get_concrete_problem(prob::AbstractEnsembleProblem, isadapt; kwargs...)
