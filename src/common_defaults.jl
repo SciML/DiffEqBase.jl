@@ -26,7 +26,7 @@ end
 @inline recursive_length(u::RecursiveArrayTools.ArrayPartition) = sum(recursive_length, u.x)
 @inline recursive_length(u::RecursiveArrayTools.VectorOfArray) = sum(recursive_length, u.u)
 @inline function recursive_length(u::AbstractArray{
-    <:StaticArraysCore.StaticArray{S, <:Number}}) where {S}
+        <:StaticArraysCore.StaticArray{S, <:Number}}) where {S}
     prod(Size(eltype(u))) * length(u)
 end
 
@@ -55,7 +55,7 @@ end
 end
 
 @inline function ODE_DEFAULT_NORM(u::StaticArraysCore.StaticArray{<:Tuple, T},
-    t) where {T <: Union{AbstractFloat, Complex}}
+        t) where {T <: Union{AbstractFloat, Complex}}
     Base.FastMath.sqrt_fast(real(sum(abs2, u)) / max(length(u), 1))
 end
 
@@ -74,9 +74,6 @@ end
 
 @inline ODE_DEFAULT_NORM(u, t) = norm(u)
 @inline ODE_DEFAULT_NORM(f::F, u, t) where {F} = norm(f.(u))
-
-@inline NONLINEARSOLVE_DEFAULT_NORM(u) = ODE_DEFAULT_NORM(u, nothing)
-@inline NONLINEARSOLVE_DEFAULT_NORM(f::F, u) where {F} = ODE_DEFAULT_NORM(f, u, nothing)
 
 @inline ODE_DEFAULT_ISOUTOFDOMAIN(u, p, t) = false
 @inline function ODE_DEFAULT_PROG_MESSAGE(dt, u::Array, p, t)
@@ -101,3 +98,49 @@ end
 
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt, u, p, t) = false
 @inline ODE_DEFAULT_UNSTABLE_CHECK(dt, u::Union{Number, AbstractArray}, p, t) = NAN_CHECK(u)
+
+# Nonlinear Solve Norm (norm(_, 2))
+@inline NONLINEARSOLVE_DEFAULT_NORM(u::Union{AbstractFloat, Complex}) = @fastmath abs(u)
+@inline function NONLINEARSOLVE_DEFAULT_NORM(f::F,
+        u::Union{AbstractFloat, Complex}) where {F}
+    return @fastmath abs(f(u))
+end
+
+@inline function NONLINEARSOLVE_DEFAULT_NORM(u::Array{
+        T}) where {T <: Union{AbstractFloat, Complex}}
+    x = zero(T)
+    @inbounds @fastmath for ui in u
+        x += abs2(ui)
+    end
+    return Base.FastMath.sqrt_fast(real(x))
+end
+
+@inline function NONLINEARSOLVE_DEFAULT_NORM(f::F,
+        u::Union{Array{T}, Iterators.Zip{<:Tuple{Vararg{<:Array{T}}}}}) where {F, T <: Union{AbstractFloat, Complex}}
+    x = zero(T)
+    @inbounds @fastmath for ui in u
+        x += abs2(f(ui))
+    end
+    return Base.FastMath.sqrt_fast(real(x))
+end
+
+@inline function NONLINEARSOLVE_DEFAULT_NORM(u::StaticArraysCore.StaticArray{
+        <:Tuple, T}) where {T <: Union{AbstractFloat, Complex}}
+    return Base.FastMath.sqrt_fast(real(sum(abs2, u)))
+end
+
+@inline function NONLINEARSOLVE_DEFAULT_NORM(f::F,
+        u::StaticArraysCore.StaticArray{<:Tuple, T}) where {F, T <: Union{AbstractFloat, Complex}}
+    return Base.FastMath.sqrt_fast(real(sum(abs2 ∘ f, u)))
+end
+
+@inline function NONLINEARSOLVE_DEFAULT_NORM(u::AbstractArray)
+    return Base.FastMath.sqrt_fast(UNITLESS_ABS2(u))
+end
+
+@inline function NONLINEARSOLVE_DEFAULT_NORM(f::F, u::AbstractArray) where {F}
+    return Base.FastMath.sqrt_fast(UNITLESS_ABS2(f, u))
+end
+
+@inline NONLINEARSOLVE_DEFAULT_NORM(u) = norm(u)
+@inline NONLINEARSOLVE_DEFAULT_NORM(f::F, u) where {F} = norm(f.(u))
