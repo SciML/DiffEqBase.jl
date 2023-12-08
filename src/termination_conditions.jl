@@ -115,13 +115,13 @@ for the last `patience_steps` + terminate if the solution blows up (diverges).
 ## Constructor
 
 ```julia
-RelSafeTerminationMode(; protective_threshold = 1e3, patience_steps = 100,
+RelSafeTerminationMode(; protective_threshold = nothing, patience_steps = 100,
                          patience_objective_multiplier = 3, min_max_factor = 1.3)
 ```
 """
 Base.@kwdef struct RelSafeTerminationMode{T1, T2, T3} <:
                    AbstractSafeNonlinearTerminationMode
-    protective_threshold::T1 = 1000
+    protective_threshold::T1 = nothing
     patience_steps::Int = 100
     patience_objective_multiplier::T2 = 3
     min_max_factor::T3 = 1.3
@@ -136,13 +136,13 @@ for the last `patience_steps` + terminate if the solution blows up (diverges).
 ## Constructor
 
 ```julia
-AbsSafeTerminationMode(; protective_threshold = 1e3, patience_steps = 100,
+AbsSafeTerminationMode(; protective_threshold = nothing, patience_steps = 100,
                         patience_objective_multiplier = 3, min_max_factor = 1.3)
 ```
 """
 Base.@kwdef struct AbsSafeTerminationMode{T1, T2, T3} <:
                    AbstractSafeNonlinearTerminationMode
-    protective_threshold::T1 = 1000
+    protective_threshold::T1 = nothing
     patience_steps::Int = 100
     patience_objective_multiplier::T2 = 3
     min_max_factor::T3 = 1.3
@@ -156,13 +156,13 @@ Essentially [`RelSafeTerminationMode`](@ref), but caches the best solution found
 ## Constructor
 
 ```julia
-RelSafeBestTerminationMode(; protective_threshold = 1e3, patience_steps = 100,
+RelSafeBestTerminationMode(; protective_threshold = nothing, patience_steps = 100,
                             patience_objective_multiplier = 3, min_max_factor = 1.3)
 ```
 """
 Base.@kwdef struct RelSafeBestTerminationMode{T1, T2, T3} <:
                    AbstractSafeBestNonlinearTerminationMode
-    protective_threshold::T1 = 1000
+    protective_threshold::T1 = nothing
     patience_steps::Int = 100
     patience_objective_multiplier::T2 = 3
     min_max_factor::T3 = 1.3
@@ -176,13 +176,13 @@ Essentially [`AbsSafeTerminationMode`](@ref), but caches the best solution found
 ## Constructor
 
 ```julia
-AbsSafeBestTerminationMode(; protective_threshold = 1e3, patience_steps = 100,
+AbsSafeBestTerminationMode(; protective_threshold = nothing, patience_steps = 100,
                             patience_objective_multiplier = 3, min_max_factor = 1.3)
 ```
 """
 Base.@kwdef struct AbsSafeBestTerminationMode{T1, T2, T3} <:
                    AbstractSafeBestNonlinearTerminationMode
-    protective_threshold::T1 = 1000
+    protective_threshold::T1 = nothing
     patience_steps::Int = 100
     patience_objective_multiplier::T2 = 3
     min_max_factor::T3 = 1.3
@@ -286,7 +286,12 @@ function (cache::NonlinearTerminationModeCache)(mode::AbstractSafeNonlinearTermi
     end
 
     # Protective Break
-    if isinf(objective) || isnan(objective) ||
+    if isinf(objective) || isnan(objective)
+        cache.retcode = NonlinearSafeTerminationReturnCode.ProtectiveTermination
+        return true
+    end
+    ## By default we turn this off since it has the potential for false positives
+    if cache.mode.protective_threshold !== nothing &&
        (objective > cache.initial_objective * cache.mode.protective_threshold * length(du))
         cache.retcode = NonlinearSafeTerminationReturnCode.ProtectiveTermination
         return true
@@ -346,10 +351,6 @@ function __nonlinearsolve_is_approx(x, y, abstol, reltol)
     return isapprox(x, y; atol = abstol, rtol = reltol, norm = NONLINEARSOLVE_DEFAULT_NORM)
 end
 
-# NOTE: The `zip` based implementation ensures that code is non-allocating. However, these
-# ones will fail for non scalar-indexable types. We make sure to never default to those
-# modes in the first place, so it the user asks for them we can assume that they know
-# what they are doing. (or ideally we can extend them via extensions)
 function check_convergence(::SteadyStateDiffEqTerminationMode, duₙ::ZIPPABLE_TYPES,
         uₙ::ZIPPABLE_TYPES, uₙ₋₁::ZIPPABLE_TYPES, abstol, reltol)
     return all(((x, y),) -> (abs(x) ≤ abstol) | (abs(x) ≤ reltol * abs(y)), zip(duₙ, uₙ))
