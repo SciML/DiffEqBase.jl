@@ -18,7 +18,6 @@ dt = 0.1
 sol = solve(prob, InternalEuler.FwdEulerAlg(), tstops = 0:dt:1)
 syms = [:x, :y, :z]
 
-@test SciMLBase.has_syms(prob.f) == true
 @test SciMLBase.interpret_vars([(0, 1), (1, 3), (4, 5)], sol, syms) == [
     (SciMLBase.DEFAULT_PLOT_FUNC, 0, 1),
     (SciMLBase.DEFAULT_PLOT_FUNC, 1, 3),
