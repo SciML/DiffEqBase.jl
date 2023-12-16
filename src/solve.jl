@@ -588,7 +588,7 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothi
                 throw(NonConcreteEltypeError(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)))
             end
 
-            if !(eltype(_prob.u0) isa Number)
+            if !(eltype(_prob.u0) <: Number)
                 throw(NonNumberEltypeError(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)))
             end
         end
