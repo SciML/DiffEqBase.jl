@@ -342,13 +342,11 @@ const ZIPPABLE_TYPES = Union{Array, StaticArraysCore.StaticArray}
 function __nonlinearsolve_is_approx(x::ZIPPABLE_TYPES, y::ZIPPABLE_TYPES, abstol, reltol)
     length(x) != length(y) && return false
     # zip doesn't check lengths
-    d = NONLINEARSOLVE_DEFAULT_NORM(((xᵢ, yᵢ),) -> xᵢ - yᵢ, zip(x, y))
-    return d ≤ max(abstol,
-        reltol * max(NONLINEARSOLVE_DEFAULT_NORM(x),
-            NONLINEARSOLVE_DEFAULT_NORM(y)))
+    d = maximum(((xᵢ, yᵢ),) -> abs(xᵢ - yᵢ), zip(x, y))
+    return d ≤ max(abstol, reltol * max(maximum(abs, x), maximum(abs, y)))
 end
 function __nonlinearsolve_is_approx(x, y, abstol, reltol)
-    return isapprox(x, y; atol = abstol, rtol = reltol, norm = NONLINEARSOLVE_DEFAULT_NORM)
+    return isapprox(x, y; atol = abstol, rtol = reltol, norm = Base.Fix1(maximum, abs))
 end
 
 function check_convergence(::SteadyStateDiffEqTerminationMode, duₙ::ZIPPABLE_TYPES,
@@ -373,13 +371,13 @@ end
 
 function check_convergence(::NormTerminationMode, duₙ::ZIPPABLE_TYPES, uₙ::ZIPPABLE_TYPES,
         uₙ₋₁::ZIPPABLE_TYPES, abstol, reltol)
-    du_norm = NONLINEARSOLVE_DEFAULT_NORM(duₙ)
+    du_norm = maximum(abs, duₙ)
     return du_norm ≤ abstol ||
-           du_norm ≤ reltol * NONLINEARSOLVE_DEFAULT_NORM(((x, y),) -> x + y, zip(duₙ, uₙ))
+           du_norm ≤ reltol * maximum(((x, y),) -> abs(x + y), zip(duₙ, uₙ))
 end
 function check_convergence(::NormTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    du_norm = NONLINEARSOLVE_DEFAULT_NORM(duₙ)
-    return du_norm ≤ abstol || du_norm ≤ reltol * NONLINEARSOLVE_DEFAULT_NORM(duₙ .+ uₙ)
+    du_norm = maximum(abs, duₙ)
+    return du_norm ≤ abstol || du_norm ≤ reltol * maximum(abs, duₙ .+ uₙ)
 end
 
 function check_convergence(::RelTerminationMode, duₙ::ZIPPABLE_TYPES, uₙ::ZIPPABLE_TYPES,
@@ -393,13 +391,11 @@ end
 function check_convergence(::Union{RelNormTerminationMode, RelSafeTerminationMode,
             RelSafeBestTerminationMode}, duₙ::ZIPPABLE_TYPES, uₙ::ZIPPABLE_TYPES,
         uₙ₋₁::ZIPPABLE_TYPES, abstol, reltol)
-    return NONLINEARSOLVE_DEFAULT_NORM(duₙ) ≤
-           reltol * NONLINEARSOLVE_DEFAULT_NORM(((x, y),) -> x + y, zip(duₙ, uₙ))
+    return maximum(abs, duₙ) ≤ reltol * maximum(((x, y),) -> abs(x + y), zip(duₙ, uₙ))
 end
 function check_convergence(::Union{RelNormTerminationMode, RelSafeTerminationMode,
             RelSafeBestTerminationMode}, duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    return NONLINEARSOLVE_DEFAULT_NORM(duₙ) ≤
-           reltol * NONLINEARSOLVE_DEFAULT_NORM(duₙ .+ uₙ)
+    return maximum(abs, duₙ) ≤ reltol * maximum(abs, duₙ .+ uₙ)
 end
 
 function check_convergence(::AbsTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
@@ -407,7 +403,7 @@ function check_convergence(::AbsTerminationMode, duₙ, uₙ, uₙ₋₁, abstol
 end
 function check_convergence(::Union{AbsNormTerminationMode, AbsSafeTerminationMode,
             AbsSafeBestTerminationMode}, duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    return NONLINEARSOLVE_DEFAULT_NORM(duₙ) ≤ abstol
+    return maximum(abs, duₙ) ≤ abstol
 end
 
 # NOTE: Deprecate the following API eventually. This API leads to quite a bit of type
