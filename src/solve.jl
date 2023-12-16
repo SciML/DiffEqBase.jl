@@ -341,6 +341,45 @@ function Base.showerror(io::IO, e::NonConcreteEltypeError)
     println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
+const NONNUMBER_ELTYPE_MESSAGE = """
+                                   Non-Number element type inside of an `Array` detected.
+                                   Arrays with non-number element types, such as
+                                   `Array{Array{Float64}}`, are not supported by the
+                                   solvers.
+
+                                   If you are trying to use an array of arrays structure,
+                                   look at the tools in RecursiveArrayTools.jl. For example:
+
+                                   If this was a mistake, promote the element types to be
+                                   all the same. If this was intentional, for example,
+                                   using Unitful.jl with different unit values, then use
+                                   an array type which has fast broadcast support for
+                                   heterogeneous values such as the ArrayPartition
+                                   from RecursiveArrayTools.jl. For example:
+
+                                   ```julia
+                                   using RecursiveArrayTools
+                                   u0 = ArrayPartition([1.0,2.0],[3.0,4.0])
+                                   u0 = VectorOfArray([1.0,2.0],[3.0,4.0])
+                                   ```
+
+                                   are both initial conditions which would be compatible with
+                                   the solvers. Or use ComponentArrays.jl for more complex
+                                   nested structures.
+
+                                   Element type:
+                                   """
+
+struct NonNumberEltypeError <: Exception
+    eltype::Any
+end
+
+function Base.showerror(io::IO, e::NonNumberEltypeError)
+    print(io, NONNUMBER_ELTYPE_MESSAGE)
+    print(io, e.eltype)
+    println(io, TruncatedStacktraces.VERBOSE_MSG)
+end
+
 const GENERIC_NUMBER_TYPE_ERROR_MESSAGE = """
                                           Non-standard number type (i.e. not Float32, Float64,
                                           ComplexF32, or ComplexF64) detected as the element type
@@ -544,9 +583,14 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothi
 
     checkkwargs(kwargshandle; kwargs...)
     if isdefined(_prob, :u0)
-        if _prob.u0 isa Array &&
-           !isconcretetype(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0))
-            throw(NonConcreteEltypeError(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)))
+        if _prob.u0 isa Array
+            if !isconcretetype(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0))
+                throw(NonConcreteEltypeError(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)))
+            end
+
+            if !(eltype(_prob.u0) isa Number)
+                throw(NonNumberEltypeError(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)))
+            end
         end
 
         if _prob.u0 === nothing
