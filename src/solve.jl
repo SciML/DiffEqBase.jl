@@ -776,10 +776,14 @@ section at the end of this page for some example usage.
   settings of `dense`, `saveat` and `save_everystep` and is used by some applications
   to manually turn off saving temporarily. Everyday use of the solvers should leave
   this unchanged. Defaults to `true`.
-* `save_start`: Denotes whether the initial condition should be included in
-  the solution type as the first timepoint. Defaults to `true`.
-* `save_end`: Denotes whether the final timepoint is forced to be saved,
-  regardless of the other saving settings. Defaults to `true`.
+* `save_start`: Denotes whether the initial condition should be included in the solution
+  type as the first timepoint. This setting overrides `saveat` when set to `false`.
+  Defaults to
+  `save_everystep || isempty(saveat) || saveat isa Number || prob.tspan[1] in saveat`.
+* `save_end`: Denotes whether the final condition should be included in the solution type
+  as the final timepoint. This setting is overridden by other saving settings when set to
+  `false`. Defaults to
+  `save_everystep || isempty(saveat) || saveat isa Number || prob.tspan[2] in saveat`.
 * `initialize_save`: Denotes whether to save after the callback initialization
   phase (when `u_modified=true`). Defaults to `true`.
 
