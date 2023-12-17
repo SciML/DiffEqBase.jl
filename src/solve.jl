@@ -588,8 +588,9 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothi
                 throw(NonConcreteEltypeError(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)))
             end
 
-            if !(eltype(_prob.u0) <: Number)
-                throw(NonNumberEltypeError(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)))
+            if !(eltype(_prob.u0) <: Number) && !(eltype(_prob.u0) <: Enum)
+                # Allow Enums for FunctionMaps, make into a trait in the future
+                throw(NonNumberEltypeError(eltype(_prob.u0)))
             end
         end
 
