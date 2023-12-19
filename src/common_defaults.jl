@@ -48,7 +48,7 @@ end
 end
 
 @inline function ODE_DEFAULT_NORM(f::F,
-        u::Union{Array{T}, Iterators.Zip{<:Tuple{Vararg{<:Array{T}}}}},
+        u::Union{Array{T}, Iterators.Zip{<:Tuple{Vararg{Array{T}}}}},
         t) where {F, T <: Union{AbstractFloat, Complex}}
     x = zero(T)
     @inbounds @fastmath for ui in u
@@ -124,7 +124,7 @@ end
 end
 
 @inline function NONLINEARSOLVE_DEFAULT_NORM(f::F,
-        u::Union{Array{T}, Iterators.Zip{<:Tuple{Vararg{<:Array{T}}}}}) where {F, T <: Union{AbstractFloat, Complex}}
+        u::Union{Array{T}, Iterators.Zip{<:Tuple{Vararg{Array{T}}}}}) where {F, T <: Union{AbstractFloat, Complex}}
     x = zero(T)
     @inbounds @fastmath for ui in u
         x += abs2(f(ui))
