@@ -235,10 +235,9 @@ function SciMLBase.init(du::Union{AbstractArray{T}, T}, u::Union{AbstractArray{T
          (ArrayInterface.can_setindex(u) ? copy(u) : u) : nothing
     if mode isa AbstractSafeNonlinearTerminationMode
         if mode isa AbsSafeTerminationMode || mode isa AbsSafeBestTerminationMode
-            initial_objective = NONLINEARSOLVE_DEFAULT_NORM(du)
+            initial_objective = maximum(abs, du)
         else
-            initial_objective = NONLINEARSOLVE_DEFAULT_NORM(du) /
-                                (NONLINEARSOLVE_DEFAULT_NORM(du .+ u) + eps(TT))
+            initial_objective = maximum(abs, du) / (maximum(abs, du .+ u) + eps(TT))
         end
         objectives_trace = Vector{TT}(undef, mode.patience_steps)
         best_value = initial_objective
@@ -277,11 +276,10 @@ end
 function (cache::NonlinearTerminationModeCache)(mode::AbstractSafeNonlinearTerminationMode,
         du, u, uprev, args...)
     if mode isa AbsSafeTerminationMode || mode isa AbsSafeBestTerminationMode
-        objective = NONLINEARSOLVE_DEFAULT_NORM(du)
+        objective = maximum(abs, du)
         criteria = cache.abstol
     else
-        objective = NONLINEARSOLVE_DEFAULT_NORM(du) /
-                    (NONLINEARSOLVE_DEFAULT_NORM(du .+ u) + eps(cache.abstol))
+        objective = maximum(abs, du) / (maximum(abs, du .+ u) + eps(cache.abstol))
         criteria = cache.reltol
     end
 
