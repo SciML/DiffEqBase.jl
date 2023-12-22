@@ -262,15 +262,17 @@ totallength(x::Number) = 1
 function totallength(x::ForwardDiff.Dual)
     totallength(ForwardDiff.value(x)) + sum(totallength, ForwardDiff.partials(x))
 end
-totallength(x::AbstractArray) = sum(totallength, x)
+totallength(x::AbstractArray) = sum(totallength, x; init = 0)
 
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::Any) = sqrt(sse(u))
-@inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual}, t::Any)
-    sqrt(sum(sse, u) / totallength(u))
+@inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{Tag, T}},
+        t::Any) where {Tag, T}
+    sqrt(sum(sse, u; init = T(0)) / totallength(u))
 end
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::ForwardDiff.Dual) = sqrt(sse(u))
-@inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual}, ::ForwardDiff.Dual)
-    sqrt(sum(sse, u) / totallength(u))
+@inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{Tag, T}},
+        ::ForwardDiff.Dual) where {Tag, T}
+    sqrt(sum(sse, u; init = T(0)) / totallength(u))
 end
 
 if !hasmethod(nextfloat, Tuple{ForwardDiff.Dual})
