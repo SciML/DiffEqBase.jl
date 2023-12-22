@@ -262,15 +262,16 @@ totallength(x::Number) = 1
 function totallength(x::ForwardDiff.Dual)
     totallength(ForwardDiff.value(x)) + sum(totallength, ForwardDiff.partials(x))
 end
-totallength(x::AbstractArray) = sum(totallength, x)
+# sum breaks type inference
+totallength(x::AbstractArray) = mapreduce(totallength, +, x)
 
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::Any) = sqrt(sse(u))
 @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual}, t::Any)
-    sqrt(sum(sse, u) / totallength(u))
+    sqrt(mapreduce(sse, +, u) / totallength(u))
 end
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::ForwardDiff.Dual) = sqrt(sse(u))
 @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual}, ::ForwardDiff.Dual)
-    sqrt(sum(sse, u) / totallength(u))
+    sqrt(mapreduce(sse, +, u) / totallength(u))
 end
 
 if !hasmethod(nextfloat, Tuple{ForwardDiff.Dual})
