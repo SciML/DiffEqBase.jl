@@ -588,8 +588,10 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothi
                 throw(NonConcreteEltypeError(RecursiveArrayTools.recursive_unitless_eltype(_prob.u0)))
             end
 
-            if !(eltype(_prob.u0) <: Number) && !(eltype(_prob.u0) <: Enum)
+            if !(eltype(_prob.u0) <: Number) && !(eltype(_prob.u0) <: Enum) &&
+                !(_prob.u0 isa AbstractVector{<:AbstractArray} && _prob isa BVProblem)
                 # Allow Enums for FunctionMaps, make into a trait in the future
+                # BVPs use Vector of Arrays for initial guesses
                 throw(NonNumberEltypeError(eltype(_prob.u0)))
             end
         end
