@@ -262,17 +262,17 @@ totallength(x::Number) = 1
 function totallength(x::ForwardDiff.Dual)
     totallength(ForwardDiff.value(x)) + sum(totallength, ForwardDiff.partials(x))
 end
-totallength(x::AbstractArray) = sum(totallength, x; init = 0)
+totallength(x::AbstractArray) = __sum(totallength, x; init = 0)
 
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::Any) = sqrt(sse(u))
 @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{Tag, T}},
         t::Any) where {Tag, T}
-    sqrt(sum(sse, u; init = T(0)) / totallength(u))
+    sqrt(__sum(sse, u; init = T(0)) / totallength(u))
 end
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::ForwardDiff.Dual) = sqrt(sse(u))
 @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{Tag, T}},
         ::ForwardDiff.Dual) where {Tag, T}
-    sqrt(sum(sse, u; init = T(0)) / totallength(u))
+    sqrt(__sum(sse, u; init = T(0)) / totallength(u))
 end
 
 if !hasmethod(nextfloat, Tuple{ForwardDiff.Dual})
@@ -286,3 +286,9 @@ if !hasmethod(nextfloat, Tuple{ForwardDiff.Dual})
 end
 
 # bisection(f, tup::Tuple{T,T}, t_forward::Bool) where {T<:ForwardDiff.Dual} = find_zero(f, tup, Roots.AlefeldPotraShi())
+
+# Static Arrays don't support the `init` keyword argument for `sum`
+@inline __sum(f::F, args...; init, kwargs...) where {F} = sum(f, args...; init, kwargs...)
+@inline function __sum(f::F, a::StaticArraysCore.StaticArray...; init, kwargs...) where {F}
+    return mapreduce(f, +, a; init, kwargs...)
+end
