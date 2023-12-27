@@ -289,6 +289,6 @@ end
 
 # Static Arrays don't support the `init` keyword argument for `sum`
 @inline __sum(f::F, args...; init, kwargs...) where {F} = sum(f, args...; init, kwargs...)
-@inline function __sum(f::F, a::StaticArraysCore.StaticArray...; init, kwargs...) where {F}
+@inline function __sum(f::F, a::StaticArraysCore.StaticArray; init, kwargs...) where {F}
     return mapreduce(f, +, a; init, kwargs...)
 end
