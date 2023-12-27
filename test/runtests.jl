@@ -19,140 +19,59 @@ end
 
 @time begin
     if GROUP == "All" || GROUP == "Core"
-        @time @safetestset "Fast Power" begin
-            include("fastpow.jl")
-        end
-        @time @safetestset "Callbacks" begin
-            include("callbacks.jl")
-        end
-        @time @safetestset "Internal Rootfinders" begin
-            include("internal_rootfinder.jl")
-        end
-        @time @safetestset "Plot Vars" begin
-            include("plot_vars.jl")
-        end
-        @time @safetestset "Problem Creation Tests" begin
-            include("problem_creation_tests.jl")
-        end
-        @time @safetestset "Affine differential equation operators" begin
-            include("affine_operators_tests.jl")
-        end
-        @time @safetestset "Export tests" begin
-            include("export_tests.jl")
-        end
-        @time @safetestset "Remake tests" begin
-            include("remake_tests.jl")
-        end
-        @time @safetestset "High Level solve Interface" begin
-            include("high_level_solve.jl")
-        end
-        @time @safetestset "DiffEqFunction tests" begin
-            include("diffeqfunction_tests.jl")
-        end
-        @time @safetestset "Internal Euler" begin
-            include("internal_euler_test.jl")
-        end
-        @time @safetestset "Basic Operators Interface" begin
-            include("basic_operators_interface.jl")
-        end
-        @time @safetestset "Norm" begin
-            include("norm.jl")
-        end
-        @time @safetestset "Utils" begin
-            include("utils.jl")
-        end
-        @time @safetestset "ForwardDiff Dual Detection" begin
-            include("forwarddiff_dual_detection.jl")
-        end
-        @time @safetestset "ODE default norm" begin
-            include("ode_default_norm.jl")
-        end
-        @time @safetestset "ODE default unstable check" begin
-            include("ode_default_unstable_check.jl")
-        end
-        @time @safetestset "Termination Conditions" begin
-            include("termination_conditions.jl")
-        end
+        @time @safetestset "Fast Power" include("fastpow.jl")
+        @time @safetestset "Callbacks" include("callbacks.jl")
+        @time @safetestset "Internal Rootfinders" include("internal_rootfinder.jl")
+        @time @safetestset "Plot Vars" include("plot_vars.jl")
+        @time @safetestset "Problem Creation Tests" include("problem_creation_tests.jl")
+        @time @safetestset "Affine differential equation operators" include("affine_operators_tests.jl")
+        @time @safetestset "Export tests" include("export_tests.jl")
+        @time @safetestset "Remake tests" include("remake_tests.jl")
+        @time @safetestset "High Level solve Interface" include("high_level_solve.jl")
+        @time @safetestset "DiffEqFunction tests" include("diffeqfunction_tests.jl")
+        @time @safetestset "Internal Euler" include("internal_euler_test.jl")
+        @time @safetestset "Basic Operators Interface" include("basic_operators_interface.jl")
+        @time @safetestset "Norm" include("norm.jl")
+        @time @safetestset "Utils" include("utils.jl")
+        @time @safetestset "ForwardDiff Dual Detection" include("forwarddiff_dual_detection.jl")
+        @time @safetestset "ODE default norm" include("ode_default_norm.jl")
+        @time @safetestset "ODE default unstable check" include("ode_default_unstable_check.jl")
+        @time @safetestset "Termination Conditions" include("termination_conditions.jl")
     end
 
     if !is_APPVEYOR && GROUP == "Downstream"
         activate_downstream_env()
-        @time @safetestset "Kwarg Warnings" begin
-            include("downstream/kwarg_warn.jl")
-        end
-        @time @safetestset "Solve Error Handling" begin
-            include("downstream/solve_error_handling.jl")
-        end
-        @time @safetestset "Null DE Handling" begin
-            include("downstream/null_de.jl")
-        end
-        @time @safetestset "Unitful" begin
-            include("downstream/unitful.jl")
-        end
-        @time @safetestset "Null Parameters" begin
-            include("downstream/null_params_test.jl")
-        end
-        @time @safetestset "Ensemble Simulations" begin
-            include("downstream/ensemble.jl")
-        end
-        @time @safetestset "Ensemble Analysis" begin
-            include("downstream/ensemble_analysis.jl")
-        end
-        @time @safetestset "Ensemble Thread Safety" begin
-            include("downstream/ensemble_thread_safety.jl")
-        end
-        @time @safetestset "Inference Tests" begin
-            include("downstream/inference.jl")
-        end
-        @time @safetestset "Table Inference Tests" begin
-            include("downstream/tables.jl")
-        end
-        VERSION >= v"1.7" && @time @safetestset "Default linsolve with structure" begin
-            include("downstream/default_linsolve_structure.jl")
-        end
-        @time @safetestset "Callback Merging Tests" begin
-            include("downstream/callback_merging.jl")
-        end
-        @time @safetestset "LabelledArrays Tests" begin
-            include("downstream/labelledarrays.jl")
-        end
+        @time @safetestset "Kwarg Warnings" include("downstream/kwarg_warn.jl")
+        @time @safetestset "Solve Error Handling" include("downstream/solve_error_handling.jl")
+        @time @safetestset "Null DE Handling" include("downstream/null_de.jl")
+        @time @safetestset "StaticArrays + AD" include("downstream/static_arrays_ad.jl")
+        @time @safetestset "Unitful" include("downstream/unitful.jl")
+        @time @safetestset "Null Parameters" include("downstream/null_params_test.jl")
+        @time @safetestset "Ensemble Simulations" include("downstream/ensemble.jl")
+        @time @safetestset "Ensemble Analysis" include("downstream/ensemble_analysis.jl")
+        @time @safetestset "Ensemble Thread Safety" include("downstream/ensemble_thread_safety.jl")
+        @time @safetestset "Inference Tests" include("downstream/inference.jl")
+        @time @safetestset "Table Inference Tests" include("downstream/tables.jl")
+        @time @safetestset "Default linsolve with structure" include("downstream/default_linsolve_structure.jl")
+        @time @safetestset "Callback Merging Tests" include("downstream/callback_merging.jl")
+        @time @safetestset "LabelledArrays Tests" include("downstream/labelledarrays.jl")
     end
 
     if !is_APPVEYOR && GROUP == "Downstream2"
         activate_downstream_env()
-        @time @safetestset "Prob Kwargs" begin
-            include("downstream/prob_kwargs.jl")
-        end
-        @time @safetestset "Unwrapping" begin
-            include("downstream/unwrapping.jl")
-        end
-        @time @safetestset "Callback BigFloats" begin
-            include("downstream/bigfloat_events.jl")
-        end
-        @time @safetestset "DE stats" begin
-            include("downstream/stats_tests.jl")
-        end
-        @time @safetestset "Ensemble AD Tests" begin
-            include("downstream/ensemble_ad.jl")
-        end
-        @time @safetestset "Community Callback Tests" begin
-            include("downstream/community_callback_tests.jl")
-        end
-        @time @testset "Distributed Ensemble Tests" begin
-            include("downstream/distributed_ensemble.jl")
-        end
-        @time @safetestset "AD via ode with complex numbers" begin
-            include("downstream/complex_number_ad.jl")
-        end
+        @time @safetestset "Prob Kwargs" include("downstream/prob_kwargs.jl")
+        @time @safetestset "Unwrapping" include("downstream/unwrapping.jl")
+        @time @safetestset "Callback BigFloats" include("downstream/bigfloat_events.jl")
+        @time @safetestset "DE stats" include("downstream/stats_tests.jl")
+        @time @safetestset "Ensemble AD Tests" include("downstream/ensemble_ad.jl")
+        @time @safetestset "Community Callback Tests" include("downstream/community_callback_tests.jl")
+        @time @safetestset "AD via ode with complex numbers" include("downstream/complex_number_ad.jl")
+        @time @testset "Distributed Ensemble Tests" include("downstream/distributed_ensemble.jl")
     end
 
     if !is_APPVEYOR && GROUP == "GPU"
         activate_gpu_env()
-        @time @safetestset "Simple GPU" begin
-            include("gpu/simple_gpu.jl")
-        end
-        @time @safetestset "GPU Termination Conditions" begin
-            include("gpu/termination_conditions.jl")
-        end
+        @time @safetestset "Simple GPU" include("gpu/simple_gpu.jl")
+        @time @safetestset "GPU Termination Conditions" include("gpu/termination_conditions.jl")
     end
 end
