@@ -21,6 +21,9 @@ end
 DiffEqBase.value(x::ReverseDiff.TrackedReal) = x.value
 DiffEqBase.value(x::ReverseDiff.TrackedArray) = x.value
 
+# Force TrackedArray from TrackedReal when reshaping W\b
+DiffEqBase._reshape(v::AbstractVector{<:ReverseDiff.TrackedReal}, siz) = reduce(vcat, v)
+
 DiffEqBase.promote_u0(u0::ReverseDiff.TrackedArray, p::ReverseDiff.TrackedArray, t0) = u0
 function DiffEqBase.promote_u0(u0::AbstractArray{<:ReverseDiff.TrackedReal},
     p::ReverseDiff.TrackedArray, t0)
