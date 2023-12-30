@@ -81,12 +81,11 @@ p_possibilities17 = [
     MyStruct(2.0, ForwardDiff.Dual(2.0)), [MyStruct(2.0, ForwardDiff.Dual(2.0))],
     [MyStruct(2.0, [2.0, ForwardDiff.Dual(2.0)])],
     [MyStruct(2.0, (2.0, ForwardDiff.Dual(2.0)))],
-    ((;), ForwardDiff.Dual(2.0)), MyStruct3(ForwardDiff.Dual(2.0)),
     (Mod, ForwardDiff.Dual(2.0)), (() -> 2.0, ForwardDiff.Dual(2.0)),
     (Base.pointer([2.0]), ForwardDiff.Dual(2.0)),
+    Returns((a = 2, b = 1.3, c = ForwardDiff.Dual(2.0f0))),
+    ((;), ForwardDiff.Dual(2.0)),
 ]
-VERSION >= v"1.7" &&
-    push!(p_possibilities17, Returns((a = 2, b = 1.3, c = ForwardDiff.Dual(2.0f0))))
 
 for p in p_possibilities17
     @show p
@@ -101,12 +100,12 @@ for p in p_possibilities17
           AbstractArray{<:Complex{<:ForwardDiff.Dual}}
 
     if VERSION >= v"1.7"
-        # v1.6 does not infer `getproperty` mapping
-        @inferred DiffEqBase.anyeltypedual(p)
-        ci = InteractiveUtils.@code_typed DiffEqBase.anyeltypedual(p)
-        @show filter(!=(Expr(:code_coverage_effect)), ci.first.code)
-        #@test count(x -> (x != (Expr(:code_coverage_effect))) &&
-        #                (x != GlobalRef(DiffEqBase, :Any)), ci.first.code) == 1
+    # v1.6 does not infer `getproperty` mapping
+    @inferred DiffEqBase.anyeltypedual(p)
+    ci = InteractiveUtils.@code_typed DiffEqBase.anyeltypedual(p)
+    @show filter(!=(Expr(:code_coverage_effect)), ci.first.code)
+    #@test count(x -> (x != (Expr(:code_coverage_effect))) &&
+    #                (x != GlobalRef(DiffEqBase, :Any)), ci.first.code) == 1
     end
 end
 
@@ -262,5 +261,4 @@ for p in p_possibilities_configs_not_inferred
 end
 
 # use `getfield` on `Pairs`, see https://github.com/JuliaLang/julia/pull/39448
-VERSION >= v"1.7" &&
-    @test_nowarn DiffEqBase.DualEltypeChecker(pairs((;)), 0)(Val(:data))
+@test_nowarn DiffEqBase.DualEltypeChecker(pairs((;)), 0)(Val(:data))
