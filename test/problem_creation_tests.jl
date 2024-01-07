@@ -20,7 +20,7 @@ function f_quad(du, u, p)
     du[2] = 0.2u[1] - p[2] * u[2]
 end
 p = (0.0, 1.0)
-prob = QuadratureProblem(f_quad, zeros(2), ones(2), p)
+prob = IntegralProblem(f_quad, (zeros(2), ones(2)), p)
 
 function f(du, u, p, t)
     du[1] = 0.2u[1]
