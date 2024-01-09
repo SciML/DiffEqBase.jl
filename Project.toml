@@ -1,7 +1,7 @@
 name = "DiffEqBase"
 uuid = "2b5f629d-d688-5b77-993f-72d75c75574e"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "6.145.6"
+version = "6.146.0"
 
 [deps]
 ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
@@ -79,7 +79,7 @@ PrecompileTools = "1"
 Printf = "1.9"
 RecursiveArrayTools = "2, 3"
 Reexport = "1.0"
-SciMLBase = "2.12.0"
+SciMLBase = "2.18.0"
 SciMLOperators = "0.2, 0.3"
 Setfield = "0.8, 1"
 SparseArrays = "1.9"
