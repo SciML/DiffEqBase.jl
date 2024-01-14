@@ -119,7 +119,7 @@ for the last `patience_steps` + terminate if the solution blows up (diverges).
 
 ```julia
 RelSafeTerminationMode(; protective_threshold = nothing, patience_steps = 100,
-    patience_objective_multiplier = 3, min_max_factor = 1.3, max_stalled_steps = 20)
+    patience_objective_multiplier = 3, min_max_factor = 1.3, max_stalled_steps = nothing)
 ```
 """
 Base.@kwdef struct RelSafeTerminationMode{T1, T2, T3, T4 <: Union{Nothing, Int}} <:
@@ -141,7 +141,7 @@ for the last `patience_steps` + terminate if the solution blows up (diverges).
 
 ```julia
 AbsSafeTerminationMode(; protective_threshold = nothing, patience_steps = 100,
-    patience_objective_multiplier = 3, min_max_factor = 1.3, max_stalled_steps = 20)
+    patience_objective_multiplier = 3, min_max_factor = 1.3, max_stalled_steps = nothing)
 ```
 """
 Base.@kwdef struct AbsSafeTerminationMode{T1, T2, T3, T4 <: Union{Nothing, Int}} <:
@@ -162,7 +162,7 @@ Essentially [`RelSafeTerminationMode`](@ref), but caches the best solution found
 
 ```julia
 RelSafeBestTerminationMode(; protective_threshold = nothing, patience_steps = 100,
-    patience_objective_multiplier = 3, min_max_factor = 1.3, max_stalled_steps = 20)
+    patience_objective_multiplier = 3, min_max_factor = 1.3, max_stalled_steps = nothing)
 ```
 """
 Base.@kwdef struct RelSafeBestTerminationMode{T1, T2, T3, T4 <: Union{Nothing, Int}} <:
@@ -183,7 +183,7 @@ Essentially [`AbsSafeTerminationMode`](@ref), but caches the best solution found
 
 ```julia
 AbsSafeBestTerminationMode(; protective_threshold = nothing, patience_steps = 100,
-    patience_objective_multiplier = 3, min_max_factor = 1.3, max_stalled_steps = 20)
+    patience_objective_multiplier = 3, min_max_factor = 1.3, max_stalled_steps = nothing)
 ```
 """
 Base.@kwdef struct AbsSafeBestTerminationMode{T1, T2, T3, T4 <: Union{Nothing, Int}} <:
