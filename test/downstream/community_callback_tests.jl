@@ -219,7 +219,8 @@ soln = solve(prob, Tsit5())
 @test soln.t[end] ≈ 4.712347213360699
 
 odefun = ODEFunction((u, p, t) -> [u[2], u[2] - p]; mass_matrix = [1 0; 0 0])
-prob = ODEProblem(odefun, [0.0, -1.0], (0., 1), 1, callback=PresetTimeCallback(.5, integ->(integ.p=-integ.p;)))
+callback = PresetTimeCallback(.5, integ->(integ.p=-integ.p;))
+prob = ODEProblem(odefun, [0.0, -1.0], (0., 1), 1; callback)
 #test that reinit happens for both FSAL and non FSAL integrators
 @testset "dae re-init" for alg in [FBDF(), Rodas5P()]
     sol = solve(prob, alg)
@@ -227,3 +228,12 @@ prob = ODEProblem(odefun, [0.0, -1.0], (0., 1), 1, callback=PresetTimeCallback(.
     first_t = findfirst(isequal(0.5), sol.t)
     @test sol.u[first_t][2] == -sol.u[first_t+1][2]
 end
+
+
+daefun = DAEFunction((du, u, p, t) -> [du[1] - u[2], u[2] - p])
+prob = DAEProblem(daefun, [0.0, 0.0], [0.0,-1.0], (0., 1), 1;
+    differential_vars = [true, false], callback)
+sol = solve(prob, DFBDF())
+# test that the callback flipping p caused u[2] to get flipped.
+first_t = findfirst(isequal(0.5), sol.t)
+@test sol.u[first_t][2] == -sol.u[first_t+1][2]
