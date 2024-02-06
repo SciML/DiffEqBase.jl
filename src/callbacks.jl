@@ -603,6 +603,9 @@ end
         end
         integrator.u_modified = true
         callback.affect!(integrator)
+        if integrator.sol.prob isa DAEProblem || !(integrator.f.mass_matrix isa UniformScaling)
+            DiffEqBase.initialize_dae!(integrator)
+        end
         @inbounds if callback.save_positions[2]
             savevalues!(integrator, true)
             saved_in_cb = true
