@@ -63,7 +63,7 @@ end
 function (dec::DualEltypeChecker)(::Val{Y}) where {Y}
     isdefined(dec.x, Y) || return Any
     dec.counter >= DUALCHECK_RECURSION_MAX && return Any
-    anyeltypedual(getproperty(dec.x, Y), dec.counter)
+    anyeltypedual(getfield(dec.x, Y), dec.counter)
 end
 
 # use `getfield` on `Pairs`, see https://github.com/JuliaLang/julia/pull/39448
@@ -103,7 +103,7 @@ function anyeltypedual(x, counter = 0)
         Any
     elseif counter < DUALCHECK_RECURSION_MAX
         diffeqmapreduce(DualEltypeChecker(x, counter), promote_dual,
-            map(Val, fieldnames(x)))
+            map(Val, fieldnames(typeof(x))))
     else
         Any
     end
