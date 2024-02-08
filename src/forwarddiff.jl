@@ -103,7 +103,7 @@ function anyeltypedual(x, counter = 0)
         Any
     elseif counter < DUALCHECK_RECURSION_MAX
         diffeqmapreduce(DualEltypeChecker(x, counter), promote_dual,
-            map(Val, propertynames(x)))
+            map(Val, fieldnames(x)))
     else
         Any
     end
