@@ -52,7 +52,7 @@ end
     reduce_tup(op, map(f, x))
 end
 # For other container types, we probably just want to call `mapreduce`
-@inline diffeqmapreduce(f::F, op::OP, x) where {F, OP} = mapreduce(f, op, x)
+@inline diffeqmapreduce(f::F, op::OP, x) where {F, OP} = mapreduce(f, op, x, init=Any)
 
 struct DualEltypeChecker{T, T2}
     x::T
@@ -61,11 +61,12 @@ end
 
 getval(::Val{I}) where I = I
 getval(::Type{Val{I}}) where I = I
+getval(I::Int) = I
 
 function (dec::DualEltypeChecker)(::Val{Y}) where {Y}
     isdefined(dec.x, Y) || return Any
     getval(dec.counter) >= DUALCHECK_RECURSION_MAX && return Any
-    anyeltypedual(getfield(dec.x, Y), dec.counter)
+    anyeltypedual(getfield(dec.x, Y), Val{getval(dec.counter)})
 end
 
 # Untyped dispatch: catch composite types, check all of their fields
@@ -92,12 +93,20 @@ themselves, for an example of how this can be confusing to a user see
 https://discourse.julialang.org/t/typeerror-in-julia-turing-when-sampling-for-a-forced-differential-equation/82937
 """
 @generated function anyeltypedual(x, ::Type{Val{counter}} = Val{0}) where counter
-    if fieldnames(x) === ()
+    x = x.name === Core.Compiler.typename(Type) ? x.parameters[1] : x
+    if x <: ForwardDiff.Dual
+        :($x)
+    elseif fieldnames(x) === ()
         :(Any)
     elseif counter < DUALCHECK_RECURSION_MAX
-        T  = diffeqmapreduce(DualEltypeChecker(x, Val{counter+1}), promote_dual,
-            map(Val, fieldnames(typeof(x))))
-        :($T)
+        T  = diffeqmapreduce(x->anyeltypedual(x, Val{counter+1}), promote_dual,
+            x.parameters)
+        if T === Any || isconcretetype(T)
+            :($T)
+        else
+            :(diffeqmapreduce(DualEltypeChecker($x, $counter+1), promote_dual,
+            map(Val, fieldnames($(typeof(x))))))
+        end
     else
         :(Any)
     end
@@ -107,7 +116,7 @@ end
 anyeltypedual(x::Union{ForwardDiff.AbstractConfig, Module}, ::Type{Val{counter}} = Val{0}) where {counter} = Any
 anyeltypedual(x::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T <: ForwardDiff.AbstractConfig} = Any
 anyeltypedual(x::SciMLBase.RecipesBase.AbstractPlot, ::Type{Val{counter}} = Val{0}) where {counter} = Any
-anyeltypedual(x::Returns, ::Type{Val{counter}} = Val{0}) where {counter} = anyeltypedual(x.value, counter)
+anyeltypedual(x::Returns, ::Type{Val{counter}} = Val{0}) where {counter} = anyeltypedual(x.value, Val{counter})
 
 if isdefined(PreallocationTools, :FixedSizeDiffCache)
     anyeltypedual(x::PreallocationTools.FixedSizeDiffCache, ::Type{Val{counter}} = Val{0}) where {counter} = Any
