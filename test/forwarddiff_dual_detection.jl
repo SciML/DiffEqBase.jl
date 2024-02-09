@@ -85,8 +85,7 @@ p_possibilities17 = [
     (Mod, ForwardDiff.Dual(2.0)), (() -> 2.0, ForwardDiff.Dual(2.0)),
     (Base.pointer([2.0]), ForwardDiff.Dual(2.0)),
 ]
-VERSION >= v"1.7" &&
-    push!(p_possibilities17, Returns((a = 2, b = 1.3, c = ForwardDiff.Dual(2.0f0))))
+push!(p_possibilities17, Returns((a = 2, b = 1.3, c = ForwardDiff.Dual(2.0f0))))
 
 for p in p_possibilities17
     @show p
@@ -262,5 +261,35 @@ for p in p_possibilities_configs_not_inferred
 end
 
 # use `getfield` on `Pairs`, see https://github.com/JuliaLang/julia/pull/39448
-VERSION >= v"1.7" &&
-    @test_nowarn DiffEqBase.DualEltypeChecker(pairs((;)), 0)(Val(:data))
+@test_nowarn DiffEqBase.DualEltypeChecker(pairs((;)), 0)(Val(:data))
+
+# https://discourse.julialang.org/t/type-instability-with-differentialequations-jl-when-using-nested-structs/109764/5
+struct Fit
+    m₁::Float64
+    c₁::Float64
+    m₂::Float64
+    c₂::Float64
+
+    function Fit()
+        m₁ = 1.595
+        c₁ = 3.438
+        m₂ = 1.075
+        c₂ = 3.484
+
+        new(m₁, c₁, m₂, c₂)
+    end
+end
+
+struct EOS
+    fit::Fit
+
+    function EOS()
+        fit = Fit()
+
+        new(fit)
+    end
+end
+
+p = EOS()
+@test !(DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual)
+@inferred DiffEqBase.anyeltypedual(p)
