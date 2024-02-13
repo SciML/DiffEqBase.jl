@@ -23,3 +23,14 @@ for i in 1:2
     sol = solve(prob, Tsit5())
     object.trajectory = sol
 end
+
+# https://github.com/SciML/DiffEqBase.jl/issues/1003
+
+f(u,p,t) = 1.01*u
+u0=1/2
+tspan = (0.0,1.0)
+prob = ODEProblem(f,u0,tspan)
+sol = solve(prob,Tsit5(),reltol=1e-8,abstol=1e-8)
+
+prob2 = ODEProblem((du,u,p,t) -> du[1]=1, [0.0], (0,10), (;x=sol))
+solve(prob2, Tsit5())
