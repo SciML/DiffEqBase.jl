@@ -145,6 +145,11 @@ anyeltypedual(::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T
 
 # Any in this context just means not Dual
 anyeltypedual(x::SciMLBase.NullParameters, ::Type{Val{counter}} = Val{0}) where {counter} = Any
+
+function anyeltypedual(sol::RecursiveArrayTools.AbstractDiffEqArray, counter = 0)
+    diffeqmapreduce(anyeltypedual, promote_dual, (sol.u, sol.t))
+end
+
 anyeltypedual(x::Number, ::Type{Val{counter}} = Val{0}) where {counter} = anyeltypedual(typeof(x))
 anyeltypedual(x::Union{String, Symbol}, ::Type{Val{counter}} = Val{0}) where {counter} = typeof(x)
 function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
