@@ -259,7 +259,8 @@ function SciMLBase.init(du::Union{AbstractArray{T}, T}, u::Union{AbstractArray{T
                           Vector{TT}(undef, mode.max_stalled_steps)
         best_value = initial_objective
         max_stalled_steps = mode.max_stalled_steps
-        if ArrayInterface.can_setindex(u_) && !(u_ isa Number) && step_norm_trace !== nothing
+        if ArrayInterface.can_setindex(u_) && !(u_ isa Number) &&
+           step_norm_trace !== nothing
             u_diff_cache = similar(u_)
         else
             u_diff_cache = u_
@@ -337,7 +338,8 @@ function (cache::NonlinearTerminationModeCache)(mode::AbstractNonlinearTerminati
     return check_convergence(mode, du, u, uprev, cache.abstol, cache.reltol)
 end
 
-function (cache::NonlinearTerminationModeCache{uType, TT, dep_retcode})(mode::AbstractSafeNonlinearTerminationMode,
+function (cache::NonlinearTerminationModeCache{uType, TT, dep_retcode})(
+        mode::AbstractSafeNonlinearTerminationMode,
         du, u, uprev, args...) where {uType, TT, dep_retcode}
     if mode isa AbsSafeTerminationMode || mode isa AbsSafeBestTerminationMode
         objective = maximum(abs, du)
@@ -483,21 +485,27 @@ function check_convergence(::RelTerminationMode, duₙ, uₙ, uₙ₋₁, abstol
     return all(@. abs(duₙ) ≤ reltol * abs(uₙ))
 end
 
-function check_convergence(::Union{RelNormTerminationMode, RelSafeTerminationMode,
-            RelSafeBestTerminationMode}, duₙ::ZIPPABLE_TYPES, uₙ::ZIPPABLE_TYPES,
+function check_convergence(
+        ::Union{RelNormTerminationMode, RelSafeTerminationMode,
+            RelSafeBestTerminationMode},
+        duₙ::ZIPPABLE_TYPES, uₙ::ZIPPABLE_TYPES,
         uₙ₋₁::ZIPPABLE_TYPES, abstol, reltol)
     return maximum(abs, duₙ) ≤ reltol * maximum(((x, y),) -> abs(x + y), zip(duₙ, uₙ))
 end
-function check_convergence(::Union{RelNormTerminationMode, RelSafeTerminationMode,
-            RelSafeBestTerminationMode}, duₙ, uₙ, uₙ₋₁, abstol, reltol)
+function check_convergence(
+        ::Union{RelNormTerminationMode, RelSafeTerminationMode,
+            RelSafeBestTerminationMode},
+        duₙ, uₙ, uₙ₋₁, abstol, reltol)
     return maximum(abs, duₙ) ≤ reltol * maximum(abs, duₙ .+ uₙ)
 end
 
 function check_convergence(::AbsTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
     return all(x -> abs(x) ≤ abstol, duₙ)
 end
-function check_convergence(::Union{AbsNormTerminationMode, AbsSafeTerminationMode,
-            AbsSafeBestTerminationMode}, duₙ, uₙ, uₙ₋₁, abstol, reltol)
+function check_convergence(
+        ::Union{AbsNormTerminationMode, AbsSafeTerminationMode,
+            AbsSafeBestTerminationMode},
+        duₙ, uₙ, uₙ₋₁, abstol, reltol)
     return maximum(abs, duₙ) ≤ abstol
 end
 
@@ -546,7 +554,8 @@ function NLSolveSafeTerminationResult(u = nothing; best_objective_value = Inf64,
         best_objective_value_iteration = 0,
         return_code = NLSolveSafeTerminationReturnCode.Failure)
     u = u !== nothing ? copy(u) : u
-    Base.depwarn("NLSolveSafeTerminationResult has been deprecated in favor of the new dispatch based termination conditions. Please use the new termination conditions API!",
+    Base.depwarn(
+        "NLSolveSafeTerminationResult has been deprecated in favor of the new dispatch based termination conditions. Please use the new termination conditions API!",
         :NLSolveSafeTerminationResult)
     return NLSolveSafeTerminationResult{typeof(best_objective_value), typeof(u)}(u,
         best_objective_value, best_objective_value_iteration, return_code)
@@ -634,7 +643,8 @@ function NLSolveTerminationCondition(mode; abstol::T = 1e-8, reltol::T = 1e-6,
         protective_threshold = 1e3, patience_steps::Int = 30,
         patience_objective_multiplier = 3,
         min_max_factor = 1.3) where {T}
-    Base.depwarn("NLSolveTerminationCondition has been deprecated in favor of the new dispatch based termination conditions. Please use the new termination conditions API!",
+    Base.depwarn(
+        "NLSolveTerminationCondition has been deprecated in favor of the new dispatch based termination conditions. Please use the new termination conditions API!",
         :NLSolveTerminationCondition)
     @assert mode ∈ instances(NLSolveTerminationMode.T)
     options = if mode ∈ SAFE_TERMINATION_MODES
@@ -648,8 +658,8 @@ end
 
 function (cond::NLSolveTerminationCondition)(storage::Union{
         NLSolveSafeTerminationResult,
-        Nothing,
-    })
+        Nothing
+})
     mode = get_termination_mode(cond)
     # We need both the dispatches to support solvers that don't use the integrator
     # interface like SimpleNonlinearSolve

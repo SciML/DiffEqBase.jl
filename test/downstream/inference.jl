@@ -10,25 +10,32 @@ prob = ODEProblem(lorenz, u0, tspan)
 sol = solve(prob, Tsit5(), save_idxs = 1)
 @inferred solve(prob, Tsit5())
 @inferred solve(prob, Tsit5(), save_idxs = 1)
-@test_broken @inferred(remake(prob, u0 = Float32[1.0; 0.0; 0.0])) == remake(prob, u0 = Float32[1.0; 0.0; 0.0])
-@test_broken @inferred(solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])) == solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])
+@test_broken @inferred(remake(prob, u0 = Float32[1.0; 0.0; 0.0])) ==
+             remake(prob, u0 = Float32[1.0; 0.0; 0.0])
+@test_broken @inferred(solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])) ==
+             solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])
 
 prob = ODEProblem{true, SciMLBase.FullSpecialize}(lorenz, u0, tspan)
 
 @inferred SciMLBase.wrapfun_iip(prob.f)
 @inferred remake(prob, u0 = [1.0; 0.0; 0.0])
 @inferred remake(prob, u0 = Float32[1.0; 0.0; 0.0])
-@test_broken @inferred(solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])) == solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])
+@test_broken @inferred(solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])) ==
+             solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])
 
 prob = ODEProblem(lorenz, Float32[1.0; 0.0; 0.0], tspan)
 @inferred solve(prob, Tsit5(), save_idxs = 1)
-@test_broken @inferred(solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])) == solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])
+@test_broken @inferred(solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])) ==
+             solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])
 remake(prob, u0 = [1.0; 0.0; 0.0])
 
 @inferred SciMLBase.wrapfun_iip(prob.f)
-@test_broken @inferred(ODEFunction{isinplace(prob), SciMLBase.FunctionWrapperSpecialize}(prob.f)) == ODEFunction{isinplace(prob), SciMLBase.FunctionWrapperSpecialize}(prob.f)
+@test_broken @inferred(ODEFunction{
+    isinplace(prob), SciMLBase.FunctionWrapperSpecialize}(prob.f)) ==
+             ODEFunction{isinplace(prob), SciMLBase.FunctionWrapperSpecialize}(prob.f)
 @inferred remake(prob, u0 = [1.0; 0.0; 0.0])
-@test_broken @inferred(solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])) == solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])
+@test_broken @inferred(solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])) ==
+             solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])
 
 function f(du, u, p, t)
     du[1] = p.a
@@ -63,12 +70,18 @@ function solve_ode(f::F, p::P, ensemblealg; kwargs...) where {F, P}
 end
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleSerial())
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleThreads())
-@test_broken @inferred(solve_ode(f, (a = 1, b = 1), EnsembleDistributed())) == solve_ode(f, (a = 1, b = 1), EnsembleDistributed())
-@test_broken @inferred(solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads())) == solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads())
+@test_broken @inferred(solve_ode(f, (a = 1, b = 1), EnsembleDistributed())) ==
+             solve_ode(f, (a = 1, b = 1), EnsembleDistributed())
+@test_broken @inferred(solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads())) ==
+             solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads())
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleSerial(), save_idxs = 1)
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleThreads(), save_idxs = 1)
-@test_broken @inferred(solve_ode(f, (a = 1, b = 1), EnsembleDistributed(), save_idxs = 1)) == solve_ode(f, (a = 1, b = 1), EnsembleDistributed(), save_idxs = 1)
-@test_broken @inferred(solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads(), save_idxs = 1)) == solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads(), save_idxs = 1)
+@test_broken @inferred(solve_ode(
+    f, (a = 1, b = 1), EnsembleDistributed(), save_idxs = 1)) ==
+             solve_ode(f, (a = 1, b = 1), EnsembleDistributed(), save_idxs = 1)
+@test_broken @inferred(solve_ode(
+    f, (a = 1, b = 1), EnsembleSplitThreads(), save_idxs = 1)) ==
+             solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads(), save_idxs = 1)
 
 using StochasticDiffEq, Test
 u0 = 1 / 2

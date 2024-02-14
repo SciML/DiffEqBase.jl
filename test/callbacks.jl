@@ -58,11 +58,11 @@ struct EmptyIntegrator
     u::Vector{Float64}
 end
 function DiffEqBase.find_callback_time(integrator::EmptyIntegrator,
-    callback::ContinuousCallback, counter)
+        callback::ContinuousCallback, counter)
     1.0 + counter, 0.9 + counter, true, counter
 end
 function DiffEqBase.find_callback_time(integrator::EmptyIntegrator,
-    callback::VectorContinuousCallback, counter)
+        callback::VectorContinuousCallback, counter)
     1.0 + counter, 0.9 + counter, true, counter
 end
 find_first_integrator = EmptyIntegrator([1.0, 2.0])

@@ -35,7 +35,7 @@ p_possibilities = [ForwardDiff.Dual(2.0), (ForwardDiff.Dual(2.0), 2.0),
     (; x = 2.0, y = [ForwardDiff.Dual(2.0)]), (; x = 2.0, y = [[ForwardDiff.Dual(2.0)]]),
     Set([2.0, ForwardDiff.Dual(2.0)]), (SciMLBase.NullParameters(), ForwardDiff.Dual(2.0)),
     ((), ForwardDiff.Dual(2.0)), ForwardDiff.Dual{Nothing}(ForwardDiff.Dual{MyStruct}(2.0)),
-    (plot(), ForwardDiff.Dual(2.0)),
+    (plot(), ForwardDiff.Dual(2.0))
 ]
 
 for p in p_possibilities
@@ -58,7 +58,7 @@ higher_order_p_possibilities = [ForwardDiff.Dual{Nothing}(ForwardDiff.Dual{MyStr
     (ForwardDiff.Dual{Nothing}(ForwardDiff.Dual{MyStruct}(2.0)),
         ForwardDiff.Dual{Nothing}(2.0)),
     (ForwardDiff.Dual{Nothing}(2.0),
-        ForwardDiff.Dual{Nothing}(ForwardDiff.Dual{MyStruct}(2.0))),
+        ForwardDiff.Dual{Nothing}(ForwardDiff.Dual{MyStruct}(2.0)))
 ]
 
 for p in higher_order_p_possibilities
@@ -83,7 +83,7 @@ p_possibilities17 = [
     [MyStruct(2.0, (2.0, ForwardDiff.Dual(2.0)))],
     ((;), ForwardDiff.Dual(2.0)), MyStruct3(ForwardDiff.Dual(2.0)),
     (Mod, ForwardDiff.Dual(2.0)), (() -> 2.0, ForwardDiff.Dual(2.0)),
-    (Base.pointer([2.0]), ForwardDiff.Dual(2.0)),
+    (Base.pointer([2.0]), ForwardDiff.Dual(2.0))
 ]
 push!(p_possibilities17, Returns((a = 2, b = 1.3, c = ForwardDiff.Dual(2.0f0))))
 
@@ -125,7 +125,7 @@ p_possibilities_uninferrred = [
     [MyStruct(2.0, ForwardDiff.Dual(2.0))],
     (; x = 2.0, y = [[MyStruct3(ForwardDiff.Dual(2.0))]]),
     (; x = Vector{Float64}(undef, 2), y = [[MyStruct3(ForwardDiff.Dual(2.0))]]),
-    (; x = Matrix{Any}(undef, 2, 2), y = [[MyStruct3(ForwardDiff.Dual(2.0))]]),
+    (; x = Matrix{Any}(undef, 2, 2), y = [[MyStruct3(ForwardDiff.Dual(2.0))]])
 ]
 
 for p in p_possibilities_uninferrred
@@ -144,7 +144,7 @@ end
 p_possibilities_missed = [
     Set([2.0, "s", ForwardDiff.Dual(2.0)]),
     Set([2.0, ForwardDiff.Dual(2.0), SciMLBase.NullParameters()]),
-    Set([Matrix{Float64}(undef, 2, 2), ForwardDiff.Dual(2.0)]),
+    Set([Matrix{Float64}(undef, 2, 2), ForwardDiff.Dual(2.0)])
 ]
 
 for p in p_possibilities_missed
@@ -161,7 +161,7 @@ for p in p_possibilities_missed
 end
 
 p_possibilities_notdual = [
-    (), (;), [2.0], [2.0, 2], [2.0, (2.0)], [2.0, MyStruct(2.0, 2.0f0)],
+    (), (;), [2.0], [2.0, 2], [2.0, (2.0)], [2.0, MyStruct(2.0, 2.0f0)]
 ]
 
 for p in p_possibilities_notdual
@@ -186,7 +186,7 @@ p_possibilities_notdual_uninferred = [
     [Dict(:x => 2, "y" => 5), MyStruct2(2.0)],
 
     # Dictionaries can have inference issues
-    Dict(:x => 2, :y => 5), Dict(:x => 2, "y" => 5),
+    Dict(:x => 2, :y => 5), Dict(:x => 2, "y" => 5)
 ]
 
 # Also check circular references
@@ -226,7 +226,7 @@ f(du, u, p, t) = du .= u
 config = ForwardDiff.JacobianConfig(f, ones(5))
 
 p_possibilities_configs = [
-    (config, config), (config, 2.0), config, (; x = config, y = 2.0),
+    (config, config), (config, 2.0), config, (; x = config, y = 2.0)
 ]
 
 for p in p_possibilities_configs
@@ -244,7 +244,7 @@ for p in p_possibilities_configs
 end
 
 p_possibilities_configs_not_inferred = [
-    [2.0, (2.0,), config], [2.0, config, MyStruct(2.0, 2.0f0)],
+    [2.0, (2.0,), config], [2.0, config, MyStruct(2.0, 2.0f0)]
 ]
 
 for p in p_possibilities_configs_not_inferred

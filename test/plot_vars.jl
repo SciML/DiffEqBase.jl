@@ -21,27 +21,27 @@ syms = [:x, :y, :z]
 @test SciMLBase.interpret_vars([(0, 1), (1, 3), (4, 5)], sol) == [
     (SciMLBase.DEFAULT_PLOT_FUNC, 0, 1),
     (SciMLBase.DEFAULT_PLOT_FUNC, 1, 3),
-    (SciMLBase.DEFAULT_PLOT_FUNC, 4, 5),
+    (SciMLBase.DEFAULT_PLOT_FUNC, 4, 5)
 ]
 @test SciMLBase.interpret_vars([1, (1, 3), (4, 5)], sol) == [
     (SciMLBase.DEFAULT_PLOT_FUNC, 0, 1),
     (SciMLBase.DEFAULT_PLOT_FUNC, 1, 3),
-    (SciMLBase.DEFAULT_PLOT_FUNC, 4, 5),
+    (SciMLBase.DEFAULT_PLOT_FUNC, 4, 5)
 ]
 @test SciMLBase.interpret_vars([1, 3, 4], sol) == [
     (SciMLBase.DEFAULT_PLOT_FUNC, 0, 1),
     (SciMLBase.DEFAULT_PLOT_FUNC, 0, 3),
-    (SciMLBase.DEFAULT_PLOT_FUNC, 0, 4),
+    (SciMLBase.DEFAULT_PLOT_FUNC, 0, 4)
 ]
 @test SciMLBase.interpret_vars(([1, 2, 3], [4, 5, 6]), sol) == [
     (SciMLBase.DEFAULT_PLOT_FUNC, 1, 4),
     (SciMLBase.DEFAULT_PLOT_FUNC, 2, 5),
-    (SciMLBase.DEFAULT_PLOT_FUNC, 3, 6),
+    (SciMLBase.DEFAULT_PLOT_FUNC, 3, 6)
 ]
 @test SciMLBase.interpret_vars((1, [2, 3, 4]), sol) == [
     (SciMLBase.DEFAULT_PLOT_FUNC, 1, 2),
     (SciMLBase.DEFAULT_PLOT_FUNC, 1, 3),
-    (SciMLBase.DEFAULT_PLOT_FUNC, 1, 4),
+    (SciMLBase.DEFAULT_PLOT_FUNC, 1, 4)
 ]
 
 f(x, y) = (x + y, y)

@@ -4,7 +4,8 @@ const dualT = ForwardDiff.Dual{ForwardDiff.Tag{OrdinaryDiffEqTag, Float64}, Floa
 
 dualgen(::Type{T}) where {T} = ForwardDiff.Dual{ForwardDiff.Tag{OrdinaryDiffEqTag, T}, T, 1}
 
-const NORECOMPILE_IIP_SUPPORTED_ARGS = (Tuple{Vector{Float64}, Vector{Float64},
+const NORECOMPILE_IIP_SUPPORTED_ARGS = (
+    Tuple{Vector{Float64}, Vector{Float64},
         Vector{Float64}, Float64},
     Tuple{Vector{Float64}, Vector{Float64},
         SciMLBase.NullParameters, Float64})
@@ -52,7 +53,7 @@ function wrapfun_oop(ff, inputs::Tuple = ())
 end
 
 function wrapfun_iip(ff,
-    inputs::Tuple{T1, T2, T3, T4}) where {T1, T2, T3, T4}
+        inputs::Tuple{T1, T2, T3, T4}) where {T1, T2, T3, T4}
     T = eltype(T2)
     dualT = dualgen(T)
     dualT1 = ArrayInterface.promote_eltype(T1, dualT)
@@ -72,20 +73,21 @@ function wrapfun_iip(ff,
     FunctionWrappersWrappers.FunctionWrappersWrapper{typeof(fwt), false}(fwt)
 end
 
-const iip_arglists_default = (Tuple{Vector{Float64}, Vector{Float64}, Vector{Float64},
+const iip_arglists_default = (
+    Tuple{Vector{Float64}, Vector{Float64}, Vector{Float64},
         Float64},
     Tuple{Vector{Float64}, Vector{Float64},
         SciMLBase.NullParameters,
-        Float64,
+        Float64
     },
     Tuple{Vector{dualT}, Vector{Float64}, Vector{Float64}, dualT},
     Tuple{Vector{dualT}, Vector{dualT}, Vector{Float64}, dualT},
     Tuple{Vector{dualT}, Vector{dualT}, Vector{Float64}, Float64},
     Tuple{Vector{dualT}, Vector{dualT}, SciMLBase.NullParameters,
-        Float64,
+        Float64
     },
     Tuple{Vector{dualT}, Vector{Float64},
-        SciMLBase.NullParameters, dualT,
+        SciMLBase.NullParameters, dualT
     })
 const iip_returnlists_default = ntuple(x -> Nothing, length(iip_arglists_default))
 

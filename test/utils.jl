@@ -36,10 +36,10 @@ end
 end
 
 @testset "_rate_prototype" begin
-    @test _rate_prototype([1f0], 1.0, 1.0) isa Vector{Float32}
-    td = Dual{Tag{typeof(+), Float64}}(2.0,1.0)
-    @test _rate_prototype([1f0], td, td) isa Vector{Float32}
-    xd = [Dual{Tag{typeof(+), Float32}}(2.0,1.0)]
+    @test _rate_prototype([1.0f0], 1.0, 1.0) isa Vector{Float32}
+    td = Dual{Tag{typeof(+), Float64}}(2.0, 1.0)
+    @test _rate_prototype([1.0f0], td, td) isa Vector{Float32}
+    xd = [Dual{Tag{typeof(+), Float32}}(2.0, 1.0)]
     @test _rate_prototype(xd, 1.0, 1.0) isa typeof(xd)
     @test _rate_prototype([u"1f0m"], u"1.0s", 1.0) isa typeof([u"1f0m/s"])
 end
