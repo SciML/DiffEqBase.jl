@@ -75,10 +75,10 @@ prob = SDEProblem(f,
     noise = StochasticDiffEq.RealWienerProcess(0.0, zeros(3)))
 @test_throws DiffEqBase.NoiseSizeIncompatabilityError solve(prob, LambaEM())
 
-function g!(du,u,p,t)
-    du[1] .= u[1] + ones(3,3)
-    du[2] .= ones(3,3)
- end
- u0 = [zeros(3,3),zeros(3,3)]
- prob = ODEProblem(g!,u0,(0,1.0))
-@test_throws DiffEqBase.NonNumberEltypeError solve(prob,Tsit5())
+function g!(du, u, p, t)
+    du[1] .= u[1] + ones(3, 3)
+    du[2] .= ones(3, 3)
+end
+u0 = [zeros(3, 3), zeros(3, 3)]
+prob = ODEProblem(g!, u0, (0, 1.0))
+@test_throws DiffEqBase.NonNumberEltypeError solve(prob, Tsit5())

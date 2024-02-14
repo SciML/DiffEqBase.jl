@@ -2,7 +2,7 @@ using ModelingToolkit, OrdinaryDiffEq, SteadyStateDiffEq, Test
 
 @variables t x(t) y(t)
 eqs = [0 ~ x - y
-    0 ~ y - x]
+       0 ~ y - x]
 
 @named sys = ODESystem(eqs, t)
 sys = structural_simplify(sys)
@@ -16,7 +16,7 @@ sol = solve(prob, Tsit5())
 for kwargs in [
     Dict(:saveat => 0:0.1:1),
     Dict(:save_start => false),
-    Dict(:save_end => false),
+    Dict(:save_end => false)
 ]
     sol = solve(prob, kwargs...)
     init_integ = init(prob, kwargs...)
@@ -31,7 +31,7 @@ end
 
 @variables t x y
 eqs = [0 ~ x - y
-    0 ~ y - x]
+       0 ~ y - x]
 
 @named sys = NonlinearSystem(eqs, [x, y], [])
 sys = structural_simplify(sys)

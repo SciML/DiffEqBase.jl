@@ -3,9 +3,9 @@ using OrdinaryDiffEq
 ## https://github.com/SciML/DifferentialEquations.jl/issues/1013
 
 mutable struct SomeObject
-    position
-    velocity
-    trajectory
+    position::Any
+    velocity::Any
+    trajectory::Any
 end
 
 object = SomeObject(0, 1, nothing)
@@ -26,11 +26,11 @@ end
 
 # https://github.com/SciML/DiffEqBase.jl/issues/1003
 
-f(u,p,t) = 1.01*u
-u0=1/2
-tspan = (0.0,1.0)
-prob = ODEProblem(f,u0,tspan)
-sol = solve(prob,Tsit5(),reltol=1e-8,abstol=1e-8)
+f(u, p, t) = 1.01 * u
+u0 = 1 / 2
+tspan = (0.0, 1.0)
+prob = ODEProblem(f, u0, tspan)
+sol = solve(prob, Tsit5(), reltol = 1e-8, abstol = 1e-8)
 
-prob2 = ODEProblem((du,u,p,t) -> du[1]=1, [0.0], (0,10), (;x=sol))
+prob2 = ODEProblem((du, u, p, t) -> du[1] = 1, [0.0], (0, 10), (; x = sol))
 solve(prob2, Tsit5())

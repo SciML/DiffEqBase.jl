@@ -12,10 +12,10 @@ end
 
 DiffEqBase.value(x::Type{ReverseDiff.TrackedReal{V, D, O}}) where {V, D, O} = V
 function DiffEqBase.value(x::Type{
-    ReverseDiff.TrackedArray{V, D, N, VA, DA},
+        ReverseDiff.TrackedArray{V, D, N, VA, DA},
 }) where {V, D,
-    N, VA,
-    DA}
+        N, VA,
+        DA}
     Array{V, N}
 end
 DiffEqBase.value(x::ReverseDiff.TrackedReal) = x.value
@@ -26,15 +26,15 @@ DiffEqBase._reshape(v::AbstractVector{<:ReverseDiff.TrackedReal}, siz) = reduce(
 
 DiffEqBase.promote_u0(u0::ReverseDiff.TrackedArray, p::ReverseDiff.TrackedArray, t0) = u0
 function DiffEqBase.promote_u0(u0::AbstractArray{<:ReverseDiff.TrackedReal},
-    p::ReverseDiff.TrackedArray, t0)
+        p::ReverseDiff.TrackedArray, t0)
     u0
 end
 function DiffEqBase.promote_u0(u0::ReverseDiff.TrackedArray,
-    p::AbstractArray{<:ReverseDiff.TrackedReal}, t0)
+        p::AbstractArray{<:ReverseDiff.TrackedReal}, t0)
     u0
 end
 function DiffEqBase.promote_u0(u0::AbstractArray{<:ReverseDiff.TrackedReal},
-    p::AbstractArray{<:ReverseDiff.TrackedReal}, t0)
+        p::AbstractArray{<:ReverseDiff.TrackedReal}, t0)
     u0
 end
 DiffEqBase.promote_u0(u0, p::ReverseDiff.TrackedArray, t0) = ReverseDiff.track(u0)
@@ -44,13 +44,14 @@ DiffEqBase.promote_u0(u0, p::AbstractArray{<:ReverseDiff.TrackedReal}, t0) = elt
 @inline function DiffEqBase.ODE_DEFAULT_NORM(u::ReverseDiff.TrackedArray, t)
     sqrt(sum(abs2, DiffEqBase.value(u)) / length(u))
 end
-@inline function DiffEqBase.ODE_DEFAULT_NORM(u::AbstractArray{<:ReverseDiff.TrackedReal, N},
-    t) where {N}
+@inline function DiffEqBase.ODE_DEFAULT_NORM(
+        u::AbstractArray{<:ReverseDiff.TrackedReal, N},
+        t) where {N}
     sqrt(sum(x -> DiffEqBase.ODE_DEFAULT_NORM(x[1], x[2]),
         zip((DiffEqBase.value(x) for x in u), Iterators.repeated(t))) / length(u))
 end
 @inline function DiffEqBase.ODE_DEFAULT_NORM(u::Array{<:ReverseDiff.TrackedReal, N},
-    t) where {N}
+        t) where {N}
     sqrt(sum(x -> DiffEqBase.ODE_DEFAULT_NORM(x[1], x[2]),
         zip((DiffEqBase.value(x) for x in u), Iterators.repeated(t))) / length(u))
 end
@@ -60,94 +61,95 @@ end
 
 # Support TrackedReal time, don't drop tracking on the adaptivity there
 @inline function DiffEqBase.ODE_DEFAULT_NORM(u::ReverseDiff.TrackedArray,
-    t::ReverseDiff.TrackedReal)
+        t::ReverseDiff.TrackedReal)
     sqrt(sum(abs2, u) / length(u))
 end
-@inline function DiffEqBase.ODE_DEFAULT_NORM(u::AbstractArray{<:ReverseDiff.TrackedReal, N},
-    t::ReverseDiff.TrackedReal) where {N}
+@inline function DiffEqBase.ODE_DEFAULT_NORM(
+        u::AbstractArray{<:ReverseDiff.TrackedReal, N},
+        t::ReverseDiff.TrackedReal) where {N}
     sqrt(sum(x -> DiffEqBase.ODE_DEFAULT_NORM(x[1], x[2]), zip(u, Iterators.repeated(t))) /
          length(u))
 end
 @inline function DiffEqBase.ODE_DEFAULT_NORM(u::Array{<:ReverseDiff.TrackedReal, N},
-    t::ReverseDiff.TrackedReal) where {N}
+        t::ReverseDiff.TrackedReal) where {N}
     sqrt(sum(x -> DiffEqBase.ODE_DEFAULT_NORM(x[1], x[2]), zip(u, Iterators.repeated(t))) /
          length(u))
 end
 @inline function DiffEqBase.ODE_DEFAULT_NORM(u::ReverseDiff.TrackedReal,
-    t::ReverseDiff.TrackedReal)
+        t::ReverseDiff.TrackedReal)
     abs(u)
 end
 
 # `ReverseDiff.TrackedArray`
 function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
-    sensealg::Union{
-        SciMLBase.AbstractOverloadingSensitivityAlgorithm,
-        Nothing}, u0::ReverseDiff.TrackedArray,
-    p::ReverseDiff.TrackedArray, args...; kwargs...)
+        sensealg::Union{
+            SciMLBase.AbstractOverloadingSensitivityAlgorithm,
+            Nothing}, u0::ReverseDiff.TrackedArray,
+        p::ReverseDiff.TrackedArray, args...; kwargs...)
     ReverseDiff.track(DiffEqBase.solve_up, prob, sensealg, u0, p, args...; kwargs...)
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
-    sensealg::Union{
-        SciMLBase.AbstractOverloadingSensitivityAlgorithm,
-        Nothing}, u0, p::ReverseDiff.TrackedArray,
-    args...; kwargs...)
+        sensealg::Union{
+            SciMLBase.AbstractOverloadingSensitivityAlgorithm,
+            Nothing}, u0, p::ReverseDiff.TrackedArray,
+        args...; kwargs...)
     ReverseDiff.track(DiffEqBase.solve_up, prob, sensealg, u0, p, args...; kwargs...)
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
-    sensealg::Union{
-        SciMLBase.AbstractOverloadingSensitivityAlgorithm,
-        Nothing}, u0::ReverseDiff.TrackedArray, p,
-    args...; kwargs...)
+        sensealg::Union{
+            SciMLBase.AbstractOverloadingSensitivityAlgorithm,
+            Nothing}, u0::ReverseDiff.TrackedArray, p,
+        args...; kwargs...)
     ReverseDiff.track(DiffEqBase.solve_up, prob, sensealg, u0, p, args...; kwargs...)
 end
 
 # `AbstractArray{<:ReverseDiff.TrackedReal}`
 function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
-    sensealg::Union{
-        SciMLBase.AbstractOverloadingSensitivityAlgorithm,
-        Nothing},
-    u0::AbstractArray{<:ReverseDiff.TrackedReal},
-    p::AbstractArray{<:ReverseDiff.TrackedReal}, args...;
-    kwargs...)
+        sensealg::Union{
+            SciMLBase.AbstractOverloadingSensitivityAlgorithm,
+            Nothing},
+        u0::AbstractArray{<:ReverseDiff.TrackedReal},
+        p::AbstractArray{<:ReverseDiff.TrackedReal}, args...;
+        kwargs...)
     DiffEqBase.solve_up(prob, sensealg, reduce(vcat, u0), reduce(vcat, p), args...;
         kwargs...)
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
-    sensealg::Union{
-        SciMLBase.AbstractOverloadingSensitivityAlgorithm,
-        Nothing}, u0,
-    p::AbstractArray{<:ReverseDiff.TrackedReal},
-    args...; kwargs...)
+        sensealg::Union{
+            SciMLBase.AbstractOverloadingSensitivityAlgorithm,
+            Nothing}, u0,
+        p::AbstractArray{<:ReverseDiff.TrackedReal},
+        args...; kwargs...)
     DiffEqBase.solve_up(prob, sensealg, u0, reduce(vcat, p), args...; kwargs...)
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
-    sensealg::Union{
-        SciMLBase.AbstractOverloadingSensitivityAlgorithm,
-        Nothing}, u0::ReverseDiff.TrackedArray,
-    p::AbstractArray{<:ReverseDiff.TrackedReal},
-    args...; kwargs...)
+        sensealg::Union{
+            SciMLBase.AbstractOverloadingSensitivityAlgorithm,
+            Nothing}, u0::ReverseDiff.TrackedArray,
+        p::AbstractArray{<:ReverseDiff.TrackedReal},
+        args...; kwargs...)
     DiffEqBase.solve_up(prob, sensealg, u0, reduce(vcat, p), args...; kwargs...)
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
-    sensealg::Union{
-        SciMLBase.AbstractOverloadingSensitivityAlgorithm,
-        Nothing},
-    u0::AbstractArray{<:ReverseDiff.TrackedReal}, p,
-    args...; kwargs...)
+        sensealg::Union{
+            SciMLBase.AbstractOverloadingSensitivityAlgorithm,
+            Nothing},
+        u0::AbstractArray{<:ReverseDiff.TrackedReal}, p,
+        args...; kwargs...)
     DiffEqBase.solve_up(prob, sensealg, reduce(vcat, u0), p, args...; kwargs...)
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
-    sensealg::Union{
-        SciMLBase.AbstractOverloadingSensitivityAlgorithm,
-        Nothing},
-    u0::AbstractArray{<:ReverseDiff.TrackedReal}, p::ReverseDiff.TrackedArray,
-    args...; kwargs...)
+        sensealg::Union{
+            SciMLBase.AbstractOverloadingSensitivityAlgorithm,
+            Nothing},
+        u0::AbstractArray{<:ReverseDiff.TrackedReal}, p::ReverseDiff.TrackedArray,
+        args...; kwargs...)
     DiffEqBase.solve_up(prob, sensealg, reduce(vcat, u0), p, args...; kwargs...)
 end
 

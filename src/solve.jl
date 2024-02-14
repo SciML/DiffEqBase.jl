@@ -501,7 +501,7 @@ function Base.showerror(io::IO, e::IncompatibleMassMatrixError)
 end
 
 function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
-    kwargs...)
+        kwargs...)
     kwargshandle = kwargshandle === nothing ? KeywordArgError : kwargshandle
     kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ?
                    _prob.kwargs[:kwargshandle] : kwargshandle
@@ -510,8 +510,9 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothin
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
                 Base.diff_names(Base._nt_names(values(kwargs)),
-                    (:callback,))}(values(kwargs))
-            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(_prob.kwargs[:callback],
+                (:callback,))}(values(kwargs))
+            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(
+                _prob.kwargs[:callback],
                 values(kwargs).callback),))
             kwargs = merge(kwargs_temp, callbacks)
         end
@@ -530,8 +531,9 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothin
     end
 end
 
-function init(prob::Union{AbstractDEProblem, NonlinearProblem}, args...; sensealg = nothing,
-    u0 = nothing, p = nothing, kwargs...)
+function init(
+        prob::Union{AbstractDEProblem, NonlinearProblem}, args...; sensealg = nothing,
+        u0 = nothing, p = nothing, kwargs...)
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
@@ -565,7 +567,7 @@ function init_up(prob::AbstractDEProblem, sensealg, u0, p, args...; kwargs...)
 end
 
 function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
-    kwargs...)
+        kwargs...)
     kwargshandle = kwargshandle === nothing ? KeywordArgError : kwargshandle
     kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ?
                    _prob.kwargs[:kwargshandle] : kwargshandle
@@ -574,8 +576,9 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothi
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
                 Base.diff_names(Base._nt_names(values(kwargs)),
-                    (:callback,))}(values(kwargs))
-            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(_prob.kwargs[:callback],
+                (:callback,))}(values(kwargs))
+            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(
+                _prob.kwargs[:callback],
                 values(kwargs).callback),))
             kwargs = merge(kwargs_temp, callbacks)
         end
@@ -590,7 +593,7 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothi
             end
 
             if !(eltype(_prob.u0) <: Number) && !(eltype(_prob.u0) <: Enum) &&
-                !(_prob.u0 isa AbstractVector{<:AbstractArray} && _prob isa BVProblem)
+               !(_prob.u0 isa AbstractVector{<:AbstractArray} && _prob isa BVProblem)
                 # Allow Enums for FunctionMaps, make into a trait in the future
                 # BVPs use Vector of Arrays for initial guesses
                 throw(NonNumberEltypeError(eltype(_prob.u0)))
@@ -621,10 +624,11 @@ mutable struct NullODEIntegrator{IIP, ProbType, T, SolType, F, P} <:
     p::P
 end
 function build_null_integrator(prob::AbstractDEProblem, args...;
-    kwargs...)
+        kwargs...)
     sol = solve(prob, args...; kwargs...)
-    return NullODEIntegrator{isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol),
-        typeof(prob.f), typeof(prob.p),
+    return NullODEIntegrator{
+        isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol),
+        typeof(prob.f), typeof(prob.p)
     }(Float64[],
         Float64[],
         prob.tspan[1],
@@ -647,13 +651,13 @@ function step!(integ::NullODEIntegrator, dt = nothing, stop_at_tdt = false)
 end
 
 function build_null_solution(prob::AbstractDEProblem, args...;
-    saveat = (),
-    save_everystep = true,
-    save_on = true,
-    save_start = save_everystep || isempty(saveat) ||
-                     saveat isa Number || prob.tspan[1] in saveat,
-    save_end = true,
-    kwargs...)
+        saveat = (),
+        save_everystep = true,
+        save_on = true,
+        save_start = save_everystep || isempty(saveat) ||
+                         saveat isa Number || prob.tspan[1] in saveat,
+        save_end = true,
+        kwargs...)
     ts = if saveat === ()
         if save_start && save_end
             [prob.tspan[1], prob.tspan[2]]
@@ -676,13 +680,13 @@ function build_null_solution(prob::AbstractDEProblem, args...;
 end
 
 function build_null_solution(prob::Union{SteadyStateProblem, NonlinearProblem}, args...;
-    saveat = (),
-    save_everystep = true,
-    save_on = true,
-    save_start = save_everystep || isempty(saveat) ||
-                     saveat isa Number || prob.tspan[1] in saveat,
-    save_end = true,
-    kwargs...)
+        saveat = (),
+        save_everystep = true,
+        save_on = true,
+        save_start = save_everystep || isempty(saveat) ||
+                         saveat isa Number || prob.tspan[1] in saveat,
+        save_end = true,
+        kwargs...)
     SciMLBase.build_solution(prob, nothing, Float64[], nothing;
         retcode = ReturnCode.Success)
 end
@@ -969,7 +973,7 @@ the extension to other types is straightforward.
   `progress = true` you are enabling the progress bar.
 """
 function solve(prob::AbstractDEProblem, args...; sensealg = nothing,
-    u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
+        u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
@@ -1026,7 +1030,7 @@ problems.
     https://docs.sciml.ai/SciMLSensitivity/stable/
 """
 function solve(prob::NonlinearProblem, args...; sensealg = nothing,
-    u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
+        u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
@@ -1042,7 +1046,7 @@ function solve(prob::NonlinearProblem, args...; sensealg = nothing,
 end
 
 function solve_up(prob::Union{AbstractDEProblem, NonlinearProblem}, sensealg, u0, p,
-    args...; kwargs...)
+        args...; kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
@@ -1061,8 +1065,8 @@ function solve_up(prob::Union{AbstractDEProblem, NonlinearProblem}, sensealg, u0
 end
 
 function solve_call(prob::SteadyStateProblem,
-    alg::SciMLBase.AbstractNonlinearAlgorithm, args...;
-    kwargs...)
+        alg::SciMLBase.AbstractNonlinearAlgorithm, args...;
+        kwargs...)
     solve_call(NonlinearProblem(prob),
         alg, args...;
         kwargs...)
@@ -1133,12 +1137,12 @@ function get_concrete_problem(prob::AbstractEnsembleProblem, isadapt; kwargs...)
 end
 
 function solve(prob::PDEProblem, alg::AbstractDEAlgorithm, args...;
-    kwargs...)
+        kwargs...)
     solve(prob.prob, alg, args...; kwargs...)
 end
 
 function init(prob::PDEProblem, alg::AbstractDEAlgorithm, args...;
-    kwargs...)
+        kwargs...)
     init(prob.prob, alg, args...; kwargs...)
 end
 
@@ -1361,8 +1365,9 @@ handle_distribution_u0(_u0) = _u0
 eval_u0(u0::Function) = true
 eval_u0(u0) = false
 
-function __solve(prob::AbstractDEProblem, args...; default_set = false, second_time = false,
-    kwargs...)
+function __solve(
+        prob::AbstractDEProblem, args...; default_set = false, second_time = false,
+        kwargs...)
     if second_time
         throw(NoDefaultAlgorithmError())
     elseif length(args) > 0 && !(first(args) isa Union{Nothing, AbstractDEAlgorithm})
@@ -1373,7 +1378,7 @@ function __solve(prob::AbstractDEProblem, args...; default_set = false, second_t
 end
 
 function __init(prob::AbstractDEProblem, args...; default_set = false, second_time = false,
-    kwargs...)
+        kwargs...)
     if second_time
         throw(NoDefaultAlgorithmError())
     elseif length(args) > 0 && !(first(args) isa Union{Nothing, AbstractDEAlgorithm})
@@ -1456,7 +1461,7 @@ end
             nothing
         end
     elseif first(solve_args) isa SciMLBase.AbstractSciMLAlgorithm &&
-        !(first(solve_args) isa SciMLBase.EnsembleAlgorithm)
+           !(first(solve_args) isa SciMLBase.EnsembleAlgorithm)
         first(solve_args)
     else
         nothing
@@ -1485,7 +1490,7 @@ struct SensitivityADPassThrough <: AbstractDEAlgorithm end
     kwargs...)
 
 function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
-    kwargs...)
+        kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
@@ -1498,8 +1503,9 @@ function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callba
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
                 Base.diff_names(Base._nt_names(values(kwargs)),
-                    (:callback,))}(values(kwargs))
-            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(_prob.kwargs[:callback],
+                (:callback,))}(values(kwargs))
+            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(
+                _prob.kwargs[:callback],
                 values(kwargs).callback),))
             kwargs = merge(kwargs_temp, callbacks)
         end
@@ -1515,7 +1521,7 @@ function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callba
 end
 
 function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
-    kwargs...)
+        kwargs...)
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
@@ -1528,8 +1534,9 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
                 Base.diff_names(Base._nt_names(values(kwargs)),
-                    (:callback,))}(values(kwargs))
-            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(_prob.kwargs[:callback],
+                (:callback,))}(values(kwargs))
+            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(
+                _prob.kwargs[:callback],
                 values(kwargs).callback),))
             kwargs = merge(kwargs_temp, callbacks)
         end

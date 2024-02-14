@@ -22,8 +22,8 @@ simpler dependencies.
 struct InternalFalsi end
 
 function SciMLBase.solve(prob::IntervalNonlinearProblem, alg::InternalFalsi, args...;
-    maxiters = 1000,
-    kwargs...)
+        maxiters = 1000,
+        kwargs...)
     f = Base.Fix2(prob.f, prob.p)
     left, right = prob.tspan
     fl, fr = f(left), f(right)
@@ -128,10 +128,11 @@ function scalar_nlsolve_ad(prob, alg::InternalFalsi, args...; kwargs...)
     return sol, partials
 end
 
-function SciMLBase.solve(prob::IntervalNonlinearProblem{uType, iip,
-        <:ForwardDiff.Dual{T, V, P}},
-    alg::InternalFalsi, args...;
-    kwargs...) where {uType, iip, T, V, P}
+function SciMLBase.solve(
+        prob::IntervalNonlinearProblem{uType, iip,
+            <:ForwardDiff.Dual{T, V, P}},
+        alg::InternalFalsi, args...;
+        kwargs...) where {uType, iip, T, V, P}
     sol, partials = scalar_nlsolve_ad(prob, alg, args...; kwargs...)
     return SciMLBase.build_solution(prob, alg, ForwardDiff.Dual{T, V, P}(sol.u, partials),
         sol.resid; retcode = sol.retcode,
@@ -139,14 +140,15 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{uType, iip,
         right = ForwardDiff.Dual{T, V, P}(sol.right, partials))
 end
 
-function SciMLBase.solve(prob::IntervalNonlinearProblem{uType, iip,
-        <:AbstractArray{
-            <:ForwardDiff.Dual{T,
+function SciMLBase.solve(
+        prob::IntervalNonlinearProblem{uType, iip,
+            <:AbstractArray{
+                <:ForwardDiff.Dual{T,
                 V,
                 P},
-        }},
-    alg::InternalFalsi, args...;
-    kwargs...) where {uType, iip, T, V, P}
+            }},
+        alg::InternalFalsi, args...;
+        kwargs...) where {uType, iip, T, V, P}
     sol, partials = scalar_nlsolve_ad(prob, alg, args...; kwargs...)
 
     return SciMLBase.build_solution(prob, alg, ForwardDiff.Dual{T, V, P}(sol.u, partials),

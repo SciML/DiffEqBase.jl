@@ -12,29 +12,29 @@ space for solving the equation.
 promote_dual(::Type{T}, ::Type{T2}) where {T, T2} = T
 promote_dual(::Type{T}, ::Type{T2}) where {T <: ForwardDiff.Dual, T2} = T
 function promote_dual(::Type{T},
-    ::Type{T2}) where {T <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
+        ::Type{T2}) where {T <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
     T
 end
 promote_dual(::Type{T}, ::Type{T2}) where {T, T2 <: ForwardDiff.Dual} = T2
 
 function promote_dual(::Type{T},
-    ::Type{T2}) where {T3, T4, V, V2 <: ForwardDiff.Dual, N, N2,
-    T <: ForwardDiff.Dual{T3, V, N},
-    T2 <: ForwardDiff.Dual{T4, V2, N2}}
+        ::Type{T2}) where {T3, T4, V, V2 <: ForwardDiff.Dual, N, N2,
+        T <: ForwardDiff.Dual{T3, V, N},
+        T2 <: ForwardDiff.Dual{T4, V2, N2}}
     T2
 end
 function promote_dual(::Type{T},
-    ::Type{T2}) where {T3, T4, V <: ForwardDiff.Dual, V2, N, N2,
-    T <: ForwardDiff.Dual{T3, V, N},
-    T2 <: ForwardDiff.Dual{T4, V2, N2}}
+        ::Type{T2}) where {T3, T4, V <: ForwardDiff.Dual, V2, N, N2,
+        T <: ForwardDiff.Dual{T3, V, N},
+        T2 <: ForwardDiff.Dual{T4, V2, N2}}
     T
 end
 function promote_dual(::Type{T},
-    ::Type{T2}) where {
-    T3, V <: ForwardDiff.Dual, V2 <: ForwardDiff.Dual,
-    N,
-    T <: ForwardDiff.Dual{T3, V, N},
-    T2 <: ForwardDiff.Dual{T3, V2, N}}
+        ::Type{T2}) where {
+        T3, V <: ForwardDiff.Dual, V2 <: ForwardDiff.Dual,
+        N,
+        T <: ForwardDiff.Dual{T3, V, N},
+        T2 <: ForwardDiff.Dual{T3, V2, N}}
     ForwardDiff.Dual{T3, promote_dual(V, V2), N}
 end
 
@@ -52,15 +52,15 @@ end
     reduce_tup(op, map(f, x))
 end
 # For other container types, we probably just want to call `mapreduce`
-@inline diffeqmapreduce(f::F, op::OP, x) where {F, OP} = mapreduce(f, op, x, init=Any)
+@inline diffeqmapreduce(f::F, op::OP, x) where {F, OP} = mapreduce(f, op, x, init = Any)
 
 struct DualEltypeChecker{T, T2}
     x::T
     counter::T2
 end
 
-getval(::Val{I}) where I = I
-getval(::Type{Val{I}}) where I = I
+getval(::Val{I}) where {I} = I
+getval(::Type{Val{I}}) where {I} = I
 getval(I::Int) = I
 
 function (dec::DualEltypeChecker)(::Val{Y}) where {Y}
@@ -92,20 +92,20 @@ upconversion is not done automatically, the user is required to upconvert all in
 themselves, for an example of how this can be confusing to a user see
 https://discourse.julialang.org/t/typeerror-in-julia-turing-when-sampling-for-a-forced-differential-equation/82937
 """
-@generated function anyeltypedual(x, ::Type{Val{counter}} = Val{0}) where counter
+@generated function anyeltypedual(x, ::Type{Val{counter}} = Val{0}) where {counter}
     x = x.name === Core.Compiler.typename(Type) ? x.parameters[1] : x
     if x <: ForwardDiff.Dual
         :($x)
     elseif fieldnames(x) === ()
         :(Any)
     elseif counter < DUALCHECK_RECURSION_MAX
-        T  = diffeqmapreduce(x->anyeltypedual(x, Val{counter+1}), promote_dual,
+        T = diffeqmapreduce(x -> anyeltypedual(x, Val{counter + 1}), promote_dual,
             x.parameters)
         if T === Any || isconcretetype(T)
             :($T)
         else
-            :(diffeqmapreduce(DualEltypeChecker($x, $counter+1), promote_dual,
-            map(Val, fieldnames($(typeof(x))))))
+            :(diffeqmapreduce(DualEltypeChecker($x, $counter + 1), promote_dual,
+                map(Val, fieldnames($(typeof(x))))))
         end
     else
         :(Any)
@@ -113,22 +113,44 @@ https://discourse.julialang.org/t/typeerror-in-julia-turing-when-sampling-for-a-
 end
 
 # Opt out since these are using for preallocation, not differentiation
-anyeltypedual(x::Union{ForwardDiff.AbstractConfig, Module}, ::Type{Val{counter}} = Val{0}) where {counter} = Any
-anyeltypedual(x::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T <: ForwardDiff.AbstractConfig} = Any
-anyeltypedual(x::SciMLBase.RecipesBase.AbstractPlot, ::Type{Val{counter}} = Val{0}) where {counter} = Any
-anyeltypedual(x::Returns, ::Type{Val{counter}} = Val{0}) where {counter} = anyeltypedual(x.value, Val{counter})
+function anyeltypedual(x::Union{ForwardDiff.AbstractConfig, Module},
+        ::Type{Val{counter}} = Val{0}) where {counter}
+    Any
+end
+function anyeltypedual(x::Type{T},
+        ::Type{Val{counter}} = Val{0}) where {counter} where {T <:
+                                                              ForwardDiff.AbstractConfig}
+    Any
+end
+function anyeltypedual(x::SciMLBase.RecipesBase.AbstractPlot,
+        ::Type{Val{counter}} = Val{0}) where {counter}
+    Any
+end
+function anyeltypedual(x::Returns, ::Type{Val{counter}} = Val{0}) where {counter}
+    anyeltypedual(x.value, Val{counter})
+end
 
 if isdefined(PreallocationTools, :FixedSizeDiffCache)
-    anyeltypedual(x::PreallocationTools.FixedSizeDiffCache, ::Type{Val{counter}} = Val{0}) where {counter} = Any
+    function anyeltypedual(x::PreallocationTools.FixedSizeDiffCache,
+            ::Type{Val{counter}} = Val{0}) where {counter}
+        Any
+    end
 end
 
 Base.@pure function __anyeltypedual(::Type{T}) where {T}
     hasproperty(T, :parameters) ?
     mapreduce(anyeltypedual, promote_dual, T.parameters; init = Any) : T
 end
-anyeltypedual(::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T} = __anyeltypedual(T)
-anyeltypedual(::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T <: ForwardDiff.Dual} = T
-function anyeltypedual(::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T <: Union{AbstractArray, Set}}
+function anyeltypedual(::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T}
+    __anyeltypedual(T)
+end
+function anyeltypedual(::Type{T},
+        ::Type{Val{counter}} = Val{0}) where {counter} where {T <: ForwardDiff.Dual}
+    T
+end
+function anyeltypedual(::Type{T},
+        ::Type{Val{counter}} = Val{0}) where {counter} where {T <:
+                                                              Union{AbstractArray, Set}}
     anyeltypedual(eltype(T))
 end
 Base.@pure function __anyeltypedual_ntuple(::Type{T}) where {T <: NTuple}
@@ -141,28 +163,39 @@ Base.@pure function __anyeltypedual_ntuple(::Type{T}) where {T <: NTuple}
         mapreduce(anyeltypedual, promote_dual, T.parameters; init = Any)
     end
 end
-anyeltypedual(::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T <: NTuple} = __anyeltypedual_ntuple(T)
+function anyeltypedual(
+        ::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T <: NTuple}
+    __anyeltypedual_ntuple(T)
+end
 
 # Any in this context just means not Dual
-anyeltypedual(x::SciMLBase.NullParameters, ::Type{Val{counter}} = Val{0}) where {counter} = Any
+function anyeltypedual(
+        x::SciMLBase.NullParameters, ::Type{Val{counter}} = Val{0}) where {counter}
+    Any
+end
 
 function anyeltypedual(sol::RecursiveArrayTools.AbstractDiffEqArray, counter = 0)
     diffeqmapreduce(anyeltypedual, promote_dual, (sol.u, sol.t))
 end
 
-anyeltypedual(x::Number, ::Type{Val{counter}} = Val{0}) where {counter} = anyeltypedual(typeof(x))
-anyeltypedual(x::Union{String, Symbol}, ::Type{Val{counter}} = Val{0}) where {counter} = typeof(x)
+function anyeltypedual(x::Number, ::Type{Val{counter}} = Val{0}) where {counter}
+    anyeltypedual(typeof(x))
+end
+function anyeltypedual(
+        x::Union{String, Symbol}, ::Type{Val{counter}} = Val{0}) where {counter}
+    typeof(x)
+end
 function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
-    ::Type{Val{counter}} = Val{0}) where {counter} where {
-    T <:
-    Union{Number,
+        ::Type{Val{counter}} = Val{0}) where {counter} where {
+        T <:
+        Union{Number,
         Symbol,
         String}}
     anyeltypedual(T)
 end
 function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
-    ::Type{Val{counter}} = Val{0}) where {counter} where {
-    T <: Union{
+        ::Type{Val{counter}} = Val{0}) where {counter} where {
+        T <: Union{
         AbstractArray{
             <:Number,
         },
@@ -172,7 +205,7 @@ function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
     anyeltypedual(eltype(x))
 end
 function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
-    ::Type{Val{counter}} = Val{0}) where {counter} where {N, T <: NTuple{N, <:Number}}
+        ::Type{Val{counter}} = Val{0}) where {counter} where {N, T <: NTuple{N, <:Number}}
     anyeltypedual(eltype(x))
 end
 
@@ -182,7 +215,7 @@ function anyeltypedual(x::AbstractArray, ::Type{Val{counter}} = Val{0}) where {c
         anyeltypedual(eltype(x))
     elseif !isempty(x) && all(i -> isassigned(x, i), 1:length(x)) &&
            counter < DUALCHECK_RECURSION_MAX
-        _counter = Val{counter+1}
+        _counter = Val{counter + 1}
         mapreduce(y -> anyeltypedual(y, _counter), promote_dual, x)
     else
         # This fallback to Any is required since otherwise we cannot handle `undef` in all cases
@@ -238,7 +271,7 @@ end
 end
 
 function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p,
-    tspan::Tuple{<:ForwardDiff.Dual, <:ForwardDiff.Dual}, prob, kwargs)
+        tspan::Tuple{<:ForwardDiff.Dual, <:ForwardDiff.Dual}, prob, kwargs)
     return _promote_tspan(tspan, kwargs)
 end
 
@@ -252,7 +285,7 @@ function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p, tspan, prob, kw
 end
 
 function promote_tspan(u0::AbstractArray{<:Complex{<:ForwardDiff.Dual}}, p, tspan, prob,
-    kwargs)
+        kwargs)
     return _promote_tspan(real(eltype(u0)).(tspan), kwargs)
 end
 

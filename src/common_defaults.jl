@@ -67,11 +67,12 @@ end
     Base.FastMath.sqrt_fast(real(sum(abs2 ∘ f, u)) / max(length(u), 1))
 end
 
-@inline function ODE_DEFAULT_NORM(u::Union{
-        AbstractArray,
-        RecursiveArrayTools.AbstractVectorOfArray,
-    },
-    t)
+@inline function ODE_DEFAULT_NORM(
+        u::Union{
+            AbstractArray,
+            RecursiveArrayTools.AbstractVectorOfArray
+        },
+        t)
     Base.FastMath.sqrt_fast(UNITLESS_ABS2(u) / max(recursive_length(u), 1))
 end
 
@@ -97,7 +98,8 @@ end
 @inline NAN_CHECK(x::Number) = isnan(x)
 @inline NAN_CHECK(x::Float64) = isnan(x) || (x > 1e50)
 @inline NAN_CHECK(x::Enum) = false
-@inline NAN_CHECK(x::Union{AbstractArray, RecursiveArrayTools.AbstractVectorOfArray}) = any(NAN_CHECK,
+@inline NAN_CHECK(x::Union{AbstractArray, RecursiveArrayTools.AbstractVectorOfArray}) = any(
+    NAN_CHECK,
     x)
 @inline NAN_CHECK(x::RecursiveArrayTools.ArrayPartition) = any(NAN_CHECK, x.x)
 @inline function NAN_CHECK(x::SparseArrays.AbstractSparseMatrixCSC)
@@ -124,7 +126,8 @@ end
 end
 
 @inline function NONLINEARSOLVE_DEFAULT_NORM(f::F,
-        u::Union{Array{T}, Iterators.Zip{<:Tuple{Vararg{Array{T}}}}}) where {F, T <: Union{AbstractFloat, Complex}}
+        u::Union{Array{T}, Iterators.Zip{<:Tuple{Vararg{Array{T}}}}}) where {
+        F, T <: Union{AbstractFloat, Complex}}
     x = zero(T)
     @inbounds @fastmath for ui in u
         x += abs2(f(ui))
@@ -138,7 +141,8 @@ end
 end
 
 @inline function NONLINEARSOLVE_DEFAULT_NORM(f::F,
-        u::StaticArraysCore.StaticArray{<:Tuple, T}) where {F, T <: Union{AbstractFloat, Complex}}
+        u::StaticArraysCore.StaticArray{<:Tuple, T}) where {
+        F, T <: Union{AbstractFloat, Complex}}
     return Base.FastMath.sqrt_fast(real(sum(abs2 ∘ f, u)))
 end
 

@@ -94,7 +94,8 @@ differential_vars = [true, true, false]
 prob_dae_resrob = DAEProblem(f, du0, u0, (0.0, 100000.0))
 prob_dae_resrob = DAEProblem{true}(f, du0, u0, (0.0, 100000.0))
 
-@test_broken @inferred(DAEProblem(f, du0, u0, (0.0, 100000.0))) == DAEProblem(f, du0, u0, (0.0, 100000.0))
+@test_broken @inferred(DAEProblem(f, du0, u0, (0.0, 100000.0))) ==
+             DAEProblem(f, du0, u0, (0.0, 100000.0))
 @inferred DAEProblem{true}(f, du0, u0, (0.0, 100000.0))
 
 # Ensures uniform dimensionality of u0, du0, and differential_vars

@@ -64,7 +64,7 @@ perror = [
     0.029177617589788596,
     0.03064986043089549,
     0.023280222517122397,
-    6.931251277770224,
+    6.931251277770224
 ]
 y_max = 0.002604806609572015
 u0 = [1, zeros(length(perror) - 1)...]
@@ -103,7 +103,7 @@ function attactor(du, u, p, t)
                     u.nodes[k][3],
                     u.nodes[k][4],
                     -β * u.nodes[k][3],
-                    -β * u.nodes[k][4],
+                    -β * u.nodes[k][4]
                 ]
             else
                 du.nodes[k][3:4] .+= α * (u.nodes[j][1:2] - u.nodes[k][1:2])
@@ -128,7 +128,7 @@ Newton = construct(PhysicsLaw,
         Thingy([-700.0, -350.0, 0.0, 0.0]),
         Thingy([-550.0, -150.0, 0.0, 0.0]),
         Thingy([-600.0, 15.0, 0.0, 10.0]),
-        Thingy([200.0, -200.0, 5.0, -5.0]),
+        Thingy([200.0, -200.0, 5.0, -5.0])
     ])
 
 parameters = [1e-2, 0.06]
@@ -219,21 +219,20 @@ soln = solve(prob, Tsit5())
 @test soln.t[end] ≈ 4.712347213360699
 
 odefun = ODEFunction((u, p, t) -> [u[2], u[2] - p]; mass_matrix = [1 0; 0 0])
-callback = PresetTimeCallback(.5, integ->(integ.p=-integ.p;))
-prob = ODEProblem(odefun, [0.0, -1.0], (0., 1), 1; callback)
+callback = PresetTimeCallback(0.5, integ -> (integ.p = -integ.p))
+prob = ODEProblem(odefun, [0.0, -1.0], (0.0, 1), 1; callback)
 #test that reinit happens for both FSAL and non FSAL integrators
 @testset "dae re-init" for alg in [FBDF(), Rodas5P()]
     sol = solve(prob, alg)
     # test that the callback flipping p caused u[2] to get flipped.
     first_t = findfirst(isequal(0.5), sol.t)
-    @test sol.u[first_t][2] == -sol.u[first_t+1][2]
+    @test sol.u[first_t][2] == -sol.u[first_t + 1][2]
 end
 
-
 daefun = DAEFunction((du, u, p, t) -> [du[1] - u[2], u[2] - p])
-prob = DAEProblem(daefun, [0.0, 0.0], [0.0,-1.0], (0., 1), 1;
+prob = DAEProblem(daefun, [0.0, 0.0], [0.0, -1.0], (0.0, 1), 1;
     differential_vars = [true, false], callback)
 sol = solve(prob, DFBDF())
 # test that the callback flipping p caused u[2] to get flipped.
 first_t = findfirst(isequal(0.5), sol.t)
-@test sol.u[first_t][2] == -sol.u[first_t+1][2]
+@test sol.u[first_t][2] == -sol.u[first_t + 1][2]

@@ -20,7 +20,7 @@ u2′[2] = SA[1.0 NaN; 1.0 1.0]
 u3 = VectorOfArray([ones(5), ones(5)])
 @test !NAN_CHECK(u3)
 u3′ = recursivecopy(u3)
-u3′[3,2] = NaN
+u3′[3, 2] = NaN
 @test NAN_CHECK(u3′)
 
 u4 = ArrayPartition(u1, u2, u3)
