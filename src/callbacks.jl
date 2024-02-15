@@ -612,7 +612,7 @@ end
         integrator.u_modified = true
         callback.affect!(integrator)
         if integrator.u_modified
-            reeval_internals_due_to_modification!(integrator, #=continuous_modification=# false)
+            reeval_internals_due_to_modification!(integrator, false) #=continuous_modification=#
         end
         @inbounds if callback.save_positions[2]
             savevalues!(integrator, true)
