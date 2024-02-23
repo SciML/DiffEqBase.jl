@@ -978,13 +978,13 @@ function solve(prob::AbstractDEProblem, args...; sensealg = nothing,
         sensealg = prob.kwargs[:sensealg]
     end
 
-    u0 = u0 !== nothing ? u0 : prob.u0
-    p = p !== nothing ? p : prob.p
+    _u0 = u0 !== nothing ? u0 : prob.u0
+    _p = p !== nothing ? p : prob.p
 
     if wrap isa Val{true}
-        wrap_sol(solve_up(prob, sensealg, u0, p, args...; kwargs...))
+        wrap_sol(solve_up(prob, sensealg, _u0, _p, args...; kwargs...))
     else
-        solve_up(prob, sensealg, u0, p, args...; kwargs...)
+        solve_up(prob, sensealg, _u0, _p, args...; kwargs...)
     end
 end
 
