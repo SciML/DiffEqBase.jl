@@ -679,7 +679,9 @@ function build_null_solution(prob::AbstractDEProblem, args...;
     build_solution(prob, nothing, ts, timeseries, retcode = ReturnCode.Success)
 end
 
-function build_null_solution(prob::Union{SteadyStateProblem, NonlinearProblem}, args...;
+function build_null_solution(
+        prob::Union{SteadyStateProblem, NonlinearProblem, NonlinearLeastSquaresProblem},
+        args...;
         saveat = (),
         save_everystep = true,
         save_on = true,
