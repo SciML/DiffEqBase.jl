@@ -25,7 +25,7 @@ function Enzyme.EnzymeRules.augmented_primal(config::Enzyme.EnzymeRules.ConfigWi
     res = DiffEqBase._solve_adjoint(
         copy_or_reuse(prob.val, 2), copy_or_reuse(sensealg.val, 3),
         copy_or_reuse(u0.val, 4), copy_or_reuse(p.val, 5),
-        SciMLBase.ChainRulesOriginator(), ntuple(arg_copy, Val(length(args)))...;
+        SciMLBase.EnzymeOriginator(), ntuple(arg_copy, Val(length(args)))...;
         kwargs...)
 
     dres = deepcopy(res[1])::RT
