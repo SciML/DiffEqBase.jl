@@ -122,6 +122,15 @@ function anyeltypedual(x::Type{T},
                                                               ForwardDiff.AbstractConfig}
     Any
 end
+function anyeltypedual(x::ForwardDiff.DiffResults.DiffResult,
+        ::Type{Val{counter}} = Val{0}) where {counter}
+    Any
+end
+function anyeltypedual(x::Type{T},
+        ::Type{Val{counter}} = Val{0}) where {counter} where {T <:
+                                                              ForwardDiff.DiffResults.DiffResult}
+    Any
+end
 function anyeltypedual(x::SciMLBase.RecipesBase.AbstractPlot,
         ::Type{Val{counter}} = Val{0}) where {counter}
     Any

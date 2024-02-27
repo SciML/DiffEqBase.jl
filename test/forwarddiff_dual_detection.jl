@@ -285,7 +285,6 @@ struct EOS
 
     function EOS()
         fit = Fit()
-
         new(fit)
     end
 end
@@ -293,3 +292,31 @@ end
 p = EOS()
 @test !(DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual)
 @inferred DiffEqBase.anyeltypedual(p)
+
+# Check methods used for prevention of Dual-detection when using 
+# DiffResults.DiffResult in a wrapper.
+# https://github.com/SciML/DiffEqBase.jl/issues/1009
+
+struct OutsideWrapper{T}
+    a::Float64
+    b::T
+end
+
+struct InsideWrapper{T, S}
+    du::T
+    dual_du::S
+end
+
+f(x) = 2 * x[1] + 3 * x[2]^2
+xdual = ones(
+    ForwardDiff.Dual{ForwardDiff.Tag{DiffEqBase.OrdinaryDiffEqTag, Float64}, Float64, 1}, 2)
+x = [1.0, 1.0]
+diffresult = ForwardDiff.DiffResults.GradientResult(x)
+diffresult_dual = ForwardDiff.DiffResults.GradientResult(xdual)
+iw = InsideWrapper(diffresult, diffresult_dual)
+ow = OutsideWrapper(1.0, iw)
+
+@test !(DiffEqBase.anyeltypedual(iw) <: ForwardDiff.Dual)
+@test !(DiffEqBase.anyeltypedual(ow) <: ForwardDiff.Dual)
+@inferred DiffEqBase.anyeltypedual(iw)
+@inferred DiffEqBase.anyeltypedual(ow)
