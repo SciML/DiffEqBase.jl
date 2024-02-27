@@ -122,7 +122,7 @@ function anyeltypedual(x::Type{T},
                                                               ForwardDiff.AbstractConfig}
     Any
 end
-function anyeltypedual(x::Union{ForwardDiff.DiffResults.DiffResult, Module},
+function anyeltypedual(x::ForwardDiff.DiffResults.DiffResult,
         ::Type{Val{counter}} = Val{0}) where {counter}
     Any
 end
