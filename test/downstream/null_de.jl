@@ -45,7 +45,7 @@ sol = solve(prob, DynamicSS(Tsit5()))
 # https://github.com/SciML/NonlinearSolve.jl/issues/387
 
 using NonlinearSolve
-function unsat(du,u,p)
+function unsat(du, u, p)
     du[1] = 1
 end
 unsat_f = NonlinearFunction(unsat; resid_prototype = zeros(1))

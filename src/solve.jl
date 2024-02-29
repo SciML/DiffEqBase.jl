@@ -694,12 +694,11 @@ function build_null_solution(
 end
 
 function build_null_solution(
-    prob::NonlinearLeastSquaresProblem,
-    args...; abstol=1e-6, kwargs...)
-
+        prob::NonlinearLeastSquaresProblem,
+        args...; abstol = 1e-6, kwargs...)
     if isinplace(prob)
         resid = copy(prob.f.resid_prototype)
-        prob.f(resid,prob.u0,prob.p)
+        prob.f(resid, prob.u0, prob.p)
     else
         resid = prob.f(prob.u0, prob.p)
     end
