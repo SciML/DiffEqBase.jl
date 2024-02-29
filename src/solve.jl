@@ -680,7 +680,7 @@ function build_null_solution(prob::AbstractDEProblem, args...;
 end
 
 function build_null_solution(
-        prob::Union{SteadyStateProblem, NonlinearProblem, NonlinearLeastSquaresProblem},
+        prob::Union{SteadyStateProblem, NonlinearProblem},
         args...;
         saveat = (),
         save_everystep = true,
@@ -691,6 +691,23 @@ function build_null_solution(
         kwargs...)
     SciMLBase.build_solution(prob, nothing, Float64[], nothing;
         retcode = ReturnCode.Success)
+end
+
+function build_null_solution(
+    prob::NonlinearLeastSquaresProblem,
+    args...; abstol=1e-6, kwargs...)
+
+    if isinplace(prob)
+        resid = copy(prob.f.resid_prototype)
+        prob.f(resid,prob.u0,prob.p)
+    else
+        resid = prob.f(prob.u0, prob.p)
+    end
+
+    retcode = norm(resid) < abstol ? ReturnCode.Success : ReturnCode.Failure
+
+    SciMLBase.build_solution(prob, nothing, Float64[], resid;
+        retcode)
 end
 
 """
