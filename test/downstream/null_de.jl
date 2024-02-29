@@ -41,3 +41,15 @@ sol = solve(prob, DynamicSS(Tsit5()))
 
 @test sol[x] == 0.0
 @test sol[y] == 0.0
+
+# https://github.com/SciML/NonlinearSolve.jl/issues/387
+
+using NonlinearSolve
+function unsat(du,u,p)
+    du[1] = 1
+end
+unsat_f = NonlinearFunction(unsat; resid_prototype = zeros(1))
+unsatprob = NonlinearLeastSquaresProblem(unsat_f, nothing)
+sol = solve(unsatprob) # Success
+@test sol.retcode == SciMLBase.ReturnCode.Failure
+@test sol.resid == [1.0]
