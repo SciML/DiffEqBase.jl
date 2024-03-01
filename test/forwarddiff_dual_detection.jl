@@ -35,7 +35,7 @@ p_possibilities = [ForwardDiff.Dual(2.0), (ForwardDiff.Dual(2.0), 2.0),
     (; x = 2.0, y = [ForwardDiff.Dual(2.0)]), (; x = 2.0, y = [[ForwardDiff.Dual(2.0)]]),
     Set([2.0, ForwardDiff.Dual(2.0)]), (SciMLBase.NullParameters(), ForwardDiff.Dual(2.0)),
     ((), ForwardDiff.Dual(2.0)), ForwardDiff.Dual{Nothing}(ForwardDiff.Dual{MyStruct}(2.0)),
-    (plot(), ForwardDiff.Dual(2.0))
+    (plot(), ForwardDiff.Dual(2.0)), [(1.0, ForwardDiff.Dual(1.0, (1.0,)))]
 ]
 
 for p in p_possibilities
@@ -293,7 +293,7 @@ p = EOS()
 @test !(DiffEqBase.anyeltypedual(p) <: ForwardDiff.Dual)
 @inferred DiffEqBase.anyeltypedual(p)
 
-# Check methods used for prevention of Dual-detection when using 
+# Check methods used for prevention of Dual-detection when using
 # DiffResults.DiffResult in a wrapper.
 # https://github.com/SciML/DiffEqBase.jl/issues/1009
 
