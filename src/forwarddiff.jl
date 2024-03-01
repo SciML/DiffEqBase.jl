@@ -146,9 +146,14 @@ if isdefined(PreallocationTools, :FixedSizeDiffCache)
     end
 end
 
-Base.@pure function __anyeltypedual(::Type{T}) where {T}
-    hasproperty(T, :parameters) ?
-    mapreduce(anyeltypedual, promote_dual, T.parameters; init = Any) : T
+Base.@assume_effects :foldable function __anyeltypedual(::Type{T}) where {T}
+    if T isa Union
+        promote_dual(anyeltypedual(T.a), anyeltypedual(T.b))
+    elseif hasproperty(T, :parameters)
+        mapreduce(anyeltypedual, promote_dual, T.parameters; init = Any)
+    else
+        T
+    end
 end
 function anyeltypedual(::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T}
     __anyeltypedual(T)
@@ -194,7 +199,7 @@ function anyeltypedual(
         x::Union{String, Symbol}, ::Type{Val{counter}} = Val{0}) where {counter}
     typeof(x)
 end
-function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
+function anyeltypedual(x::Union{AbstractArray{T}, Set{T}},
         ::Type{Val{counter}} = Val{0}) where {counter} where {
         T <:
         Union{Number,
@@ -202,7 +207,7 @@ function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
         String}}
     anyeltypedual(T)
 end
-function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
+function anyeltypedual(x::Union{AbstractArray{T}, Set{T}},
         ::Type{Val{counter}} = Val{0}) where {counter} where {
         T <: Union{
         AbstractArray{
@@ -213,7 +218,7 @@ function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
         }}}
     anyeltypedual(eltype(x))
 end
-function anyeltypedual(x::Union{Array{T}, AbstractArray{T}, Set{T}},
+function anyeltypedual(x::Union{AbstractArray{T}, Set{T}},
         ::Type{Val{counter}} = Val{0}) where {counter} where {N, T <: NTuple{N, <:Number}}
     anyeltypedual(eltype(x))
 end
@@ -254,7 +259,7 @@ function anyeltypedual(x::Dict, ::Type{Val{counter}} = Val{0}) where {counter}
     isempty(x) ? eltype(values(x)) : mapreduce(anyeltypedual, promote_dual, values(x))
 end
 function anyeltypedual(x::NamedTuple, ::Type{Val{counter}} = Val{0}) where {counter}
-    isempty(x) ? Any : diffeqmapreduce(anyeltypedual, promote_dual, values(x))
+    anyeltypedual(values(x))
 end
 @inline function promote_u0(u0, p, t0)
     if !(eltype(u0) <: ForwardDiff.Dual)
