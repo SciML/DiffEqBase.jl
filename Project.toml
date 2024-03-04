@@ -58,7 +58,7 @@ DiffEqBaseTrackerExt = "Tracker"
 DiffEqBaseUnitfulExt = "Unitful"
 
 [compat]
-ArrayInterface = "7"
+ArrayInterface = "7.8"
 ChainRulesCore = "1"
 DataStructures = "0.18"
 Distributions = "0.25"

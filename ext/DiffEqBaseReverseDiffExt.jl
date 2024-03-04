@@ -1,14 +1,9 @@
 module DiffEqBaseReverseDiffExt
 
-if isdefined(Base, :get_extension)
-    using DiffEqBase
-    import DiffEqBase: value
-    import ReverseDiff
-else
-    using ..DiffEqBase
-    import ..DiffEqBase: value
-    import ..ReverseDiff
-end
+using DiffEqBase
+import DiffEqBase: value
+import ReverseDiff
+import DiffEqBase.ArrayInterface
 
 DiffEqBase.value(x::Type{ReverseDiff.TrackedReal{V, D, O}}) where {V, D, O} = V
 function DiffEqBase.value(x::Type{
@@ -113,7 +108,8 @@ function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
         u0::AbstractArray{<:ReverseDiff.TrackedReal},
         p::AbstractArray{<:ReverseDiff.TrackedReal}, args...;
         kwargs...)
-    DiffEqBase.solve_up(prob, sensealg, reduce(vcat, u0), reduce(vcat, p), args...;
+    DiffEqBase.solve_up(prob, sensealg, ArrayInterface.aos_to_soa(u0),
+        ArrayInterface.aos_to_soa(p), args...;
         kwargs...)
 end
 
@@ -123,7 +119,8 @@ function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
             Nothing}, u0,
         p::AbstractArray{<:ReverseDiff.TrackedReal},
         args...; kwargs...)
-    DiffEqBase.solve_up(prob, sensealg, u0, reduce(vcat, p), args...; kwargs...)
+    DiffEqBase.solve_up(
+        prob, sensealg, u0, ArrayInterface.aos_to_soa(p), args...; kwargs...)
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
@@ -132,7 +129,8 @@ function DiffEqBase.solve_up(prob::DiffEqBase.AbstractDEProblem,
             Nothing}, u0::ReverseDiff.TrackedArray,
         p::AbstractArray{<:ReverseDiff.TrackedReal},
         args...; kwargs...)
-    DiffEqBase.solve_up(prob, sensealg, u0, reduce(vcat, p), args...; kwargs...)
+    DiffEqBase.solve_up(
+        prob, sensealg, u0, ArrayInterface.aos_to_soa(p), args...; kwargs...)
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
@@ -141,7 +139,8 @@ function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
             Nothing},
         u0::AbstractArray{<:ReverseDiff.TrackedReal}, p,
         args...; kwargs...)
-    DiffEqBase.solve_up(prob, sensealg, reduce(vcat, u0), p, args...; kwargs...)
+    DiffEqBase.solve_up(
+        prob, sensealg, ArrayInterface.aos_to_soa(u0), p, args...; kwargs...)
 end
 
 function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
@@ -150,7 +149,8 @@ function DiffEqBase.solve_up(prob::DiffEqBase.DEProblem,
             Nothing},
         u0::AbstractArray{<:ReverseDiff.TrackedReal}, p::ReverseDiff.TrackedArray,
         args...; kwargs...)
-    DiffEqBase.solve_up(prob, sensealg, reduce(vcat, u0), p, args...; kwargs...)
+    DiffEqBase.solve_up(
+        prob, sensealg, ArrayInterface.aos_to_soa(u0), p, args...; kwargs...)
 end
 
 # Required becase ReverseDiff.@grad function DiffEqBase.solve_up is not supported!
