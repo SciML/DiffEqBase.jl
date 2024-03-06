@@ -103,6 +103,8 @@ PrecompileTools.@recompile_invalidations begin
 
     import SciMLBase: AbstractDiffEqLinearOperator # deprecation path
 
+    import SymbolicIndexingInterface: parameter_values, current_time
+
     import Tricks
 end
 

@@ -586,6 +586,8 @@ function apply_callback!(integrator,
             callback.affect_neg!(integrator, event_idx) : callback.affect_neg!(integrator)
         end
     end
+    SciMLBase.save_discrete_parameters_after_callback(
+        integrator.sol, parameter_values(integrator), current_time(integrator))
 
     if integrator.u_modified
         reeval_internals_due_to_modification!(integrator)
@@ -611,6 +613,9 @@ end
         end
         integrator.u_modified = true
         callback.affect!(integrator)
+
+        SciMLBase.save_discrete_parameters_after_callback(
+            integrator.sol, parameter_values(integrator), current_time(integrator))
         if integrator.u_modified
             reeval_internals_due_to_modification!(integrator, false) # continuous_modification=false
         end
