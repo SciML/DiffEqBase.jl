@@ -1,3 +1,4 @@
+#CI TESTER
 using Pkg
 using SafeTestsets
 using Test
