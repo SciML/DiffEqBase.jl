@@ -1,51 +1,7 @@
-"""
-    NonlinearSafeTerminationReturnCode
-
-Return Codes for the safe nonlinear termination conditions.
-
-These return codes have been deprecated. Termination Conditions will return
-`SciMLBase.Retcode.T` starting from v7.
-"""
-@enumx NonlinearSafeTerminationReturnCode begin
-    """
-        NonlinearSafeTerminationReturnCode.Success
-
-    Termination Condition was satisfied!
-    """
-    Success
-    """
-        NonlinearSafeTerminationReturnCode.Default
-
-    Default Return Code. Used for type stability and conveys no additional information!
-    """
-    Default
-    """
-        NonlinearSafeTerminationReturnCode.PatienceTermination
-
-    Terminate if there has been no improvement for the last `patience_steps`.
-    """
-    PatienceTermination
-    """
-        NonlinearSafeTerminationReturnCode.ProtectiveTermination
-
-    Terminate if the objective value increased by this factor wrt initial objective or the
-    value diverged.
-    """
-    ProtectiveTermination
-    """
-        NonlinearSafeTerminationReturnCode.Failure
-
-    Termination Condition was not satisfied!
-    """
-    Failure
-end
-
 abstract type AbstractNonlinearTerminationMode end
 abstract type AbstractSafeNonlinearTerminationMode <: AbstractNonlinearTerminationMode end
 abstract type AbstractSafeBestNonlinearTerminationMode <:
               AbstractSafeNonlinearTerminationMode end
-
-# TODO: Add a mode where the user can pass in custom termination criteria function
 
 """
     SteadyStateDiffEqTerminationMode <: AbstractNonlinearTerminationMode
@@ -53,10 +9,18 @@ abstract type AbstractSafeBestNonlinearTerminationMode <:
 Check if all values of the derivative is close to zero wrt both relative and absolute
 tolerance.
 
-The default used in SteadyStateDiffEq.jl! Not recommended for large problems, since the
-convergence criteria is very strict and never reliably satisfied for most problems.
+!!! danger
+
+    This has been deprecated.
 """
-struct SteadyStateDiffEqTerminationMode <: AbstractNonlinearTerminationMode end
+struct SteadyStateDiffEqTerminationMode <: AbstractNonlinearTerminationMode
+    function SteadyStateDiffEqTerminationMode()
+        Base.depwarn("`SteadyStateDiffEqTerminationMode` is deprecated and isn't used \
+                       in any upstream library. Remove uses of this.",
+            :SteadyStateDiffEqTerminationMode)
+        return new()
+    end
+end
 
 """
     SimpleNonlinearSolveTerminationMode <: AbstractNonlinearTerminationMode
@@ -65,159 +29,98 @@ Check if all values of the derivative is close to zero wrt both relative and abs
 tolerance. Or check that the value of the current and previous state is within the specified
 tolerances.
 
-The default used in SimpleNonlinearSolve.jl! Not recommended for large problems, since the
-convergence criteria is very strict and never reliably satisfied for most problems.
+!!! danger
+
+    This has been deprecated.
 """
-struct SimpleNonlinearSolveTerminationMode <: AbstractNonlinearTerminationMode end
-
-@doc doc"""
-    NormTerminationMode <: AbstractNonlinearTerminationMode
-
-Terminates if
-``\| \frac{\partial u}{\partial t} \| \leq reltol \times \| \frac{\partial u}{\partial t} + u \|``
-or ``\| \frac{\partial u}{\partial t} \| \leq abstol``
-"""
-struct NormTerminationMode <: AbstractNonlinearTerminationMode end
-
-@doc doc"""
-    RelTerminationMode <: AbstractNonlinearTerminationMode
-
-Terminates if
-``all \left(| \frac{\partial u}{\partial t} | \leq reltol \times | u | \right)``.
-"""
-struct RelTerminationMode <: AbstractNonlinearTerminationMode end
-
-@doc doc"""
-    RelNormTerminationMode <: AbstractNonlinearTerminationMode
-
-Terminates if
-``\| \frac{\partial u}{\partial t} \| \leq reltol \times \| \frac{\partial u}{\partial t} + u \|``
-"""
-struct RelNormTerminationMode <: AbstractNonlinearTerminationMode end
-
-@doc doc"""
-    AbsTerminationMode <: AbstractNonlinearTerminationMode
-
-Terminates if ``all \left( | \frac{\partial u}{\partial t} | \leq abstol \right)``.
-"""
-struct AbsTerminationMode <: AbstractNonlinearTerminationMode end
-
-@doc doc"""
-    AbsNormTerminationMode <: AbstractNonlinearTerminationMode
-
-Terminates if ``\| \frac{\partial u}{\partial t} \| \leq abstol``.
-"""
-struct AbsNormTerminationMode <: AbstractNonlinearTerminationMode end
-
-@doc doc"""
-    RelSafeTerminationMode <: AbstractSafeNonlinearTerminationMode
-
-Essentially [`RelNormTerminationMode`](@ref) + terminate if there has been no improvement
-for the last `patience_steps` + terminate if the solution blows up (diverges).
-
-## Constructor
-
-```julia
-RelSafeTerminationMode(; protective_threshold = nothing, patience_steps = 100,
-    patience_objective_multiplier = 3, min_max_factor = 1.3, max_stalled_steps = nothing)
-```
-"""
-Base.@kwdef struct RelSafeTerminationMode{T1, T2, T3, T4 <: Union{Nothing, Int}} <:
-                   AbstractSafeNonlinearTerminationMode
-    protective_threshold::T1 = nothing
-    patience_steps::Int = 100
-    patience_objective_multiplier::T2 = 3
-    min_max_factor::T3 = 1.3
-    max_stalled_steps::T4 = nothing
+struct SimpleNonlinearSolveTerminationMode <: AbstractNonlinearTerminationMode
+    function SimpleNonlinearSolveTerminationMode()
+        Base.depwarn("`SimpleNonlinearSolveTerminationMode` is deprecated and isn't used \
+                       in any upstream library. Remove uses of this.",
+            :SimpleNonlinearSolveTerminationMode)
+        return new()
+    end
 end
 
-@doc doc"""
-    AbsSafeTerminationMode <: AbstractSafeNonlinearTerminationMode
+const TERM_DOCS = Dict(
+    :Norm => doc"``\| \frac{\partial u}{\partial t} \| \leq reltol \times \| \frac{\partial u}{\partial t} + u \|`` or ``\| \frac{\partial u}{\partial t} \| \leq abstol``",
+    :Rel => doc"``all \left(| \frac{\partial u}{\partial t} | \leq reltol \times | u | \right)``.",
+    :RelNorm => doc"``\| \frac{\partial u}{\partial t} \| \leq reltol \times \| \frac{\partial u}{\partial t} + u \|``",
+    :Abs => doc"``all \left( | \frac{\partial u}{\partial t} | \leq abstol \right)``.",
+    :AbsNorm => doc"``\| \frac{\partial u}{\partial t} \| \leq abstol``"
+)
 
-Essentially [`AbsNormTerminationMode`](@ref) + terminate if there has been no improvement
-for the last `patience_steps` + terminate if the solution blows up (diverges).
+for name in (:Norm, :Rel, :RelNorm, :Abs, :AbsNorm)
+    struct_name = Symbol(name, :TerminationMode)
+    doctring = TERM_DOCS[name]
 
-## Constructor
+    @eval begin
+        """
+            $($struct_name) <: AbstractNonlinearTerminationMode
 
-```julia
-AbsSafeTerminationMode(; protective_threshold = nothing, patience_steps = 100,
-    patience_objective_multiplier = 3, min_max_factor = 1.3, max_stalled_steps = nothing)
-```
-"""
-Base.@kwdef struct AbsSafeTerminationMode{T1, T2, T3, T4 <: Union{Nothing, Int}} <:
-                   AbstractSafeNonlinearTerminationMode
-    protective_threshold::T1 = nothing
-    patience_steps::Int = 100
-    patience_objective_multiplier::T2 = 3
-    min_max_factor::T3 = 1.3
-    max_stalled_steps::T4 = nothing
+        Terminates if $($doctring)
+        """
+        struct $struct_name <: AbstractNonlinearTerminationMode end
+    end
 end
 
-@doc doc"""
-    RelSafeBestTerminationMode <: AbstractSafeBestNonlinearTerminationMode
+for norm_type in (:Rel, :Abs), safety in (:Safe, :SafeBest)
+    struct_name = Symbol(norm_type, safety, :TerminationMode)
+    supertype_name = Symbol(:Abstract, safety, :NonlinearTerminationMode)
 
-Essentially [`RelSafeTerminationMode`](@ref), but caches the best solution found so far.
+    doctring = safety == :Safe ?
+               "Essentially [`$(norm_type)NormTerminationMode`](@ref) + terminate if there \
+                has been no improvement for the last `patience_steps` + terminate if the \
+                solution blows up (diverges)." :
+               "Essentially [`$(norm_type)SafeTerminationMode`](@ref), but caches the best\
+                solution found so far."
 
-## Constructor
+    @eval begin
+        """
+            $($struct_name) <: $($supertype_name)
 
-```julia
-RelSafeBestTerminationMode(; protective_threshold = nothing, patience_steps = 100,
-    patience_objective_multiplier = 3, min_max_factor = 1.3, max_stalled_steps = nothing)
-```
-"""
-Base.@kwdef struct RelSafeBestTerminationMode{T1, T2, T3, T4 <: Union{Nothing, Int}} <:
-                   AbstractSafeBestNonlinearTerminationMode
-    protective_threshold::T1 = nothing
-    patience_steps::Int = 100
-    patience_objective_multiplier::T2 = 3
-    min_max_factor::T3 = 1.3
-    max_stalled_steps::T4 = nothing
+        $($doctring)
+
+        ## Constructor
+
+            $($struct_name)(; protective_threshold = nothing, patience_steps = 100,
+                patience_objective_multiplier = 3, min_max_factor = 1.3,
+                max_stalled_steps = nothing)
+        """
+        @kwdef @concrete struct $(struct_name){T <: Union{Nothing, Int}} <:
+                                $(supertype_name)
+            protective_threshold = nothing
+            patience_steps::Int = 100
+            patience_objective_multiplier = 3
+            min_max_factor = 1.3
+            max_stalled_steps::T = nothing
+        end
+    end
 end
 
-@doc doc"""
-    AbsSafeBestTerminationMode <: AbstractSafeBestNonlinearTerminationMode
-
-Essentially [`AbsSafeTerminationMode`](@ref), but caches the best solution found so far.
-
-## Constructor
-
-```julia
-AbsSafeBestTerminationMode(; protective_threshold = nothing, patience_steps = 100,
-    patience_objective_multiplier = 3, min_max_factor = 1.3, max_stalled_steps = nothing)
-```
-"""
-Base.@kwdef struct AbsSafeBestTerminationMode{T1, T2, T3, T4 <: Union{Nothing, Int}} <:
-                   AbstractSafeBestNonlinearTerminationMode
-    protective_threshold::T1 = nothing
-    patience_steps::Int = 100
-    patience_objective_multiplier::T2 = 3
-    min_max_factor::T3 = 1.3
-    max_stalled_steps::T4 = nothing
-end
-
-mutable struct NonlinearTerminationModeCache{uType, T, dep_retcode,
-    M <: AbstractNonlinearTerminationMode, I, OT, SV,
-    R <: Union{NonlinearSafeTerminationReturnCode.T, ReturnCode.T}, UN, ST, MSS}
-    u::uType
+@concrete mutable struct NonlinearTerminationModeCache{dep_retcode,
+    M <: AbstractNonlinearTerminationMode,
+    R <: Union{NonlinearSafeTerminationReturnCode.T, ReturnCode.T}}
+    u
     retcode::R
-    abstol::T
-    reltol::T
-    best_objective_value::T
+    abstol
+    reltol
+    best_objective_value
     mode::M
-    initial_objective::I
-    objectives_trace::OT
+    initial_objective
+    objectives_trace
     nsteps::Int
-    saved_values::SV
-    u0_norm::UN
-    step_norm_trace::ST
-    max_stalled_steps::MSS
-    u_diff_cache::uType
+    saved_values
+    u0_norm
+    step_norm_trace
+    max_stalled_steps
+    u_diff_cache
 end
 
-get_termination_mode(cache::NonlinearTerminationModeCache) = cache.mode
-get_abstol(cache::NonlinearTerminationModeCache) = cache.abstol
-get_reltol(cache::NonlinearTerminationModeCache) = cache.reltol
-get_saved_values(cache::NonlinearTerminationModeCache) = cache.saved_values
+@inline get_termination_mode(cache::NonlinearTerminationModeCache) = cache.mode
+@inline get_abstol(cache::NonlinearTerminationModeCache) = cache.abstol
+@inline get_reltol(cache::NonlinearTerminationModeCache) = cache.reltol
+@inline get_saved_values(cache::NonlinearTerminationModeCache) = cache.saved_values
 
 function __update_u!!(cache::NonlinearTerminationModeCache, u)
     cache.u === nothing && return
@@ -228,11 +131,11 @@ function __update_u!!(cache::NonlinearTerminationModeCache, u)
     end
 end
 
-__cvt_real(::Type{T}, ::Nothing) where {T} = nothing
-__cvt_real(::Type{T}, x) where {T} = real(T(x))
+@inline __cvt_real(::Type{T}, ::Nothing) where {T} = nothing
+@inline __cvt_real(::Type{T}, x) where {T} = real(T(x))
 
-_get_tolerance(η, ::Type{T}) where {T} = __cvt_real(T, η)
-function _get_tolerance(::Nothing, ::Type{T}) where {T}
+@inline _get_tolerance(η, ::Type{T}) where {T} = __cvt_real(T, η)
+@inline function _get_tolerance(::Nothing, ::Type{T}) where {T}
     η = real(oneunit(T)) * (eps(real(one(T))))^(4 // 5)
     return _get_tolerance(η, T)
 end
@@ -279,10 +182,7 @@ function SciMLBase.init(du::Union{AbstractArray{T}, T}, u::Union{AbstractArray{T
 
     retcode = ifelse(D, NonlinearSafeTerminationReturnCode.Default, ReturnCode.Default)
 
-    return NonlinearTerminationModeCache{typeof(u_), TT, D, typeof(mode),
-        typeof(initial_objective), typeof(objectives_trace), typeof(saved_value_prototype),
-        typeof(retcode), typeof(u0_norm), typeof(step_norm_trace),
-        typeof(max_stalled_steps)}(u_, retcode, abstol, reltol, best_value, mode,
+    return NonlinearTerminationModeCache{D}(u_, retcode, abstol, reltol, best_value, mode,
         initial_objective, objectives_trace, 0, saved_value_prototype, u0_norm,
         step_norm_trace, max_stalled_steps, u_diff_cache)
 end
@@ -313,7 +213,6 @@ function SciMLBase.reinit!(cache::NonlinearTerminationModeCache{uType, T, dep_re
         best_value = initial_objective
     else
         initial_objective = nothing
-        objectives_trace = nothing
         best_value = __cvt_real(T, Inf)
     end
     cache.best_objective_value = best_value
@@ -338,9 +237,9 @@ function (cache::NonlinearTerminationModeCache)(mode::AbstractNonlinearTerminati
     return check_convergence(mode, du, u, uprev, cache.abstol, cache.reltol)
 end
 
-function (cache::NonlinearTerminationModeCache{uType, TT, dep_retcode})(
+function (cache::NonlinearTerminationModeCache{dep_retcode})(
         mode::AbstractSafeNonlinearTerminationMode,
-        du, u, uprev, args...) where {uType, TT, dep_retcode}
+        du, u, uprev, args...) where {dep_retcode}
     if mode isa AbsSafeTerminationMode || mode isa AbsSafeBestTerminationMode
         objective = maximum(abs, du)
         criteria = cache.abstol
@@ -433,348 +332,60 @@ function (cache::NonlinearTerminationModeCache{uType, TT, dep_retcode})(
     return false
 end
 
-const ZIPPABLE_TYPES = Union{Array, StaticArraysCore.StaticArray}
-
-# Nonallocating version of `isapprox` if possible
-function __nonlinearsolve_is_approx(x::ZIPPABLE_TYPES, y::ZIPPABLE_TYPES, abstol, reltol)
-    length(x) != length(y) && return false
-    # zip doesn't check lengths
-    d = maximum(((xᵢ, yᵢ),) -> abs(xᵢ - yᵢ), zip(x, y))
-    return d ≤ max(abstol, reltol * max(maximum(abs, x), maximum(abs, y)))
-end
-function __nonlinearsolve_is_approx(x, y, abstol, reltol)
-    return isapprox(x, y; atol = abstol, rtol = reltol, norm = Base.Fix1(maximum, abs))
-end
-
-function check_convergence(::SteadyStateDiffEqTerminationMode, duₙ::ZIPPABLE_TYPES,
-        uₙ::ZIPPABLE_TYPES, uₙ₋₁::ZIPPABLE_TYPES, abstol, reltol)
-    return all(((x, y),) -> (abs(x) ≤ abstol) | (abs(x) ≤ reltol * abs(y)), zip(duₙ, uₙ))
-end
+# Check Convergence
+## All norms here are ∞-norms
 function check_convergence(::SteadyStateDiffEqTerminationMode, duₙ, uₙ, uₙ₋₁, abstol,
         reltol)
-    return all(@. (abs(duₙ) ≤ abstol) | (abs(duₙ) ≤ reltol * abs(uₙ)))
+    if __fast_scalar_indexing(duₙ, uₙ)
+        return all(@closure(xy->begin
+                x, y = xy
+                return (abs(x) ≤ abstol) | (abs(x) ≤ reltol * abs(y))
+            end),
+            zip(duₙ, uₙ))
+    else
+        return all(@. (abs(duₙ) ≤ abstol) | (abs(duₙ) ≤ reltol * abs(uₙ)))
+    end
 end
 
-function check_convergence(::SimpleNonlinearSolveTerminationMode, duₙ::ZIPPABLE_TYPES,
-        uₙ::ZIPPABLE_TYPES, uₙ₋₁::ZIPPABLE_TYPES, abstol, reltol)
-    return all(((x, y),) -> (abs(x) ≤ abstol) | (abs(x) ≤ reltol * abs(y)), zip(duₙ, uₙ)) ||
-           __nonlinearsolve_is_approx(uₙ, uₙ₋₁, abstol, reltol)  # isapprox allocates
-end
-function check_convergence(::SimpleNonlinearSolveTerminationMode, duₙ, uₙ, uₙ₋₁, abstol,
-        reltol)
-    return all(@. (abs(duₙ) ≤ abstol) | (abs(duₙ) ≤ reltol * abs(uₙ))) ||
-           __nonlinearsolve_is_approx(uₙ, uₙ₋₁, abstol, reltol)  # isapprox allocates
+function check_convergence(
+        ::SimpleNonlinearSolveTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
+    if __fast_scalar_indexing(duₙ, uₙ)
+        return all(@closure(xy->begin
+                x, y = xy
+                return (abs(x) ≤ abstol) | (abs(x) ≤ reltol * abs(y))
+            end),
+            zip(duₙ, uₙ)) ||
+               __nonlinearsolve_is_approx(uₙ, uₙ₋₁; atol = abstol, rtol = reltol)
+    else
+        return all(@. (abs(duₙ) ≤ abstol) | (abs(duₙ) ≤ reltol * abs(uₙ))) ||
+               __nonlinearsolve_is_approx(uₙ, uₙ₋₁; atol = abstol, rtol = reltol)
+    end
 end
 
-function check_convergence(::NormTerminationMode, duₙ::ZIPPABLE_TYPES, uₙ::ZIPPABLE_TYPES,
-        uₙ₋₁::ZIPPABLE_TYPES, abstol, reltol)
-    du_norm = maximum(abs, duₙ)
-    return du_norm ≤ abstol ||
-           du_norm ≤ reltol * maximum(((x, y),) -> abs(x + y), zip(duₙ, uₙ))
-end
 function check_convergence(::NormTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
     du_norm = maximum(abs, duₙ)
-    return du_norm ≤ abstol || du_norm ≤ reltol * maximum(abs, duₙ .+ uₙ)
-end
-
-function check_convergence(::RelTerminationMode, duₙ::ZIPPABLE_TYPES, uₙ::ZIPPABLE_TYPES,
-        uₙ₋₁::ZIPPABLE_TYPES, abstol, reltol)
-    return all(((x, y),) -> abs(x) ≤ reltol * abs(y), zip(duₙ, uₙ))
+    return (du_norm ≤ abstol) || (du_norm ≤ reltol * __maximum_abs(+, duₙ, uₙ))
 end
 function check_convergence(::RelTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    return all(@. abs(duₙ) ≤ reltol * abs(uₙ))
+    if __fast_scalar_indexing(duₙ, uₙ)
+        return all(@closure(xy->begin
+                x, y = xy
+                return abs(x) ≤ reltol * abs(y)
+            end), zip(duₙ, uₙ))
+    else
+        return all(@. abs(duₙ) ≤ reltol * abs(uₙ + duₙ))
+    end
 end
-
-function check_convergence(
-        ::Union{RelNormTerminationMode, RelSafeTerminationMode,
-            RelSafeBestTerminationMode},
-        duₙ::ZIPPABLE_TYPES, uₙ::ZIPPABLE_TYPES,
-        uₙ₋₁::ZIPPABLE_TYPES, abstol, reltol)
-    return maximum(abs, duₙ) ≤ reltol * maximum(((x, y),) -> abs(x + y), zip(duₙ, uₙ))
-end
-function check_convergence(
-        ::Union{RelNormTerminationMode, RelSafeTerminationMode,
-            RelSafeBestTerminationMode},
-        duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    return maximum(abs, duₙ) ≤ reltol * maximum(abs, duₙ .+ uₙ)
-end
-
 function check_convergence(::AbsTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    return all(x -> abs(x) ≤ abstol, duₙ)
+    return all(@closure(x->abs(x) ≤ abstol), duₙ)
 end
 function check_convergence(
-        ::Union{AbsNormTerminationMode, AbsSafeTerminationMode,
-            AbsSafeBestTerminationMode},
+        ::Union{RelNormTerminationMode, RelSafeTerminationMode, RelSafeBestTerminationMode},
+        duₙ, uₙ, uₙ₋₁, abstol, reltol)
+    return maximum(abs, duₙ) ≤ reltol * __maximum_abs(+, duₙ, uₙ)
+end
+function check_convergence(
+        ::Union{AbsNormTerminationMode, AbsSafeTerminationMode, AbsSafeBestTerminationMode},
         duₙ, uₙ, uₙ₋₁, abstol, reltol)
     return maximum(abs, duₙ) ≤ abstol
-end
-
-# NOTE: Deprecate the following API eventually. This API leads to quite a bit of type
-#       instability
-@enumx NLSolveSafeTerminationReturnCode begin
-    Success
-    PatienceTermination
-    ProtectiveTermination
-    Failure
-end
-
-# SteadyStateDefault and NLSolveDefault are needed to be compatible with the existing
-# termination conditions in NonlinearSolve and SteadyStateDiffEq
-@enumx NLSolveTerminationMode begin
-    SteadyStateDefault
-    NLSolveDefault
-    Norm
-    Rel
-    RelNorm
-    Abs
-    AbsNorm
-    RelSafe
-    RelSafeBest
-    AbsSafe
-    AbsSafeBest
-end
-
-struct NLSolveSafeTerminationOptions{T1, T2, T3}
-    protective_threshold::T1
-    patience_steps::Int
-    patience_objective_multiplier::T2
-    min_max_factor::T3
-end
-
-TruncatedStacktraces.@truncate_stacktrace NLSolveSafeTerminationOptions
-
-mutable struct NLSolveSafeTerminationResult{T, uType}
-    u::uType
-    best_objective_value::T
-    best_objective_value_iteration::Int
-    return_code::NLSolveSafeTerminationReturnCode.T
-end
-
-function NLSolveSafeTerminationResult(u = nothing; best_objective_value = Inf64,
-        best_objective_value_iteration = 0,
-        return_code = NLSolveSafeTerminationReturnCode.Failure)
-    u = u !== nothing ? copy(u) : u
-    Base.depwarn(
-        "NLSolveSafeTerminationResult has been deprecated in favor of the new dispatch based termination conditions. Please use the new termination conditions API!",
-        :NLSolveSafeTerminationResult)
-    return NLSolveSafeTerminationResult{typeof(best_objective_value), typeof(u)}(u,
-        best_objective_value, best_objective_value_iteration, return_code)
-end
-
-const BASIC_TERMINATION_MODES = (NLSolveTerminationMode.SteadyStateDefault,
-    NLSolveTerminationMode.NLSolveDefault,
-    NLSolveTerminationMode.Norm, NLSolveTerminationMode.Rel,
-    NLSolveTerminationMode.RelNorm,
-    NLSolveTerminationMode.Abs, NLSolveTerminationMode.AbsNorm)
-
-const SAFE_TERMINATION_MODES = (NLSolveTerminationMode.RelSafe,
-    NLSolveTerminationMode.RelSafeBest,
-    NLSolveTerminationMode.AbsSafe,
-    NLSolveTerminationMode.AbsSafeBest)
-
-const SAFE_BEST_TERMINATION_MODES = (NLSolveTerminationMode.RelSafeBest,
-    NLSolveTerminationMode.AbsSafeBest)
-
-@doc doc"""
-    NLSolveTerminationCondition(mode; abstol::T = 1e-8, reltol::T = 1e-6,
-                                protective_threshold = 1e3, patience_steps::Int = 30,
-                                patience_objective_multiplier = 3, min_max_factor = 1.3)
-
-Define the termination criteria for the NonlinearProblem or SteadyStateProblem.
-
-## Termination Conditions
-
-#### Termination on Absolute Tolerance
-
-  * `NLSolveTerminationMode.Abs`: Terminates if ``all \left( | \frac{\partial u}{\partial t} | \leq abstol \right)``
-  * `NLSolveTerminationMode.AbsNorm`: Terminates if ``\| \frac{\partial u}{\partial t} \| \leq abstol``
-  * `NLSolveTerminationMode.AbsSafe`: Essentially `abs_norm` + terminate if there has been no improvement for the last 30 steps + terminate if the solution blows up (diverges)
-  * `NLSolveTerminationMode.AbsSafeBest`: Same as `NLSolveTerminationMode.AbsSafe` but uses the best solution found so far, i.e. deviates only if the solution has not converged
-
-#### Termination on Relative Tolerance
-
-  * `NLSolveTerminationMode.Rel`: Terminates if ``all \left(| \frac{\partial u}{\partial t} | \leq reltol \times | u | \right)``
-  * `NLSolveTerminationMode.RelNorm`: Terminates if ``\| \frac{\partial u}{\partial t} \| \leq reltol \times \| \frac{\partial u}{\partial t} + u \|``
-  * `NLSolveTerminationMode.RelSafe`: Essentially `rel_norm` + terminate if there has been no improvement for the last 30 steps + terminate if the solution blows up (diverges)
-  * `NLSolveTerminationMode.RelSafeBest`: Same as `NLSolveTerminationMode.RelSafe` but uses the best solution found so far, i.e. deviates only if the solution has not converged
-
-#### Termination using both Absolute and Relative Tolerances
-
-  * `NLSolveTerminationMode.Norm`: Terminates if ``\| \frac{\partial u}{\partial t} \| \leq reltol \times \| \frac{\partial u}{\partial t} + u \|`` or ``\| \frac{\partial u}{\partial t} \| \leq abstol``
-  * `NLSolveTerminationMode.SteadyStateDefault`: Check if all values of the derivative is close to zero wrt both relative and absolute tolerance. This is usable for small problems but doesn't scale well for neural networks.
-  * `NLSolveTerminationMode.NLSolveDefault`: Check if all values of the derivative is close to zero wrt both relative and absolute tolerance. Or check that the value of the current and previous state is within the specified tolerances. This is usable for small problems but doesn't scale well for neural networks.
-
-## General Arguments
-
-  * `abstol`: Absolute Tolerance
-  * `reltol`: Relative Tolerance
-
-## Arguments specific to `*Safe*` modes
-
-  * `protective_threshold`: If the objective value increased by this factor wrt initial objective terminate immediately.
-  * `patience_steps`: If objective is within `patience_objective_multiplier` factor of the criteria and no improvement within `min_max_factor` has happened then terminate.
-
-!!! warning
-    This has been deprecated and will be removed in the next major release. Please use the new dispatch based termination conditions API.
-"""
-struct NLSolveTerminationCondition{mode, T,
-    S <: Union{<:NLSolveSafeTerminationOptions, Nothing}}
-    abstol::T
-    reltol::T
-    safe_termination_options::S
-end
-
-TruncatedStacktraces.@truncate_stacktrace NLSolveTerminationCondition 1
-
-function Base.show(io::IO, s::NLSolveTerminationCondition{mode}) where {mode}
-    print(io,
-        "NLSolveTerminationCondition(mode = $(mode), abstol = $(s.abstol), reltol = $(s.reltol)")
-    if mode ∈ SAFE_TERMINATION_MODES
-        print(io, ", safe_termination_options = ", s.safe_termination_options, ")")
-    else
-        print(io, ")")
-    end
-end
-
-get_termination_mode(::NLSolveTerminationCondition{mode}) where {mode} = mode
-
-# Don't specify `mode` since the defaults would depend on the package
-function NLSolveTerminationCondition(mode; abstol::T = 1e-8, reltol::T = 1e-6,
-        protective_threshold = 1e3, patience_steps::Int = 30,
-        patience_objective_multiplier = 3,
-        min_max_factor = 1.3) where {T}
-    Base.depwarn(
-        "NLSolveTerminationCondition has been deprecated in favor of the new dispatch based termination conditions. Please use the new termination conditions API!",
-        :NLSolveTerminationCondition)
-    @assert mode ∈ instances(NLSolveTerminationMode.T)
-    options = if mode ∈ SAFE_TERMINATION_MODES
-        NLSolveSafeTerminationOptions(protective_threshold, patience_steps,
-            patience_objective_multiplier, min_max_factor)
-    else
-        nothing
-    end
-    return NLSolveTerminationCondition{mode, T, typeof(options)}(abstol, reltol, options)
-end
-
-function (cond::NLSolveTerminationCondition)(storage::Union{
-        NLSolveSafeTerminationResult,
-        Nothing
-})
-    mode = get_termination_mode(cond)
-    # We need both the dispatches to support solvers that don't use the integrator
-    # interface like SimpleNonlinearSolve
-    if mode in BASIC_TERMINATION_MODES
-        function _termination_condition_closure_basic(integrator, abstol, reltol, min_t)
-            return _termination_condition_closure_basic(get_du(integrator), integrator.u,
-                integrator.uprev, abstol, reltol)
-        end
-        function _termination_condition_closure_basic(du, u, uprev, abstol, reltol)
-            return _has_converged(du, u, uprev, cond, abstol, reltol)
-        end
-        return _termination_condition_closure_basic
-    else
-        mode ∈ SAFE_BEST_TERMINATION_MODES && @assert storage !== nothing
-        nstep::Int = 0
-
-        function _termination_condition_closure_safe(integrator, abstol, reltol, min_t)
-            return _termination_condition_closure_safe(get_du(integrator), integrator.u,
-                integrator.uprev, abstol, reltol)
-        end
-        @inbounds function _termination_condition_closure_safe(du, u, uprev, abstol, reltol)
-            aType = typeof(abstol)
-            protective_threshold = aType(cond.safe_termination_options.protective_threshold)
-            objective_values = aType[]
-            patience_objective_multiplier = cond.safe_termination_options.patience_objective_multiplier
-
-            if mode ∈ SAFE_BEST_TERMINATION_MODES
-                storage.best_objective_value = aType(Inf)
-                storage.best_objective_value_iteration = 0
-            end
-
-            if mode ∈ SAFE_BEST_TERMINATION_MODES
-                objective = NONLINEARSOLVE_DEFAULT_NORM(du)
-                criteria = abstol
-            else
-                objective = NONLINEARSOLVE_DEFAULT_NORM(du) /
-                            (NONLINEARSOLVE_DEFAULT_NORM(du .+ u) + eps(aType))
-                criteria = reltol
-            end
-
-            if mode ∈ SAFE_BEST_TERMINATION_MODES
-                if objective < storage.best_objective_value
-                    storage.best_objective_value = objective
-                    storage.best_objective_value_iteration = nstep + 1
-                    if storage.u !== nothing
-                        storage.u .= u
-                    end
-                end
-            end
-
-            # Main Termination Criteria
-            if objective ≤ criteria
-                storage.return_code = NLSolveSafeTerminationReturnCode.Success
-                return true
-            end
-
-            # Terminate if there has been no improvement for the last `patience_steps`
-            nstep += 1
-            push!(objective_values, objective)
-
-            if objective ≤ typeof(criteria)(patience_objective_multiplier) * criteria
-                if nstep ≥ cond.safe_termination_options.patience_steps
-                    last_k_values = objective_values[max(1,
-                        length(objective_values) -
-                        cond.safe_termination_options.patience_steps):end]
-                    if maximum(last_k_values) <
-                       typeof(criteria)(cond.safe_termination_options.min_max_factor) *
-                       minimum(last_k_values)
-                        storage.return_code = NLSolveSafeTerminationReturnCode.PatienceTermination
-                        return true
-                    end
-                end
-            end
-
-            # Protective break
-            if objective ≥ objective_values[1] * protective_threshold * length(du)
-                storage.return_code = NLSolveSafeTerminationReturnCode.ProtectiveTermination
-                return true
-            end
-
-            storage.return_code = NLSolveSafeTerminationReturnCode.Failure
-            return false
-        end
-        return _termination_condition_closure_safe
-    end
-end
-
-# Convergence Criteria
-@inline function _has_converged(du, u, uprev, cond::NLSolveTerminationCondition{mode},
-        abstol = cond.abstol, reltol = cond.reltol) where {mode}
-    return _has_converged(du, u, uprev, mode, abstol, reltol)
-end
-
-@inline @inbounds function _has_converged(du, u, uprev, mode, abstol, reltol)
-    if mode == NLSolveTerminationMode.Norm
-        du_norm = NONLINEARSOLVE_DEFAULT_NORM(du)
-        return du_norm ≤ abstol || du_norm ≤ reltol * NONLINEARSOLVE_DEFAULT_NORM(du + u)
-    elseif mode == NLSolveTerminationMode.Rel
-        return all(abs.(du) .≤ reltol .* abs.(u))
-    elseif mode ∈ (NLSolveTerminationMode.RelNorm, NLSolveTerminationMode.RelSafe,
-        NLSolveTerminationMode.RelSafeBest)
-        return NONLINEARSOLVE_DEFAULT_NORM(du) ≤
-               reltol * NONLINEARSOLVE_DEFAULT_NORM(du .+ u)
-    elseif mode == NLSolveTerminationMode.Abs
-        return all(abs.(du) .≤ abstol)
-    elseif mode ∈ (NLSolveTerminationMode.AbsNorm, NLSolveTerminationMode.AbsSafe,
-        NLSolveTerminationMode.AbsSafeBest)
-        return NONLINEARSOLVE_DEFAULT_NORM(du) ≤ abstol
-    elseif mode == NLSolveTerminationMode.SteadyStateDefault
-        return all((abs.(du) .≤ abstol) .| (abs.(du) .≤ reltol .* abs.(u)))
-    elseif mode == NLSolveTerminationMode.NLSolveDefault
-        atol, rtol = abstol, reltol
-        return all((abs.(du) .≤ abstol) .| (abs.(du) .≤ reltol .* abs.(u))) ||
-               isapprox(u, uprev; atol, rtol)
-    else
-        throw(ArgumentError("Unknown termination mode: $mode"))
-    end
 end

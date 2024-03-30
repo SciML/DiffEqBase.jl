@@ -64,3 +64,30 @@ end
 
 # for the non-unitful case the correct type is just u
 _rate_prototype(u, t::T, onet::T) where {T} = u
+
+# Nonlinear Solve functionality
+@inline __fast_scalar_indexing(args...) = all(ArrayInterface.fast_scalar_indexing, args)
+
+@inline __maximum_abs(op::F, x, y) where {F} = __maximum(abs ∘ op, x, y)
+## Nonallocating version of maximum(op.(x, y))
+@inline function __maximum(op::F, x, y) where {F}
+    if __fast_scalar_indexing(x, y)
+        return maximum(@closure((xᵢyᵢ)->begin
+                xᵢ, yᵢ = xᵢyᵢ
+                return abs(op(xᵢ, yᵢ))
+            end), zip(x, y))
+    else
+        return mapreduce(@closure((xᵢ, yᵢ)->@.(abs(op(xᵢ, yᵢ)))), max, x, y)
+    end
+end
+
+function __nonlinearsolve_is_approx(x::Number, y::Number; atol = false,
+        rtol = atol > 0 ? false : sqrt(eps(promote_type(typeof(x), typeof(y)))))
+    return isapprox(x, y; atol, rtol)
+end
+function __nonlinearsolve_is_approx(x, y; atol = false,
+        rtol = atol > 0 ? false : sqrt(eps(promote_type(eltype(x), eltype(y)))))
+    length(x) != length(y) && return false
+    d = __maximum_abs(-, x, y)
+    return d ≤ max(atol, rtol * max(maximum(abs, x), maximum(abs, y)))
+end
