@@ -74,12 +74,22 @@ _rate_prototype(u, t::T, onet::T) where {T} = u
     if __fast_scalar_indexing(x, y)
         return maximum(@closure((xᵢyᵢ)->begin
                 xᵢ, yᵢ = xᵢyᵢ
-                return abs(op(xᵢ, yᵢ))
+                return op(xᵢ, yᵢ)
             end), zip(x, y))
     else
-        return mapreduce(@closure((xᵢ, yᵢ)->@.(abs(op(xᵢ, yᵢ)))), max, x, y)
+        return mapreduce(@closure((xᵢ, yᵢ)->op(xᵢ, yᵢ)), max, x, y)
     end
 end
+
+@inline function __norm_op(::typeof(Base.Fix2(norm, 2)), op::F, x, y) where {F}
+    if __fast_scalar_indexing(x, y)
+        return sqrt(sum(@closure((xᵢyᵢ)->(op(xᵢ, yᵢ)^2)), zip(x, y)))
+    else
+        return sqrt(mapreduce(@closure((xᵢ, yᵢ)->(op(xᵢ, yᵢ)^2)), +, x, y))
+    end
+end
+
+@inline __norm_op(norm::N, op::F, x, y) where {N, F} = norm(op.(x, y))
 
 function __nonlinearsolve_is_approx(x::Number, y::Number; atol = false,
         rtol = atol > 0 ? false : sqrt(eps(promote_type(typeof(x), typeof(y)))))
@@ -91,3 +101,7 @@ function __nonlinearsolve_is_approx(x, y; atol = false,
     d = __maximum_abs(-, x, y)
     return d ≤ max(atol, rtol * max(maximum(abs, x), maximum(abs, y)))
 end
+
+@inline __add_and_norm(::typeof(Base.Fix1(maximum, abs)), x, y) = __maximum_abs(+, x, y)
+@inline __add_and_norm(::typeof(Base.Fix2(norm, Inf)), x, y) = __maximum_abs(+, x, y)
+@inline __add_and_norm(f::F, x, y) where {F} = __norm_op(f, +, x, y)
