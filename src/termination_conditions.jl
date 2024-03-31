@@ -42,6 +42,8 @@ struct SimpleNonlinearSolveTerminationMode <: AbstractNonlinearTerminationMode
     end
 end
 
+@inline set_termination_mode_internalnorm(mode, ::F) where {F} = mode
+
 @inline __norm_type(::typeof(Base.Fix2(norm, Inf))) = :Inf
 @inline __norm_type(::typeof(Base.Fix1(maximum, abs))) = :Inf
 @inline __norm_type(::typeof(Base.Fix2(norm, 2))) = :L2
@@ -98,6 +100,11 @@ for name in (:Norm, :RelNorm, :AbsNorm)
 
             $(struct_name)(f::F = nothing) where {F} = new{__norm_type(f), F}(f)
         end
+
+        @inline function set_termination_mode_internalnorm(
+                ::$(struct_name), internalnorm::F) where {F}
+            return $(struct_name)(internalnorm)
+        end
     end
 end
 
@@ -142,6 +149,13 @@ for norm_type in (:Rel, :Abs), safety in (:Safe, :SafeBest)
                     typeof(min_max_factor)}(f, protective_threshold, patience_steps,
                     patience_objective_multiplier, min_max_factor, max_stalled_steps)
             end
+        end
+
+        @inline function set_termination_mode_internalnorm(
+                mode::$(struct_name), internalnorm::F) where {F}
+            return $(struct_name)(internalnorm; mode.protective_threshold,
+                mode.patience_steps, mode.patience_objective_multiplier,
+                mode.min_max_factor, mode.max_stalled_steps)
         end
     end
 end

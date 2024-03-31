@@ -83,7 +83,10 @@ end
 
 @inline function __norm_op(::typeof(Base.Fix2(norm, 2)), op::F, x, y) where {F}
     if __fast_scalar_indexing(x, y)
-        return sqrt(sum(@closure((xᵢyᵢ)->(op(xᵢ, yᵢ)^2)), zip(x, y)))
+        return sqrt(sum(@closure((xᵢyᵢ)->begin
+                xᵢ, yᵢ = xᵢyᵢ
+                return op(xᵢ, yᵢ)^2
+            end), zip(x, y)))
     else
         return sqrt(mapreduce(@closure((xᵢ, yᵢ)->(op(xᵢ, yᵢ)^2)), +, x, y))
     end
@@ -104,7 +107,8 @@ end
 
 @inline function __add_and_norm(::Nothing, x, y)
     Base.depwarn("Not specifying the internal norm of termination conditions has been \
-                  deprecated. Using inf-norm currently.", :__add_and_norm)
+                  deprecated. Using inf-norm currently.",
+        :__add_and_norm)
     return __maximum_abs(+, x, y)
 end
 @inline __add_and_norm(::typeof(Base.Fix1(maximum, abs)), x, y) = __maximum_abs(+, x, y)
@@ -113,7 +117,8 @@ end
 
 @inline function __apply_termination_internalnorm(::Nothing, u)
     Base.depwarn("Not specifying the internal norm of termination conditions has been \
-                  deprecated. Using inf-norm currently.", :__apply_termination_internalnorm)
+                  deprecated. Using inf-norm currently.",
+        :__apply_termination_internalnorm)
     return __apply_termination_internalnorm(Base.Fix1(maximum, abs), u)
 end
 @inline __apply_termination_internalnorm(f::F, u) where {F} = f(u)
