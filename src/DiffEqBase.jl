@@ -37,6 +37,9 @@ PrecompileTools.@recompile_invalidations begin
 
     using Markdown
 
+    using ConcreteStructs: @concrete
+    using FastClosures: @closure
+
     # Could be made optional/glue
     import PreallocationTools
 
@@ -138,6 +141,7 @@ include("common_defaults.jl")
 include("solve.jl")
 include("internal_euler.jl")
 include("forwarddiff.jl")
+include("termination_conditions_deprecated.jl")  # TODO: remove in the next major release
 include("termination_conditions.jl")
 include("norecompile.jl")
 
