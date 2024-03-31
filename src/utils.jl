@@ -102,6 +102,18 @@ function __nonlinearsolve_is_approx(x, y; atol = false,
     return d ≤ max(atol, rtol * max(maximum(abs, x), maximum(abs, y)))
 end
 
+@inline function __add_and_norm(::Nothing, x, y)
+    Base.depwarn("Not specifying the internal norm of termination conditions has been \
+                  deprecated. Using inf-norm currently.", :__add_and_norm)
+    return __maximum_abs(+, x, y)
+end
 @inline __add_and_norm(::typeof(Base.Fix1(maximum, abs)), x, y) = __maximum_abs(+, x, y)
 @inline __add_and_norm(::typeof(Base.Fix2(norm, Inf)), x, y) = __maximum_abs(+, x, y)
 @inline __add_and_norm(f::F, x, y) where {F} = __norm_op(f, +, x, y)
+
+@inline function __apply_termination_internalnorm(::Nothing, u)
+    Base.depwarn("Not specifying the internal norm of termination conditions has been \
+                  deprecated. Using inf-norm currently.", :__apply_termination_internalnorm)
+    return __apply_termination_internalnorm(Base.Fix1(maximum, abs), u)
+end
+@inline __apply_termination_internalnorm(f::F, u) where {F} = f(u)

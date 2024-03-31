@@ -55,9 +55,13 @@ const TERM_DOCS = Dict(
     :AbsNorm => doc"``\| \frac{\partial u}{\partial t} \| \leq abstol``"
 )
 
-const __TERM_INTERNALNORM_DOCS = "where `internalnorm` is the norm to use for the \
-                                  termination condition. Special handling is done for \
-                                  `norm(_, 2)`, `norm(_, Inf)`, and `maximum(abs, _)`."
+const __TERM_INTERNALNORM_DOCS = """
+where `internalnorm` is the norm to use for the termination condition. Special handling is
+done for `norm(_, 2)`, `norm(_, Inf)`, and `maximum(abs, _)`.
+
+Default is left as `nothing`, which allows upstream frameworks to choose the correct norm
+based on the problem type. If directly using the `init` API, a proper norm must be
+provided"""
 
 for name in (:Rel, :Abs)
     struct_name = Symbol(name, :TerminationMode)
@@ -85,16 +89,14 @@ for name in (:Norm, :RelNorm, :AbsNorm)
 
         ## Constructor
 
-            $($struct_name)(internalnorm = Base.Fix1(maximum, abs))
+            $($struct_name)(internalnorm = nothing)
 
         $($__TERM_INTERNALNORM_DOCS).
         """
         @concrete struct $(struct_name){F} <: AbstractNonlinearTerminationMode
             internalnorm
 
-            function $(struct_name)(f::F = Base.Fix1(maximum, abs)) where {F}
-                return new{__norm_type(f), F}(f)
-            end
+            $(struct_name)(f::F = nothing) where {F} = new{__norm_type(f), F}(f)
         end
     end
 end
@@ -118,10 +120,9 @@ for norm_type in (:Rel, :Abs), safety in (:Safe, :SafeBest)
 
         ## Constructor
 
-            $($struct_name)(internalnorm = Base.Fix1(maximum, abs);
-                protective_threshold = nothing, patience_steps = 100,
-                patience_objective_multiplier = 3, min_max_factor = 1.3,
-                max_stalled_steps = nothing)
+            $($struct_name)(internalnorm = nothing; protective_threshold = nothing,
+                patience_steps = 100, patience_objective_multiplier = 3,
+                min_max_factor = 1.3, max_stalled_steps = nothing)
 
         $($__TERM_INTERNALNORM_DOCS).
         """
@@ -133,10 +134,9 @@ for norm_type in (:Rel, :Abs), safety in (:Safe, :SafeBest)
             min_max_factor
             max_stalled_steps::T
 
-            function $(struct_name)(f::F = Base.Fix1(maximum, abs);
-                    protective_threshold = nothing, patience_steps = 100,
-                    patience_objective_multiplier = 3, min_max_factor = 1.3,
-                    max_stalled_steps = nothing) where {F}
+            function $(struct_name)(f::F = nothing; protective_threshold = nothing,
+                    patience_steps = 100, patience_objective_multiplier = 3,
+                    min_max_factor = 1.3, max_stalled_steps = nothing) where {F}
                 return new{__norm_type(f), typeof(max_stalled_steps), F,
                     typeof(protective_threshold), typeof(patience_objective_multiplier),
                     typeof(min_max_factor)}(f, protective_threshold, patience_steps,
@@ -199,10 +199,10 @@ function SciMLBase.init(du::Union{AbstractArray{T}, T}, u::Union{AbstractArray{T
          (ArrayInterface.can_setindex(u) ? copy(u) : u) : nothing
     if mode isa AbstractSafeNonlinearTerminationMode
         if mode isa AbsSafeTerminationMode || mode isa AbsSafeBestTerminationMode
-            initial_objective = mode.internalnorm(du)
+            initial_objective = __apply_termination_internalnorm(mode.internalnorm, du)
             u0_norm = nothing
         else
-            initial_objective = mode.internalnorm(du) /
+            initial_objective = __apply_termination_internalnorm(mode.internalnorm, du) /
                                 (__add_and_norm(mode.internalnorm, du, u) + eps(TT))
             u0_norm = mode.max_stalled_steps === nothing ? nothing : norm(u, 2)
         end
@@ -255,9 +255,11 @@ function SciMLBase.reinit!(cache::NonlinearTerminationModeCache{dep_retcode}, du
     mode = get_termination_mode(cache)
     if mode isa AbstractSafeNonlinearTerminationMode
         if mode isa AbsSafeTerminationMode || mode isa AbsSafeBestTerminationMode
-            initial_objective = cache.mode.internalnorm(du)
+            initial_objective = __apply_termination_internalnorm(
+                cache.mode.internalnorm, du)
         else
-            initial_objective = cache.mode.internalnorm(du) /
+            initial_objective = __apply_termination_internalnorm(
+                cache.mode.internalnorm, du) /
                                 (__add_and_norm(cache.mode.internalnorm, du, u) + eps(TT))
             cache.max_stalled_steps !== nothing && (cache.u0_norm = norm(u_, 2))
         end
@@ -292,10 +294,10 @@ function (cache::NonlinearTerminationModeCache{dep_retcode})(
         mode::AbstractSafeNonlinearTerminationMode,
         du, u, uprev, args...) where {dep_retcode}
     if mode isa AbsSafeTerminationMode || mode isa AbsSafeBestTerminationMode
-        objective = mode.internalnorm(du)
+        objective = __apply_termination_internalnorm(mode.internalnorm, du)
         criteria = cache.abstol
     else
-        objective = mode.internalnorm(du) /
+        objective = __apply_termination_internalnorm(mode.internalnorm, du) /
                     (__add_and_norm(mode.internalnorm, du, u) + eps(cache.abstol))
         criteria = cache.reltol
     end
@@ -427,7 +429,7 @@ function check_convergence(::AbsTerminationMode, duₙ, uₙ, uₙ₋₁, abstol
 end
 
 function check_convergence(mode::NormTerminationMode, duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    du_norm = mode.internalnorm(duₙ)
+    du_norm = __apply_termination_internalnorm(mode.internalnorm, duₙ)
     return (du_norm ≤ abstol) ||
            (du_norm ≤ reltol * __add_and_norm(mode.internalnorm, duₙ, uₙ))
 end
@@ -435,11 +437,12 @@ function check_convergence(
         mode::Union{
             RelNormTerminationMode, RelSafeTerminationMode, RelSafeBestTerminationMode},
         duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    return mode.internalnorm(duₙ) ≤ reltol * __add_and_norm(mode.internalnorm, duₙ, uₙ)
+    return __apply_termination_internalnorm(mode.internalnorm, duₙ) ≤
+           reltol * __add_and_norm(mode.internalnorm, duₙ, uₙ)
 end
 function check_convergence(
         mode::Union{AbsNormTerminationMode, AbsSafeTerminationMode,
             AbsSafeBestTerminationMode},
         duₙ, uₙ, uₙ₋₁, abstol, reltol)
-    return mode.internalnorm(duₙ) ≤ abstol
+    return __apply_termination_internalnorm(mode.internalnorm, duₙ) ≤ abstol
 end
