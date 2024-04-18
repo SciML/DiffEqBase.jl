@@ -319,12 +319,12 @@ totallength(x::AbstractArray) = __sum(totallength, x; init = 0)
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::Any) = sqrt(sse(u))
 @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{Tag, T}},
         t::Any) where {Tag, T}
-    sqrt(__sum(sse, u; init = T(0)) / totallength(u))
+    sqrt(__sum(sse, u; init = sse(zero(T))) / totallength(u))
 end
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::ForwardDiff.Dual) = sqrt(sse(u))
 @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{Tag, T}},
         ::ForwardDiff.Dual) where {Tag, T}
-    sqrt(__sum(sse, u; init = T(0)) / totallength(u))
+    sqrt(__sum(sse, u; init = sse(zero(T))) / totallength(u))
 end
 
 if !hasmethod(nextfloat, Tuple{ForwardDiff.Dual})
