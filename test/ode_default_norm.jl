@@ -1,4 +1,4 @@
-using Test, RecursiveArrayTools, StaticArrays
+using Test, RecursiveArrayTools, StaticArrays, ForwardDiff
 
 using DiffEqBase: UNITLESS_ABS2, recursive_length, ODE_DEFAULT_NORM
 
@@ -46,3 +46,11 @@ u7 = ArrayPartition(u1, ones(0))
 @test ODE_DEFAULT_NORM(u7, 0.0) == 1.0
 
 @test ODE_DEFAULT_NORM(Float64[], 0.0) == 0.0
+
+# https://github.com/SciML/DiffEqBase.jl/issues/1023
+u8 = ForwardDiff.Dual{:b}.(ForwardDiff.Dual{:a}.([1.0, 2.0, 3.0], true), true)
+u8_ref = 1.2909944487358056
+@test ODE_DEFAULT_NORM(u8, 4.0) isa Float64
+@test ODE_DEFAULT_NORM(u8, 4.0) ≈ u8_ref
+@test ODE_DEFAULT_NORM(u8, ForwardDiff.Dual{:b}(4.0, true)) isa Float64
+@test ODE_DEFAULT_NORM(u8, ForwardDiff.Dual{:b}(4.0, true)) ≈ u8_ref
