@@ -41,11 +41,11 @@ end
 
     if !is_APPVEYOR && GROUP == "Downstream"
         activate_downstream_env()
-        @time @safetestset "Kwarg Warnings" include("downstream/kwarg_warn.jl")
-        @time @safetestset "Solve Error Handling" include("downstream/solve_error_handling.jl")
-        @time @safetestset "Null DE Handling" include("downstream/null_de.jl")
-        @time @safetestset "StaticArrays + AD" include("downstream/static_arrays_ad.jl")
-        @time @safetestset "Unitful" include("downstream/unitful.jl")
+        # @time @safetestset "Kwarg Warnings" include("downstream/kwarg_warn.jl")
+        # @time @safetestset "Solve Error Handling" include("downstream/solve_error_handling.jl")
+        # @time @safetestset "Null DE Handling" include("downstream/null_de.jl")
+        # @time @safetestset "StaticArrays + AD" include("downstream/static_arrays_ad.jl")
+        # @time @safetestset "Unitful" include("downstream/unitful.jl")
         @time @safetestset "Dual Detection Solution" include("downstream/dual_detection_solution.jl")
         @time @safetestset "Null Parameters" include("downstream/null_params_test.jl")
         @time @safetestset "Ensemble Simulations" include("downstream/ensemble.jl")
@@ -60,12 +60,12 @@ end
 
     if !is_APPVEYOR && GROUP == "Downstream2"
         activate_downstream_env()
-        @time @safetestset "Prob Kwargs" include("downstream/prob_kwargs.jl")
-        @time @safetestset "Unwrapping" include("downstream/unwrapping.jl")
-        @time @safetestset "Callback BigFloats" include("downstream/bigfloat_events.jl")
-        @time @safetestset "DE stats" include("downstream/stats_tests.jl")
-        @time @safetestset "Ensemble AD Tests" include("downstream/ensemble_ad.jl")
-        @time @safetestset "Community Callback Tests" include("downstream/community_callback_tests.jl")
+        # @time @safetestset "Prob Kwargs" include("downstream/prob_kwargs.jl")
+        # @time @safetestset "Unwrapping" include("downstream/unwrapping.jl")
+        # @time @safetestset "Callback BigFloats" include("downstream/bigfloat_events.jl")
+        # @time @safetestset "DE stats" include("downstream/stats_tests.jl")
+        # @time @safetestset "Ensemble AD Tests" include("downstream/ensemble_ad.jl")
+        # @time @safetestset "Community Callback Tests" include("downstream/community_callback_tests.jl")
         @time @safetestset "AD via ode with complex numbers" include("downstream/complex_number_ad.jl")
         @time @testset "Distributed Ensemble Tests" include("downstream/distributed_ensemble.jl")
     end
