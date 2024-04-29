@@ -261,6 +261,9 @@ end
 function anyeltypedual(x::NamedTuple, ::Type{Val{counter}} = Val{0}) where {counter}
     anyeltypedual(values(x))
 end
+
+@inline promote_u0(::Nothing, p, t0) = nothing
+
 @inline function promote_u0(u0, p, t0)
     if !(eltype(u0) <: ForwardDiff.Dual)
         T = anyeltypedual(p)

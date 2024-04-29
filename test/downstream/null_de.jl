@@ -1,4 +1,5 @@
 using ModelingToolkit, OrdinaryDiffEq, SteadyStateDiffEq, Test
+using ForwardDiff
 
 @variables t x(t) y(t)
 eqs = [0 ~ x - y
@@ -53,3 +54,26 @@ unsatprob = NonlinearLeastSquaresProblem(unsat_f, nothing)
 sol = solve(unsatprob) # Success
 @test sol.retcode == SciMLBase.ReturnCode.Failure
 @test sol.resid == [1.0]
+
+# Issue#2664
+@testset "remake type promotion with empty initial conditions" begin
+    @parameters P
+    @variables x(t)
+
+    # numerical ODE: x′(t) = P with x(0) = 0
+    sys_num = structural_simplify(ODESystem([D(x) ~ P], t, [x], [P]; name = :sys))
+    prob_num_uninit = ODEProblem(sys_num, [x => 0.0], (0.0, 1.0), [P => NaN]) # uninitialized problem
+    x_at_1_num(P) = solve(remake(prob_num_uninit; p = [sys_num.P => P]), Tsit5())(
+        1.0, idxs = x)
+
+    # analytical solution: x(t) = P*t
+    sys_anal = structural_simplify(ODESystem([x ~ P * t], t, [x], [P]; name = :sys))
+    prob_anal_uninit = ODEProblem(sys_anal, [], (0.0, 1.0), [P => NaN])
+    x_at_1_anal(P) = solve(remake(prob_anal_uninit; p = [sys_anal.P => P]), Tsit5())(
+        1.0, idxs = x)
+
+    @test_nowarn x_at_1_num(1.0)
+    @test_nowarn x_at_1_anal(1.0)
+    @test_nowarn ForwardDiff.derivative(x_at_1_num, 1.0)
+    @test_nowarn ForwardDiff.derivative(x_at_1_anal, 1.0)
+end
