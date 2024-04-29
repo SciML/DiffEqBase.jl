@@ -58,8 +58,8 @@ sol = solve(unsatprob) # Success
 # Issue#2664
 @testset "remake type promotion with empty initial conditions" begin
     @parameters P
-    @variables x(t)
-
+    @variables t x(t)
+    D = Differential(t)
     # numerical ODE: x′(t) = P with x(0) = 0
     sys_num = structural_simplify(ODESystem([D(x) ~ P], t, [x], [P]; name = :sys))
     prob_num_uninit = ODEProblem(sys_num, [x => 0.0], (0.0, 1.0), [P => NaN]) # uninitialized problem
