@@ -99,7 +99,7 @@ Tracker.@grad function DiffEqBase.solve_up(prob,
         kwargs...)
     out = DiffEqBase._solve_adjoint(prob, sensealg, Tracker.data(u0), Tracker.data(p),
         SciMLBase.TrackerOriginator(), args...; kwargs...)
-    convert(AbstractArray, out[1]), out[2]
+    Array(out[1]), out[2]
 end
 
 end
