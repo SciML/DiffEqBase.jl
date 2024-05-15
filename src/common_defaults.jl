@@ -105,7 +105,6 @@ function NAN_CHECK(x::SparseArrays.AbstractSparseMatrixCSC)
 end
 
 INFINITE_OR_GIANT(x::Number) = !isfinite(x)
-INFINITE_OR_GIANT(x::AbstractFloat) = !isfinite(x)
 INFINITE_OR_GIANT(x::Union{AbstractArray, RecursiveArrayTools.AbstractVectorOfArray}) = any(
     INFINITE_OR_GIANT, x)
 INFINITE_OR_GIANT(x::RecursiveArrayTools.ArrayPartition) = any(INFINITE_OR_GIANT, x.x)
