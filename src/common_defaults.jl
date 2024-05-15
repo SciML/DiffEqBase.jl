@@ -95,19 +95,27 @@ end
     "dt=" * string(dt) * "\nt=" * string(t) * "\nmax u=" * string(maximum(abs.(u)))
 end
 
-@inline NAN_CHECK(x::Number) = isnan(x)
-@inline NAN_CHECK(x::Float64) = isnan(x) || (x > 1e50)
-@inline NAN_CHECK(x::Enum) = false
-@inline NAN_CHECK(x::Union{AbstractArray, RecursiveArrayTools.AbstractVectorOfArray}) = any(
-    NAN_CHECK,
-    x)
-@inline NAN_CHECK(x::RecursiveArrayTools.ArrayPartition) = any(NAN_CHECK, x.x)
-@inline function NAN_CHECK(x::SparseArrays.AbstractSparseMatrixCSC)
+NAN_CHECK(x::Number) = isnan(x)
+NAN_CHECK(x::Enum) = false
+NAN_CHECK(x::Union{AbstractArray, RecursiveArrayTools.AbstractVectorOfArray}) = any(
+    NAN_CHECK, x)
+NAN_CHECK(x::RecursiveArrayTools.ArrayPartition) = any(NAN_CHECK, x.x)
+function NAN_CHECK(x::SparseArrays.AbstractSparseMatrixCSC)
     any(NAN_CHECK, SparseArrays.nonzeros(x))
 end
 
-@inline ODE_DEFAULT_UNSTABLE_CHECK(dt, u, p, t) = false
-@inline ODE_DEFAULT_UNSTABLE_CHECK(dt, u::Union{Number, AbstractArray}, p, t) = NAN_CHECK(u)
+INFINITE_OR_GIANT(x::Number) = !isfinite(x)
+INFINITE_OR_GIANT(x::Union{AbstractArray, RecursiveArrayTools.AbstractVectorOfArray}) = any(
+    INFINITE_OR_GIANT, x)
+INFINITE_OR_GIANT(x::RecursiveArrayTools.ArrayPartition) = any(INFINITE_OR_GIANT, x.x)
+function INFINITE_OR_GIANT(x::SparseArrays.AbstractSparseMatrixCSC)
+    any(INFINITE_OR_GIANT, SparseArrays.nonzeros(x))
+end
+ODE_DEFAULT_UNSTABLE_CHECK(dt, u, p, t) = false
+function ODE_DEFAULT_UNSTABLE_CHECK(dt, u::Union{Number, AbstractArray{<:Number}}, p, t)
+    INFINITE_OR_GIANT(u)
+end
+
 
 # Nonlinear Solve Norm (norm(_, 2))
 @inline NONLINEARSOLVE_DEFAULT_NORM(u::Union{AbstractFloat, Complex}) = @fastmath abs(u)
