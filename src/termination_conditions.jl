@@ -50,11 +50,11 @@ end
 @inline __norm_type(::F) where {F} = F
 
 const TERM_DOCS = Dict(
-    :Norm => doc"``\| \frac{\partial u}{\partial t} \| \leq reltol \times \| \frac{\partial u}{\partial t} + u \|`` or ``\| \frac{\partial u}{\partial t} \| \leq abstol``",
-    :Rel => doc"``all \left(| \frac{\partial u}{\partial t} | \leq reltol \times | u | \right)``.",
-    :RelNorm => doc"``\| \frac{\partial u}{\partial t} \| \leq reltol \times \| \frac{\partial u}{\partial t} + u \|``",
-    :Abs => doc"``all \left( | \frac{\partial u}{\partial t} | \leq abstol \right)``.",
-    :AbsNorm => doc"``\| \frac{\partial u}{\partial t} \| \leq abstol``"
+    :Norm => doc"``\| \Delta u \| \leq reltol \times \| \Delta u + u \|`` or ``\| \Delta u \| \leq abstol``.",
+    :Rel => doc"``all \left(| \Delta u | \leq reltol \times | u | \right)``.",
+    :RelNorm => doc"``\| \Delta u \| \leq reltol \times \| \Delta u + u \|``.",
+    :Abs => doc"``all \left( | \Delta u | \leq abstol \right)``.",
+    :AbsNorm => doc"``\| \Delta u \| \leq abstol``."
 )
 
 const __TERM_INTERNALNORM_DOCS = """
@@ -74,6 +74,8 @@ for name in (:Rel, :Abs)
             $($struct_name) <: AbstractNonlinearTerminationMode
 
         Terminates if $($doctring).
+
+        ``\\Delta u`` denotes the increment computed by the nonlinear solver and ``u`` denotes the solution.
         """
         struct $(struct_name) <: AbstractNonlinearTerminationMode end
     end
@@ -88,6 +90,8 @@ for name in (:Norm, :RelNorm, :AbsNorm)
             $($struct_name) <: AbstractNonlinearTerminationMode
 
         Terminates if $($doctring).
+
+        ``\\Delta u`` denotes the increment computed by the inner nonlinear solver.
 
         ## Constructor
 
