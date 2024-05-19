@@ -1,0 +1,9 @@
+module DiffEqBaseCUDA
+
+using DiffEqBase, CUDA
+
+function ODE_DEFAULT_NORM(u::CuArray{T},t) where {T <: Union{AbstractFloat, Complex}}
+    sqrt(sum(DiffEqBase.sse, u; init = DiffEqBase.sse(zero(T))) / totallength(u))
+end
+
+end

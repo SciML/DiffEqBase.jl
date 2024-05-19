@@ -36,6 +36,7 @@ Tricks = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
 TruncatedStacktraces = "781d530d-4396-4725-bb49-402e4bee1e77"
 
 [weakdeps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
@@ -48,6 +49,7 @@ Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [extensions]
+DiffEqBaseCUDAExt = "CUDA"
 DiffEqBaseChainRulesCoreExt = "ChainRulesCore"
 DiffEqBaseDistributionsExt = "Distributions"
 DiffEqBaseEnzymeExt = ["ChainRulesCore", "Enzyme"]
@@ -61,6 +63,7 @@ DiffEqBaseUnitfulExt = "Unitful"
 
 [compat]
 ArrayInterface = "7.8"
+CUDA = "5"
 ChainRulesCore = "1"
 ConcreteStructs = "0.2.3"
 DataStructures = "0.18"
