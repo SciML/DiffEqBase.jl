@@ -1,4 +1,4 @@
-module DiffEqBaseCUDA
+module DiffEqBaseCUDAExt
 
 using DiffEqBase, CUDA
 
