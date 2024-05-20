@@ -311,7 +311,7 @@ value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
 
 @inline fastpow(x::ForwardDiff.Dual, y::ForwardDiff.Dual) = x^y
 
-sse(x::Number) = x^2
+sse(x::Number) = abs2(x)
 sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
 totallength(x::Number) = 1
 function totallength(x::ForwardDiff.Dual)
