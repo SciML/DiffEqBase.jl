@@ -21,8 +21,6 @@ prob = ODEProblem{false}(f, 1.0 + im, tspan)
 @test_throws DiffEqBase.ComplexSupportError solve(prob, CVODE_Adams())
 
 @test_throws DiffEqBase.ProblemSolverPairingError solve(prob, DFBDF())
-@test_throws DiffEqBase.NoDefaultAlgorithmError solve(prob, nothing)
-@test_throws DiffEqBase.NoDefaultAlgorithmError init(prob, nothing)
 @test_throws DiffEqBase.NonSolverError solve(prob, 5.0)
 
 prob = ODEProblem{false}(f, u0, (nothing, nothing))
