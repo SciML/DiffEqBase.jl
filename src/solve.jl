@@ -534,7 +534,7 @@ end
 function init(
         prob::Union{AbstractDEProblem, NonlinearProblem}, args...; sensealg = nothing,
         u0 = nothing, p = nothing, kwargs...)
-    if sensealg === nothing && haskey(prob.kwargs, :sensealg)
+    if sensealg === nothing && has_kwargs(prob) && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
 
@@ -549,7 +549,7 @@ function init(prob::AbstractJumpProblem, args...; kwargs...)
 end
 
 function init_up(prob::AbstractDEProblem, sensealg, u0, p, args...; kwargs...)
-    alg = extract_alg(args, kwargs, prob.kwargs)
+    alg = extract_alg(args, kwargs, has_kwargs(prob) ? prob.kwargs : kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
             p = p, kwargs...)
@@ -1065,7 +1065,7 @@ end
 
 function solve_up(prob::Union{AbstractDEProblem, NonlinearProblem}, sensealg, u0, p,
         args...; kwargs...)
-    alg = extract_alg(args, kwargs, prob.kwargs)
+    alg = extract_alg(args, kwargs,  has_kwargs(prob) ? prob.kwargs : kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
             p = p, kwargs...)
