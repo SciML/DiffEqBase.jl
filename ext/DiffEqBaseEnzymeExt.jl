@@ -28,10 +28,7 @@ function Enzyme.EnzymeRules.augmented_primal(config::Enzyme.EnzymeRules.ConfigWi
         SciMLBase.EnzymeOriginator(), ntuple(arg_copy, Val(length(args)))...;
         kwargs...)
 
-    dres = deepcopy(res[1])::RT
-    for v in dres.u
-        v .= 0
-    end
+    dres = Enzyme.make_zero(res[1])::RT
     tup = (dres, res[2])
     return Enzyme.EnzymeRules.AugmentedReturn{RT, RT, Any}(res[1], dres, tup::Any)
 end
@@ -52,9 +49,7 @@ function Enzyme.EnzymeRules.reverse(config::Enzyme.EnzymeRules.ConfigWidth{1},
         end
         ptr.dval .+= darg
     end
-    for v in dres.u
-        v .= 0
-    end
+    dres = Enzyme.make_zero(dres)
     return ntuple(_ -> nothing, Val(length(args) + 4))
 end
 
