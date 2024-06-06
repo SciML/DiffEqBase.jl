@@ -320,3 +320,11 @@ ow = OutsideWrapper(1.0, iw)
 @test !(DiffEqBase.anyeltypedual(ow) <: ForwardDiff.Dual)
 @inferred DiffEqBase.anyeltypedual(iw)
 @inferred DiffEqBase.anyeltypedual(ow)
+
+# Issue https://github.com/SciML/ModelingToolkit.jl/issues/2717
+u0 = [1.0, 2.0, 3.0]
+p = [1, 2]
+t = ForwardDiff.Dual{ForwardDiff.Tag{DiffEqBase.OrdinaryDiffEqTag, Float64}, Float64, 1}(1.0)
+@test DiffEqBase.promote_u0(u0, p, t) isa AbstractArray{<:ForwardDiff.Dual}
+u0 = [1.0 + 1im, 2.0, 3.0]
+@test DiffEqBase.promote_u0(u0, p, t) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}

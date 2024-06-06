@@ -265,26 +265,45 @@ end
 @inline promote_u0(::Nothing, p, t0) = nothing
 
 @inline function promote_u0(u0, p, t0)
-    if !(eltype(u0) <: ForwardDiff.Dual)
-        T = anyeltypedual(p)
-        T === Any && return u0
-        if T <: ForwardDiff.Dual
-            return T.(u0)
-        end
+    Tu = eltype(u0)
+    if Tu <: ForwardDiff.Dual
+        return u0
     end
-    u0
+    Tp = anyeltypedual(p)
+    if Tp == Any
+        Tp = Tu
+    end
+    Tt = anyeltypedual(t0)
+    if Tt == Any
+        Tt = Tu
+    end
+    Tcommon = promote_type(Tu, Tp, Tt)
+    return if Tcommon <: ForwardDiff.Dual
+        Tcommon.(u0)
+    else
+        u0
+    end
 end
 
 @inline function promote_u0(u0::AbstractArray{<:Complex}, p, t0)
-    if !(real(eltype(u0)) <: ForwardDiff.Dual)
-        T = anyeltypedual(p)
-        T === Any && return u0
-        if T <: ForwardDiff.Dual
-            Ts = promote_type(T, eltype(u0))
-            return Ts.(u0)
-        end
+    Tu = real(eltype(u0))
+    if Tu <: ForwardDiff.Dual
+        return u0
     end
-    u0
+    Tp = anyeltypedual(p)
+    if Tp == Any
+        Tp = Tu
+    end
+    Tt = anyeltypedual(t0)
+    if Tt == Any
+        Tt = Tu
+    end
+    Tcommon = promote_type(eltype(u0), Tp, Tt)
+    return if real(Tcommon) <: ForwardDiff.Dual
+        Tcommon.(u0)
+    else
+        u0
+    end
 end
 
 function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p,
