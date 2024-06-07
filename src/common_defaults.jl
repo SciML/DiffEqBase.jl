@@ -106,20 +106,7 @@ function NAN_CHECK(x::SparseArrays.AbstractSparseMatrixCSC)
     any(NAN_CHECK, SparseArrays.nonzeros(x))
 end
 
-INFINITE_OR_GIANT(x::Number) = !isfinite(x)
-function INFINITE_OR_GIANT(x::Union{
-        AbstractArray, RecursiveArrayTools.AbstractVectorOfArray})
-    any(
-        INFINITE_OR_GIANT, x)
-end
-INFINITE_OR_GIANT(x::RecursiveArrayTools.ArrayPartition) = any(INFINITE_OR_GIANT, x.x)
-function INFINITE_OR_GIANT(x::SparseArrays.AbstractSparseMatrixCSC)
-    any(INFINITE_OR_GIANT, SparseArrays.nonzeros(x))
-end
 ODE_DEFAULT_UNSTABLE_CHECK(dt, u, p, t) = false
-function ODE_DEFAULT_UNSTABLE_CHECK(dt, u::Union{Number, AbstractArray{<:Number}}, p, t)
-    INFINITE_OR_GIANT(u)
-end
 
 # Nonlinear Solve Norm (norm(_, 2))
 NONLINEARSOLVE_DEFAULT_NORM(u::Union{AbstractFloat, Complex}) = @fastmath abs(u)
