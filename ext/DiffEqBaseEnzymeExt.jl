@@ -49,7 +49,7 @@ function Enzyme.EnzymeRules.reverse(config::Enzyme.EnzymeRules.ConfigWidth{1},
         end
         ptr.dval .+= darg
     end
-    Enzyme.make_zero!(dres)
+    Enzyme.make_zero!(dres.u)
     return ntuple(_ -> nothing, Val(length(args) + 4))
 end
 
