@@ -328,3 +328,10 @@ t = ForwardDiff.Dual{ForwardDiff.Tag{DiffEqBase.OrdinaryDiffEqTag, Float64}, Flo
 @test DiffEqBase.promote_u0(u0, p, t) isa AbstractArray{<:ForwardDiff.Dual}
 u0 = [1.0 + 1im, 2.0, 3.0]
 @test DiffEqBase.promote_u0(u0, p, t) isa AbstractArray{<:Complex{<:ForwardDiff.Dual}}
+
+# Issue https://github.com/SciML/NonlinearSolve.jl/issues/440
+f(u, p, t) = [u[2], 1.5u[1]^2]
+ode = ODEProblem(f, [0.0, 0.0], (0, 1))
+@inferred DiffEqBase.anyeltypedual(ode)
+ode = NonlinearProblem(f, [0.0, 0.0], (0, 1))
+@inferred DiffEqBase.anyeltypedual(ode)

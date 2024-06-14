@@ -112,6 +112,65 @@ https://discourse.julialang.org/t/typeerror-in-julia-turing-when-sampling-for-a-
     end
 end
 
+const FORWARDDIFF_AUTODETECTION_FAILURE_MESSAGE = """
+                                Failed to automatically detect ForwardDiff compatability of
+                                the parameter object. In order for ForwardDiff.jl automatic
+                                differentiation to work on a solution object, the state of
+                                the differential equation or nonlinear solve (`u0`) needs to
+                                be converted to a Dual type which matches the values being
+                                differentiated. For example, for a loss function loss(p)
+                                where `p`` is a `Vector{Float64}`, this conversion is
+                                equivalent to:
+
+                                ```julia
+                                # Convert u0 to match the new Dual element type of `p`
+                                _prob = remake(prob, u0 = eltype(p).(prob.u0))
+                                ```
+
+                                In most cases, SciML tools are able to do this conversion
+                                automatically. However, it seems you have provided a
+                                parameter type for which this automatic conversion has failed.
+
+                                To fix this, you can do the conversion yourself. For example,
+                                if you have a parameter vector being optimized `p` which is
+                                then put into an odd struct, you can manually convert `u0`
+                                to match `p`:
+
+                                ```julia
+                                function loss(p)
+                                    _prob = remake(prob, u0 = eltype(p).(prob.u0), p = MyStruct(p))
+                                    sol = solve(_prob, ...)
+                                    # do stuff on sol
+                                end
+                                ```
+
+                                Or you can define a dispatch on `DiffEqBase.anyeltypedual`
+                                which tells the system what fields to interpret as the
+                                differentiable parts. For example, to support ODESolutions
+                                as parameters we tell it the data is `sol.u` and `sol.t` via:
+
+                                ```julia
+                                function DiffEqBase.anyeltypedual(sol::ODESolution, counter = 0)
+                                    DiffEqBase.anyeltypedual((sol.u, sol.t))
+                                end
+                                ```
+
+                                If you have defined this on a common type which should
+                                be more generally supported, please open a pull request
+                                adding this dispatch. If you need help defining this dispatch,
+                                feel free to open an issue.
+                                """
+
+struct ForwardDiffAutomaticDetectionFailure <: Exception end
+
+function Base.showerror(io::IO, e::ForwardDiffAutomaticDetectionFailure)
+    print(io, FORWARDDIFF_AUTODETECTION_FAILURE_MESSAGE)
+end
+
+function anyeltypedual(::Type{Union{}})
+    throw(ForwardDiffAutomaticDetectionFailure())
+end
+
 # Opt out since these are using for preallocation, not differentiation
 function anyeltypedual(x::Union{ForwardDiff.AbstractConfig, Module},
         ::Type{Val{counter}} = Val{0}) where {counter}
@@ -190,6 +249,16 @@ end
 
 function anyeltypedual(sol::RecursiveArrayTools.AbstractDiffEqArray, counter = 0)
     diffeqmapreduce(anyeltypedual, promote_dual, (sol.u, sol.t))
+end
+
+function anyeltypedual(prob::Union{ODEProblem, SDEProblem, RODEProblem, DDEProblem},
+    ::Type{Val{counter}} = Val{0}) where {counter} where {N, T <: NTuple{N, <:Number}}
+    anyeltypedual((prob.u0, prob.p, prob.tspan))
+end
+
+function anyeltypedual(prob::Union{NonlinearProblem, NonlinearLeastSquaresProblem, OptimizationProblem},
+    ::Type{Val{counter}} = Val{0}) where {counter} where {N, T <: NTuple{N, <:Number}}
+    anyeltypedual((prob.u0, prob.p))
 end
 
 function anyeltypedual(x::Number, ::Type{Val{counter}} = Val{0}) where {counter}
