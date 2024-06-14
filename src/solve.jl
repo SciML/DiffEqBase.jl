@@ -1065,7 +1065,7 @@ end
 
 function solve_up(prob::Union{AbstractDEProblem, NonlinearProblem}, sensealg, u0, p,
         args...; kwargs...)
-    alg = extract_alg(args, kwargs,  has_kwargs(prob) ? prob.kwargs : kwargs)
+    alg = extract_alg(args, kwargs, has_kwargs(prob) ? prob.kwargs : kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
             p = p, kwargs...)
