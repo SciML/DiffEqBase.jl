@@ -252,13 +252,13 @@ function anyeltypedual(sol::RecursiveArrayTools.AbstractDiffEqArray, counter = 0
 end
 
 function anyeltypedual(prob::Union{ODEProblem, SDEProblem, RODEProblem, DDEProblem},
-        ::Type{Val{counter}} = Val{0}) where {counter} where {N, T <: NTuple{N, <:Number}}
+        ::Type{Val{counter}} = Val{0}) where {counter}
     anyeltypedual((prob.u0, prob.p, prob.tspan))
 end
 
 function anyeltypedual(
         prob::Union{NonlinearProblem, NonlinearLeastSquaresProblem, OptimizationProblem},
-        ::Type{Val{counter}} = Val{0}) where {counter} where {N, T <: NTuple{N, <:Number}}
+        ::Type{Val{counter}} = Val{0}) where {counter}
     anyeltypedual((prob.u0, prob.p))
 end
 
