@@ -182,8 +182,8 @@ function anyeltypedual(x::Type{T},
     Any
 end
 
-function anyeltypedual(::Type{<:AbstractTimeseriesSolution{T,N}},
-    ::Type{Val{counter}} = Val{0}) where {T, N, counter}
+function anyeltypedual(::Type{<:AbstractTimeseriesSolution{T, N}},
+        ::Type{Val{counter}} = Val{0}) where {T, N, counter}
     anyeltypedual(T)
 end
 
