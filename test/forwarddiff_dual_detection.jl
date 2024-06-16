@@ -342,6 +342,5 @@ struct Foo{T}; sol::T; end
 u0 = 1/2
 tspan = (0.0, 1.0)
 prob = ODEProblem{false}(f, u0, tspan)
-sol = solve(prob, Tsit5())
-foo = Foo(sol)
+foo = SciMLBase.build_solution(prob, DiffEqBase.InternalEuler.FwdEulerAlg(), [u0,u0], [0.0,1.0])
 DiffEqBase.anyeltypedual((;x=foo))
