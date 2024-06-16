@@ -181,6 +181,12 @@ function anyeltypedual(x::Type{T},
                                                               ForwardDiff.AbstractConfig}
     Any
 end
+
+function anyeltypedual(::Type{<:AbstractTimeseriesSolution{T, N}},
+        ::Type{Val{counter}} = Val{0}) where {T, N, counter}
+    anyeltypedual(T)
+end
+
 function anyeltypedual(x::ForwardDiff.DiffResults.DiffResult,
         ::Type{Val{counter}} = Val{0}) where {counter}
     Any
