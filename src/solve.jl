@@ -676,7 +676,21 @@ function build_null_solution(prob::AbstractDEProblem, args...;
 
     timeseries = [Float64[] for i in 1:length(ts)]
 
-    build_solution(prob, nothing, ts, timeseries, retcode = ReturnCode.Success)
+    sol = build_solution(prob, nothing, ts, timeseries, retcode = ReturnCode.Success)
+    if SciMLBase.has_initializeprob(prob.f)
+        integ = NullODEIntegrator{
+            isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol),
+            typeof(prob.f), typeof(prob.p)
+        }(Float64[],
+            Float64[],
+            prob.tspan[1],
+            prob,
+            sol,
+            prob.f,
+            prob.p)
+        initialize_dae!(integ)
+    end
+    return sol
 end
 
 function build_null_solution(
