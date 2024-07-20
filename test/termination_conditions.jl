@@ -5,7 +5,7 @@ u = rand(4)
 uprev = rand(4)
 
 const TERMINATION_CONDITIONS = [
-    SteadyStateDiffEqTerminationMode(), SimpleNonlinearSolveTerminationMode(),
+    SimpleNonlinearSolveTerminationMode(),
     RelTerminationMode(), NormTerminationMode(), RelNormTerminationMode(),
     AbsTerminationMode(), AbsNormTerminationMode(), RelSafeTerminationMode(),
     AbsSafeTerminationMode(), RelSafeBestTerminationMode(), AbsSafeBestTerminationMode()
