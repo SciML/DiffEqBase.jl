@@ -8,7 +8,7 @@ prob = prob_sde_2Dlinear
 prob2 = EnsembleProblem(prob)
 sim = solve(prob2, SRIW1(), dt = 1 // 2^(3), trajectories = 10)
 
-@test sim[1] isa DiffEqBase.RODESolution
+@test sim.u[1] isa DiffEqBase.RODESolution
 @test sim[1, 2] isa Matrix
 @test sim[1, 2, 1] isa Float64
 
