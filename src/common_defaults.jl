@@ -102,9 +102,6 @@ function NAN_CHECK(x::Union{AbstractArray, RecursiveArrayTools.AbstractVectorOfA
         NAN_CHECK, x)
 end
 NAN_CHECK(x::RecursiveArrayTools.ArrayPartition) = any(NAN_CHECK, x.x)
-function NAN_CHECK(x::SparseArrays.AbstractSparseMatrixCSC)
-    any(NAN_CHECK, SparseArrays.nonzeros(x))
-end
 
 INFINITE_OR_GIANT(x::Number) = !isfinite(x)
 function INFINITE_OR_GIANT(x::Union{
@@ -113,9 +110,6 @@ function INFINITE_OR_GIANT(x::Union{
         INFINITE_OR_GIANT, x)
 end
 INFINITE_OR_GIANT(x::RecursiveArrayTools.ArrayPartition) = any(INFINITE_OR_GIANT, x.x)
-function INFINITE_OR_GIANT(x::SparseArrays.AbstractSparseMatrixCSC)
-    any(INFINITE_OR_GIANT, SparseArrays.nonzeros(x))
-end
 ODE_DEFAULT_UNSTABLE_CHECK(dt, u, p, t) = false
 function ODE_DEFAULT_UNSTABLE_CHECK(dt, u::Union{Number, AbstractArray{<:Number}}, p, t)
     INFINITE_OR_GIANT(u)

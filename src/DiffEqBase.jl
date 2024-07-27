@@ -25,7 +25,6 @@ using FastBroadcast: @.., True, False
 using Static: reduce_tup
 
 import RecursiveArrayTools
-import SparseArrays
 import TruncatedStacktraces
 
 using Setfield
