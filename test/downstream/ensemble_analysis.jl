@@ -25,7 +25,7 @@ vecarr = timeseries_steps_quantile(sim, 0.5)
 m_series, v_series = timeseries_steps_meanvar(sim)
 summ = EnsembleSummary(sim)
 
-m4, v4 = m_series[3], v_series[3]
+m4, v4 = m_series.u[3], v_series.u[3]
 covar_mat = timeseries_steps_meancov(sim)[3, 3]
 @test m ≈ m4
 @test v ≈ v4
