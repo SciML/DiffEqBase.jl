@@ -1388,7 +1388,7 @@ function __solve(
         kwargs...)
     if second_time
         throw(NoDefaultAlgorithmError())
-    elseif length(args) > 0 && !(first(args) isa Union{Nothing, AbstractDEAlgorithm})
+    elseif length(args) > 0 && !(first(args) isa Union{Nothing, AbstractDEAlgorithm, AbstractNonlinearAlgorithm})
         throw(NonSolverError())
     else
         __solve(prob, nothing, args...; default_set = false, second_time = true, kwargs...)
@@ -1399,7 +1399,7 @@ function __init(prob::AbstractDEProblem, args...; default_set = false, second_ti
         kwargs...)
     if second_time
         throw(NoDefaultAlgorithmError())
-    elseif length(args) > 0 && !(first(args) isa Union{Nothing, AbstractDEAlgorithm})
+    elseif length(args) > 0 && !(first(args) isa Union{Nothing, AbstractDEAlgorithm, AbstractNonlinearAlgorithm})
         throw(NonSolverError())
     else
         __init(prob, nothing, args...; default_set = false, second_time = true, kwargs...)
