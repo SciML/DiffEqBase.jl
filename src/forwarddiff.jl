@@ -155,6 +155,15 @@ const FORWARDDIFF_AUTODETECTION_FAILURE_MESSAGE = """
                                 end
                                 ```
 
+                                To opt a type out of the dual checking, define an overload
+                                that returns Any. For example:
+
+                                ```julia
+                                function DiffEqBase.anyeltypedual(::YourType, ::Type{Val{counter}}) where {counter}
+                                    Any
+                                end
+                                ```
+
                                 If you have defined this on a common type which should
                                 be more generally supported, please open a pull request
                                 adding this dispatch. If you need help defining this dispatch,
@@ -337,6 +346,8 @@ end
 function anyeltypedual(x::NamedTuple, ::Type{Val{counter}} = Val{0}) where {counter}
     anyeltypedual(values(x))
 end
+
+DiffEqBase.anyeltypedual(f::SciMLBase.AbstractSciMLFunction, ::Type{Val{counter}}) where {counter} = Any
 
 @inline promote_u0(::Nothing, p, t0) = nothing
 
