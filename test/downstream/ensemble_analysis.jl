@@ -25,7 +25,7 @@ vecarr = timeseries_steps_quantile(sim, 0.5)
 m_series, v_series = timeseries_steps_meanvar(sim)
 summ = EnsembleSummary(sim)
 
-m4, v4 = m_series[3], v_series[3]
+m4, v4 = m_series.u[3], v_series.u[3]
 covar_mat = timeseries_steps_meancov(sim)[3, 3]
 @test m ≈ m4
 @test v ≈ v4
@@ -54,7 +54,7 @@ m_series = timeseries_point_median(sim, 0:(1 // 2^(3)):1)
 m_series = timeseries_point_quantile(sim, 0.5, 0:(1 // 2^(3)):1)
 m_series, v_series = timeseries_point_meanvar(sim, 0:(1 // 2^(3)):1)
 summ = EnsembleSummary(sim, 0:(1 // 2^(3)):1)
-m5, v5 = m_series[5], v_series[5]
+m5, v5 = m_series.u[5], v_series.u[5]
 @test m ≈ m5
 @test v ≈ v5
 m6, m7, v6 = timeseries_point_meancov(sim, 0:(1 // 2^(3)):1, 0:(1 // 2^(3)):1)[5, 5]
@@ -83,7 +83,7 @@ vecarr = timeseries_steps_quantile(sim, 0.5)
 m_series, v_series = timeseries_steps_meanvar(sim)
 summ = EnsembleSummary(sim)
 
-m4, v4 = m_series[3], v_series[3]
+m4, v4 = m_series.u[3], v_series.u[3]
 covar_mat = timeseries_steps_meancov(sim)[3, 3]
 @test m ≈ m4
 @test v ≈ v4
@@ -112,7 +112,7 @@ m_series = timeseries_point_median(sim, 0:(1 // 2^(3)):1)
 m_series = timeseries_point_quantile(sim, 0.5, 0:(1 // 2^(3)):1)
 m_series, v_series = timeseries_point_meanvar(sim, 0:(1 // 2^(3)):1)
 summ = EnsembleSummary(sim, 0:(1 // 2^(3)):1)
-m5, v5 = m_series[5], v_series[5]
+m5, v5 = m_series.u[5], v_series.u[5]
 @test m ≈ m5
 @test v ≈ v5
 m6, m7, v6 = timeseries_point_meancov(sim, 0:(1 // 2^(3)):1, 0:(1 // 2^(3)):1)[5, 5]

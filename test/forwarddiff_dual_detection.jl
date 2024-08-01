@@ -347,3 +347,4 @@ prob = ODEProblem{false}(f, u0, tspan)
 foo = SciMLBase.build_solution(
     prob, DiffEqBase.InternalEuler.FwdEulerAlg(), [u0, u0], [0.0, 1.0])
 DiffEqBase.anyeltypedual((; x = foo))
+DiffEqBase.anyeltypedual((; x = foo, y = prob.f))
