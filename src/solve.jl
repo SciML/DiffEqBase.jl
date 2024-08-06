@@ -626,6 +626,9 @@ end
 function build_null_integrator(prob::AbstractDEProblem, args...;
         kwargs...)
     sol = solve(prob, args...; kwargs...)
+    # The DAE initialization in `build_null_solution` may change the parameter
+    # object `prob.p` via `@set!`, hence use the "new" prob instead of the "old" one.
+    prob = sol.prob
     return NullODEIntegrator{
         isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol),
         typeof(prob.f), typeof(prob.p)
@@ -675,7 +678,12 @@ function build_null_solution(prob::AbstractDEProblem, args...;
     end
 
     timeseries = [Float64[] for i in 1:length(ts)]
-
+    
+    if SciMLBase.has_initializeprob(prob.f) && SciMLBase.has_initializeprobpmap(prob.f)
+        initializeprob = prob.f.initializeprob
+        nlsol = solve(initializeprob)
+        @set! prob.p = prob.f.initializeprobpmap(prob, nlsol)
+    end
     build_solution(prob, nothing, ts, timeseries, retcode = ReturnCode.Success)
 end
 
