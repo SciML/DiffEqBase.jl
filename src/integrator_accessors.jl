@@ -1,6 +1,9 @@
 # the following are setup per how integrators are implemented in OrdinaryDiffEq and
 # StochasticDiffEq and provide dispatch points that JumpProcesses and others can use.
 
-get_tstops(integ) = integ.opts.tstops
-get_tstops_array(integ) = get_tstops(integ).valtree
-get_tstops_max(integ) = maximum(get_tstops_array(integ))
+get_tstops(integ::DEIntegrator) =
+    error("get_tstops not implemented for integrators of type $(typeof(iteg))")
+get_tstops_array(integ::DEIntegrator) =
+    error("get_tstops_array not implemented for integrators of type $(typeof(iteg))")
+get_tstops_max(integ::DEIntegrator) =
+    error("get_tstops_max not implemented for integrators of type $(typeof(iteg))")
