@@ -141,6 +141,7 @@ include("forwarddiff.jl")
 include("termination_conditions_deprecated.jl")  # TODO: remove in the next major release
 include("termination_conditions.jl")
 include("norecompile.jl")
+include("integrator_accessors.jl")
 
 # This is only used for oop stiff solvers
 default_factorize(A) = lu(A; check = false)
