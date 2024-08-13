@@ -3,4 +3,4 @@
 
 get_tstops(integ) = integ.opts.tstops
 get_tstops_array(integ) = get_tstops(integ).valtree
-get_max_tstops(integ) = maximum(get_tstops_array(integ))
+get_tstops_max(integ) = maximum(get_tstops_array(integ))
