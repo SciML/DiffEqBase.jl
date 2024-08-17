@@ -1,7 +1,7 @@
 module DiffEqBaseEnzymeExt
 
 using DiffEqBase
-import DiffEqBase: value
+import DiffEqBase: value, fastpow
 using Enzyme
 import Enzyme: Const
 using ChainRulesCore
@@ -51,6 +51,40 @@ function Enzyme.EnzymeRules.reverse(config::Enzyme.EnzymeRules.RevConfigWidth{1}
     end
     Enzyme.make_zero!(dres.u)
     return ntuple(_ -> nothing, Val(length(args) + 4))
+end
+
+function EnzymeRules.forward(func::Const{typeof(fastpow)},
+            RT::Type{<:Union{Const,DuplicatedNoNeed,Duplicated,
+            BatchDuplicated,BatchDuplicatedNoNeed}},
+            _x::Annotation, _y::Annotation)
+    x = _x.val
+    y = _y.val
+    ret = func.val(x.val, y.val)
+    dxval = x.dval * y * (fastpow(x,y - 1))
+    dyval = x isa Real && x<=0 ? Base.oftype(float(x), NaN) : y.dval*(fastpow(x,y))*log(x)
+    return Duplicated(ret, dxval + dyval)
+end
+
+function EnzymeRules.augmented_primal(config::ConfigWidth{1}, 
+                          func::Const{typeof(fastpow)}, 
+                          ::Type{<:Active},
+                          x::Active, x::Active)
+    if EnzymeRules.needs_primal(config)
+        primal = func.val(x.val, y.val)
+    else
+        primal = nothing
+    end
+    return EnzymeRules.AugmentedReturn(primal, nothing, nothing)
+end
+
+function EnzymeRules.reverse(config::EnzymeRules.ConfigWidth{1}, 
+                            func::Const{DiffEqBase.fastpow}, dret, tape::Nothing,
+                            _x, _y)
+    x = _x.val
+    y = _y.val
+    dxval = x.dval * y * (fastpow(x,y - 1))
+    dyval = x isa Real && x<=0 ? Base.oftype(float(x), NaN) : y.dval*(fastpow(x,y))*log(x)
+    return (dxval, dyval)
 end
 
 end
