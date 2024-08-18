@@ -97,9 +97,7 @@ const allowedkeywords = (:dense,
     :trace_level,
     :store_trace,
     # Termination condition for solvers
-    :termination_condition,
-    # whether to alias the user tstops array (JumpProcesses.SSAStepper only at this time)
-    :alias_tstops)
+    :termination_condition)
 
 const KWARGWARN_MESSAGE = """
                           Unrecognized keyword arguments found.
