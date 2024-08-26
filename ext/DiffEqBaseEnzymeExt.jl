@@ -90,8 +90,8 @@ function EnzymeRules.reverse(config::Enzyme.EnzymeRules.ConfigWidth{1},
         func::Const{typeof(DiffEqBase.fastpow)}, dret::Active, tape, _x::Active, _y::Active)
     x = _x.val
     y = _y.val
-    dxval =  y * (fastpow(x,y - 1))
-    dyval = x isa Real && x<=0 ? Base.oftype(float(x), NaN) :  (fastpow(x,y))*log(x)
+    dxval =  dret.val * y * (fastpow(x,y - 1))
+    dyval = x isa Real && x<=0 ? Base.oftype(float(x), NaN) : dret.val * (fastpow(x,y))*log(x)
     return (dxval, dyval)
 end
 
