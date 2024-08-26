@@ -27,7 +27,7 @@ end
         Ty in (Const, Duplicated)
         x = 3.0
         y = 2.0
-        test_forward(fastpow, RT, (x, Tx), (y, Ty), atol=0.1, rtol=0.1)
+        test_forward(fastpow, RT, (x, Tx), (y, Ty), atol=0.005, rtol=0.005)
     end
 end
 
@@ -37,6 +37,6 @@ end
         Ty in (Active,)
         x = 2.0
         y = 3.0
-        test_reverse(fastpow, RT, (x, Tx), (y, Ty))
+        test_reverse(fastpow, RT, (x, Tx), (y, Ty), atol=0.001, rtol=0.001)
     end
 end
