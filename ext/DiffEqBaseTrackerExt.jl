@@ -97,15 +97,9 @@ Tracker.@grad function DiffEqBase.solve_up(prob,
         },
         u0, p, args...;
         kwargs...)
-    sol, pb_f = DiffEqBase._solve_adjoint(
-        prob, sensealg, Tracker.data(u0), Tracker.data(p),
+    out = DiffEqBase._solve_adjoint(prob, sensealg, Tracker.data(u0), Tracker.data(p),
         SciMLBase.TrackerOriginator(), args...; kwargs...)
-
-    if sol isa AbstractArray
-        !hasfield(typeof(sol), :u) && return sol, pb_f # being safe here
-        return sol.u, pb_f # AbstractNoTimeSolution isa AbstractArray
-    end
-    return convert(AbstractArray, sol), pb_f
+    Array(out[1]), out[2]
 end
 
 end
