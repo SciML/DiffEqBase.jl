@@ -101,6 +101,8 @@ import SciMLBase: solve, init, step!, solve!, __init, __solve, update_coefficien
 
 import SciMLBase: AbstractDiffEqLinearOperator # deprecation path
 
+import SciMLStructures
+
 import Tricks
 
 using Reexport
