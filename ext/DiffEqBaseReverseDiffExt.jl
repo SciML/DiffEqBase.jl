@@ -5,8 +5,8 @@ import DiffEqBase: value
 import ReverseDiff
 import DiffEqBase.ArrayInterface
 
-function DiffEqBase.anyeltypedual(::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T <: ReverseDiff.TrackedArray}
-    Any
+function DiffEqBase.anyeltypedual(::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {V, D, N, VA, DA, T <: ReverseDiff.TrackedArray{V, D, N, VA, DA}}
+    DiffEqBase.anyeltypedual(V, Val{counter})
 end
 
 DiffEqBase.value(x::Type{ReverseDiff.TrackedReal{V, D, O}}) where {V, D, O} = V
