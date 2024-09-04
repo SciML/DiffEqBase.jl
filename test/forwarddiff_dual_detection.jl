@@ -1,4 +1,5 @@
 using DiffEqBase, ForwardDiff, Test, InteractiveUtils
+using ReverseDiff, SciMLStructures
 using Plots
 
 u0 = 2.0
@@ -348,3 +349,20 @@ foo = SciMLBase.build_solution(
     prob, DiffEqBase.InternalEuler.FwdEulerAlg(), [u0, u0], [0.0, 1.0])
 DiffEqBase.anyeltypedual((; x = foo))
 DiffEqBase.anyeltypedual((; x = foo, y = prob.f))
+
+@test DiffEqBase.anyeltypedual(ReverseDiff.track(ones(3))) == Any
+@test DiffEqBase.anyeltypedual(typeof(ReverseDiff.track(ones(3)))) == Any
+@test DiffEqBase.anyeltypedual(ReverseDiff.track(ones(ForwardDiff.Dual, 3))) == eltype(ones(ForwardDiff.Dual, 3))
+@test DiffEqBase.anyeltypedual(typeof(ReverseDiff.track(ones(ForwardDiff.Dual, 3)))) == eltype(ones(ForwardDiff.Dual, 3))
+
+struct FakeParameterObject{T}
+    tunables::T
+end
+
+SciMLStructures.isscimlstructure(::FakeParameterObject) = true
+SciMLStructures.canonicalize(::SciMLStructures.Tunable, f::FakeParameterObject) = f.tunables, x -> FakeParameterObject(x), true
+
+@test DiffEqBase.promote_u0(ones(3), FakeParameterObject(ReverseDiff.track(ones(3))), 0.0) isa ReverseDiff.TrackedArray
+@test DiffEqBase.promote_u0(1.0, FakeParameterObject(ReverseDiff.track(ones(3))), 0.0) isa ReverseDiff.TrackedReal
+@test DiffEqBase.promote_u0(ones(3), FakeParameterObject(ReverseDiff.track(ones(ForwardDiff.Dual, 3))), 0.0) isa ReverseDiff.TrackedArray{<:ForwardDiff.Dual}
+@test DiffEqBase.promote_u0(1.0, FakeParameterObject(ReverseDiff.track(ones(ForwardDiff.Dual, 3))), 0.0) isa ReverseDiff.TrackedReal{<:ForwardDiff.Dual}

@@ -352,6 +352,12 @@ DiffEqBase.anyeltypedual(f::SciMLBase.AbstractSciMLFunction, ::Type{Val{counter}
 @inline promote_u0(::Nothing, p, t0) = nothing
 
 @inline function promote_u0(u0, p, t0)
+    if SciMLStructures.isscimlstructure(p)
+        _p = SciMLStructures.canonicalize(SciMLStructures.Tunable(), p)[1]
+        if _p != p
+            return promote_u0(u0, _p, t0)
+        end
+    end
     Tu = eltype(u0)
     if Tu <: ForwardDiff.Dual
         return u0
@@ -373,6 +379,12 @@ DiffEqBase.anyeltypedual(f::SciMLBase.AbstractSciMLFunction, ::Type{Val{counter}
 end
 
 @inline function promote_u0(u0::AbstractArray{<:Complex}, p, t0)
+    if SciMLStructures.isscimlstructure(p)
+        _p = SciMLStructures.canonicalize(SciMLStructures.Tunable(), p)[1]
+        if _p != p
+            return promote_u0(u0, _p, t0)
+        end
+    end
     Tu = real(eltype(u0))
     if Tu <: ForwardDiff.Dual
         return u0

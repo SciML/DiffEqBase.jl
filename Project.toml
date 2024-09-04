@@ -27,6 +27,7 @@ RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
 SciMLOperators = "c0aeaf25-5076-4817-a8d5-81caf7dfa961"
+SciMLStructures = "53ae85a6-f571-4167-b2af-e1d143709226"
 Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
 Static = "aedffcd0-7271-4cad-89d0-dc628f76c6d3"
 StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
@@ -95,6 +96,7 @@ Reexport = "1.0"
 ReverseDiff = "1"
 SciMLBase = "2.28.0"
 SciMLOperators = "0.3"
+SciMLStructures = "1.5"
 Setfield = "1"
 SparseArrays = "1.9"
 Static = "1"
@@ -131,4 +133,4 @@ Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [targets]
-test = ["Distributed", "Measurements", "MonteCarloMeasurements", "Unitful", "LabelledArrays", "SymbolicIndexingInterface", "ForwardDiff", "SparseArrays", "InteractiveUtils", "Plots", "Pkg", "Random", "StaticArrays", "SafeTestsets", "Statistics", "Test", "Distributions", "Aqua", "BenchmarkTools"]
+test = ["Distributed", "Measurements", "MonteCarloMeasurements", "Unitful", "LabelledArrays", "SymbolicIndexingInterface", "ForwardDiff", "SparseArrays", "InteractiveUtils", "Plots", "Pkg", "Random", "ReverseDiff", "StaticArrays", "SafeTestsets", "Statistics", "Test", "Distributions", "Aqua", "BenchmarkTools"]
