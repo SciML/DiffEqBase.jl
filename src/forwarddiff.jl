@@ -354,7 +354,7 @@ DiffEqBase.anyeltypedual(f::SciMLBase.AbstractSciMLFunction, ::Type{Val{counter}
 @inline function promote_u0(u0, p, t0)
     if SciMLStructures.isscimlstructure(p)
         _p = SciMLStructures.canonicalize(SciMLStructures.Tunable(), p)[1]
-        if _p != p
+        if !isequal(_p, p)
             return promote_u0(u0, _p, t0)
         end
     end
@@ -381,7 +381,7 @@ end
 @inline function promote_u0(u0::AbstractArray{<:Complex}, p, t0)
     if SciMLStructures.isscimlstructure(p)
         _p = SciMLStructures.canonicalize(SciMLStructures.Tunable(), p)[1]
-        if _p != p
+        if !isequal(_p, p)
             return promote_u0(u0, _p, t0)
         end
     end
