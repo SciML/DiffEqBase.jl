@@ -81,8 +81,8 @@ function sum_of_e_solution(p)
             saveat = 0.1))
     sol = solve(ensemble_prob, Tsit5(), EnsembleSerial(), trajectories = N, abstol = 1e-12,
         reltol = 1e-12)
-    z = Array(sol[1])
-    cache[] = sol[1].t
+    z = Array(sol.u[1])
+    cache[] = sol.u[1].t
     sum(z) # just test for the first solutions, gradients should be zero for others
 end
 
