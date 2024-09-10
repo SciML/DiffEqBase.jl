@@ -588,7 +588,7 @@ function apply_callback!(integrator,
     end
 
     if integrator.u_modified
-        if hasmethod(reeval_internals_due_to_modification!, Tuple{typeof(integrator)}, (:callback_initializealg))
+        if hasmethod(reeval_internals_due_to_modification!, Tuple{typeof(integrator)}, (:callback_initializealg,))
             reeval_internals_due_to_modification!(integrator, callback_initializealg = callback.initialize_alg)
         else # handle legacy dispatch without kwarg
             reeval_internals_due_to_modification!(integrator)
