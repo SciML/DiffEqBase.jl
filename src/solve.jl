@@ -935,6 +935,10 @@ explanations of the timestepping algorithms, see the
 * `wrap`: Toggles whether to wrap the solution if `prob.problem_type` has a preferred
   alternate wrapper type for the solution. Useful when speed, but not shape of solution
   is important. Defaults to `Val(true)`. `Val(false)` will cancel wrapping the solution.
+* `u0`: The initial condition, overrides the one defined in the problem struct.
+  Defaults to `nothing` (no override, use the `u0` defined in `prob`).
+* `p`: The parameters, overrides the one defined in the problem struct.
+  Defaults to `nothing` (no override, use the `p` defined in `prob`).
 
 ### Progress Monitoring
 
