@@ -1,7 +1,7 @@
 name = "DiffEqBase"
 uuid = "2b5f629d-d688-5b77-993f-72d75c75574e"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "6.155.3"
+version = "6.155.4"
 
 [deps]
 ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
@@ -72,7 +72,7 @@ DataStructures = "0.18"
 Distributions = "0.25"
 DocStringExtensions = "0.9"
 EnumX = "1"
-Enzyme = "0.12.12, 0.13"
+Enzyme = "0.13"
 EnzymeCore = "0.7, 0.8"
 FastBroadcast = "0.3"
 FastClosures = "0.3.2"
