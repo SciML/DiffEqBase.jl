@@ -8,8 +8,8 @@ using Test
 end
 
 @testset "Fast pow" begin
-    @test fastpow(1, 1) isa Float32
-    @test fastpow(1.0, 1.0) isa Float32
+    @test fastpow(1, 1) isa Float64
+    @test fastpow(1.0, 1.0) isa Float64
     errors = [abs(^(x, y) - fastpow(x, y)) for x in 0.001:0.001:1, y in 0.08:0.001:0.5]
     @test maximum(errors) < 1e-4
 end
