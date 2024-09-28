@@ -1,7 +1,7 @@
 module DiffEqBaseEnzymeExt
 
 using DiffEqBase
-import DiffEqBase: value
+import DiffEqBase: value, fastpow
 using Enzyme
 import Enzyme: Const
 using ChainRulesCore
@@ -53,4 +53,6 @@ function Enzyme.EnzymeRules.reverse(config::Enzyme.EnzymeRules.RevConfigWidth{1}
     return ntuple(_ -> nothing, Val(length(args) + 4))
 end
 
-end
+Enzyme.Compiler.known_ops[typeof(DiffEqBase.fastpow)] = (:pow, 2, nothing)
+
+end 
