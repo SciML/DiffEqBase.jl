@@ -53,16 +53,17 @@ const EXP2FT = (Float32(0x1.6a09e667f3bcdp-1),
     Float32(0x1.5ab07dd485429p+0))
 
 """
-    fastpow(x::T, y::T) where {T} -> T
+    fastpow(x::T, y::T) where {T} -> float(T)
     Trips through Float32 for performance.
 """
 @inline function fastpow(x::T, y::T) where {T}
+    outT = float(T)
     if iszero(x)
-        return zero(T)
+        return zero(outT)
     elseif isinf(x) && isinf(y)
-        return convert(T,Inf)
+        return convert(outT,Inf)
     else
-        return convert(T,@fastmath exp2(convert(Float32, y) * fastlog2(convert(Float32, x))))
+        return convert(outT,@fastmath exp2(convert(Float32, y) * fastlog2(convert(Float32, x))))
     end
 end
 
