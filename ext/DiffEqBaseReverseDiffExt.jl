@@ -6,7 +6,9 @@ import ReverseDiff
 import DiffEqBase.ArrayInterface
 import DiffEqBase.ForwardDiff
 
-function DiffEqBase.anyeltypedual(::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {V, D, N, VA, DA, T <: ReverseDiff.TrackedArray{V, D, N, VA, DA}}
+function DiffEqBase.anyeltypedual(::Type{T},
+        ::Type{Val{counter}} = Val{0}) where {counter} where {
+        V, D, N, VA, DA, T <: ReverseDiff.TrackedArray{V, D, N, VA, DA}}
     DiffEqBase.anyeltypedual(V, Val{counter})
 end
 
@@ -38,7 +40,10 @@ function DiffEqBase.promote_u0(u0::AbstractArray{<:ReverseDiff.TrackedReal},
     u0
 end
 DiffEqBase.promote_u0(u0, p::ReverseDiff.TrackedArray, t0) = ReverseDiff.track(u0)
-DiffEqBase.promote_u0(u0, p::ReverseDiff.TrackedArray{T}, t0) where {T <: ForwardDiff.Dual} = ReverseDiff.track(T.(u0))
+function DiffEqBase.promote_u0(
+        u0, p::ReverseDiff.TrackedArray{T}, t0) where {T <: ForwardDiff.Dual}
+    ReverseDiff.track(T.(u0))
+end
 DiffEqBase.promote_u0(u0, p::AbstractArray{<:ReverseDiff.TrackedReal}, t0) = eltype(p).(u0)
 
 # Support adaptive with non-tracked time

@@ -61,9 +61,10 @@ const EXP2FT = (Float32(0x1.6a09e667f3bcdp-1),
     if iszero(x)
         return zero(outT)
     elseif isinf(x) && isinf(y)
-        return convert(outT,Inf)
+        return convert(outT, Inf)
     else
-        return convert(outT,@fastmath exp2(convert(Float32, y) * fastlog2(convert(Float32, x))))
+        return convert(
+            outT, @fastmath exp2(convert(Float32, y) * fastlog2(convert(Float32, x))))
     end
 end
 

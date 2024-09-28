@@ -6,9 +6,10 @@ using Test
     @testset for RT in (Duplicated, DuplicatedNoNeed),
         Tx in (Const, Duplicated),
         Ty in (Const, Duplicated)
+
         x = 3.0
         y = 2.0
-        test_forward(fastpow, RT, (x, Tx), (y, Ty), atol=0.005, rtol=0.005)
+        test_forward(fastpow, RT, (x, Tx), (y, Ty), atol = 0.005, rtol = 0.005)
     end
 end
 
@@ -16,8 +17,9 @@ end
     @testset for RT in (Active,),
         Tx in (Active,),
         Ty in (Active,)
+
         x = 2.0
         y = 3.0
-        test_reverse(fastpow, RT, (x, Tx), (y, Ty), atol=0.001, rtol=0.001)
+        test_reverse(fastpow, RT, (x, Tx), (y, Ty), atol = 0.001, rtol = 0.001)
     end
 end
