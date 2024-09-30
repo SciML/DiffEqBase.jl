@@ -10,3 +10,7 @@ prob = ODEProblem(lorenz, u0, tspan, alg = Tsit5())
 @test_nowarn sol = solve(prob, reltol = 1e-6)
 sol = solve(prob, reltol = 1e-6)
 @test sol.alg isa Tsit5
+
+new_u0 = rand(3)
+sol = solve(prob, u0 = new_u0)
+@test sol.prob.u0 === new_u0
