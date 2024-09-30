@@ -1172,7 +1172,8 @@ function get_concrete_problem(prob, isadapt; kwargs...)
     tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
     f_promote = promote_f(prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
         tspan_promote[1])
-    if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
+    if isconcreteu0(prob, tspan[1], kwargs) && prob.u0 === u0 &&
+       typeof(u0_promote) === typeof(prob.u0) &&
        prob.tspan == tspan && typeof(prob.tspan) === typeof(tspan_promote) &&
        p === prob.p && f_promote === prob.f
         return prob
