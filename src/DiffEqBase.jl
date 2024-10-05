@@ -7,7 +7,7 @@ end
 import PrecompileTools
 
 import FastPower
-@deprecate fastpow(x,y) Fastpower.fastpower(x,y)
+@deprecate fastpow(x,y) FastPower.fastpower(x,y)
 
 using ArrayInterface
 
