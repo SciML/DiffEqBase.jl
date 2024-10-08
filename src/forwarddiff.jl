@@ -430,8 +430,6 @@ end
 value(x::Type{ForwardDiff.Dual{T, V, N}}) where {T, V, N} = V
 value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
 
-@inline fastpow(x::ForwardDiff.Dual, y::ForwardDiff.Dual) = x^y
-
 sse(x::Number) = abs2(x)
 sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
 totallength(x::Number) = 1

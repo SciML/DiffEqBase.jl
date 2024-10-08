@@ -6,6 +6,9 @@ end
 
 import PrecompileTools
 
+import FastPower
+@deprecate fastpow(x,y) FastPower.fastpower(x,y)
+
 using ArrayInterface
 
 using StaticArraysCore # data arrays
@@ -128,7 +131,6 @@ abstract type DECostFunction end
 import SciMLBase: Void, unwrapped_f
 
 include("utils.jl")
-include("fastpow.jl")
 include("stats.jl")
 include("calculate_residuals.jl")
 include("tableaus.jl")
