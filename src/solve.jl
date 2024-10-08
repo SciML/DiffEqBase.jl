@@ -877,7 +877,7 @@ Note that if a method does not have adaptivity, the following rules apply:
 #### [Advanced Adaptive Stepsize Control](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/)
 
 These arguments control more advanced parts of the internals of adaptive timestepping
-and are mostly used to make it more efficient on specific problems. For detained
+and are mostly used to make it more efficient on specific problems. For detailed
 explanations of the timestepping algorithms, see the
 [timestepping descriptions](https://docs.sciml.ai/DiffEqDocs/stable/extras/timestepping/#timestepping)
 
