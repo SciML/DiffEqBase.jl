@@ -56,7 +56,7 @@ const EXP2FT = (Float32(0x1.6a09e667f3bcdp-1),
     fastpow(x::T, y::T) where {T} -> float(T)
     Trips through Float32 for performance.
 """
-@inline function fastpow(x::T, y::T) where {T<:Real}
+@inline function fastpow(x::T, y::T) where {T <: Real}
     outT = float(T)
     if iszero(x)
         return zero(outT)
