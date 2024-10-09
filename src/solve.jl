@@ -1461,7 +1461,7 @@ function check_prob_alg_pairing(prob, alg)
     if !SciMLBase.allows_arbitrary_number_types(alg)
         if isdefined(prob, :u0)
             uType = RecursiveArrayTools.recursive_unitless_eltype(prob.u0)
-            u0_as_initial_guess = (prob isa BVProblem) && (uType <: AbstractVector)
+            u0_as_initial_guess = (prob isa BVProblem) && (uType <: Vector)
             if Base.isconcretetype(uType) &&
                !(uType <: Union{Float32, Float64, ComplexF32, ComplexF64}) &&
                !u0_as_initial_guess
