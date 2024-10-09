@@ -35,8 +35,9 @@ tolerances.
 """
 struct SimpleNonlinearSolveTerminationMode <: AbstractNonlinearTerminationMode
     function SimpleNonlinearSolveTerminationMode()
-        Base.depwarn("`SimpleNonlinearSolveTerminationMode` is deprecated and isn't used \
-                       in any upstream library. Remove uses of this.",
+        Base.depwarn(
+            "`SimpleNonlinearSolveTerminationMode` is deprecated and isn't used \
+              in any upstream library. Remove uses of this.",
             :SimpleNonlinearSolveTerminationMode)
         return new()
     end

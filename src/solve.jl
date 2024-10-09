@@ -678,7 +678,7 @@ function build_null_solution(prob::AbstractDEProblem, args...;
     end
 
     timeseries = [Float64[] for i in 1:length(ts)]
-    
+
     if SciMLBase.has_initializeprob(prob.f) && SciMLBase.has_initializeprobpmap(prob.f)
         initializeprob = prob.f.initializeprob
         nlsol = solve(initializeprob)
@@ -1427,6 +1427,7 @@ function check_prob_alg_pairing(prob, alg)
        prob isa SDDEProblem && !(alg isa AbstractSDEAlgorithm) ||
        prob isa DDEProblem && !(alg isa AbstractDDEAlgorithm) ||
        prob isa DAEProblem && !(alg isa AbstractDAEAlgorithm) ||
+       prob isa BVProblem && !(alg isa AbstractBVPAlgorithm) ||
        prob isa SteadyStateProblem && !(alg isa AbstractSteadyStateAlgorithm)
         throw(ProblemSolverPairingError(prob, alg))
     end
@@ -1460,8 +1461,10 @@ function check_prob_alg_pairing(prob, alg)
     if !SciMLBase.allows_arbitrary_number_types(alg)
         if isdefined(prob, :u0)
             uType = RecursiveArrayTools.recursive_unitless_eltype(prob.u0)
+            u0_as_initial_guess = (prob isa BVProblem) && (uType <: Vector)
             if Base.isconcretetype(uType) &&
-               !(uType <: Union{Float32, Float64, ComplexF32, ComplexF64})
+               !(uType <: Union{Float32, Float64, ComplexF32, ComplexF64}) &&
+               !u0_as_initial_guess
                 throw(GenericNumberTypeError(alg,
                     isdefined(prob, :u0) ? typeof(prob.u0) :
                     nothing,
