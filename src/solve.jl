@@ -1262,11 +1262,11 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
                ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
                  RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
                  one(t) === oneunit(t) &&
-                 Tricks.static_hasmethod(ArrayInterface.promote_eltype,
+                 hasmethod(ArrayInterface.promote_eltype,
                      Tuple{Type{typeof(u0)}, Type{dualgen(eltype(u0))}}) &&
-                 Tricks.static_hasmethod(promote_rule,
+                 hasmethod(promote_rule,
                      Tuple{Type{eltype(u0)}, Type{dualgen(eltype(u0))}}) &&
-                 Tricks.static_hasmethod(promote_rule,
+                 hasmethod(promote_rule,
                      Tuple{Type{eltype(u0)}, Type{typeof(t)}})) ||
                 (specialize === SciMLBase.FunctionWrapperSpecialize &&
                  !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)))

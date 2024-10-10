@@ -103,8 +103,6 @@ import SciMLBase: AbstractDiffEqLinearOperator # deprecation path
 
 import SciMLStructures
 
-import Tricks
-
 using Reexport
 Reexport.@reexport using SciMLBase
 
