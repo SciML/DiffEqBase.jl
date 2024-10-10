@@ -196,6 +196,22 @@ function anyeltypedual(::Type{<:AbstractTimeseriesSolution{T, N}},
     anyeltypedual(T)
 end
 
+function anyeltypedual(
+        ::Type{T},
+        ::Type{Val{counter}} = Val{0}) where {counter} where {T <:
+                                                              NonlinearProblem{
+        uType, iip, pType}} where {uType, iip, pType}
+    return anyeltypedual((uType, pType), Val{counter})
+end
+
+function anyeltypedual(
+        ::Type{T},
+        ::Type{Val{counter}} = Val{0}) where {counter} where {T <:
+                                                              NonlinearLeastSquaresProblem{
+        uType, iip, pType}} where {uType, iip, pType}
+    return anyeltypedual((uType, pType), Val{counter})
+end
+
 function anyeltypedual(x::ForwardDiff.DiffResults.DiffResult,
         ::Type{Val{counter}} = Val{0}) where {counter}
     Any
