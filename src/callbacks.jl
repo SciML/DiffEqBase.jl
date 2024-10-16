@@ -588,13 +588,8 @@ function apply_callback!(integrator,
     end
 
     if integrator.u_modified
-        if hasmethod(reeval_internals_due_to_modification!,
-            Tuple{typeof(integrator)}, (:callback_initializealg,))
-            reeval_internals_due_to_modification!(
-                integrator, callback_initializealg = callback.initializealg)
-        else # handle legacy dispatch without kwarg
-            reeval_internals_due_to_modification!(integrator)
-        end
+        reeval_internals_due_to_modification!(
+            integrator, callback_initializealg = callback.initializealg)
 
         @inbounds if callback.save_positions[2]
             savevalues!(integrator, true)
