@@ -18,11 +18,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        version:
+          - "1"
+          - "lts"
+          - "pre"
         group:
           - Core
           - Downstream
           - Downstream2
     uses: "SciML/.github/.github/workflows/tests.yml@v1"
     with:
+      julia-version: "${{ matrix.version }}"
       group: "${{ matrix.group }}"
     secrets: "inherit"
