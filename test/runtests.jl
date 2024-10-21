@@ -19,7 +19,6 @@ end
 
 @time begin
     if GROUP == "All" || GROUP == "Core"
-        @time @safetestset "Fast Power" include("fastpow.jl")
         @time @safetestset "Callbacks" include("callbacks.jl")
         @time @safetestset "Internal Rootfinders" include("internal_rootfinder.jl")
         @time @safetestset "Plot Vars" include("plot_vars.jl")

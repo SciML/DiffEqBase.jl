@@ -31,7 +31,6 @@ end
 DiffEqBase.promote_u0(u0, p::Tracker.TrackedArray, t0) = Tracker.track(u0)
 DiffEqBase.promote_u0(u0, p::AbstractArray{<:Tracker.TrackedReal}, t0) = eltype(p).(u0)
 
-@inline DiffEqBase.fastpow(x::Tracker.TrackedReal, y::Tracker.TrackedReal) = x^y
 @inline Base.any(f::Function, x::Tracker.TrackedArray) = any(f, Tracker.data(x))
 
 # Support adaptive with non-tracked time
