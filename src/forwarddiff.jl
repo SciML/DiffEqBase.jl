@@ -363,10 +363,13 @@ function anyeltypedual(x::NamedTuple, ::Type{Val{counter}} = Val{0}) where {coun
     anyeltypedual(values(x))
 end
 
-function DiffEqBase.anyeltypedual(
+function anyeltypedual(
         f::SciMLBase.AbstractSciMLFunction, ::Type{Val{counter}}) where {counter}
     Any
 end
+
+anyeltypedual(::@Kwargs{}, ::Type{Val{counter}} = Val{0}) where {counter} = Any
+anyeltypedual(::Type{@Kwargs{}}, ::Type{Val{counter}} = Val{0}) where {counter} = Any
 
 @inline promote_u0(::Nothing, p, t0) = nothing
 
