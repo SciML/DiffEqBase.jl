@@ -162,7 +162,7 @@ for p in p_possibilities_missed
 end
 
 p_possibilities_notdual = [
-    (), (;), [2.0], [2.0, 2], [2.0, (2.0)], [2.0, MyStruct(2.0, 2.0f0), pairs((;))]
+    (), (;), [2.0], [2.0, 2], [2.0, (2.0)], [2.0, MyStruct(2.0, 2.0f0)], pairs((;))
 ]
 
 for p in p_possibilities_notdual
