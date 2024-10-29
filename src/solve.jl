@@ -1152,20 +1152,24 @@ function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
     u0 = promote_u0(u0, p, nothing)
-    f_promote = promote_f(
-        prob.f, Val(SciMLBase.specialization(prob.f)), u0, p
-    )
-    remake(prob; u0 = u0, p = p, f = f_promote)
+    f_promote = promote_f(prob.f, Val(SciMLBase.specialization(prob.f)), u0, p)
+    if f_promote === prob.f && u0 === prob.u0 && p === prob.p
+        return prob
+    else
+        return remake(prob; u0 = u0, p = p, f = f_promote)
+    end
 end
 
 function get_concrete_problem(prob::NonlinearLeastSquaresProblem, isadapt; kwargs...)
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
     u0 = promote_u0(u0, p, nothing)
-    f_promote = promote_f(
-        prob.f, Val(SciMLBase.specialization(prob.f)), u0, p
-    )
-    remake(prob; u0 = u0, p = p, f = f_promote)
+    f_promote = promote_f(prob.f, Val(SciMLBase.specialization(prob.f)), u0, p)
+    if f_promote === prob.f && u0 === prob.u0 && p === prob.p
+        return prob
+    else
+        return remake(prob; u0 = u0, p = p, f = f_promote)
+    end
 end
 
 function get_concrete_problem(prob::AbstractEnsembleProblem, isadapt; kwargs...)
