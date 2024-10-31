@@ -558,7 +558,7 @@ function apply_callback!(integrator,
                 integrator.tdir * callback.dtrelax * integrator.dt))
     end
 
-    change_t_via_interpolation!(integrator, integrator.tprev + cb_time)
+    change_t_via_interpolation!(integrator, integrator.tprev + cb_time, Val{:false}, callback.initializealg)
 
     # handle saveat
     _, savedexactly = savevalues!(integrator)
