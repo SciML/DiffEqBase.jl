@@ -800,7 +800,7 @@ section at the end of this page for some example usage.
   multistep methods), then `tstops` will use an interpolation,
   matching the behavior of `saveat`. If a method cannot change timesteps and
   also cannot interpolate, then `tstops` must be a multiple of `dt` or else an
-  error will be thrown. `tstops` may also be a function accepting the parameter
+  error will be thrown. `tstops` may also be a function `tstops(p, tspan)`, accepting the parameter
   object and `tspan`, returning the vector of time points to stop at. Default is `[]`.
 * `d_discontinuities:` Denotes locations of discontinuities in low order derivatives.
   This will force FSAL algorithms which assume derivative continuity to re-evaluate
