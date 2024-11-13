@@ -572,7 +572,7 @@ function init_up(prob::AbstractDEProblem, sensealg, u0, p, args...; kwargs...)
         if tstops === nothing && has_kwargs(prob)
             tstops = get(prob.kwargs, :tstops, nothing)
         end
-        if !(tstops isa Union{Nothing, AbstractArray, Tuple}) && !SciMLBase.allows_late_binding_tstops(alg)
+        if !(tstops isa Union{Nothing, AbstractArray, Tuple, Real}) && !SciMLBase.allows_late_binding_tstops(alg)
             throw(LateBindingTstopsNotSupportedError())
         end
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
@@ -1108,7 +1108,7 @@ function solve_up(prob::Union{AbstractDEProblem, NonlinearProblem}, sensealg, u0
         if tstops === nothing && has_kwargs(prob)
             tstops = get(prob.kwargs, :tstops, nothing)
         end
-        if !(tstops isa Union{Nothing, AbstractArray, Tuple}) && !SciMLBase.allows_late_binding_tstops(alg)
+        if !(tstops isa Union{Nothing, AbstractArray, Tuple, Real}) && !SciMLBase.allows_late_binding_tstops(alg)
             throw(LateBindingTstopsNotSupportedError())
         end
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
