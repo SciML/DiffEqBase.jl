@@ -73,6 +73,25 @@ function wrapfun_iip(ff,
     FunctionWrappersWrappers.FunctionWrappersWrapper{typeof(fwt), false}(fwt)
 end
 
+function wrapfun_iip(ff,
+        inputs::Tuple{T1, T2, T3}) where {T1, T2, T3}
+    T = eltype(T2)
+    dualT = dualgen(T)
+    dualT1 = ArrayInterface.promote_eltype(T1, dualT)
+    dualT2 = ArrayInterface.promote_eltype(T2, dualT)
+
+    iip_arglists = (Tuple{T1, T2, T3},
+        Tuple{dualT1, dualT2, T3},
+        Tuple{dualT1, T2, T3})
+
+    iip_returnlists = ntuple(x -> Nothing, 3)
+
+    fwt = map(iip_arglists, iip_returnlists) do A, R
+        FunctionWrappersWrappers.FunctionWrappers.FunctionWrapper{R, A}(Void(ff))
+    end
+    FunctionWrappersWrappers.FunctionWrappersWrapper{typeof(fwt), false}(fwt)
+end
+
 const iip_arglists_default = (
     Tuple{Vector{Float64}, Vector{Float64}, Vector{Float64},
         Float64},

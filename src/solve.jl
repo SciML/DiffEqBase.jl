@@ -1182,14 +1182,24 @@ function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
     u0 = promote_u0(u0, p, nothing)
-    remake(prob; u0 = u0, p = p)
+    f_promote = promote_f(prob.f, Val(SciMLBase.specialization(prob.f)), u0, p)
+    if f_promote === prob.f && u0 === prob.u0 && p === prob.p
+        return prob
+    else
+        return remake(prob; u0 = u0, p = p, f = f_promote)
+    end
 end
 
 function get_concrete_problem(prob::NonlinearLeastSquaresProblem, isadapt; kwargs...)
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
     u0 = promote_u0(u0, p, nothing)
-    remake(prob; u0 = u0, p = p)
+    f_promote = promote_f(prob.f, Val(SciMLBase.specialization(prob.f)), u0, p)
+    if f_promote === prob.f && u0 === prob.u0 && p === prob.p
+        return prob
+    else
+        return remake(prob; u0 = u0, p = p, f = f_promote)
+    end
 end
 
 function get_concrete_problem(prob::AbstractEnsembleProblem, isadapt; kwargs...)
@@ -1282,28 +1292,47 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
         f = @set f.jac_prototype = similar(f.jac_prototype, uElType)
     end
 
-    @static if VERSION >= v"1.8-"
-        f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractSciMLOperator) &&
-               # Some reinitialization code still uses NLSolvers stuff which doesn't
-               # properly tag, so opt-out if potentially a mass matrix DAE
-               f.mass_matrix isa UniformScaling &&
-               # Jacobians don't wrap, so just ignore those cases
-               f.jac === nothing &&
-               ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
-                 RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
-                 one(t) === oneunit(t) &&
-                 hasmethod(ArrayInterface.promote_eltype,
-                     Tuple{Type{typeof(u0)}, Type{dualgen(eltype(u0))}}) &&
-                 hasmethod(promote_rule,
-                     Tuple{Type{eltype(u0)}, Type{dualgen(eltype(u0))}}) &&
-                 hasmethod(promote_rule,
-                     Tuple{Type{eltype(u0)}, Type{typeof(t)}})) ||
-                (specialize === SciMLBase.FunctionWrapperSpecialize &&
-                 !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)))
-            return unwrapped_f(f, wrapfun_iip(f.f, (u0, u0, p, t)))
-        else
-            return f
-        end
+    f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractSciMLOperator) &&
+           # Some reinitialization code still uses NLSolvers stuff which doesn't
+           # properly tag, so opt-out if potentially a mass matrix DAE
+           f.mass_matrix isa UniformScaling &&
+           # Jacobians don't wrap, so just ignore those cases
+           f.jac === nothing &&
+           ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
+             RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
+             one(t) === oneunit(t) &&
+             hasmethod(ArrayInterface.promote_eltype,
+                 Tuple{Type{typeof(u0)}, Type{dualgen(eltype(u0))}}) &&
+             hasmethod(promote_rule,
+                 Tuple{Type{eltype(u0)}, Type{dualgen(eltype(u0))}}) &&
+             hasmethod(promote_rule,
+                 Tuple{Type{eltype(u0)}, Type{typeof(t)}})) ||
+            (specialize === SciMLBase.FunctionWrapperSpecialize &&
+             !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)))
+        return unwrapped_f(f, wrapfun_iip(f.f, (u0, u0, p, t)))
+    else
+        return f
+    end
+end
+
+function promote_f(f::NonlinearFunction, ::Val{specialize}, u0, p) where {specialize}
+    # Ensure our jacobian will be of the same type as u0
+    uElType = u0 === nothing ? Float64 : eltype(u0)
+    if isdefined(f, :jac_prototype) && f.jac_prototype isa AbstractArray
+        f = @set f.jac_prototype = similar(f.jac_prototype, uElType)
+    end
+
+    f = if isinplace(f) && !(f.f isa AbstractSciMLOperator) &&
+           f.jac === nothing &&
+           ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
+             RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
+             hasmethod(ArrayInterface.promote_eltype,
+                 Tuple{Type{typeof(u0)}, Type{dualgen(eltype(u0))}}) &&
+             hasmethod(promote_rule,
+                 Tuple{Type{eltype(u0)}, Type{dualgen(eltype(u0))}})) ||
+            (specialize === SciMLBase.FunctionWrapperSpecialize &&
+             !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)))
+        return unwrapped_f(f, wrapfun_iip(f.f, (u0, u0, p)))
     else
         return f
     end
