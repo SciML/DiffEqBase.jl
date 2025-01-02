@@ -55,6 +55,7 @@ end
         @time @safetestset "Default linsolve with structure" include("downstream/default_linsolve_structure.jl")
         @time @safetestset "Callback Merging Tests" include("downstream/callback_merging.jl")
         @time @safetestset "LabelledArrays Tests" include("downstream/labelledarrays.jl")
+        @time @safetestset "GTPSA Tests" include("downstream/gtpsa.jl")
     end
 
     if !is_APPVEYOR && GROUP == "Downstream2"
