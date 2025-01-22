@@ -13,8 +13,8 @@ sol = solve(prob, Tsit5(), reltol=1e-16, abstol=1e-16)
 
 # Parametric GTPSA map
 desc = Descriptor(3, 2, 3, 2) # 3 variables 3 parameters, both to 2nd order
-dx = vars(desc)
-dp = params(desc)
+dx = @vars(desc)
+dp = @params(desc)
 prob_GTPSA = ODEProblem(f!, x .+ dx, (0.0, 1.0), p .+ dp)
 sol_GTPSA = solve(prob_GTPSA, Tsit5(), reltol=1e-16, abstol=1e-16)
 
@@ -50,7 +50,7 @@ prob = DynamicalODEProblem(pdot!, qdot!, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], (0.0,
 sol = solve(prob, Yoshida6(), dt = 1.0, reltol=1e-16, abstol=1e-16)
 
 desc = Descriptor(6, 2) # 6 variables to 2nd order
-dx  = vars(desc) # identity map
+dx  = @vars(desc) # identity map
 prob_GTPSA = DynamicalODEProblem(pdot!, qdot!, dx[1:3], dx[4:6], (0.0, 25.0))
 sol_GTPSA = solve(prob_GTPSA, Yoshida6(), dt = 1.0, reltol=1e-16, abstol=1e-16)
 
