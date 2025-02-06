@@ -110,6 +110,7 @@ SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
 eltypedual(x) = false
 promote_u0(::Nothing, p, t0) = nothing
+isdualtype(::Type{T}) where T = true 
 
 ## Types
 
@@ -140,7 +141,6 @@ include("callbacks.jl")
 include("common_defaults.jl")
 include("solve.jl")
 include("internal_euler.jl")
-include("forwarddiff.jl")
 include("termination_conditions_deprecated.jl")  # TODO: remove in the next major release
 include("termination_conditions.jl")
 include("norecompile.jl")
