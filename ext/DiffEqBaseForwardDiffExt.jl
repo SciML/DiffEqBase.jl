@@ -28,7 +28,7 @@ hasdualpromote(u0,t::Number) = hasmethod(ArrayInterface.promote_eltype,
                 hasmethod(promote_rule,
                     Tuple{Type{eltype(u0)}, Type{dualgen(eltype(u0))}}) &&
                 hasmethod(promote_rule,
-                    Tuple{Type{eltype(u0)}, Type{typeof(t)}}))
+                    Tuple{Type{eltype(u0)}, Type{typeof(t)}})
 
 const NORECOMPILE_IIP_SUPPORTED_ARGS = (
     Tuple{Vector{Float64}, Vector{Float64},

@@ -41,7 +41,7 @@ function DiffEqBase.promote_u0(u0::AbstractArray{<:ReverseDiff.TrackedReal},
 end
 DiffEqBase.promote_u0(u0, p::ReverseDiff.TrackedArray, t0) = ReverseDiff.track(u0)
 function DiffEqBase.promote_u0(
-        u0, p::ReverseDiff.TrackedArray{T}, t0) where {T <: ForwardDiff.Dual}
+        u0, p::ReverseDiff.TrackedArray{T}, t0) where {T <: ReverseDiff.ForwardDiff.Dual}
     ReverseDiff.track(T.(u0))
 end
 DiffEqBase.promote_u0(u0, p::AbstractArray{<:ReverseDiff.TrackedReal}, t0) = eltype(p).(u0)
