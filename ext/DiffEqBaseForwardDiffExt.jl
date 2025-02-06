@@ -1,7 +1,7 @@
 module DiffEqBaseForwardDiffExt
 
 using DiffEqBase, ForwardDiff
-using DiffeqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag
+using DiffEqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag
 import DiffEqBase: hasdualpromote, wrapfun_oop, wrapfun_iip, promote_u0, prob2dtmin,
 promote_tspan, anyeltypedual, isdualtype, value, ODE_DEFAULT_NORM
 
