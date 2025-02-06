@@ -1,15 +1,15 @@
 module DiffEqBaseForwardDiffExt
 
 using DiffEqBase, ForwardDiff
+using DiffEqBase.ArrayInterface
 using DiffEqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag
 import DiffEqBase: hasdualpromote, wrapfun_oop, wrapfun_iip, promote_u0, prob2dtmin,
-promote_tspan, anyeltypedual, isdualtype, value, ODE_DEFAULT_NORM, InternalITP,
-nextfloat_tdir
+                   promote_tspan, anyeltypedual, isdualtype, value, ODE_DEFAULT_NORM,
+                   InternalITP,
+                   nextfloat_tdir, promote_dual
 
-const DUALCHECK_RECURSION_MAX = 10
-
-eltypedual(x)  = eltype(x) <: ForwardDiff.Dual
-isdualtype(::Type{<:ForwardDiff.Dual}) = true 
+eltypedual(x) = eltype(x) <: ForwardDiff.Dual
+isdualtype(::Type{<:ForwardDiff.Dual}) = true
 const dualT = ForwardDiff.Dual{ForwardDiff.Tag{OrdinaryDiffEqTag, Float64}, Float64, 1}
 dualgen(::Type{T}) where {T} = ForwardDiff.Dual{ForwardDiff.Tag{OrdinaryDiffEqTag, T}, T, 1}
 
@@ -24,12 +24,14 @@ function prob2dtmin(tspan, ::ForwardDiff.Dual, use_end_time)
     end
 end
 
-hasdualpromote(u0,t::Number) = hasmethod(ArrayInterface.promote_eltype,
-                    Tuple{Type{typeof(u0)}, Type{dualgen(eltype(u0))}}) &&
-                hasmethod(promote_rule,
-                    Tuple{Type{eltype(u0)}, Type{dualgen(eltype(u0))}}) &&
-                hasmethod(promote_rule,
-                    Tuple{Type{eltype(u0)}, Type{typeof(t)}})
+function hasdualpromote(u0, t::Number)
+    hasmethod(ArrayInterface.promote_eltype,
+            Tuple{Type{typeof(u0)}, Type{dualgen(eltype(u0))}}) &&
+        hasmethod(promote_rule,
+            Tuple{Type{eltype(u0)}, Type{dualgen(eltype(u0))}}) &&
+        hasmethod(promote_rule,
+            Tuple{Type{eltype(u0)}, Type{typeof(t)}})
+end
 
 const NORECOMPILE_IIP_SUPPORTED_ARGS = (
     Tuple{Vector{Float64}, Vector{Float64},
@@ -108,16 +110,6 @@ function wrapfun_iip(@nospecialize(ff))
     FunctionWrappersWrappers.FunctionWrappersWrapper{typeof(fwt), false}(fwt)
 end
 
-"""
-    promote_dual(::Type{T},::Type{T2})
-
-
-Is like the number promotion system, but always prefers a dual number type above
-anything else. For higher order differentiation, it returns the most dualiest of
-them all. This is then used to promote `u0` into the suspected highest differentiation
-space for solving the equation.
-"""
-promote_dual(::Type{T}, ::Type{T2}) where {T, T2} = T
 promote_dual(::Type{T}, ::Type{T2}) where {T <: ForwardDiff.Dual, T2} = T
 function promote_dual(::Type{T},
         ::Type{T2}) where {T <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
@@ -227,7 +219,8 @@ end
 
 # Static Arrays don't support the `init` keyword argument for `sum`
 @inline __sum(f::F, args...; init, kwargs...) where {F} = sum(f, args...; init, kwargs...)
-@inline function __sum(f::F, a::DiffEqBase.StaticArraysCore.StaticArray...; init, kwargs...) where {F}
+@inline function __sum(
+        f::F, a::DiffEqBase.StaticArraysCore.StaticArray...; init, kwargs...) where {F}
     return mapreduce(f, +, a...; init, kwargs...)
 end
 

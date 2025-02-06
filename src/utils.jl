@@ -123,6 +123,17 @@ end
 end
 @inline __apply_termination_internalnorm(f::F, u) where {F} = f(u)
 
+"""
+    promote_dual(::Type{T},::Type{T2})
+
+
+Is like the number promotion system, but always prefers a dual number type above
+anything else. For higher order differentiation, it returns the most dualiest of
+them all. This is then used to promote `u0` into the suspected highest differentiation
+space for solving the equation.
+"""
+promote_dual(::Type{T}, ::Type{T2}) where {T, T2} = T
+
 # `reduce` and `map` are specialized on tuples to be unrolled (via recursion)
 # Therefore, they can be type stable even with heterogeneous input types.
 # We also don't care about allocating any temporaries with them, as it should
@@ -147,6 +158,8 @@ end
 getval(::Val{I}) where {I} = I
 getval(::Type{Val{I}}) where {I} = I
 getval(I::Int) = I
+
+const DUALCHECK_RECURSION_MAX = 10
 
 function (dec::DualEltypeChecker)(::Val{Y}) where {Y}
     isdefined(dec.x, Y) || return Any
@@ -179,7 +192,7 @@ https://discourse.julialang.org/t/typeerror-in-julia-turing-when-sampling-for-a-
 """
 @generated function anyeltypedual(x, ::Type{Val{counter}} = Val{0}) where {counter}
     x = x.name === Core.Compiler.typename(Type) ? x.parameters[1] : x
-    if x <: ForwardDiff.Dual
+    if isdualtype(x)
         :($x)
     elseif fieldnames(x) === ()
         :(Any)
@@ -308,119 +321,119 @@ function anyeltypedual(::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter}
 end
 
 function anyeltypedual(::Type{T},
-    ::Type{Val{counter}} = Val{0}) where {counter} where {T <:
-                                                          Union{AbstractArray, Set}}
-anyeltypedual(eltype(T))
+        ::Type{Val{counter}} = Val{0}) where {counter} where {T <:
+                                                              Union{AbstractArray, Set}}
+    anyeltypedual(eltype(T))
 end
 Base.@pure function __anyeltypedual_ntuple(::Type{T}) where {T <: NTuple}
-if isconcretetype(eltype(T))
-    return eltype(T)
-end
-if isempty(T.parameters)
-    Any
-else
-    mapreduce(anyeltypedual, promote_dual, T.parameters; init = Any)
-end
+    if isconcretetype(eltype(T))
+        return eltype(T)
+    end
+    if isempty(T.parameters)
+        Any
+    else
+        mapreduce(anyeltypedual, promote_dual, T.parameters; init = Any)
+    end
 end
 function anyeltypedual(
-    ::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T <: NTuple}
-__anyeltypedual_ntuple(T)
+        ::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T <: NTuple}
+    __anyeltypedual_ntuple(T)
 end
 
 # Any in this context just means not Dual
 function anyeltypedual(
-    x::SciMLBase.NullParameters, ::Type{Val{counter}} = Val{0}) where {counter}
-Any
+        x::SciMLBase.NullParameters, ::Type{Val{counter}} = Val{0}) where {counter}
+    Any
 end
 
 function anyeltypedual(sol::RecursiveArrayTools.AbstractDiffEqArray, counter = 0)
-diffeqmapreduce(anyeltypedual, promote_dual, (sol.u, sol.t))
+    diffeqmapreduce(anyeltypedual, promote_dual, (sol.u, sol.t))
 end
 
 function anyeltypedual(prob::Union{ODEProblem, SDEProblem, RODEProblem, DDEProblem},
-    ::Type{Val{counter}} = Val{0}) where {counter}
-anyeltypedual((prob.u0, prob.p, prob.tspan))
+        ::Type{Val{counter}} = Val{0}) where {counter}
+    anyeltypedual((prob.u0, prob.p, prob.tspan))
 end
 
 function anyeltypedual(
-    prob::Union{NonlinearProblem, NonlinearLeastSquaresProblem, OptimizationProblem},
-    ::Type{Val{counter}} = Val{0}) where {counter}
-anyeltypedual((prob.u0, prob.p))
+        prob::Union{NonlinearProblem, NonlinearLeastSquaresProblem, OptimizationProblem},
+        ::Type{Val{counter}} = Val{0}) where {counter}
+    anyeltypedual((prob.u0, prob.p))
 end
 
 function anyeltypedual(x::Number, ::Type{Val{counter}} = Val{0}) where {counter}
-anyeltypedual(typeof(x))
+    anyeltypedual(typeof(x))
 end
 function anyeltypedual(
-    x::Union{String, Symbol}, ::Type{Val{counter}} = Val{0}) where {counter}
-typeof(x)
+        x::Union{String, Symbol}, ::Type{Val{counter}} = Val{0}) where {counter}
+    typeof(x)
 end
 function anyeltypedual(x::Union{AbstractArray{T}, Set{T}},
-    ::Type{Val{counter}} = Val{0}) where {counter} where {
-    T <:
-    Union{Number,
-    Symbol,
-    String}}
-anyeltypedual(T)
+        ::Type{Val{counter}} = Val{0}) where {counter} where {
+        T <:
+        Union{Number,
+        Symbol,
+        String}}
+    anyeltypedual(T)
 end
 function anyeltypedual(x::Union{AbstractArray{T}, Set{T}},
-    ::Type{Val{counter}} = Val{0}) where {counter} where {
-    T <: Union{
-    AbstractArray{
-        <:Number,
-    },
-    Set{
-        <:Number,
-    }}}
-anyeltypedual(eltype(x))
+        ::Type{Val{counter}} = Val{0}) where {counter} where {
+        T <: Union{
+        AbstractArray{
+            <:Number,
+        },
+        Set{
+            <:Number,
+        }}}
+    anyeltypedual(eltype(x))
 end
 function anyeltypedual(x::Union{AbstractArray{T}, Set{T}},
-    ::Type{Val{counter}} = Val{0}) where {counter} where {N, T <: NTuple{N, <:Number}}
-anyeltypedual(eltype(x))
+        ::Type{Val{counter}} = Val{0}) where {counter} where {N, T <: NTuple{N, <:Number}}
+    anyeltypedual(eltype(x))
 end
 
 # Try to avoid this dispatch because it can lead to type inference issues when !isconcrete(eltype(x))
 function anyeltypedual(x::AbstractArray, ::Type{Val{counter}} = Val{0}) where {counter}
-if isconcretetype(eltype(x))
-    anyeltypedual(eltype(x))
-elseif !isempty(x) && all(i -> isassigned(x, i), 1:length(x)) &&
-       counter < DUALCHECK_RECURSION_MAX
-    _counter = Val{counter + 1}
-    mapreduce(y -> anyeltypedual(y, _counter), promote_dual, x)
-else
-    # This fallback to Any is required since otherwise we cannot handle `undef` in all cases
-    #  misses cases of
-    Any
-end
+    if isconcretetype(eltype(x))
+        anyeltypedual(eltype(x))
+    elseif !isempty(x) && all(i -> isassigned(x, i), 1:length(x)) &&
+           counter < DUALCHECK_RECURSION_MAX
+        _counter = Val{counter + 1}
+        mapreduce(y -> anyeltypedual(y, _counter), promote_dual, x)
+    else
+        # This fallback to Any is required since otherwise we cannot handle `undef` in all cases
+        #  misses cases of
+        Any
+    end
 end
 
 function anyeltypedual(x::Set, ::Type{Val{counter}} = Val{0}) where {counter}
-if isconcretetype(eltype(x))
-    anyeltypedual(eltype(x))
-else
-    # This fallback to Any is required since otherwise we cannot handle `undef` in all cases
-    Any
-end
+    if isconcretetype(eltype(x))
+        anyeltypedual(eltype(x))
+    else
+        # This fallback to Any is required since otherwise we cannot handle `undef` in all cases
+        Any
+    end
 end
 
 function anyeltypedual(x::Tuple, ::Type{Val{counter}} = Val{0}) where {counter}
-# Handle the empty tuple case separately for inference and to avoid mapreduce error
-if x === ()
-    Any
-else
-    diffeqmapreduce(anyeltypedual, promote_dual, x)
-end
+    # Handle the empty tuple case separately for inference and to avoid mapreduce error
+    if x === ()
+        Any
+    else
+        diffeqmapreduce(anyeltypedual, promote_dual, x)
+    end
 end
 function anyeltypedual(x::Dict, ::Type{Val{counter}} = Val{0}) where {counter}
-isempty(x) ? eltype(values(x)) : mapreduce(anyeltypedual, promote_dual, values(x))
+    isempty(x) ? eltype(values(x)) : mapreduce(anyeltypedual, promote_dual, values(x))
 end
 function anyeltypedual(x::NamedTuple, ::Type{Val{counter}} = Val{0}) where {counter}
-anyeltypedual(values(x))
+    anyeltypedual(values(x))
 end
 
 function anyeltypedual(
-    f::SciMLBase.AbstractSciMLFunction, ::Type{Val{counter}}) where {counter}
-Any
+        f::SciMLBase.AbstractSciMLFunction, ::Type{Val{counter}}) where {counter}
+    Any
 end
 
 anyeltypedual(::@Kwargs{}, ::Type{Val{counter}} = Val{0}) where {counter} = Any

@@ -7,7 +7,7 @@ end
 import PrecompileTools
 
 import FastPower
-@deprecate fastpow(x,y) FastPower.fastpower(x,y)
+@deprecate fastpow(x, y) FastPower.fastpower(x, y)
 
 using ArrayInterface
 
@@ -110,7 +110,7 @@ SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
 eltypedual(x) = false
 promote_u0(::Nothing, p, t0) = nothing
-isdualtype(::Type{T}) where T = true 
+isdualtype(::Type{T}) where {T} = true
 
 ## Types
 

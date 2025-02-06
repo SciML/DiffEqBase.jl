@@ -1,4 +1,21 @@
 """
+  prevfloat_tdir(x, x0, x1)
+
+Move `x` one floating point towards x0.
+"""
+function prevfloat_tdir(x, x0, x1)
+    x1 > x0 ? prevfloat(x) : nextfloat(x)
+end
+
+function nextfloat_tdir(x, x0, x1)
+    x1 > x0 ? nextfloat(x) : prevfloat(x)
+end
+
+function max_tdir(a, b, x0, x1)
+    x1 > x0 ? max(a, b) : min(a, b)
+end
+
+"""
 `InternalITP`: A non-allocating ITP method, internal to DiffEqBase for
 simpler dependencies.
 """
