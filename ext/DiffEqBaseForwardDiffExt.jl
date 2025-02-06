@@ -3,7 +3,7 @@ module DiffEqBaseForwardDiffExt
 using DiffEqBase, ForwardDiff
 using DiffEqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag
 import DiffEqBase: hasdualpromote, wrapfun_oop, wrapfun_iip, promote_u0, prob2dtmin,
-promote_tspan, anyeltypedual, isdualtype, value, ODE_DEFAULT_NORM
+promote_tspan, anyeltypedual, isdualtype, value, ODE_DEFAULT_NORM, InternalITP
 
 const DUALCHECK_RECURSION_MAX = 10
 
