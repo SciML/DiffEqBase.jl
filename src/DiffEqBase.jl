@@ -32,17 +32,12 @@ import TruncatedStacktraces
 
 using Setfield
 
-using ForwardDiff
-
 using EnumX
 
 using Markdown
 
 using ConcreteStructs: @concrete
 using FastClosures: @closure
-
-# Could be made optional/glue
-import PreallocationTools
 
 import FunctionWrappersWrappers
 
@@ -111,6 +106,13 @@ Reexport.@reexport using SciMLBase
 
 SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
+## Extension Functions
+
+eltypedual(x) = false
+promote_u0(::Nothing, p, t0) = nothing
+
+## Types
+
 """
 $(TYPEDEF)
 """
@@ -132,7 +134,6 @@ include("utils.jl")
 include("stats.jl")
 include("calculate_residuals.jl")
 include("tableaus.jl")
-include("internal_falsi.jl")
 include("internal_itp.jl")
 
 include("callbacks.jl")
