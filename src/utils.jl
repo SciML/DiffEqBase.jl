@@ -15,6 +15,37 @@ macro tight_loop_macros(ex)
     :($(esc(ex)))
 end
 
+const oop_arglists = (Tuple{Vector{Float64}, Vector{Float64}, Float64},
+    Tuple{Vector{Float64}, SciMLBase.NullParameters, Float64})
+
+const NORECOMPILE_OOP_SUPPORTED_ARGS = (Tuple{Vector{Float64},
+        Vector{Float64}, Float64},
+    Tuple{Vector{Float64},
+        SciMLBase.NullParameters, Float64})
+const oop_returnlists = (Vector{Float64}, Vector{Float64})
+
+function wrapfun_oop(ff, inputs = ())
+    if !isempty(inputs)
+        IT = Tuple{map(typeof, inputs)...}
+        if IT ∉ NORECOMPILE_OOP_SUPPORTED_ARGS
+            throw(NoRecompileArgumentError(IT))
+        end
+    end
+    FunctionWrappersWrappers.FunctionWrappersWrapper(ff, oop_arglists,
+        oop_returnlists)
+end
+
+function wrapfun_iip(ff, inputs)
+    T = eltype(inputs[2])
+    iip_arglists = (Tuple{T1, T2, T3, T4},)
+    iip_returnlists = ntuple(x -> Nothing, 1)
+
+    fwt = map(iip_arglists, iip_returnlists) do A, R
+        FunctionWrappersWrappers.FunctionWrappers.FunctionWrapper{R, A}(Void(ff))
+    end
+    FunctionWrappersWrappers.FunctionWrappersWrapper{typeof(fwt), false}(fwt)
+end
+
 # TODO: would be good to have dtmin a function of dt
 function prob2dtmin(prob; use_end_time = true)
     prob2dtmin(prob.tspan, oneunit(eltype(prob.tspan)), use_end_time)
