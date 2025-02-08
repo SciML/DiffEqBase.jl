@@ -110,7 +110,7 @@ SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
 eltypedual(x) = false
 promote_u0(::Nothing, p, t0) = nothing
-isdualtype(::Type{T}) where {T} = true
+isdualtype(::Type{T}) where {T} = false
 
 ## Types
 
