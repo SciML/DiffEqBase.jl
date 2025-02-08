@@ -190,22 +190,23 @@ upconversion is not done automatically, the user is required to upconvert all in
 themselves, for an example of how this can be confusing to a user see
 https://discourse.julialang.org/t/typeerror-in-julia-turing-when-sampling-for-a-forced-differential-equation/82937
 """
-function anyeltypedual(x, ::Type{Val{counter}} = Val{0}) where {counter}
-    if isdualtype(typeof(x))
-        x
+@generated function anyeltypedual(x, ::Type{Val{counter}} = Val{0}) where {counter}
+    x = x.name === Core.Compiler.typename(Type) ? x.parameters[1] : x
+    if isdualtype(x)
+        :($x)
     elseif fieldnames(x) === ()
-        Any
+        :(Any)
     elseif counter < DUALCHECK_RECURSION_MAX
         T = diffeqmapreduce(x -> anyeltypedual(x, Val{counter + 1}), promote_dual,
             x.parameters)
         if T === Any || isconcretetype(T)
-            T
+            :($T)
         else
-            diffeqmapreduce(DualEltypeChecker(typeof(x), counter + 1), promote_dual,
-                map(Val, fieldnames((typeof(x)))))
+            :(diffeqmapreduce(DualEltypeChecker($x, $counter + 1), promote_dual,
+                map(Val, fieldnames($(typeof(x))))))
         end
     else
-        Any
+        :(Any)
     end
 end
 

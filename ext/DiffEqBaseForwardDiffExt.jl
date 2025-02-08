@@ -215,6 +215,8 @@ if !hasmethod(nextfloat, Tuple{ForwardDiff.Dual})
     end
 end
 
+# bisection(f, tup::Tuple{T,T}, t_forward::Bool) where {T<:ForwardDiff.Dual} = find_zero(f, tup, Roots.AlefeldPotraShi())
+
 # Static Arrays don't support the `init` keyword argument for `sum`
 @inline __sum(f::F, args...; init, kwargs...) where {F} = sum(f, args...; init, kwargs...)
 @inline function __sum(
