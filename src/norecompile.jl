@@ -25,3 +25,7 @@ end
 function wrapfun_iip(ff, inputs)
     FunctionWrappersWrappers.FunctionWrappers.FunctionWrapper{Nothing, typeof(inputs)}(Void(ff))
 end
+
+function wrapfun_oop(ff, inputs)
+    FunctionWrappersWrappers.FunctionWrappers.FunctionWrapper{typeof(inputs[1]), typeof(inputs)}(ff)
+end
