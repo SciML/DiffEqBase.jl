@@ -6,7 +6,7 @@ using DiffEqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag, AbstractTim
     RecursiveArrayTools, reduce_tup
 import DiffEqBase: hasdualpromote, wrapfun_oop, wrapfun_iip, prob2dtmin,
                    promote_tspan, anyeltypedual, isdualtype, value, ODE_DEFAULT_NORM,
-                   InternalITP, nextfloat_tdir
+                   InternalITP, nextfloat_tdir, DualEltypeChecker
 
 eltypedual(x) = eltype(x) <: ForwardDiff.Dual
 isdualtype(::Type{<:ForwardDiff.Dual}) = true
@@ -164,11 +164,6 @@ promote_dual(::Type{T}, ::Type{T2}) where {T, T2} = T
 end
 # For other container types, we probably just want to call `mapreduce`
 @inline diffeqmapreduce(f::F, op::OP, x) where {F, OP} = mapreduce(f, op, x, init = Any)
-
-struct DualEltypeChecker{T, T2}
-    x::T
-    counter::T2
-end
 
 getval(::Val{I}) where {I} = I
 getval(::Type{Val{I}}) where {I} = I

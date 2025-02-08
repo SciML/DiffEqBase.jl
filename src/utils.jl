@@ -123,6 +123,11 @@ end
 end
 @inline __apply_termination_internalnorm(f::F, u) where {F} = f(u)
 
+struct DualEltypeChecker{T, T2}
+    x::T
+    counter::T2
+end
+
 anyeltypedual(x) = anyeltypedual(x, Val{0})
 anyeltypedual(x, counter) = Any
 
