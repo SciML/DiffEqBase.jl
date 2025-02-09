@@ -23,9 +23,9 @@ end
 
 # Default dispatch assumes no ForwardDiff, gets added in the new dispatch
 function wrapfun_iip(ff, inputs)
-    FunctionWrappersWrappers.FunctionWrappers.FunctionWrapper{Nothing, typeof(inputs)}(Void(ff))
+    FunctionWrappersWrappers.FunctionWrappersWrapper(Void(ff), (typeof(inputs),), (Nothing,))
 end
 
 function wrapfun_oop(ff, inputs)
-    FunctionWrappersWrappers.FunctionWrappers.FunctionWrapper{typeof(inputs[1]), typeof(inputs)}(ff)
+    FunctionWrappersWrappers.FunctionWrappersWrapper(ff, (typeof(inputs),), (typeof(inputs[1]),))
 end
