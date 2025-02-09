@@ -2,6 +2,7 @@
 value(x) = x
 unitfulvalue(x) = x
 isdistribution(u0) = false
+sse(x::Number) = abs2(x)
 
 _vec(v) = vec(v)
 _vec(v::Number) = v
