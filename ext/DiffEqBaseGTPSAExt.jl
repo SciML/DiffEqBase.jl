@@ -13,6 +13,9 @@ end
 value(x::TPS) = scalar(x)
 value(::Type{<:TPS{T}}) where {T} = T
 
+unitfulvalue(x::TPS) = scalar(x)
+unitfulvalue(::Type{<:TPS{T}}) where {T} = T
+
 ODE_DEFAULT_NORM(u::TPS, t) = normTPS(u)
 ODE_DEFAULT_NORM(f::F, u::TPS, t) where {F} = normTPS(f(u))
 

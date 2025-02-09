@@ -1,15 +1,115 @@
-const DUALCHECK_RECURSION_MAX = 10
+module DiffEqBaseForwardDiffExt
 
-"""
-    promote_dual(::Type{T},::Type{T2})
+using DiffEqBase, ForwardDiff
+using DiffEqBase.ArrayInterface
+using DiffEqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag, AbstractTimeseriesSolution,
+    RecursiveArrayTools, reduce_tup, _promote_tspan, has_continuous_callback
+import DiffEqBase: hasdualpromote, wrapfun_oop, wrapfun_iip, prob2dtmin,
+                   promote_tspan, anyeltypedual, isdualtype, value, ODE_DEFAULT_NORM,
+                   InternalITP, nextfloat_tdir, DualEltypeChecker, sse
 
+eltypedual(x) = eltype(x) <: ForwardDiff.Dual
+isdualtype(::Type{<:ForwardDiff.Dual}) = true
+const dualT = ForwardDiff.Dual{ForwardDiff.Tag{OrdinaryDiffEqTag, Float64}, Float64, 1}
+dualgen(::Type{T}) where {T} = ForwardDiff.Dual{ForwardDiff.Tag{OrdinaryDiffEqTag, T}, T, 1}
 
-Is like the number promotion system, but always prefers a dual number type above
-anything else. For higher order differentiation, it returns the most dualiest of
-them all. This is then used to promote `u0` into the suspected highest differentiation
-space for solving the equation.
-"""
-promote_dual(::Type{T}, ::Type{T2}) where {T, T2} = T
+# Copy of the other prob2dtmin dispatch, just for optionality
+function prob2dtmin(tspan, ::ForwardDiff.Dual, use_end_time)
+    t1, t2 = tspan
+    isfinite(t1) || throw(ArgumentError("t0 in the tspan `(t0, t1)` must be finite"))
+    if use_end_time && isfinite(t2 - t1)
+        return max(eps(t2), eps(t1))
+    else
+        return max(eps(typeof(t1)), eps(t1))
+    end
+end
+
+function hasdualpromote(u0, t::Number)
+    hasmethod(ArrayInterface.promote_eltype,
+            Tuple{Type{typeof(u0)}, Type{dualgen(eltype(u0))}}) &&
+        hasmethod(promote_rule,
+            Tuple{Type{eltype(u0)}, Type{dualgen(eltype(u0))}}) &&
+        hasmethod(promote_rule,
+            Tuple{Type{eltype(u0)}, Type{typeof(t)}})
+end
+
+const NORECOMPILE_IIP_SUPPORTED_ARGS = (
+    Tuple{Vector{Float64}, Vector{Float64},
+        Vector{Float64}, Float64},
+    Tuple{Vector{Float64}, Vector{Float64},
+        SciMLBase.NullParameters, Float64})
+
+const oop_arglists = (Tuple{Vector{Float64}, Vector{Float64}, Float64},
+    Tuple{Vector{Float64}, SciMLBase.NullParameters, Float64},
+    Tuple{Vector{Float64}, Vector{Float64}, dualT},
+    Tuple{Vector{dualT}, Vector{Float64}, Float64},
+    Tuple{Vector{dualT}, SciMLBase.NullParameters, Float64},
+    Tuple{Vector{Float64}, SciMLBase.NullParameters, dualT})
+
+const NORECOMPILE_OOP_SUPPORTED_ARGS = (Tuple{Vector{Float64},
+        Vector{Float64}, Float64},
+    Tuple{Vector{Float64},
+        SciMLBase.NullParameters, Float64})
+const oop_returnlists = (Vector{Float64}, Vector{Float64},
+    ntuple(x -> Vector{dualT}, length(oop_arglists) - 2)...)
+
+function wrapfun_oop(ff, inputs::Tuple = ())
+    if !isempty(inputs)
+        IT = Tuple{map(typeof, inputs)...}
+        if IT ∉ NORECOMPILE_OOP_SUPPORTED_ARGS
+            throw(NoRecompileArgumentError(IT))
+        end
+    end
+    FunctionWrappersWrappers.FunctionWrappersWrapper(ff, oop_arglists,
+        oop_returnlists)
+end
+
+function wrapfun_iip(ff,
+        inputs::Tuple{T1, T2, T3, T4}) where {T1, T2, T3, T4}
+    T = eltype(T2)
+    dualT = dualgen(T)
+    dualT1 = ArrayInterface.promote_eltype(T1, dualT)
+    dualT2 = ArrayInterface.promote_eltype(T2, dualT)
+    dualT4 = dualgen(promote_type(T, T4))
+
+    iip_arglists = (Tuple{T1, T2, T3, T4},
+        Tuple{dualT1, dualT2, T3, T4},
+        Tuple{dualT1, T2, T3, dualT4},
+        Tuple{dualT1, dualT2, T3, dualT4})
+
+    iip_returnlists = ntuple(x -> Nothing, 4)
+
+    fwt = map(iip_arglists, iip_returnlists) do A, R
+        FunctionWrappersWrappers.FunctionWrappers.FunctionWrapper{R, A}(Void(ff))
+    end
+    FunctionWrappersWrappers.FunctionWrappersWrapper{typeof(fwt), false}(fwt)
+end
+
+const iip_arglists_default = (
+    Tuple{Vector{Float64}, Vector{Float64}, Vector{Float64},
+        Float64},
+    Tuple{Vector{Float64}, Vector{Float64},
+        SciMLBase.NullParameters,
+        Float64
+    },
+    Tuple{Vector{dualT}, Vector{Float64}, Vector{Float64}, dualT},
+    Tuple{Vector{dualT}, Vector{dualT}, Vector{Float64}, dualT},
+    Tuple{Vector{dualT}, Vector{dualT}, Vector{Float64}, Float64},
+    Tuple{Vector{dualT}, Vector{dualT}, SciMLBase.NullParameters,
+        Float64
+    },
+    Tuple{Vector{dualT}, Vector{Float64},
+        SciMLBase.NullParameters, dualT
+    })
+const iip_returnlists_default = ntuple(x -> Nothing, length(iip_arglists_default))
+
+function wrapfun_iip(@nospecialize(ff))
+    fwt = map(iip_arglists_default, iip_returnlists_default) do A, R
+        FunctionWrappersWrappers.FunctionWrappers.FunctionWrapper{R, A}(Void(ff))
+    end
+    FunctionWrappersWrappers.FunctionWrappersWrapper{typeof(fwt), false}(fwt)
+end
+
 promote_dual(::Type{T}, ::Type{T2}) where {T <: ForwardDiff.Dual, T2} = T
 function promote_dual(::Type{T},
         ::Type{T2}) where {T <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
@@ -38,6 +138,17 @@ function promote_dual(::Type{T},
     ForwardDiff.Dual{T3, promote_dual(V, V2), N}
 end
 
+"""
+    promote_dual(::Type{T},::Type{T2})
+
+
+Is like the number promotion system, but always prefers a dual number type above
+anything else. For higher order differentiation, it returns the most dualiest of
+them all. This is then used to promote `u0` into the suspected highest differentiation
+space for solving the equation.
+"""
+promote_dual(::Type{T}, ::Type{T2}) where {T, T2} = T
+
 # `reduce` and `map` are specialized on tuples to be unrolled (via recursion)
 # Therefore, they can be type stable even with heterogeneous input types.
 # We also don't care about allocating any temporaries with them, as it should
@@ -54,14 +165,11 @@ end
 # For other container types, we probably just want to call `mapreduce`
 @inline diffeqmapreduce(f::F, op::OP, x) where {F, OP} = mapreduce(f, op, x, init = Any)
 
-struct DualEltypeChecker{T, T2}
-    x::T
-    counter::T2
-end
-
 getval(::Val{I}) where {I} = I
 getval(::Type{Val{I}}) where {I} = I
 getval(I::Int) = I
+
+const DUALCHECK_RECURSION_MAX = 10
 
 function (dec::DualEltypeChecker)(::Val{Y}) where {Y}
     isdefined(dec.x, Y) || return Any
@@ -92,9 +200,9 @@ upconversion is not done automatically, the user is required to upconvert all in
 themselves, for an example of how this can be confusing to a user see
 https://discourse.julialang.org/t/typeerror-in-julia-turing-when-sampling-for-a-forced-differential-equation/82937
 """
-@generated function anyeltypedual(x, ::Type{Val{counter}} = Val{0}) where {counter}
+@generated function anyeltypedual(x, ::Type{Val{counter}}) where {counter}
     x = x.name === Core.Compiler.typename(Type) ? x.parameters[1] : x
-    if x <: ForwardDiff.Dual
+    if isdualtype(x)
         :($x)
     elseif fieldnames(x) === ()
         :(Any)
@@ -180,17 +288,6 @@ function anyeltypedual(::Type{Union{}})
     throw(ForwardDiffAutomaticDetectionFailure())
 end
 
-# Opt out since these are using for preallocation, not differentiation
-function anyeltypedual(x::Union{ForwardDiff.AbstractConfig, Module},
-        ::Type{Val{counter}} = Val{0}) where {counter}
-    Any
-end
-function anyeltypedual(x::Type{T},
-        ::Type{Val{counter}} = Val{0}) where {counter} where {T <:
-                                                              ForwardDiff.AbstractConfig}
-    Any
-end
-
 function anyeltypedual(::Type{<:AbstractTimeseriesSolution{T, N}},
         ::Type{Val{counter}} = Val{0}) where {T, N, counter}
     anyeltypedual(T)
@@ -212,28 +309,12 @@ function anyeltypedual(
     return anyeltypedual((uType, pType), Val{counter})
 end
 
-function anyeltypedual(x::ForwardDiff.DiffResults.DiffResult,
-        ::Type{Val{counter}} = Val{0}) where {counter}
-    Any
-end
-function anyeltypedual(x::Type{T},
-        ::Type{Val{counter}} = Val{0}) where {counter} where {T <:
-                                                              ForwardDiff.DiffResults.DiffResult}
-    Any
-end
 function anyeltypedual(x::SciMLBase.RecipesBase.AbstractPlot,
         ::Type{Val{counter}} = Val{0}) where {counter}
     Any
 end
 function anyeltypedual(x::Returns, ::Type{Val{counter}} = Val{0}) where {counter}
     anyeltypedual(x.value, Val{counter})
-end
-
-if isdefined(PreallocationTools, :FixedSizeDiffCache)
-    function anyeltypedual(x::PreallocationTools.FixedSizeDiffCache,
-            ::Type{Val{counter}} = Val{0}) where {counter}
-        Any
-    end
 end
 
 Base.@assume_effects :foldable function __anyeltypedual(::Type{T}) where {T}
@@ -248,10 +329,7 @@ end
 function anyeltypedual(::Type{T}, ::Type{Val{counter}} = Val{0}) where {counter} where {T}
     __anyeltypedual(T)
 end
-function anyeltypedual(::Type{T},
-        ::Type{Val{counter}} = Val{0}) where {counter} where {T <: ForwardDiff.Dual}
-    T
-end
+
 function anyeltypedual(::Type{T},
         ::Type{Val{counter}} = Val{0}) where {counter} where {T <:
                                                               Union{AbstractArray, Set}}
@@ -371,65 +449,30 @@ end
 anyeltypedual(::@Kwargs{}, ::Type{Val{counter}} = Val{0}) where {counter} = Any
 anyeltypedual(::Type{@Kwargs{}}, ::Type{Val{counter}} = Val{0}) where {counter} = Any
 
-@inline promote_u0(::Nothing, p, t0) = nothing
-
-@inline function promote_u0(u0, p, t0)
-    if SciMLStructures.isscimlstructure(p)
-        _p = SciMLStructures.canonicalize(SciMLStructures.Tunable(), p)[1]
-        if !isequal(_p, p)
-            return promote_u0(u0, _p, t0)
-        end
-    end
-    Tu = eltype(u0)
-    if Tu <: ForwardDiff.Dual
-        return u0
-    end
-    Tp = anyeltypedual(p)
-    if Tp == Any
-        Tp = Tu
-    end
-    Tt = anyeltypedual(t0)
-    if Tt == Any
-        Tt = Tu
-    end
-    Tcommon = promote_type(Tu, Tp, Tt)
-    return if Tcommon <: ForwardDiff.Dual
-        Tcommon.(u0)
-    else
-        u0
-    end
+# Opt out since these are using for preallocation, not differentiation
+function anyeltypedual(x::Union{ForwardDiff.AbstractConfig, Module},
+        ::Type{Val{counter}} = Val{0}) where {counter}
+    Any
+end
+function anyeltypedual(x::Type{T},
+        ::Type{Val{counter}} = Val{0}) where {counter} where {T <:
+                                                              ForwardDiff.AbstractConfig}
+    Any
 end
 
-@inline function promote_u0(u0::AbstractArray{<:Complex}, p, t0)
-    if SciMLStructures.isscimlstructure(p)
-        _p = SciMLStructures.canonicalize(SciMLStructures.Tunable(), p)[1]
-        if !isequal(_p, p)
-            return promote_u0(u0, _p, t0)
-        end
-    end
-    Tu = real(eltype(u0))
-    if Tu <: ForwardDiff.Dual
-        return u0
-    end
-    Tp = anyeltypedual(p)
-    if Tp == Any
-        Tp = Tu
-    end
-    Tt = anyeltypedual(t0)
-    if Tt == Any
-        Tt = Tu
-    end
-    Tcommon = promote_type(eltype(u0), Tp, Tt)
-    return if real(Tcommon) <: ForwardDiff.Dual
-        Tcommon.(u0)
-    else
-        u0
-    end
+function anyeltypedual(x::ForwardDiff.DiffResults.DiffResult,
+        ::Type{Val{counter}} = Val{0}) where {counter}
+    Any
+end
+function anyeltypedual(x::Type{T},
+        ::Type{Val{counter}} = Val{0}) where {counter} where {T <:
+                                                              ForwardDiff.DiffResults.DiffResult}
+    Any
 end
 
-function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p,
-        tspan::Tuple{<:ForwardDiff.Dual, <:ForwardDiff.Dual}, prob, kwargs)
-    return _promote_tspan(tspan, kwargs)
+function anyeltypedual(::Type{T},
+        ::Type{Val{counter}} = Val{0}) where {counter} where {T <: ForwardDiff.Dual}
+    T
 end
 
 function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p, tspan, prob, kwargs)
@@ -446,10 +489,17 @@ function promote_tspan(u0::AbstractArray{<:Complex{<:ForwardDiff.Dual}}, p, tspa
     return _promote_tspan(real(eltype(u0)).(tspan), kwargs)
 end
 
+function promote_tspan(u0::AbstractArray{<:ForwardDiff.Dual}, p,
+        tspan::Tuple{<:ForwardDiff.Dual, <:ForwardDiff.Dual}, prob, kwargs)
+    return _promote_tspan(tspan, kwargs)
+end
+
 value(x::Type{ForwardDiff.Dual{T, V, N}}) where {T, V, N} = V
 value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
 
-sse(x::Number) = abs2(x)
+unitfulvalue(x::Type{ForwardDiff.Dual{T, V, N}}) where {T, V, N} = V
+unitfulvalue(x::ForwardDiff.Dual) = unitfulvalue(ForwardDiff.unitfulvalue(x))
+
 sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
 totallength(x::Number) = 1
 function totallength(x::ForwardDiff.Dual)
@@ -482,6 +532,70 @@ end
 
 # Static Arrays don't support the `init` keyword argument for `sum`
 @inline __sum(f::F, args...; init, kwargs...) where {F} = sum(f, args...; init, kwargs...)
-@inline function __sum(f::F, a::StaticArraysCore.StaticArray...; init, kwargs...) where {F}
+@inline function __sum(
+        f::F, a::DiffEqBase.StaticArraysCore.StaticArray...; init, kwargs...) where {F}
     return mapreduce(f, +, a...; init, kwargs...)
+end
+
+# Differentiation of internal solver
+
+function scalar_nlsolve_ad(prob, alg::InternalITP, args...; kwargs...)
+    f = prob.f
+    p = value(prob.p)
+
+    if prob isa IntervalNonlinearProblem
+        tspan = value(prob.tspan)
+        newprob = IntervalNonlinearProblem(f, tspan, p; prob.kwargs...)
+    else
+        u0 = value(prob.u0)
+        newprob = NonlinearProblem(f, u0, p; prob.kwargs...)
+    end
+
+    sol = solve(newprob, alg, args...; kwargs...)
+
+    uu = sol.u
+    if p isa Number
+        f_p = ForwardDiff.derivative(Base.Fix1(f, uu), p)
+    else
+        f_p = ForwardDiff.gradient(Base.Fix1(f, uu), p)
+    end
+
+    f_x = ForwardDiff.derivative(Base.Fix2(f, p), uu)
+    pp = prob.p
+    sumfun = let f_x′ = -f_x
+        ((fp, p),) -> (fp / f_x′) * ForwardDiff.partials(p)
+    end
+    partials = sum(sumfun, zip(f_p, pp))
+    return sol, partials
+end
+
+function SciMLBase.solve(
+        prob::IntervalNonlinearProblem{uType, iip,
+            <:ForwardDiff.Dual{T, V, P}},
+        alg::InternalITP, args...;
+        kwargs...) where {uType, iip, T, V, P}
+    sol, partials = scalar_nlsolve_ad(prob, alg, args...; kwargs...)
+    return SciMLBase.build_solution(prob, alg, ForwardDiff.Dual{T, V, P}(sol.u, partials),
+        sol.resid; retcode = sol.retcode,
+        left = ForwardDiff.Dual{T, V, P}(sol.left, partials),
+        right = ForwardDiff.Dual{T, V, P}(sol.right, partials))
+end
+
+function SciMLBase.solve(
+        prob::IntervalNonlinearProblem{uType, iip,
+            <:AbstractArray{
+                <:ForwardDiff.Dual{T,
+                V,
+                P},
+            }},
+        alg::InternalITP, args...;
+        kwargs...) where {uType, iip, T, V, P}
+    sol, partials = scalar_nlsolve_ad(prob, alg, args...; kwargs...)
+
+    return SciMLBase.build_solution(prob, alg, ForwardDiff.Dual{T, V, P}(sol.u, partials),
+        sol.resid; retcode = sol.retcode,
+        left = ForwardDiff.Dual{T, V, P}(sol.left, partials),
+        right = ForwardDiff.Dual{T, V, P}(sol.right, partials))
+end
+
 end

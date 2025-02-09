@@ -7,7 +7,7 @@ end
 import PrecompileTools
 
 import FastPower
-@deprecate fastpow(x,y) FastPower.fastpower(x,y)
+@deprecate fastpow(x, y) FastPower.fastpower(x, y)
 
 using ArrayInterface
 
@@ -32,17 +32,12 @@ import TruncatedStacktraces
 
 using Setfield
 
-using ForwardDiff
-
 using EnumX
 
 using Markdown
 
 using ConcreteStructs: @concrete
 using FastClosures: @closure
-
-# Could be made optional/glue
-import PreallocationTools
 
 import FunctionWrappersWrappers
 
@@ -111,6 +106,14 @@ Reexport.@reexport using SciMLBase
 
 SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
+## Extension Functions
+
+eltypedual(x) = false
+promote_u0(::Nothing, p, t0) = nothing
+isdualtype(::Type{T}) where {T} = false
+
+## Types
+
 """
 $(TYPEDEF)
 """
@@ -132,14 +135,12 @@ include("utils.jl")
 include("stats.jl")
 include("calculate_residuals.jl")
 include("tableaus.jl")
-include("internal_falsi.jl")
 include("internal_itp.jl")
 
 include("callbacks.jl")
 include("common_defaults.jl")
 include("solve.jl")
 include("internal_euler.jl")
-include("forwarddiff.jl")
 include("termination_conditions_deprecated.jl")  # TODO: remove in the next major release
 include("termination_conditions.jl")
 include("norecompile.jl")

@@ -1,8 +1,8 @@
 using DiffEqBase
-using DiffEqBase: InternalFalsi, InternalITP, IntervalNonlinearProblem
+using DiffEqBase: InternalITP, IntervalNonlinearProblem
 using ForwardDiff
 
-for Rootfinder in (InternalFalsi, InternalITP)
+for Rootfinder in (InternalITP,)
     rf = Rootfinder()
     # From SimpleNonlinearSolve
     f = (u, p) -> u * u - p

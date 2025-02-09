@@ -1,6 +1,8 @@
 # Handled in Extensions
 value(x) = x
+unitfulvalue(x) = x
 isdistribution(u0) = false
+sse(x::Number) = abs2(x)
 
 _vec(v) = vec(v)
 _vec(v::Number) = v
@@ -22,7 +24,7 @@ end
 
 # This functino requires `eps` to exist, which restricts below `<: Real`
 # Example of a failure is Rational
-function prob2dtmin(tspan, ::Union{AbstractFloat, ForwardDiff.Dual}, use_end_time)
+function prob2dtmin(tspan, ::AbstractFloat, use_end_time)
     t1, t2 = tspan
     isfinite(t1) || throw(ArgumentError("t0 in the tspan `(t0, t1)` must be finite"))
     if use_end_time && isfinite(t2 - t1)
@@ -122,3 +124,65 @@ end
     return __apply_termination_internalnorm(Base.Fix1(maximum, abs), u)
 end
 @inline __apply_termination_internalnorm(f::F, u) where {F} = f(u)
+
+struct DualEltypeChecker{T, T2}
+    x::T
+    counter::T2
+end
+
+anyeltypedual(x) = anyeltypedual(x, Val{0})
+anyeltypedual(x, counter) = Any
+
+function promote_u0(u0, p, t0)
+    if SciMLStructures.isscimlstructure(p)
+        _p = SciMLStructures.canonicalize(SciMLStructures.Tunable(), p)[1]
+        if !isequal(_p, p)
+            return promote_u0(u0, _p, t0)
+        end
+    end
+    Tu = eltype(u0)
+    if isdualtype(Tu)
+        return u0
+    end
+    Tp = anyeltypedual(p, Val{0})
+    if Tp == Any
+        Tp = Tu
+    end
+    Tt = anyeltypedual(t0, Val{0})
+    if Tt == Any
+        Tt = Tu
+    end
+    Tcommon = promote_type(Tu, Tp, Tt)
+    return if isdualtype(Tcommon)
+        Tcommon.(u0)
+    else
+        u0
+    end
+end
+
+function promote_u0(u0::AbstractArray{<:Complex}, p, t0)
+    if SciMLStructures.isscimlstructure(p)
+        _p = SciMLStructures.canonicalize(SciMLStructures.Tunable(), p)[1]
+        if !isequal(_p, p)
+            return promote_u0(u0, _p, t0)
+        end
+    end
+    Tu = real(eltype(u0))
+    if isdualtype(Tu)
+        return u0
+    end
+    Tp = anyeltypedual(p, Val{0})
+    if Tp == Any
+        Tp = Tu
+    end
+    Tt = anyeltypedual(t0, Val{0})
+    if Tt == Any
+        Tt = Tu
+    end
+    Tcommon = promote_type(eltype(u0), Tp, Tt)
+    return if isdualtype(real(Tcommon))
+        Tcommon.(u0)
+    else
+        u0
+    end
+end

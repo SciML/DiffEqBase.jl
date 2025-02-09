@@ -12,6 +12,10 @@ end
 # Support adaptive errors should be errorless for exponentiation
 value(x::Type{Unitful.AbstractQuantity{T, D, U}}) where {T, D, U} = T
 value(x::Unitful.AbstractQuantity) = x.val
+
+unitfulvalue(x::Type{T}) where {T <: Unitful.AbstractQuantity} = T
+unitfulvalue(x::Unitful.AbstractQuantity) = x
+
 @inline function DiffEqBase.ODE_DEFAULT_NORM(
         u::AbstractArray{
             <:Unitful.AbstractQuantity,
