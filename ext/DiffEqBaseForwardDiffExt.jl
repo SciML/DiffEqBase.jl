@@ -497,6 +497,9 @@ end
 value(x::Type{ForwardDiff.Dual{T, V, N}}) where {T, V, N} = V
 value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
 
+unitfulvalue(x::Type{ForwardDiff.Dual{T, V, N}}) where {T, V, N} = V
+unitfulvalue(x::ForwardDiff.Dual) = unitfulvalue(ForwardDiff.unitfulvalue(x))
+
 sse(x::Number) = abs2(x)
 sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
 totallength(x::Number) = 1

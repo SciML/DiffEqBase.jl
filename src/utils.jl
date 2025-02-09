@@ -1,5 +1,6 @@
 # Handled in Extensions
 value(x) = x
+unitfulvalue(x) = x
 isdistribution(u0) = false
 
 _vec(v) = vec(v)

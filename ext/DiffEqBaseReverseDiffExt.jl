@@ -23,6 +23,18 @@ end
 DiffEqBase.value(x::ReverseDiff.TrackedReal) = x.value
 DiffEqBase.value(x::ReverseDiff.TrackedArray) = x.value
 
+
+DiffEqBase.unitfulvalue(x::Type{ReverseDiff.TrackedReal{V, D, O}}) where {V, D, O} = V
+function DiffEqBase.unitfulvalue(x::Type{
+        ReverseDiff.TrackedArray{V, D, N, VA, DA},
+}) where {V, D,
+        N, VA,
+        DA}
+    Array{V, N}
+end
+DiffEqBase.unitfulvalue(x::ReverseDiff.TrackedReal) = x.value
+DiffEqBase.unitfulvalue(x::ReverseDiff.TrackedArray) = x.value
+
 # Force TrackedArray from TrackedReal when reshaping W\b
 DiffEqBase._reshape(v::AbstractVector{<:ReverseDiff.TrackedReal}, siz) = reduce(vcat, v)
 
