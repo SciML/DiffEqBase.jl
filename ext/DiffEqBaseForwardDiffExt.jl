@@ -3,7 +3,7 @@ module DiffEqBaseForwardDiffExt
 using DiffEqBase, ForwardDiff
 using DiffEqBase.ArrayInterface
 using DiffEqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag, AbstractTimeseriesSolution,
-    RecursiveArrayTools, reduce_tup
+    RecursiveArrayTools, reduce_tup, _promote_tspan, has_continuous_callback
 import DiffEqBase: hasdualpromote, wrapfun_oop, wrapfun_iip, prob2dtmin,
                    promote_tspan, anyeltypedual, isdualtype, value, ODE_DEFAULT_NORM,
                    InternalITP, nextfloat_tdir, DualEltypeChecker
