@@ -6,7 +6,7 @@ using DiffEqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag, AbstractTim
     RecursiveArrayTools, reduce_tup, _promote_tspan, has_continuous_callback
 import DiffEqBase: hasdualpromote, wrapfun_oop, wrapfun_iip, prob2dtmin,
                    promote_tspan, anyeltypedual, isdualtype, value, ODE_DEFAULT_NORM,
-                   InternalITP, nextfloat_tdir, DualEltypeChecker, sse
+                   InternalITP, nextfloat_tdir, DualEltypeChecker, sse, totallength
 
 eltypedual(x) = eltype(x) <: ForwardDiff.Dual
 isdualtype(::Type{<:ForwardDiff.Dual}) = true
