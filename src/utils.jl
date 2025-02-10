@@ -4,6 +4,9 @@ unitfulvalue(x) = x
 isdistribution(u0) = false
 sse(x::Number) = abs2(x)
 
+totallength(x::Number) = 1
+totallength(x::AbstractArray) = __sum(totallength, x; init = 0)
+
 _vec(v) = vec(v)
 _vec(v::Number) = v
 _vec(v::AbstractSciMLScalarOperator) = v

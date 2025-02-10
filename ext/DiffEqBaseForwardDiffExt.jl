@@ -501,11 +501,9 @@ unitfulvalue(x::Type{ForwardDiff.Dual{T, V, N}}) where {T, V, N} = V
 unitfulvalue(x::ForwardDiff.Dual) = unitfulvalue(ForwardDiff.unitfulvalue(x))
 
 sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
-totallength(x::Number) = 1
 function totallength(x::ForwardDiff.Dual)
     totallength(ForwardDiff.value(x)) + sum(totallength, ForwardDiff.partials(x))
 end
-totallength(x::AbstractArray) = __sum(totallength, x; init = 0)
 
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::Any) = sqrt(sse(u))
 @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{Tag, T}},
