@@ -508,12 +508,12 @@ end
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::Any) = sqrt(sse(u))
 @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{Tag, T}},
         t::Any) where {Tag, T}
-    sqrt(__sum(sse, u; init = sse(zero(T))) / totallength(u))
+    sqrt(DiffEqBase.__sum(sse, u; init = sse(zero(T))) / totallength(u))
 end
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::ForwardDiff.Dual) = sqrt(sse(u))
 @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{Tag, T}},
         ::ForwardDiff.Dual) where {Tag, T}
-    sqrt(__sum(sse, u; init = sse(zero(T))) / totallength(u))
+    sqrt(DiffEqBase.__sum(sse, u; init = sse(zero(T))) / totallength(u))
 end
 
 if !hasmethod(nextfloat, Tuple{ForwardDiff.Dual})
@@ -527,13 +527,6 @@ if !hasmethod(nextfloat, Tuple{ForwardDiff.Dual})
 end
 
 # bisection(f, tup::Tuple{T,T}, t_forward::Bool) where {T<:ForwardDiff.Dual} = find_zero(f, tup, Roots.AlefeldPotraShi())
-
-# Static Arrays don't support the `init` keyword argument for `sum`
-@inline __sum(f::F, args...; init, kwargs...) where {F} = sum(f, args...; init, kwargs...)
-@inline function __sum(
-        f::F, a::DiffEqBase.StaticArraysCore.StaticArray...; init, kwargs...) where {F}
-    return mapreduce(f, +, a...; init, kwargs...)
-end
 
 # Differentiation of internal solver
 

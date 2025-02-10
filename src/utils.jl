@@ -4,6 +4,13 @@ unitfulvalue(x) = x
 isdistribution(u0) = false
 sse(x::Number) = abs2(x)
 
+# Static Arrays don't support the `init` keyword argument for `sum`
+@inline __sum(f::F, args...; init, kwargs...) where {F} = sum(f, args...; init, kwargs...)
+@inline function __sum(
+        f::F, a::StaticArraysCore.StaticArray...; init, kwargs...) where {F}
+    return mapreduce(f, +, a...; init, kwargs...)
+end
+
 totallength(x::Number) = 1
 totallength(x::AbstractArray) = __sum(totallength, x; init = 0)
 
