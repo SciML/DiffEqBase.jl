@@ -4,7 +4,6 @@ using DiffEqBase
 import DiffEqBase: value
 import ReverseDiff
 import DiffEqBase.ArrayInterface
-import DiffEqBase.ForwardDiff
 
 function DiffEqBase.anyeltypedual(::Type{T},
         ::Type{Val{counter}} = Val{0}) where {counter} where {

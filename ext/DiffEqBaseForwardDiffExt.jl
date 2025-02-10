@@ -6,7 +6,7 @@ using DiffEqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag, AbstractTim
     RecursiveArrayTools, reduce_tup, _promote_tspan, has_continuous_callback
 import DiffEqBase: hasdualpromote, wrapfun_oop, wrapfun_iip, prob2dtmin,
                    promote_tspan, anyeltypedual, isdualtype, value, ODE_DEFAULT_NORM,
-                   InternalITP, nextfloat_tdir, DualEltypeChecker, sse, totallength
+                   InternalITP, nextfloat_tdir, DualEltypeChecker, sse
 
 eltypedual(x) = eltype(x) <: ForwardDiff.Dual
 isdualtype(::Type{<:ForwardDiff.Dual}) = true
@@ -501,19 +501,19 @@ unitfulvalue(x::Type{ForwardDiff.Dual{T, V, N}}) where {T, V, N} = V
 unitfulvalue(x::ForwardDiff.Dual) = unitfulvalue(ForwardDiff.unitfulvalue(x))
 
 sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
-function totallength(x::ForwardDiff.Dual)
-    totallength(ForwardDiff.value(x)) + sum(totallength, ForwardDiff.partials(x))
+function DiffEqBase.totallength(x::ForwardDiff.Dual)
+    return DiffEqBase.totallength(ForwardDiff.value(x)) + sum(DiffEqBase.totallength, ForwardDiff.partials(x))
 end
 
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::Any) = sqrt(sse(u))
 @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{Tag, T}},
         t::Any) where {Tag, T}
-    sqrt(DiffEqBase.__sum(sse, u; init = sse(zero(T))) / totallength(u))
+    sqrt(DiffEqBase.__sum(sse, u; init = sse(zero(T))) / DiffEqBase.totallength(u))
 end
 @inline ODE_DEFAULT_NORM(u::ForwardDiff.Dual, ::ForwardDiff.Dual) = sqrt(sse(u))
 @inline function ODE_DEFAULT_NORM(u::AbstractArray{<:ForwardDiff.Dual{Tag, T}},
         ::ForwardDiff.Dual) where {Tag, T}
-    sqrt(DiffEqBase.__sum(sse, u; init = sse(zero(T))) / totallength(u))
+    sqrt(DiffEqBase.__sum(sse, u; init = sse(zero(T))) / DiffEqBase.totallength(u))
 end
 
 if !hasmethod(nextfloat, Tuple{ForwardDiff.Dual})
