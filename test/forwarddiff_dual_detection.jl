@@ -379,3 +379,13 @@ end
       ReverseDiff.TrackedReal{<:ForwardDiff.Dual}
 @test DiffEqBase.promote_u0(NaN, [NaN], 0.0) isa Float64
 @test DiffEqBase.promote_u0([1.0], [NaN], 0.0) isa Vector{Float64}
+
+# totallength
+val = rand(10)
+par = rand(10)
+u = Dual.(val, par)
+@test DiffEqBase.totallength(val[1]) == 1
+@test DiffEqBase.totallength(val) == length(val)
+@test DiffEqBase.totallength(par) == length(par)
+@test DiffEqBase.totallength(u[1]) == DiffEqBase.totallength(val[1]) + DiffEqBase.totallength(par[1])
+@test DiffEqBase.totallength(u) == sum(DiffEqBase.totallength, u)
