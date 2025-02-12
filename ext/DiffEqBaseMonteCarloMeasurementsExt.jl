@@ -26,7 +26,10 @@ end
 
 DiffEqBase.value(x::Type{MonteCarloMeasurements.AbstractParticles{T, N}}) where {T, N} = T
 DiffEqBase.value(x::MonteCarloMeasurements.AbstractParticles) = mean(x.particles)
-DiffEqBase.unitfulvalue(x::Type{MonteCarloMeasurements.AbstractParticles{T, N}}) where {T, N} = T
+function DiffEqBase.unitfulvalue(x::Type{MonteCarloMeasurements.AbstractParticles{
+        T, N}}) where {T, N}
+    T
+end
 DiffEqBase.unitfulvalue(x::MonteCarloMeasurements.AbstractParticles) = mean(x.particles)
 
 # Support adaptive steps should be errorless
