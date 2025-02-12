@@ -16,7 +16,9 @@ DiffEqBase.value(x::Tracker.TrackedReal) = x.data
 DiffEqBase.value(x::Tracker.TrackedArray) = x.data
 
 DiffEqBase.unitfulvalue(x::Type{Tracker.TrackedReal{T}}) where {T} = T
-DiffEqBase.unitfulvalue(x::Type{Tracker.TrackedArray{T, N, A}}) where {T, N, A} = Array{T, N}
+function DiffEqBase.unitfulvalue(x::Type{Tracker.TrackedArray{T, N, A}}) where {T, N, A}
+    Array{T, N}
+end
 DiffEqBase.unitfulvalue(x::Tracker.TrackedReal) = x.data
 DiffEqBase.unitfulvalue(x::Tracker.TrackedArray) = x.data
 

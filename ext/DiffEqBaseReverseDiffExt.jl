@@ -22,7 +22,6 @@ end
 DiffEqBase.value(x::ReverseDiff.TrackedReal) = x.value
 DiffEqBase.value(x::ReverseDiff.TrackedArray) = x.value
 
-
 DiffEqBase.unitfulvalue(x::Type{ReverseDiff.TrackedReal{V, D, O}}) where {V, D, O} = V
 function DiffEqBase.unitfulvalue(x::Type{
         ReverseDiff.TrackedArray{V, D, N, VA, DA},
