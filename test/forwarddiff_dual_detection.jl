@@ -387,5 +387,6 @@ u = Dual.(val, par)
 @test DiffEqBase.totallength(val[1]) == 1
 @test DiffEqBase.totallength(val) == length(val)
 @test DiffEqBase.totallength(par) == length(par)
-@test DiffEqBase.totallength(u[1]) == DiffEqBase.totallength(val[1]) + DiffEqBase.totallength(par[1])
+@test DiffEqBase.totallength(u[1]) ==
+      DiffEqBase.totallength(val[1]) + DiffEqBase.totallength(par[1])
 @test DiffEqBase.totallength(u) == sum(DiffEqBase.totallength, u)
