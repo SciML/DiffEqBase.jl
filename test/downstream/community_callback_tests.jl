@@ -22,14 +22,12 @@ f(u, p, t) = begin
 end
 
 sol = solve(ODEProblem(f, [5.0, 6.0, 0.0, 0.0], (0.0, T)),
-    # Euler(),
-    # dt=0.005,
-    Rosenbrock23(),
+    Rosenbrock23(linsolve = RFLUFactorization()),
     callback = ContinuousCallback((u, _, _) -> u[1],
         (integrator) -> (integrator.u[1] = 0; integrator.u[3] = 0)),
     # callback = ContinuousCallback((u, _, _) -> u[1], (integrator) -> (integrator.u[3] = 0)),
-    reltol = 1e-3,
-    abstol = 1e-3)
+    reltol = 1e-5,
+    abstol = 1e-5)
 
 @show sol.stats
 
