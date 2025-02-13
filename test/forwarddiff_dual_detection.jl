@@ -383,7 +383,7 @@ end
 # totallength
 val = rand(10)
 par = rand(10)
-u = Dual.(val, par)
+u = ForwardDiff.Dual.(val, par)
 @test DiffEqBase.totallength(val[1]) == 1
 @test DiffEqBase.totallength(val) == length(val)
 @test DiffEqBase.totallength(par) == length(par)
