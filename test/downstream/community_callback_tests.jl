@@ -22,7 +22,7 @@ f(u, p, t) = begin
 end
 
 sol = solve(ODEProblem(f, [5.0, 6.0, 0.0, 0.0], (0.0, T)),
-    Rosenbrock23(linsolve = QRFactorization()),
+    Rodas5P(),
     callback = ContinuousCallback((u, _, _) -> u[1],
         (integrator) -> (integrator.u[1] = 0; integrator.u[3] = 0)),
     # callback = ContinuousCallback((u, _, _) -> u[1], (integrator) -> (integrator.u[3] = 0)),
