@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, DiffEqCallbacks, LinearAlgebra
+using OrdinaryDiffEq, DiffEqCallbacks, LinearAlgebra, OrdinaryDiffEq.LinearSolve
 
 # https://github.com/SciML/DiffEqBase.jl/issues/564 : Fixed
 gravity = 9.8
