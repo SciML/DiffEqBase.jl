@@ -1,7 +1,8 @@
 using ModelingToolkit, OrdinaryDiffEq, SteadyStateDiffEq, Test
+using ModelingToolkit: t_nounits as t, D_nounits as D
 using ForwardDiff
 
-@variables t x(t) y(t)
+@variables x(t) y(t)
 eqs = [0 ~ x - y
        0 ~ y - x]
 
@@ -30,7 +31,7 @@ for kwargs in [
     @test sol.t[end] == step_integ.t
 end
 
-@variables t x y
+@variables x y
 eqs = [0 ~ x - y
        0 ~ y - x]
 
@@ -58,8 +59,7 @@ sol = solve(unsatprob) # Success
 # Issue#2664
 @testset "remake type promotion with empty initial conditions" begin
     @parameters P
-    @variables t x(t)
-    D = Differential(t)
+    @variables x(t)
     # numerical ODE: x′(t) = P with x(0) = 0
     sys_num = structural_simplify(ODESystem([D(x) ~ P], t, [x], [P]; name = :sys))
     prob_num_uninit = ODEProblem(sys_num, [x => 0.0], (0.0, 1.0), [P => NaN]) # uninitialized problem
