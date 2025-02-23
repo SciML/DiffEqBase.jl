@@ -99,7 +99,9 @@ const allowedkeywords = (:dense,
     # Termination condition for solvers
     :termination_condition,
     # For AbstractAliasSpecifier
-    :alias)
+    :alias,
+    # Fine grained error control adaptivity
+    :error_control)
 
 const KWARGWARN_MESSAGE = """
                           Unrecognized keyword arguments found.
