@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, CUDA, LinearAlgebra, Test, StaticArrays
+using OrdinaryDiffEq, CUDA, LinearAlgebra, Test, StaticArrays, ADTypes
 function f(u, p, t)
     A * u
 end
@@ -26,31 +26,33 @@ tspan = (0.0f0, 100.0f0)
 prob = ODEProblem(ff, u0, tspan)
 sol = solve(prob, Tsit5())
 @test solve(prob, Rosenbrock23()).retcode == ReturnCode.Success
-solve(prob, Rosenbrock23(autodiff = false));
+solve(prob, Rosenbrock23(autodiff = AutoFiniteDiff()));
 
 prob_oop = ODEProblem{false}(ff, u0, tspan)
 CUDA.allowscalar(false)
 sol = solve(prob_oop, Tsit5())
 @test solve(prob_oop, Rosenbrock23()).retcode == ReturnCode.Success
-@test solve(prob_oop, Rosenbrock23(autodiff = false)).retcode == ReturnCode.Success
+@test solve(prob_oop, Rosenbrock23(autodiff = AutoFiniteDiff())).retcode ==
+      ReturnCode.Success
 
 prob_nojac = ODEProblem(f, u0, tspan)
 @test solve(prob_nojac, Rosenbrock23()).retcode == ReturnCode.Success
-@test solve(prob_nojac, Rosenbrock23(autodiff = false)).retcode == ReturnCode.Success
-@test solve(prob_nojac,
-    Rosenbrock23(autodiff = false, diff_type = Val{:central})).retcode ==
+@test solve(prob_nojac, Rosenbrock23(autodiff = AutoFiniteDiff())).retcode ==
       ReturnCode.Success
 @test solve(prob_nojac,
-    Rosenbrock23(autodiff = false, diff_type = Val{:complex})).retcode ==
+    Rosenbrock23(autodiff = AutoFiniteDiff(; fdtype = Val(:central)))).retcode ==
+      ReturnCode.Success
+@test solve(prob_nojac,
+    Rosenbrock23(autodiff = AutoFiniteDiff(; fdtype = Val(:complex)))).retcode ==
       ReturnCode.Success
 
 #=
 prob_nojac_oop = ODEProblem{false}(f,u0,tspan)
 DiffEqBase.prob2dtmin(prob_nojac_oop)
 @test_broken solve(prob_nojac_oop,Rosenbrock23()).retcode == ReturnCode.Success
-@test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=false)).retcode == ReturnCode.Success
-@test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=false,diff_type = Val{:central})).retcode == ReturnCode.Success
-@test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=false,diff_type = Val{:complex})).retcode == ReturnCode.Success
+@test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=AutoFiniteDiff())).retcode == ReturnCode.Success
+@test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=AutoFiniteDiff(; fdtype = Val(:central))).retcode == ReturnCode.Success
+@test_broken solve(prob_nojac_oop,Rosenbrock23(autodiff=AutoFiniteDiff(; fdtype = Val(:complex))).retcode == ReturnCode.Success
 =#
 
 # Complex Numbers Adaptivity DifferentialEquations.jl#460

@@ -1,4 +1,5 @@
 [deps]
+ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
 Calculus = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
@@ -23,4 +24,6 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
+ADTypes = "1"
 MultiScaleArrays = "1.8"
+OrdinaryDiffEq = "6.91.0"

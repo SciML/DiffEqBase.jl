@@ -1,5 +1,6 @@
 using OrdinaryDiffEq
 using LabelledArrays
+using ADTypes
 
 function f(out, du, u, p, t)
     out.x = -0.04u.x + 1e4 * u.y * u.z - du.x
@@ -25,4 +26,4 @@ u_0 = @LArray fill(1000.0, 2 * n) (x = (1:n), y = ((n + 1):(2 * n)))
 p = [0.1, 0.1]
 prob1 = ODEProblem(f1, u_0, (0, 100.0), p)
 sol = solve(prob1, Rodas5());
-sol = solve(prob1, Rodas5(autodiff = false));
+sol = solve(prob1, Rodas5(autodiff = AutoFiniteDiff()));
