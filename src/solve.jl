@@ -676,6 +676,18 @@ function step!(integ::NullODEIntegrator, dt = nothing, stop_at_tdt = false)
     return nothing
 end
 
+function hack_null_solution_init(prob)
+    if SciMLBase.has_initializeprob(prob.f) && SciMLBase.has_initializeprobpmap(prob.f)
+        initializeprob = prob.f.initializeprob
+        nlsol = solve(initializeprob)
+        success = SciMLBase.successful_retcode(nlsol)
+        @set! prob.p = prob.f.initializeprobpmap(prob, nlsol)
+    else
+        success = true
+    end
+    return prob, success
+end
+
 function build_null_solution(prob::AbstractDEProblem, args...;
         saveat = (),
         save_everystep = true,
@@ -702,12 +714,9 @@ function build_null_solution(prob::AbstractDEProblem, args...;
 
     timeseries = [Float64[] for i in 1:length(ts)]
 
-    if SciMLBase.has_initializeprob(prob.f) && SciMLBase.has_initializeprobpmap(prob.f)
-        initializeprob = prob.f.initializeprob
-        nlsol = solve(initializeprob)
-        @set! prob.p = prob.f.initializeprobpmap(prob, nlsol)
-    end
-    build_solution(prob, nothing, ts, timeseries, retcode = ReturnCode.Success)
+    prob, success = hack_null_solution_init(prob)
+    retcode = success ? ReturnCode.Success : ReturnCode.InitialFailure
+    build_solution(prob, nothing, ts, timeseries, retcode)
 end
 
 function build_null_solution(
@@ -720,13 +729,18 @@ function build_null_solution(
                          saveat isa Number || prob.tspan[1] in saveat,
         save_end = true,
         kwargs...)
+    prob, success = hack_null_solution_init(prob)
+    retcode = success ? ReturnCode.Success : ReturnCode.InitialFailure
     SciMLBase.build_solution(prob, nothing, Float64[], nothing;
-        retcode = ReturnCode.Success)
+        retcode)
 end
 
 function build_null_solution(
         prob::NonlinearLeastSquaresProblem,
         args...; abstol = 1e-6, kwargs...)
+    prob, success = hack_null_solution_init(prob)
+    retcode = success ? ReturnCode.Success : ReturnCode.InitialFailure
+
     if isinplace(prob)
         resid = isnothing(prob.f.resid_prototype) ? Float64[] : copy(prob.f.resid_prototype)
         prob.f(resid, prob.u0, prob.p)
@@ -734,7 +748,9 @@ function build_null_solution(
         resid = prob.f(prob.u0, prob.p)
     end
 
-    retcode = norm(resid) < abstol ? ReturnCode.Success : ReturnCode.Failure
+    if success
+        retcode = norm(resid) < abstol ? ReturnCode.Success : ReturnCode.Failure
+    end
 
     SciMLBase.build_solution(prob, nothing, Float64[], resid;
         retcode)
