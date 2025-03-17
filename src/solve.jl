@@ -716,7 +716,7 @@ function build_null_solution(prob::AbstractDEProblem, args...;
 
     prob, success = hack_null_solution_init(prob)
     retcode = success ? ReturnCode.Success : ReturnCode.InitialFailure
-    build_solution(prob, nothing, ts, timeseries, retcode)
+    build_solution(prob, nothing, ts, timeseries; retcode)
 end
 
 function build_null_solution(
@@ -731,8 +731,7 @@ function build_null_solution(
         kwargs...)
     prob, success = hack_null_solution_init(prob)
     retcode = success ? ReturnCode.Success : ReturnCode.InitialFailure
-    SciMLBase.build_solution(prob, nothing, Float64[], nothing;
-        retcode)
+    SciMLBase.build_solution(prob, nothing, Float64[], nothing; retcode)
 end
 
 function build_null_solution(
@@ -752,8 +751,7 @@ function build_null_solution(
         retcode = norm(resid) < abstol ? ReturnCode.Success : ReturnCode.Failure
     end
 
-    SciMLBase.build_solution(prob, nothing, Float64[], resid;
-        retcode)
+    SciMLBase.build_solution(prob, nothing, Float64[], resid; retcode)
 end
 
 """
