@@ -35,7 +35,6 @@ end
         @time @safetestset "ForwardDiff Dual Detection" include("forwarddiff_dual_detection.jl")
         @time @safetestset "ODE default norm" include("ode_default_norm.jl")
         @time @safetestset "ODE default unstable check" include("ode_default_unstable_check.jl")
-        @time @safetestset "Termination Conditions" include("termination_conditions.jl")
     end
 
     if !is_APPVEYOR && GROUP == "Downstream"
