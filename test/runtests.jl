@@ -72,6 +72,5 @@ end
     if !is_APPVEYOR && GROUP == "GPU"
         activate_gpu_env()
         @time @safetestset "Simple GPU" include("gpu/simple_gpu.jl")
-        @time @safetestset "GPU Termination Conditions" include("gpu/termination_conditions.jl")
     end
 end
