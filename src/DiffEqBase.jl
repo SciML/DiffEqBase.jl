@@ -141,8 +141,6 @@ include("callbacks.jl")
 include("common_defaults.jl")
 include("solve.jl")
 include("internal_euler.jl")
-include("termination_conditions_deprecated.jl")  # TODO: remove in the next major release
-include("termination_conditions.jl")
 include("norecompile.jl")
 include("integrator_accessors.jl")
 
@@ -169,15 +167,6 @@ end
 export initialize!, finalize!
 
 export SensitivityADPassThrough
-
-export SteadyStateDiffEqTerminationMode, SimpleNonlinearSolveTerminationMode,
-       NormTerminationMode, RelTerminationMode, RelNormTerminationMode, AbsTerminationMode,
-       AbsNormTerminationMode, RelSafeTerminationMode, AbsSafeTerminationMode,
-       RelSafeBestTerminationMode, AbsSafeBestTerminationMode
-# Deprecated API
-export NLSolveTerminationMode,
-       NLSolveSafeTerminationOptions, NLSolveTerminationCondition,
-       NLSolveSafeTerminationResult
 
 export KeywordArgError, KeywordArgWarn, KeywordArgSilent
 
