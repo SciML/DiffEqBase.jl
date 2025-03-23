@@ -432,7 +432,8 @@ function find_callback_time(integrator, callback::ContinuousCallback, counter)
                     end
                     Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir),
                         callback.rootfind, callback.abstol, callback.reltol)
-                    integrator.last_event_error = DiffEqBase.value(ODE_DEFAULT_NORM(zero_func(Θ), Θ))
+                    integrator.last_event_error = DiffEqBase.value(ODE_DEFAULT_NORM(
+                        zero_func(Θ), Θ))
                 end
                 #Θ = prevfloat(...)
                 # prevfloat guerentees that the new time is either 1 floating point
@@ -507,7 +508,8 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                                 isone(integrator.tdir), callback.rootfind,
                                 callback.abstol, callback.reltol)
                             if integrator.tdir * Θ < integrator.tdir * min_t
-                                integrator.last_event_error = DiffEqBase.value(ODE_DEFAULT_NORM(zero_func(Θ), Θ))
+                                integrator.last_event_error = DiffEqBase.value(ODE_DEFAULT_NORM(
+                                    zero_func(Θ), Θ))
                             end
                         end
                         if integrator.tdir * Θ < integrator.tdir * min_t
