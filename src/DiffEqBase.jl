@@ -97,8 +97,6 @@ import SciMLBase: solve, init, step!, solve!, __init, __solve, update_coefficien
                   update_coefficients, isadaptive, wrapfun_oop, wrapfun_iip,
                   unwrap_fw, promote_tspan, set_u!, set_t!, set_ut!
 
-import SciMLBase: AbstractDiffEqLinearOperator # deprecation path
-
 import SciMLStructures
 
 using Reexport
