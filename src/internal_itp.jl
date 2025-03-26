@@ -20,12 +20,11 @@ end
 simpler dependencies.
 """
 struct InternalITP
-    k1::Float64
-    k2::Float64
+    scaled_k1::Float64
     n0::Int
 end
 
-InternalITP() = InternalITP(0.007, 1.5, 10)
+InternalITP() = InternalITP(0.2, 10)
 
 function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::InternalITP,
         args...;
@@ -41,9 +40,8 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::I
         return SciMLBase.build_solution(prob, alg, right, fr;
             retcode = ReturnCode.ExactSolutionRight, left, right)
     end
-    k2 = T(alg.k2)
     span = abs(right - left)
-    k1 = T(alg.alg_k1)
+    k1 = T(alg.scaled_k1)/span
     n0 = T(alg.n0)
     n_h = exponent(span / (2 * ϵ))
     ϵ_s = ϵ * exp2(n_h + n0)
@@ -58,7 +56,7 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::I
 
         x_f = left + span * (fl / (fl - fr))  # Interpolation Step
 
-        δ = max(k1 * span^k2, eps(x_f))
+        δ = max(k1 * span^2, eps(x_f))
         diff = mid - x_f
 
         xt = ifelse(δ ≤ abs(diff), x_f + copysign(δ, diff), mid)  # Truncation Step
