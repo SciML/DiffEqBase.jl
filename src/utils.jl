@@ -127,14 +127,6 @@ end
 @inline __add_and_norm(::typeof(Base.Fix2(norm, Inf)), x, y) = __maximum_abs(+, x, y)
 @inline __add_and_norm(f::F, x, y) where {F} = __norm_op(f, +, x, y)
 
-@inline function __apply_termination_internalnorm(::Nothing, u)
-    Base.depwarn("Not specifying the internal norm of termination conditions has been \
-                  deprecated. Using inf-norm currently.",
-        :__apply_termination_internalnorm)
-    return __apply_termination_internalnorm(Base.Fix1(maximum, abs), u)
-end
-@inline __apply_termination_internalnorm(f::F, u) where {F} = f(u)
-
 struct DualEltypeChecker{T, T2}
     x::T
     counter::T2
