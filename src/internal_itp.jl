@@ -49,7 +49,6 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::I
 
     i = 1
     while i ≤ maxiters
-        stats.nsteps += 1
         span = abs(right - left)
         mid = (left + right) / 2
         r = ϵ_s - (span / 2)
@@ -68,7 +67,6 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::I
             )
         end
         yp = f(xp)
-        stats.nf += 1
         yps = yp * sign(fr)
         if yps > T0
             right, fr = xp, yp
