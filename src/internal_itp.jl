@@ -20,12 +20,11 @@ end
 simpler dependencies.
 """
 struct InternalITP
-    k1::Float64
-    k2::Float64
+    scaled_k1::Float64
     n0::Int
 end
 
-InternalITP() = InternalITP(0.007, 1.5, 10)
+InternalITP() = InternalITP(0.2, 10)
 
 function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::InternalITP,
         args...;
@@ -36,78 +35,56 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::I
     ϵ = eps(T)
     if iszero(fl)
         return SciMLBase.build_solution(prob, alg, left, fl;
-            retcode = ReturnCode.ExactSolutionLeft, left = left,
-            right = right)
+            retcode = ReturnCode.ExactSolutionLeft, left, right)
     elseif iszero(fr)
         return SciMLBase.build_solution(prob, alg, right, fr;
-            retcode = ReturnCode.ExactSolutionRight, left = left,
-            right = right)
+            retcode = ReturnCode.ExactSolutionRight, left, right)
     end
-    #defining variables/cache
-    k1 = T(alg.k1)
-    k2 = T(alg.k2)
+    span = abs(right - left)
+    k1 = T(alg.scaled_k1)/span
     n0 = T(alg.n0)
-    n_h = ceil(log2(abs(right - left) / (2 * ϵ)))
-    mid = (left + right) / 2
-    x_f = (fr * left - fl * right) / (fr - fl)
-    xt = left
-    xp = left
-    r = zero(left) #minmax radius
-    δ = zero(left) # truncation error
-    σ = 1.0
-    ϵ_s = ϵ * 2^(n_h + n0)
-    i = 0 #iteration
-    while i <= maxiters
-        #mid = (left + right) / 2
+    n_h = exponent(span / (2 * ϵ))
+    ϵ_s = ϵ * exp2(n_h + n0)
+    T0 = zero(fl)
+
+    i = 1
+    while i ≤ maxiters
         span = abs(right - left)
+        mid = (left + right) / 2
         r = ϵ_s - (span / 2)
-        δ = k1 * (span^k2)
 
-        ## Interpolation step ##
-        x_f = left + (right - left) * (fl / (fl - fr))
+        x_f = left + span * (fl / (fl - fr))  # Interpolation Step
 
-        ## Truncation step ##
-        σ = sign(mid - x_f)
-        if δ <= abs(mid - x_f)
-            xt = x_f + (σ * δ)
-        else
-            xt = mid
+        δ = max(k1 * span^2, eps(x_f))
+        diff = mid - x_f
+
+        xt = ifelse(δ ≤ abs(diff), x_f + copysign(δ, diff), mid)  # Truncation Step
+
+        xp = ifelse(abs(xt - mid) ≤ r, xt, mid - copysign(r, diff))  # Projection Step
+        if span < 2ϵ
+            return SciMLBase.build_solution(
+                prob, alg, xt, f(xt); retcode = ReturnCode.Success, left, right
+            )
         end
-
-        ## Projection step ##
-        if abs(xt - mid) <= r
-            xp = xt
-        else
-            xp = mid - (σ * r)
-        end
-
-        ## Update ##
-        tmin, tmax = minmax(left, right)
-        xp >= tmax && (xp = prevfloat(tmax))
-        xp <= tmin && (xp = nextfloat(tmin))
         yp = f(xp)
         yps = yp * sign(fr)
-        if yps > 0
-            right = xp
-            fr = yp
-        elseif yps < 0
-            left = xp
-            fl = yp
+        if yps > T0
+            right, fr = xp, yp
+        elseif yps < T0
+            left, fl = xp, yp
         else
-            left = prevfloat_tdir(xp, prob.tspan...)
-            right = xp
-            return SciMLBase.build_solution(prob, alg, left, f(left);
-                retcode = ReturnCode.Success, left = left,
-                right = right)
+            return SciMLBase.build_solution(
+                prob, alg, xp, yps; retcode = ReturnCode.Success, left, right
+            )
         end
+
         i += 1
-        mid = (left + right) / 2
         ϵ_s /= 2
 
-        if nextfloat_tdir(left, prob.tspan...) == right
-            return SciMLBase.build_solution(prob, alg, left, fl;
-                retcode = ReturnCode.FloatingPointLimit, left = left,
-                right = right)
+        if nextfloat_tdir(left, left, right) == right
+            return SciMLBase.build_solution(
+                prob, alg, right, fr; retcode = ReturnCode.FloatingPointLimit, left, right
+            )
         end
     end
     return SciMLBase.build_solution(prob, alg, left, fl; retcode = ReturnCode.MaxIters,
