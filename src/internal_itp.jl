@@ -61,11 +61,6 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::I
         xt = ifelse(δ ≤ abs(diff), x_f + copysign(δ, diff), mid)  # Truncation Step
 
         xp = ifelse(abs(xt - mid) ≤ r, xt, mid - copysign(r, diff))  # Projection Step
-        if span < 2ϵ
-            return SciMLBase.build_solution(
-                prob, alg, xt, f(xt); retcode = ReturnCode.Success, left, right
-            )
-        end
         yp = f(xp)
         yps = yp * sign(fr)
         if yps > T0
