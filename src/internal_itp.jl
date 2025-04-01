@@ -74,7 +74,7 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::I
             left, fl = xp, yp
         else
             return SciMLBase.build_solution(
-                prob, alg, xp, yps; retcode = ReturnCode.Success, left=xp, right=xp
+                prob, alg, xp, yps; retcode = ReturnCode.Success, left = xp, right = xp
             )
         end
 
