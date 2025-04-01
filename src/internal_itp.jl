@@ -41,7 +41,7 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::I
             retcode = ReturnCode.ExactSolutionRight, left, right)
     end
     span = abs(right - left)
-    k1 = T(alg.scaled_k1)/span
+    k1 = T(alg.scaled_k1) / span
     n0 = T(alg.n0)
     n_h = exponent(span / (2 * ϵ))
     ϵ_s = ϵ * exp2(n_h + n0)
@@ -61,11 +61,6 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::I
         xt = ifelse(δ ≤ abs(diff), x_f + copysign(δ, diff), mid)  # Truncation Step
 
         xp = ifelse(abs(xt - mid) ≤ r, xt, mid - copysign(r, diff))  # Projection Step
-        if span < 2ϵ
-            return SciMLBase.build_solution(
-                prob, alg, xt, f(xt); retcode = ReturnCode.Success, left, right
-            )
-        end
         yp = f(xp)
         yps = yp * sign(fr)
         if yps > T0
