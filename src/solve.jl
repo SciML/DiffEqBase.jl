@@ -1089,13 +1089,38 @@ function solve(prob::NonlinearProblem, args...; sensealg = nothing,
         sensealg = prob.kwargs[:sensealg]
     end
 
+    
+    if haskey(prob.kwargs, :alias_u0)
+        @warn "The `alias_u0` keyword argument is deprecated. Please use a NonlinearAliasSpecifier, e.g. `alias = NonlinearAliasSpecifier(alias_u0 = true)`."
+        alias_spec = NonlinearAliasSpecifier(alias_u0 = prob.kwargs[:alias_u0])
+    elseif haskey(kwargs, :alias_u0)
+        @warn "The `alias_u0` keyword argument is deprecated. Please use a NonlinearAliasSpecifier, e.g. `alias = NonlinearAliasSpecifier(alias_u0 = true)`."
+        alias_spec = NonlinearAliasSpecifier(alias_u0 = kwargs[:alias_u0])
+    end
+
+    if haskey(prob.kwargs, :alias) && prob.kwargs[:alias] isa Bool
+        alias_spec = NonlinearAliasSpecifier(alias = prob.kwargs[:alias])
+    elseif haskey(kwargs, :alias) && kwargs[:alias] isa Bool
+        alias_spec = NonlinearAliasSpecifier(alias = kwargs[:alias])
+    end   
+
+    if haskey(prob.kwargs, :alias) && prob.kwargs[:alias] isa NonlinearAliasSpecifier
+        alias_spec = prob.kwargs[:alias]
+    elseif haskey(kwargs, :alias) && kwargs[:alias] isa NonlinearAliasSpecifier
+        alias_spec = kwargs[:alias]
+    else
+        alias_spec = NonlinearAliasSpecifier(alias_u0 = false)
+    end
+
+    alias_u0 = alias_spec.alias_u0
+
     u0 = u0 !== nothing ? u0 : prob.u0
     p = p !== nothing ? p : prob.p
 
     if wrap isa Val{true}
-        wrap_sol(solve_up(prob, sensealg, u0, p, args...; kwargs...))
+        wrap_sol(solve_up(prob, sensealg, u0, p, args...; alias_u0 = alias_u0, kwargs...))
     else
-        solve_up(prob, sensealg, u0, p, args...; kwargs...)
+        solve_up(prob, sensealg, u0, p, args...; alias_u0 = alias_u0, kwargs...)
     end
 end
 
