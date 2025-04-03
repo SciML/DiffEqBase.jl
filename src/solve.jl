@@ -1123,7 +1123,7 @@ function solve_up(prob::Union{AbstractDEProblem, NonlinearProblem}, sensealg, u0
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
             p = p, kwargs...)
-        solve_call(_prob, args...; kwargs...)
+        solve_call(_prob, args...; sensealg, kwargs...)
     else
         tstops = get(kwargs, :tstops, nothing)
         if tstops === nothing && has_kwargs(prob)
@@ -1137,9 +1137,9 @@ function solve_up(prob::Union{AbstractDEProblem, NonlinearProblem}, sensealg, u0
         _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
         check_prob_alg_pairing(_prob, alg) # use alg for improved inference
         if length(args) > 1
-            solve_call(_prob, _alg, Base.tail(args)...; kwargs...)
+            solve_call(_prob, _alg, Base.tail(args)...; sensealg, kwargs...)
         else
-            solve_call(_prob, _alg; kwargs...)
+            solve_call(_prob, _alg; sensealg, kwargs...)
         end
     end
 end
