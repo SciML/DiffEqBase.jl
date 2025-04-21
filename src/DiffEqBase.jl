@@ -104,6 +104,8 @@ Reexport.@reexport using SciMLBase
 
 SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
+import SymbolicIndexingInterface as SII
+
 ## Extension Functions
 
 eltypedual(x) = false

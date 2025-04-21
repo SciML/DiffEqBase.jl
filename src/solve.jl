@@ -515,12 +515,39 @@ function Base.showerror(io::IO, e::LateBindingTstopsNotSupportedError)
     println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
+"""
+    $(TYPEDSIGNATURES)
+
+Given the index provider `indp` used to construct the problem `prob` being solved, return
+an updated `prob` to be used for solving. All implementations should accept arbitrary
+keyword arguments.
+
+Should be called before the problem is solved, after performing type-promotion on the
+problem.
+"""
+function get_updated_symbolic_problem(indp, prob; kw...)
+    return prob
+end
+
+"""
+    $(TYPEDSIGNATURES)
+
+Get the innermost index provider using `SII.symbolic_container`.
+"""
+function _get_root_indp(indp)
+    if hasmethod(SII.symbolic_container, Tuple{typeof(indp)}) && (sc = SII.symbolic_container(indp)) !== indp
+        return _get_root_indp(sc)
+    end
+    return indp
+end
+
 function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
         kwargs...)
     kwargshandle = kwargshandle === nothing ? KeywordArgError : kwargshandle
     kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ?
                    _prob.kwargs[:kwargshandle] : kwargshandle
 
+    _prob = get_updated_symbolic_problem(_get_root_indp(_prob), _prob)
     if has_kwargs(_prob)
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
