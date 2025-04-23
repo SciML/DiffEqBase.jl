@@ -547,7 +547,6 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothin
     kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ?
                    _prob.kwargs[:kwargshandle] : kwargshandle
 
-    _prob = get_updated_symbolic_problem(_get_root_indp(_prob), _prob)
     if has_kwargs(_prob)
         if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
@@ -1240,10 +1239,11 @@ function checkkwargs(kwargshandle; kwargs...)
 end
 
 function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
-    prob
+    get_updated_symbolic_problem(_get_root_indp(prob), prob)
 end
 
 function get_concrete_problem(prob::SteadyStateProblem, isadapt; kwargs...)
+    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob)
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, Inf, kwargs)
     u0 = promote_u0(u0, p, nothing)
@@ -1251,6 +1251,7 @@ function get_concrete_problem(prob::SteadyStateProblem, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
+    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob)
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
     u0 = promote_u0(u0, p, nothing)
@@ -1258,6 +1259,7 @@ function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::NonlinearLeastSquaresProblem, isadapt; kwargs...)
+    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob)
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
     u0 = promote_u0(u0, p, nothing)
@@ -1279,6 +1281,7 @@ function init(prob::PDEProblem, alg::AbstractDEAlgorithm, args...;
 end
 
 function get_concrete_problem(prob, isadapt; kwargs...)
+    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob)
     p = get_concrete_p(prob, kwargs)
     tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
     u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
@@ -1297,6 +1300,7 @@ function get_concrete_problem(prob, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
+    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob)
     p = get_concrete_p(prob, kwargs)
     tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
     u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
@@ -1320,6 +1324,7 @@ function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
+    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob)
     p = get_concrete_p(prob, kwargs)
     tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
     u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
