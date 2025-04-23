@@ -7,7 +7,7 @@ using DiffEqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag,
                   RecursiveArrayTools, reduce_tup, _promote_tspan, has_continuous_callback
 import DiffEqBase: hasdualpromote, wrapfun_oop, wrapfun_iip, prob2dtmin,
                    promote_tspan, anyeltypedual, isdualtype, value, ODE_DEFAULT_NORM,
-                   InternalITP, nextfloat_tdir, DualEltypeChecker, sse
+                   InternalITP, nextfloat_tdir, DualEltypeChecker, sse, unitfulvalue
 
 eltypedual(x) = eltype(x) <: ForwardDiff.Dual
 isdualtype(::Type{<:ForwardDiff.Dual}) = true
@@ -499,7 +499,7 @@ value(x::Type{ForwardDiff.Dual{T, V, N}}) where {T, V, N} = V
 value(x::ForwardDiff.Dual) = value(ForwardDiff.value(x))
 
 unitfulvalue(x::Type{ForwardDiff.Dual{T, V, N}}) where {T, V, N} = V
-unitfulvalue(x::ForwardDiff.Dual) = unitfulvalue(ForwardDiff.unitfulvalue(x))
+unitfulvalue(x::ForwardDiff.Dual) = unitfulvalue(ForwardDiff.value(x))
 
 sse(x::ForwardDiff.Dual) = sse(ForwardDiff.value(x)) + sum(sse, ForwardDiff.partials(x))
 function DiffEqBase.totallength(x::ForwardDiff.Dual)
