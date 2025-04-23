@@ -515,6 +515,32 @@ function Base.showerror(io::IO, e::LateBindingTstopsNotSupportedError)
     println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
+"""
+    $(TYPEDSIGNATURES)
+
+Given the index provider `indp` used to construct the problem `prob` being solved, return
+an updated `prob` to be used for solving. All implementations should accept arbitrary
+keyword arguments.
+
+Should be called before the problem is solved, after performing type-promotion on the
+problem.
+"""
+function get_updated_symbolic_problem(indp, prob; kw...)
+    return prob
+end
+
+"""
+    $(TYPEDSIGNATURES)
+
+Get the innermost index provider using `SII.symbolic_container`.
+"""
+function _get_root_indp(indp)
+    if hasmethod(SII.symbolic_container, Tuple{typeof(indp)}) && (sc = SII.symbolic_container(indp)) !== indp
+        return _get_root_indp(sc)
+    end
+    return indp
+end
+
 function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
         kwargs...)
     kwargshandle = kwargshandle === nothing ? KeywordArgError : kwargshandle
@@ -1213,10 +1239,11 @@ function checkkwargs(kwargshandle; kwargs...)
 end
 
 function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
-    prob
+    get_updated_symbolic_problem(_get_root_indp(prob), prob)
 end
 
 function get_concrete_problem(prob::SteadyStateProblem, isadapt; kwargs...)
+    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob)
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, Inf, kwargs)
     u0 = promote_u0(u0, p, nothing)
@@ -1224,6 +1251,7 @@ function get_concrete_problem(prob::SteadyStateProblem, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
+    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob)
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
     u0 = promote_u0(u0, p, nothing)
@@ -1231,6 +1259,7 @@ function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::NonlinearLeastSquaresProblem, isadapt; kwargs...)
+    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob)
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
     u0 = promote_u0(u0, p, nothing)
@@ -1252,6 +1281,7 @@ function init(prob::PDEProblem, alg::AbstractDEAlgorithm, args...;
 end
 
 function get_concrete_problem(prob, isadapt; kwargs...)
+    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob)
     p = get_concrete_p(prob, kwargs)
     tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
     u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
@@ -1270,6 +1300,7 @@ function get_concrete_problem(prob, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
+    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob)
     p = get_concrete_p(prob, kwargs)
     tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
     u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
@@ -1293,6 +1324,7 @@ function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
+    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob)
     p = get_concrete_p(prob, kwargs)
     tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
     u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
