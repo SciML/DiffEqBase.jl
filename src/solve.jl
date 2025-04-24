@@ -523,7 +523,8 @@ an updated `prob` to be used for solving. All implementations should accept arbi
 keyword arguments.
 
 Should be called before the problem is solved, after performing type-promotion on the
-problem.
+problem. If the returned problem is not `===` the provided `prob`, it is assumed to
+contain the `u0` and `p` passed as keyword arguments.
 
 # Keyword Arguments
 
@@ -1249,7 +1250,9 @@ end
 
 function get_concrete_problem(prob::SteadyStateProblem, isadapt; kwargs...)
     prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
-    kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
+    if prob !== prob
+        kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
+    end
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, Inf, kwargs)
     u0 = promote_u0(u0, p, nothing)
@@ -1258,7 +1261,9 @@ end
 
 function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
     prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
-    kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
+    if prob !== prob
+        kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
+    end
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
     u0 = promote_u0(u0, p, nothing)
@@ -1267,7 +1272,9 @@ end
 
 function get_concrete_problem(prob::NonlinearLeastSquaresProblem, isadapt; kwargs...)
     prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
-    kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
+    if prob !== prob
+        kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
+    end
     p = get_concrete_p(prob, kwargs)
     u0 = get_concrete_u0(prob, isadapt, nothing, kwargs)
     u0 = promote_u0(u0, p, nothing)
@@ -1290,7 +1297,9 @@ end
 
 function get_concrete_problem(prob, isadapt; kwargs...)
     prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
-    kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
+    if prob !== prob
+        kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
+    end
     p = get_concrete_p(prob, kwargs)
     tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
     u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
@@ -1310,7 +1319,9 @@ end
 
 function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
     prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
-    kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
+    if prob !== prob
+        kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
+    end
     p = get_concrete_p(prob, kwargs)
     tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
     u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
@@ -1335,7 +1346,9 @@ end
 
 function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
     prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
-    kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
+    if prob !== prob
+        kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
+    end
     p = get_concrete_p(prob, kwargs)
     tspan = get_concrete_tspan(prob, isadapt, kwargs, p)
     u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
