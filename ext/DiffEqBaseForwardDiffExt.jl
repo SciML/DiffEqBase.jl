@@ -435,7 +435,7 @@ function anyeltypedual(x::Tuple, ::Type{Val{counter}} = Val{0}) where {counter}
         diffeqmapreduce(anyeltypedual, promote_dual, x)
     end
 end
-function anyeltypedual(x::Dict, ::Type{Val{counter}} = Val{0}) where {counter}
+function anyeltypedual(x::AbstractDict, ::Type{Val{counter}} = Val{0}) where {counter}
     isempty(x) ? eltype(values(x)) : mapreduce(anyeltypedual, promote_dual, values(x))
 end
 function anyeltypedual(x::NamedTuple, ::Type{Val{counter}} = Val{0}) where {counter}
