@@ -1249,8 +1249,9 @@ function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::SteadyStateProblem, isadapt; kwargs...)
+    oldprob = prob
     prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
-    if prob !== prob
+    if prob !== oldprob
         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
     end
     p = get_concrete_p(prob, kwargs)
@@ -1260,8 +1261,9 @@ function get_concrete_problem(prob::SteadyStateProblem, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
+    oldprob = prob
     prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
-    if prob !== prob
+    if prob !== oldprob
         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
     end
     p = get_concrete_p(prob, kwargs)
@@ -1271,8 +1273,9 @@ function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::NonlinearLeastSquaresProblem, isadapt; kwargs...)
+    oldprob = prob
     prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
-    if prob !== prob
+    if prob !== oldprob
         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
     end
     p = get_concrete_p(prob, kwargs)
@@ -1296,8 +1299,9 @@ function init(prob::PDEProblem, alg::AbstractDEAlgorithm, args...;
 end
 
 function get_concrete_problem(prob, isadapt; kwargs...)
+    oldprob = prob
     prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
-    if prob !== prob
+    if prob !== oldprob
         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
     end
     p = get_concrete_p(prob, kwargs)
@@ -1318,8 +1322,9 @@ function get_concrete_problem(prob, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
+    oldprob = prob
     prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
-    if prob !== prob
+    if prob !== oldprob
         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
     end
     p = get_concrete_p(prob, kwargs)
@@ -1345,8 +1350,9 @@ function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
 end
 
 function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
+    oldprob = prob
     prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
-    if prob !== prob
+    if prob !== oldprob
         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
     end
     p = get_concrete_p(prob, kwargs)
