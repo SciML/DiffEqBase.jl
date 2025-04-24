@@ -443,9 +443,16 @@ function anyeltypedual(x::NamedTuple, ::Type{Val{counter}} = Val{0}) where {coun
 end
 
 function anyeltypedual(
+    x::AbstractDict, ::Type{Val{counter}}) where {counter}
+    anyeltypedual(keys(x))
+end
+
+function anyeltypedual(
         f::SciMLBase.AbstractSciMLFunction, ::Type{Val{counter}}) where {counter}
     Any
 end
+
+
 
 anyeltypedual(::@Kwargs{}, ::Type{Val{counter}} = Val{0}) where {counter} = Any
 anyeltypedual(::Type{@Kwargs{}}, ::Type{Val{counter}} = Val{0}) where {counter} = Any
