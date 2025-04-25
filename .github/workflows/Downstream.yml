@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        julia-version: [1]
+        julia-version: ['1.10']
         os: [ubuntu-latest]
         package:
           - {user: SciML, repo: DelayDiffEq.jl, group: Interface}
@@ -49,6 +49,9 @@ jobs:
           - {user: SciML, repo: SciMLSensitivity.jl, group: Core3}
           - {user: SciML, repo: SciMLSensitivity.jl, group: Core4}
           - {user: SciML, repo: SciMLSensitivity.jl, group: Core5}
+          - {user: SciML, repo: SciMLSensitivity.jl, group: Core6}
+          - {user: SciML, repo: SciMLSensitivity.jl, group: Core7}
+          - {user: SciML, repo: SciMLSensitivity.jl, group: Core8}
           - {user: SciML, repo: SciMLSensitivity.jl, group: SDE1}
           - {user: SciML, repo: SciMLSensitivity.jl, group: SDE2}
           - {user: SciML, repo: SciMLSensitivity.jl, group: SDE3}
