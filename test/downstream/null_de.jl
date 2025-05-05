@@ -1,4 +1,5 @@
 using ModelingToolkit, OrdinaryDiffEq, SteadyStateDiffEq, Test
+using StaticArrays
 using ModelingToolkit: t_nounits as t, D_nounits as D
 using ForwardDiff
 
@@ -76,4 +77,13 @@ sol = solve(unsatprob) # Success
     @test_nowarn x_at_1_anal(1.0)
     @test_nowarn ForwardDiff.derivative(x_at_1_num, 1.0)
     @test_nowarn ForwardDiff.derivative(x_at_1_anal, 1.0)
+end
+
+@testset "Null OOP NonlinearLeastSquaresProblem" begin
+    fn = NonlinearFunction{false}(; resid_prototype = SA[1.0]) do u, p
+        return zero(u)
+    end
+    prob = NonlinearLeastSquaresProblem(fn, nothing)
+    sol = solve(prob)
+    @test sol.resid isa SVector{1, Float64}
 end
