@@ -776,7 +776,7 @@ function build_null_solution(
         resid = isnothing(prob.f.resid_prototype) ? Float64[] : copy(prob.f.resid_prototype)
         prob.f(resid, prob.u0, prob.p)
     else
-        resid = prob.f(prob.u0, prob.p)
+        resid = prob.f(prob.f.resid_prototype, prob.p)
     end
 
     if success
