@@ -363,13 +363,16 @@ function bisection(
         f, tup, t_forward::Bool, rootfind::SciMLBase.RootfindOpt, abstol, reltol;
         maxiters = 1000)
     if rootfind == SciMLBase.LeftRootFind
-        solve(IntervalNonlinearProblem{false}(f, tup),
+        sol = solve(IntervalNonlinearProblem{false}(f, tup),
             InternalITP(), abstol = abstol,
-            reltol = reltol).left
+            reltol = reltol)
+        SciMLBase.successful_retcode(sol), sol.left
     else
-        solve(IntervalNonlinearProblem{false}(f, tup),
+        sol = solve(IntervalNonlinearProblem{false}(f, tup),
             InternalITP(), abstol = abstol,
-            reltol = reltol).right
+            reltol = reltol)
+        @assert SciMLBase.successful_retcode(sol)
+        SciMLBase.successful_retcode(sol), sol.right
     end
 end
 
@@ -430,7 +433,7 @@ function find_callback_time(integrator, callback::ContinuousCallback, counter)
                         sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) &&
                             error("Double callback crossing floating pointer reducer errored. Report this issue.")
                     end
-                    Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir),
+                    event_occurred, Θ = bisection(zero_func, (nextfloat(bottom_t), top_t), isone(integrator.tdir),
                         callback.rootfind, callback.abstol, callback.reltol)
                     integrator.last_event_error = DiffEqBase.value(ODE_DEFAULT_NORM(
                         zero_func(Θ), Θ))
@@ -503,8 +506,7 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                                 sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) &&
                                     error("Double callback crossing floating pointer reducer errored. Report this issue.")
                             end
-
-                            Θ = bisection(zero_func, (bottom_t, top_t),
+                            event_occurred, Θ = bisection(zero_func, (nextfloat(bottom_t), top_t),
                                 isone(integrator.tdir), callback.rootfind,
                                 callback.abstol, callback.reltol)
                             if integrator.tdir * Θ < integrator.tdir * min_t
@@ -598,6 +600,7 @@ function apply_callback!(integrator,
         end
         return true, saved_in_cb
     end
+
     false, saved_in_cb
 end
 
