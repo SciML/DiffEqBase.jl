@@ -11,6 +11,12 @@ function activate_downstream_env()
     Pkg.instantiate()
 end
 
+function activate_static_env()
+    Pkg.activate("static")
+    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
+    Pkg.instantiate()
+end
+
 function activate_gpu_env()
     Pkg.activate("gpu")
     Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
@@ -53,6 +59,11 @@ end
         @time @safetestset "Callback Merging Tests" include("downstream/callback_merging.jl")
         @time @safetestset "LabelledArrays Tests" include("downstream/labelledarrays.jl")
         @time @safetestset "GTPSA Tests" include("downstream/gtpsa.jl")
+    end
+
+    if !is_APPVEYOR && GROUP == "Static"
+        activate_static_env()
+        @time @safetestset "Static Checks" include("static/static_checks.jl")
     end
 
     if !is_APPVEYOR && GROUP == "Downstream2"

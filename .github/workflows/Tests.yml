@@ -26,6 +26,7 @@ jobs:
           - Core
           - Downstream
           - Downstream2
+          - Static
     uses: "SciML/.github/.github/workflows/tests.yml@v1"
     with:
       julia-version: "${{ matrix.version }}"
