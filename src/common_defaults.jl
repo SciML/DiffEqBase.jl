@@ -3,6 +3,11 @@ function abs2_and_sum(x, y)
     reduce(+, y, init = zero(real(value(eltype(y)))))
 end
 UNITLESS_ABS2(x::Number) = abs2(x)
+
+function UNITLESS_ABS2(x::AbstractArray{<:Number})
+    mapreduce(UNITLESS_ABS2, +, x, init = zero(real(value(eltype(x)))))
+end
+
 function UNITLESS_ABS2(x::AbstractArray)
     mapreduce(UNITLESS_ABS2, abs2_and_sum, x, init = zero(real(value(eltype(x)))))
 end
