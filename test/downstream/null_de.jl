@@ -13,6 +13,7 @@ sys = structural_simplify(sys)
 prob = ODEProblem(sys, Pair[], (0, 10.0))
 sol = solve(prob, Tsit5())
 
+@test sol.dense
 @test sol[x] == [0.0, 0.0]
 @test sol[y] == [0.0, 0.0]
 
