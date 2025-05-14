@@ -748,7 +748,7 @@ function build_null_solution(prob::AbstractDEProblem, args...;
 
     prob, success = hack_null_solution_init(prob)
     retcode = success ? ReturnCode.Success : ReturnCode.InitialFailure
-    build_solution(prob, nothing, ts, timeseries; retcode)
+    build_solution(prob, nothing, ts, timeseries; dense=true, retcode)
 end
 
 function build_null_solution(
