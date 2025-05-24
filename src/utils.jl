@@ -55,6 +55,8 @@ timedepentdtmin(::Any, dtmin) = abs(dtmin)
 
 maybe_with_logger(f, logger) = logger === nothing ? f() : Logging.with_logger(f, logger)
 
+set_mooncakeoriginator_if_mooncake(x::SciMLBase.ADOriginator) = x
+
 function default_logger(logger)
     Logging.min_enabled_level(logger) ≤ ProgressLogging.ProgressLevel && return nothing
 
