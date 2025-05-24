@@ -2,7 +2,7 @@ module DiffEqBaseMooncakeExt
 
 using DiffEqBase, Mooncake
 using DiffEqBase: SciMLBase
-using SciMLBase: ADOriginator, MooncakeOriginator
+using SciMLBase: ADOriginator, MooncakeOriginator, ChainRulesOriginator
 Mooncake.@from_rrule(
     Mooncake.MinimalCtx,
     Tuple{
@@ -17,6 +17,6 @@ Mooncake.@from_rrule(
     )
 
 Mooncake.@zero_adjoint Mooncake.MinimalCtx Tuple{typeof(DiffEqBase.numargs), Any}
-Mooncake.@mooncake_overlay DiffEqBase.set_mooncakeoriginator_if_mooncake(x::ADOriginator) = MooncakeOriginator
+Mooncake.@mooncake_overlay DiffEqBase.set_mooncakeoriginator_if_mooncake(x::ChainRulesOriginator) = MooncakeOriginator()
 
 end
