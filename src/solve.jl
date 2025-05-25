@@ -99,7 +99,9 @@ const allowedkeywords = (:dense,
     # Termination condition for solvers
     :termination_condition,
     # For AbstractAliasSpecifier
-    :alias)
+    :alias,
+    # Parameter estimation with BVP
+    :fit_parameters)
 
 const KWARGWARN_MESSAGE = """
                           Unrecognized keyword arguments found.
@@ -541,7 +543,8 @@ end
 Get the innermost index provider using `SII.symbolic_container`.
 """
 function _get_root_indp(indp)
-    if hasmethod(SII.symbolic_container, Tuple{typeof(indp)}) && (sc = SII.symbolic_container(indp)) !== indp
+    if hasmethod(SII.symbolic_container, Tuple{typeof(indp)}) &&
+       (sc = SII.symbolic_container(indp)) !== indp
         return _get_root_indp(sc)
     end
     return indp
@@ -748,7 +751,7 @@ function build_null_solution(prob::AbstractDEProblem, args...;
 
     prob, success = hack_null_solution_init(prob)
     retcode = success ? ReturnCode.Success : ReturnCode.InitialFailure
-    build_solution(prob, nothing, ts, timeseries; dense=true, retcode)
+    build_solution(prob, nothing, ts, timeseries; dense = true, retcode)
 end
 
 function build_null_solution(
@@ -1139,7 +1142,6 @@ function solve(prob::NonlinearProblem, args...; sensealg = nothing,
         sensealg = prob.kwargs[:sensealg]
     end
 
-    
     if haskey(prob.kwargs, :alias_u0)
         @warn "The `alias_u0` keyword argument is deprecated. Please use a NonlinearAliasSpecifier, e.g. `alias = NonlinearAliasSpecifier(alias_u0 = true)`."
         alias_spec = NonlinearAliasSpecifier(alias_u0 = prob.kwargs[:alias_u0])
@@ -1152,7 +1154,7 @@ function solve(prob::NonlinearProblem, args...; sensealg = nothing,
         alias_spec = NonlinearAliasSpecifier(alias = prob.kwargs[:alias])
     elseif haskey(kwargs, :alias) && kwargs[:alias] isa Bool
         alias_spec = NonlinearAliasSpecifier(alias = kwargs[:alias])
-    end   
+    end
 
     if haskey(prob.kwargs, :alias) && prob.kwargs[:alias] isa NonlinearAliasSpecifier
         alias_spec = prob.kwargs[:alias]

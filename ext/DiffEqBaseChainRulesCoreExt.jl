@@ -2,7 +2,8 @@ module DiffEqBaseChainRulesCoreExt
 
 using DiffEqBase
 using DiffEqBase.SciMLBase
-import DiffEqBase: numargs, AbstractSensitivityAlgorithm, AbstractDEProblem, set_mooncakeoriginator_if_mooncake
+import DiffEqBase: numargs, AbstractSensitivityAlgorithm, AbstractDEProblem,
+                   set_mooncakeoriginator_if_mooncake
 
 import ChainRulesCore
 import ChainRulesCore: NoTangent
@@ -15,7 +16,8 @@ function ChainRulesCore.frule(::typeof(DiffEqBase.solve_up), prob,
         u0, p, args...;
         kwargs...)
     DiffEqBase._solve_forward(
-        prob, sensealg, u0, p, set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()), args...;
+        prob, sensealg, u0, p,
+        set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()), args...;
         kwargs...)
 end
 
@@ -24,7 +26,8 @@ function ChainRulesCore.rrule(::typeof(DiffEqBase.solve_up), prob::AbstractDEPro
         u0, p, args...;
         kwargs...)
     DiffEqBase._solve_adjoint(
-        prob, sensealg, u0, p, set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()), args...;
+        prob, sensealg, u0, p,
+        set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()), args...;
         kwargs...)
 end
 
