@@ -712,11 +712,13 @@ function step!(integ::NullODEIntegrator, dt = nothing, stop_at_tdt = false)
 end
 
 function hack_null_solution_init(prob)
-    if SciMLBase.has_initializeprob(prob.f) && SciMLBase.has_initializeprobpmap(prob.f)
-        initializeprob = prob.f.initializeprob
+    if SciMLBase.has_initialization_data(prob.f)
+        initializeprob = prob.f.initialization_data.initializeprob
         nlsol = solve(initializeprob)
         success = SciMLBase.successful_retcode(nlsol)
-        @set! prob.p = prob.f.initializeprobpmap(prob, nlsol)
+        if prob.f.initialization_data.initializeprobpmap !== nothing
+            @set! prob.p = prob.f.initializeprobpmap(prob, nlsol)
+        end
     else
         success = true
     end
