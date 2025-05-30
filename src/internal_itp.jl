@@ -30,7 +30,7 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::I
         args...;
         maxiters = 1000, kwargs...) where {IP, T}
     f = Base.Fix2(prob.f, prob.p)
-    left, right = prob.tspan # a and b
+    left, right = minmax(prob.tspan...) # a and b
     fl, fr = f(left), f(right)
     ϵ = eps(T)
     if iszero(fl)
@@ -40,7 +40,7 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::I
         return SciMLBase.build_solution(prob, alg, right, fr;
             retcode = ReturnCode.ExactSolutionRight, left, right)
     end
-    span = abs(right - left)
+    span = right - left
     k1 = T(alg.scaled_k1) / span
     n0 = T(alg.n0)
     n_h = exponent(span / (2 * ϵ))
@@ -49,7 +49,7 @@ function SciMLBase.solve(prob::IntervalNonlinearProblem{IP, Tuple{T, T}}, alg::I
 
     i = 1
     while i ≤ maxiters
-        span = abs(right - left)
+        span = right - left
         mid = (left + right) / 2
         r = ϵ_s - (span / 2)
 
