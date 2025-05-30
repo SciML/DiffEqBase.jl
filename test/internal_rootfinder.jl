@@ -36,4 +36,14 @@ for Rootfinder in (InternalITP,)
         @test abs.(solve(inp3, rf).u) ≈ sqrt.(p)
         @test abs.(solve(inp4, rf).u) ≈ sqrt.(p)
     end
+
+    # https://github.com/SciML/DifferentialEquations.jl/issues/1087
+    # Test with normal and reversed tspan.
+    # The expected zero is -acos(p), but there is another zero at acos(p) just outside tspan
+    f(u, p) = cos(u) - p
+    p = 0.9
+    inp1 = IntervalNonlinearProblem(f, (-1.1 * acos(p), 0.9 * acos(p)), p)
+    inp2 = IntervalNonlinearProblem(f, (0.9 * acos(p), -1.1 * acos(p)), p)
+    @test solve(inp1, rf).u ≈ -acos(p)
+    @test solve(inp2, rf).u ≈ -acos(p)
 end
