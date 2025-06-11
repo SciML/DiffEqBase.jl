@@ -710,6 +710,8 @@ function step!(integ::NullODEIntegrator, dt = nothing, stop_at_tdt = false)
     end
     return nothing
 end
+function SciMLBase.u_modified!(integ::NullODEIntegrator, u) end
+SciMLBase.check_error(integ::NullODEIntegrator) = integ.sol.retcode
 
 function hack_null_solution_init(prob)
     if SciMLBase.has_initialization_data(prob.f)
