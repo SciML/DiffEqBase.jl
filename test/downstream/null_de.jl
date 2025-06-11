@@ -93,4 +93,5 @@ end
     prob = ODEProblem(Returns(nothing), nothing, (0.0, 1.0))
     integ = init(prob, Tsit5())
     @test_nowarn SciMLBase.u_modified!(integ, Float64[])
+    @test SciMLBase.successful_retcode(SciMLBase.check_error(integ))
 end
