@@ -13,21 +13,21 @@ ChainRulesCore.@non_differentiable DiffEqBase.checkkwargs(kwargshandle)
 
 function ChainRulesCore.frule(::typeof(DiffEqBase.solve_up), prob,
         sensealg::Union{Nothing, AbstractSensitivityAlgorithm},
-        u0, p, args...;
+        u0, p, args...; originator = SciMLBase.ChainRulesOriginator(),
         kwargs...)
     DiffEqBase._solve_forward(
         prob, sensealg, u0, p,
-        set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()), args...;
+        originator, args...;
         kwargs...)
 end
 
 function ChainRulesCore.rrule(::typeof(DiffEqBase.solve_up), prob::AbstractDEProblem,
         sensealg::Union{Nothing, AbstractSensitivityAlgorithm},
-        u0, p, args...;
+        u0, p, args...; originator = SciMLBase.ChainRulesOriginator(),
         kwargs...)
     DiffEqBase._solve_adjoint(
         prob, sensealg, u0, p,
-        set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()), args...;
+        originator, args...;
         kwargs...)
 end
 

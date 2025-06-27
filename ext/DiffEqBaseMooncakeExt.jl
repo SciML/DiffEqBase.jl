@@ -2,8 +2,12 @@ module DiffEqBaseMooncakeExt
 
 using DiffEqBase, Mooncake
 using DiffEqBase: SciMLBase
-using SciMLBase: ADOriginator, MooncakeOriginator
-Mooncake.@from_rrule(Mooncake.MinimalCtx,
+using SciMLBase: ADOriginator, ChainRulesOriginator, MooncakeOriginator
+import Mooncake: rrule!!, CoDual, zero_fcodual, @is_primitive,
+                 @from_rrule, @zero_adjoint, @mooncake_overlay, MinimalCtx,
+                 NoPullback
+
+@from_rrule(MinimalCtx,
     Tuple{
         typeof(DiffEqBase.solve_up),
         DiffEqBase.AbstractDEProblem,
@@ -15,7 +19,7 @@ Mooncake.@from_rrule(Mooncake.MinimalCtx,
     true,)
 
 # Dispatch for auto-alg
-Mooncake.@from_rrule(Mooncake.MinimalCtx,
+@from_rrule(MinimalCtx,
     Tuple{
         typeof(DiffEqBase.solve_up),
         DiffEqBase.AbstractDEProblem,
@@ -25,7 +29,16 @@ Mooncake.@from_rrule(Mooncake.MinimalCtx,
     },
     true,)
 
-Mooncake.@zero_adjoint Mooncake.MinimalCtx Tuple{typeof(DiffEqBase.numargs), Any}
-Mooncake.@mooncake_overlay DiffEqBase.set_mooncakeoriginator_if_mooncake(x::ADOriginator) = MooncakeOriginator
+@zero_adjoint MinimalCtx Tuple{typeof(DiffEqBase.numargs), Any}
+@is_primitive MinimalCtx Tuple{
+    typeof(DiffEqBase.set_mooncakeoriginator_if_mooncake), SciMLBase.ChainRulesOriginator
+}
+
+function rrule!!(
+        f::CoDual{typeof(DiffEqBase.set_mooncakeoriginator_if_mooncake)},
+        X::CoDual{SciMLBase.ChainRulesOriginator}
+)
+    return zero_fcodual(SciMLBase.MooncakeOriginator()), NoPullback(f, X)
+end
 
 end
