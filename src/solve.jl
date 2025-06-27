@@ -1174,14 +1174,29 @@ function solve(prob::NonlinearProblem, args...; sensealg = nothing,
     p = p !== nothing ? p : prob.p
 
     if wrap isa Val{true}
-        wrap_sol(solve_up(prob, sensealg, u0, p, args...; alias_u0 = alias_u0, kwargs...))
+        wrap_sol(solve_up(prob,
+            sensealg,
+            u0,
+            p,
+            args...;
+            alias_u0 = alias_u0,
+            originator = set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()),
+            kwargs...))
     else
-        solve_up(prob, sensealg, u0, p, args...; alias_u0 = alias_u0, kwargs...)
+        solve_up(prob,
+            sensealg,
+            u0,
+            p,
+            args...;
+            alias_u0 = alias_u0,
+            originator = set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()),
+            kwargs...)
     end
 end
 
 function solve_up(prob::Union{AbstractDEProblem, NonlinearProblem}, sensealg, u0, p,
-        args...; kwargs...)
+        args...; originator = SciMLBase.ChainRulesOriginator(),
+        kwargs...)
     alg = extract_alg(args, kwargs, has_kwargs(prob) ? prob.kwargs : kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
