@@ -131,7 +131,11 @@ function Base.showerror(io::IO, e::CommonKwargError)
     notin = collect(map(x -> x ∉ allowedkeywords, keys(e.kwargs)))
     unrecognized = collect(keys(e.kwargs))[notin]
     print(io, "Unrecognized keyword arguments: ")
-    printstyled(io, unrecognized; bold = true, color = :red)
+    if get(io, :color, false)
+        printstyled(io, unrecognized; bold = true, color = :red)
+    else
+        print(io, unrecognized)
+    end
     print(io, "\n\n")
     println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
@@ -1261,7 +1265,11 @@ function checkkwargs(kwargshandle; kwargs...)
             @warn KWARGWARN_MESSAGE
             unrecognized = setdiff(keys(kwargs), allowedkeywords)
             print("Unrecognized keyword arguments: ")
-            printstyled(unrecognized; bold = true, color = :red)
+            if get(stdout, :color, false)
+                printstyled(unrecognized; bold = true, color = :red)
+            else
+                print(unrecognized)
+            end
             print("\n\n")
         else
             @assert kwargshandle == KeywordArgSilent
