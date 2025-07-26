@@ -537,19 +537,6 @@ function get_updated_symbolic_problem(indp, prob; kw...)
     return prob
 end
 
-"""
-    $(TYPEDSIGNATURES)
-
-Get the innermost index provider using `SII.symbolic_container`.
-"""
-function _get_root_indp(indp)
-    if hasmethod(SII.symbolic_container, Tuple{typeof(indp)}) &&
-       (sc = SII.symbolic_container(indp)) !== indp
-        return _get_root_indp(sc)
-    end
-    return indp
-end
-
 function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
         kwargs...)
     kwargshandle = kwargshandle === nothing ? KeywordArgError : kwargshandle
@@ -1270,12 +1257,12 @@ function checkkwargs(kwargshandle; kwargs...)
 end
 
 function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
-    get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
+    get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
 end
 
 function get_concrete_problem(prob::SteadyStateProblem, isadapt; kwargs...)
     oldprob = prob
-    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
+    prob = get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
     if prob !== oldprob
         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
     end
@@ -1287,7 +1274,7 @@ end
 
 function get_concrete_problem(prob::NonlinearProblem, isadapt; kwargs...)
     oldprob = prob
-    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
+    prob = get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
     if prob !== oldprob
         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
     end
@@ -1299,7 +1286,7 @@ end
 
 function get_concrete_problem(prob::NonlinearLeastSquaresProblem, isadapt; kwargs...)
     oldprob = prob
-    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
+    prob = get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
     if prob !== oldprob
         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
     end
@@ -1325,7 +1312,7 @@ end
 
 function get_concrete_problem(prob, isadapt; kwargs...)
     oldprob = prob
-    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
+    prob = get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
     if prob !== oldprob
         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
     end
@@ -1348,7 +1335,7 @@ end
 
 function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
     oldprob = prob
-    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
+    prob = get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
     if prob !== oldprob
         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
     end
@@ -1376,7 +1363,7 @@ end
 
 function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
     oldprob = prob
-    prob = get_updated_symbolic_problem(_get_root_indp(prob), prob; kwargs...)
+    prob = get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
     if prob !== oldprob
         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
     end
