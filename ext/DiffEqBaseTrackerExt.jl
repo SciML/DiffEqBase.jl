@@ -103,7 +103,8 @@ Tracker.@grad function DiffEqBase.solve_up(prob,
         },
         u0, p, args...;
         kwargs...)
-    sol, pb_f = DiffEqBase._solve_adjoint(
+    sol,
+    pb_f = DiffEqBase._solve_adjoint(
         prob, sensealg, Tracker.data(u0), Tracker.data(p),
         SciMLBase.TrackerOriginator(), args...; kwargs...)
 

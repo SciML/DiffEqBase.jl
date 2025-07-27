@@ -60,7 +60,7 @@ function assert_fun()
     p0 = rand(3)
     isapprox(loss(p0), loss_via_real(p0); rtol = 1e-4)
 end
-@assert all([assert_fun() for _ in 1:(2^6)])
+@assert all([assert_fun() for _ in 1:(2 ^ 6)])
 
 # test ad with ForwardDiff
 function test_ad()
@@ -74,4 +74,4 @@ function test_ad()
     isapprox(grad_complex, grad_real; rtol = 1e-6) ? true : (@show rel_err; false)
 end
 
-@time @test all([test_ad() for _ in 1:(2^6)])
+@time @test all([test_ad() for _ in 1:(2 ^ 6)])
