@@ -99,14 +99,11 @@ for p in p_possibilities17
     @test DiffEqBase.promote_u0([cis(u0)], p, t0) isa
           AbstractArray{<:Complex{<:ForwardDiff.Dual}}
 
-    if VERSION >= v"1.7"
-        # v1.6 does not infer `getproperty` mapping
-        @inferred DiffEqBase.anyeltypedual(p)
-        ci = InteractiveUtils.@code_typed DiffEqBase.anyeltypedual(p)
-        @show filter(!=(Expr(:code_coverage_effect)), ci.first.code)
-        #@test count(x -> (x != (Expr(:code_coverage_effect))) &&
-        #                (x != GlobalRef(DiffEqBase, :Any)), ci.first.code) == 1
-    end
+    @inferred DiffEqBase.anyeltypedual(p)
+    ci = InteractiveUtils.@code_typed DiffEqBase.anyeltypedual(p)
+    @show filter(!=(Expr(:code_coverage_effect)), ci.first.code)
+    #@test count(x -> (x != (Expr(:code_coverage_effect))) &&
+    #                (x != GlobalRef(DiffEqBase, :Any)), ci.first.code) == 1
 end
 
 p_possibilities_uninferrred = [
