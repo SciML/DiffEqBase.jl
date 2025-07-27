@@ -50,11 +50,9 @@ has_continuous_callback(cb::DiscreteCallback) = false
 has_continuous_callback(cb::ContinuousCallback) = true
 has_continuous_callback(cb::VectorContinuousCallback) = true
 has_continuous_callback(cb::CallbackSet) = !isempty(cb.continuous_callbacks)
-has_continuous_callback(cb::Nothing) = false
+has_continuous_callback(cb::Nothing) = false#======================================================##======================================================#
 
-#======================================================#
 # Callback handling
-#======================================================#
 
 function get_tmp(integrator::DEIntegrator, callback)
     _tmp = get_tmp_cache(integrator)
@@ -129,14 +127,16 @@ end
             AbstractContinuousCallback
         }) where {N}
     ex = quote
-        tmin, upcrossing, event_occurred, event_idx = find_callback_time(integrator,
+        tmin, upcrossing,
+        event_occurred, event_idx = find_callback_time(integrator,
             callbacks[1], 1)
         identified_idx = 1
     end
     for i in 2:N
         ex = quote
             $ex
-            tmin2, upcrossing2, event_occurred2, event_idx2 = find_callback_time(
+            tmin2, upcrossing2,
+            event_occurred2, event_idx2 = find_callback_time(
                 integrator,
                 callbacks[$i],
                 $i)
@@ -398,7 +398,8 @@ function findall_events!(next_sign, affect!::F1, affect_neg!::F2, prev_sign) whe
 end
 
 function find_callback_time(integrator, callback::ContinuousCallback, counter)
-    event_occurred, interp_index, ts, prev_sign, prev_sign_index, event_idx = determine_event_occurance(
+    event_occurred, interp_index, ts, prev_sign,
+    prev_sign_index, event_idx = determine_event_occurance(
         integrator,
         callback,
         counter)
@@ -459,7 +460,8 @@ function find_callback_time(integrator, callback::ContinuousCallback, counter)
 end
 
 function find_callback_time(integrator, callback::VectorContinuousCallback, counter)
-    event_occurred, interp_index, ts, prev_sign, prev_sign_index, event_idx = determine_event_occurance(
+    event_occurred, interp_index, ts, prev_sign,
+    prev_sign_index, event_idx = determine_event_occurance(
         integrator,
         callback,
         counter)
@@ -636,7 +638,8 @@ end
 @inline function apply_discrete_callback!(integrator, discrete_modified::Bool,
         saved_in_cb::Bool, callback::DiscreteCallback,
         args...)
-    bool, saved_in_cb2 = apply_discrete_callback!(integrator,
+    bool,
+    saved_in_cb2 = apply_discrete_callback!(integrator,
         apply_discrete_callback!(integrator,
             callback)...,
         args...)

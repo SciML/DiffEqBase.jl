@@ -65,7 +65,8 @@ eu0 = rand(N, 2)
 ep = rand(N, 4)
 
 ensemble_prob = EnsembleProblem(prob,
-    prob_func = (prob, i, repeat) -> remake(prob,
+    prob_func = (
+        prob, i, repeat) -> remake(prob,
         u0 = eu0[i, :],
         p = ep[i, :],
         saveat = 0.1))
@@ -75,7 +76,8 @@ cache = Ref{Any}()
 
 function sum_of_e_solution(p)
     ensemble_prob = EnsembleProblem(prob,
-        prob_func = (prob, i, repeat) -> remake(prob,
+        prob_func = (
+            prob, i, repeat) -> remake(prob,
             u0 = eu0[i, :],
             p = p[i, :],
             saveat = 0.1))

@@ -7,9 +7,11 @@ module DiffEqBaseEnzymeExt
     import Enzyme: Const
     using ChainRulesCore
 
-    function Enzyme.EnzymeRules.augmented_primal(config::Enzyme.EnzymeRules.RevConfigWidth{1},
+    function Enzyme.EnzymeRules.augmented_primal(
+            config::Enzyme.EnzymeRules.RevConfigWidth{1},
             func::Const{typeof(DiffEqBase.solve_up)}, ::Type{Duplicated{RT}}, prob,
-            sensealg::Union{Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm}},
+            sensealg::Union{
+                Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm}},
             u0, p, args...; kwargs...) where {RT}
         @inline function copy_or_reuse(val, idx)
             if Enzyme.EnzymeRules.overwritten(config)[idx] && ismutable(val)
@@ -36,7 +38,8 @@ module DiffEqBaseEnzymeExt
 
     function Enzyme.EnzymeRules.reverse(config::Enzyme.EnzymeRules.RevConfigWidth{1},
             func::Const{typeof(DiffEqBase.solve_up)}, ::Type{Duplicated{RT}}, tape, prob,
-            sensealg::Union{Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm}},
+            sensealg::Union{
+                Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm}},
             u0, p, args...; kwargs...) where {RT}
         dres, clos = tape
         dres = dres::RT
@@ -53,7 +56,6 @@ module DiffEqBaseEnzymeExt
         Enzyme.make_zero!(dres.u)
         return ntuple(_ -> nothing, Val(length(args) + 4))
     end
-
 end
 
 end
