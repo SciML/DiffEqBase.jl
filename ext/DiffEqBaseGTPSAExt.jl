@@ -1,14 +1,8 @@
 module DiffEqBaseGTPSAExt
 
-if isdefined(Base, :get_extension)
-    using DiffEqBase
-    import DiffEqBase: value, ODE_DEFAULT_NORM
-    using GTPSA
-else
-    using ..DiffEqBase
-    import ..DiffEqBase: value, ODE_DEFAULT_NORM
-    using ..GTPSA
-end
+using DiffEqBase
+import DiffEqBase: value, ODE_DEFAULT_NORM
+using GTPSA
 
 value(x::TPS) = scalar(x)
 value(::Type{<:TPS{T}}) where {T} = T

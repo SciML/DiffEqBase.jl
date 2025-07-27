@@ -1,14 +1,8 @@
 module DiffEqBaseMonteCarloMeasurementsExt
 
-if isdefined(Base, :get_extension)
-    using DiffEqBase
-    import DiffEqBase: value
-    using MonteCarloMeasurements
-else
-    using ..DiffEqBase
-    import ..DiffEqBase: value
-    using ..MonteCarloMeasurements
-end
+using DiffEqBase
+import DiffEqBase: value
+using MonteCarloMeasurements
 
 function DiffEqBase.promote_u0(
         u0::AbstractArray{
