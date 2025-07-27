@@ -1,13 +1,9 @@
 module DiffEqBaseUnitfulExt
 
-    using DiffEqBase
-    import DiffEqBase: value
-    using Unitful
-else
-    using ..DiffEqBase
-    import ..DiffEqBase: value
-    using ..Unitful
-end
+using DiffEqBase
+import DiffEqBase: value
+using Unitful
+
 # Support adaptive errors should be errorless for exponentiation
 value(x::Type{Unitful.AbstractQuantity{T, D, U}}) where {T, D, U} = T
 value(x::Unitful.AbstractQuantity) = x.val
