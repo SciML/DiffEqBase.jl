@@ -1,6 +1,5 @@
 module DiffEqBaseUnitfulExt
 
-if isdefined(Base, :get_extension)
     using DiffEqBase
     import DiffEqBase: value
     using Unitful

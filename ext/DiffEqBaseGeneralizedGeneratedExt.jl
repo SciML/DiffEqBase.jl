@@ -1,6 +1,5 @@
 module DiffEqBaseGeneralizedGeneratedExt
 
-if isdefined(Base, :get_extension)
     using DiffEqBase
     using GeneralizedGenerated
 else

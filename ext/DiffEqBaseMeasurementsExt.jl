@@ -1,6 +1,5 @@
 module DiffEqBaseMeasurementsExt
 
-if isdefined(Base, :get_extension)
     using DiffEqBase
     import DiffEqBase: value
     using Measurements

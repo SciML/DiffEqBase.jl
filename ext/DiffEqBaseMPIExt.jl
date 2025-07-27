@@ -1,6 +1,5 @@
 module DiffEqBaseMPIExt
 
-if isdefined(Base, :get_extension)
     using DiffEqBase
     import MPI
 else
