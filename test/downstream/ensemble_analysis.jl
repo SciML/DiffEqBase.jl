@@ -49,15 +49,15 @@ m3, m4, c = timepoint_meancov(sim, 0.5, 0.5)
 @test v ≈ c
 m3, m4, c = timepoint_meancor(sim, 0.5, 0.5)
 @test c ≈ one(c)
-m_series = timeseries_point_mean(sim, 0:(1 // 2 ^ (3)):1)
-m_series = timeseries_point_median(sim, 0:(1 // 2 ^ (3)):1)
-m_series = timeseries_point_quantile(sim, 0.5, 0:(1 // 2 ^ (3)):1)
-m_series, v_series = timeseries_point_meanvar(sim, 0:(1 // 2 ^ (3)):1)
-summ = EnsembleSummary(sim, 0:(1 // 2 ^ (3)):1)
+m_series = timeseries_point_mean(sim, 0:(1 // 2^(3)):1)
+m_series = timeseries_point_median(sim, 0:(1 // 2^(3)):1)
+m_series = timeseries_point_quantile(sim, 0.5, 0:(1 // 2^(3)):1)
+m_series, v_series = timeseries_point_meanvar(sim, 0:(1 // 2^(3)):1)
+summ = EnsembleSummary(sim, 0:(1 // 2^(3)):1)
 m5, v5 = m_series.u[5], v_series.u[5]
 @test m ≈ m5
 @test v ≈ v5
-m6, m7, v6 = timeseries_point_meancov(sim, 0:(1 // 2 ^ (3)):1, 0:(1 // 2 ^ (3)):1)[5, 5]
+m6, m7, v6 = timeseries_point_meancov(sim, 0:(1 // 2^(3)):1, 0:(1 // 2^(3)):1)[5, 5]
 @test m ≈ m6
 @test m ≈ m7
 @test v ≈ v6
@@ -107,15 +107,15 @@ m3, m4, c = timepoint_meancov(sim, 0.5, 0.5)
 @test v ≈ c
 m3, m4, c = timepoint_meancor(sim, 0.5, 0.5)
 @test c ≈ ones(size(c)...)
-m_series = timeseries_point_mean(sim, 0:(1 // 2 ^ (3)):1)
-m_series = timeseries_point_median(sim, 0:(1 // 2 ^ (3)):1)
-m_series = timeseries_point_quantile(sim, 0.5, 0:(1 // 2 ^ (3)):1)
-m_series, v_series = timeseries_point_meanvar(sim, 0:(1 // 2 ^ (3)):1)
-summ = EnsembleSummary(sim, 0:(1 // 2 ^ (3)):1)
+m_series = timeseries_point_mean(sim, 0:(1 // 2^(3)):1)
+m_series = timeseries_point_median(sim, 0:(1 // 2^(3)):1)
+m_series = timeseries_point_quantile(sim, 0.5, 0:(1 // 2^(3)):1)
+m_series, v_series = timeseries_point_meanvar(sim, 0:(1 // 2^(3)):1)
+summ = EnsembleSummary(sim, 0:(1 // 2^(3)):1)
 m5, v5 = m_series.u[5], v_series.u[5]
 @test m ≈ m5
 @test v ≈ v5
-m6, m7, v6 = timeseries_point_meancov(sim, 0:(1 // 2 ^ (3)):1, 0:(1 // 2 ^ (3)):1)[5, 5]
+m6, m7, v6 = timeseries_point_meancov(sim, 0:(1 // 2^(3)):1, 0:(1 // 2^(3)):1)[5, 5]
 @test m ≈ m6
 @test m ≈ m7
 @test v ≈ v6
