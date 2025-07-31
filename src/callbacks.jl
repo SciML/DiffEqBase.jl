@@ -156,7 +156,7 @@ end
     ex
 end
 
-@inline function determine_event_occurance(integrator, callback::VectorContinuousCallback,
+@inline function determine_event_occurrence(integrator, callback::VectorContinuousCallback,
         counter)
     event_occurred = false
     if callback.interp_points != 0
@@ -267,7 +267,7 @@ end
     event_occurred, interp_index, ts, prev_sign, prev_sign_index, event_idx
 end
 
-@inline function determine_event_occurance(integrator, callback::ContinuousCallback,
+@inline function determine_event_occurrence(integrator, callback::ContinuousCallback,
         counter)
     event_occurred = false
     if callback.interp_points != 0
@@ -399,7 +399,7 @@ end
 
 function find_callback_time(integrator, callback::ContinuousCallback, counter)
     event_occurred, interp_index, ts, prev_sign,
-    prev_sign_index, event_idx = determine_event_occurance(
+    prev_sign_index, event_idx = determine_event_occurrence(
         integrator,
         callback,
         counter)
@@ -461,7 +461,7 @@ end
 
 function find_callback_time(integrator, callback::VectorContinuousCallback, counter)
     event_occurred, interp_index, ts, prev_sign,
-    prev_sign_index, event_idx = determine_event_occurance(
+    prev_sign_index, event_idx = determine_event_occurrence(
         integrator,
         callback,
         counter)
