@@ -719,7 +719,7 @@ function build_null_solution(prob::AbstractDEProblem, args...;
         save_everystep = true,
         save_on = true,
         save_start = save_everystep || isempty(saveat) ||
-                         saveat isa Number || prob.tspan[1] in saveat,
+                     saveat isa Number || prob.tspan[1] in saveat,
         save_end = true,
         kwargs...)
     ts = if saveat === ()
@@ -752,7 +752,7 @@ function build_null_solution(
         save_everystep = true,
         save_on = true,
         save_start = save_everystep || isempty(saveat) ||
-                         saveat isa Number || prob.tspan[1] in saveat,
+                     saveat isa Number || prob.tspan[1] in saveat,
         save_end = true,
         kwargs...)
     prob, success = hack_null_solution_init(prob)
