@@ -155,12 +155,8 @@ function affect!(integrator, idx)
                 x₂ = u.nodes[l][1:2]
                 v₂ = u.nodes[l][3:4]
                 # https://stackoverflow.com/a/35212639
-                v₁ = (v₁ -
-                      2 / (1 + 1) *
-                      (dot(v₁ - v₂, x₁ - x₂) / sum(abs2, x₁ - x₂) * (x₁ - x₂)))
-                v₂ = -(v₂ -
-                       2 / (1 + 1) *
-                       (dot(v₂ - v₁, x₂ - x₁) / sum(abs2, x₂ - x₁) * (x₂ - x₁)))
+                v₁ = (v₁ - 2 / (1 + 1) * (dot(v₁ - v₂, x₁ - x₂) / sum(abs2, x₁ - x₂) * (x₁ - x₂)))
+                v₂ = -(v₂ - 2 / (1 + 1) * (dot(v₂ - v₁, x₂ - x₁) / sum(abs2, x₂ - x₁) * (x₂ - x₁)))
 
                 println("Collision handled.")
 
