@@ -693,7 +693,7 @@ function step!(integ::NullODEIntegrator, dt = nothing, stop_at_tdt = false)
     if !isnothing(dt)
         integ.t += dt
     else
-        integ.t = integ.sol[end]
+        integ.t = integ.sol.t[end]
     end
     return nothing
 end
