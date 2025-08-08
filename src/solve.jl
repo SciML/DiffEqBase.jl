@@ -1422,7 +1422,7 @@ hasdualpromote(u0, t) = true
 
 function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t) where {specialize}
     (typeof(f._func_cache) === typeof(u0) || 
-    typeof(f._func_cache) == PreallocationTools.LazyBufferCache) && isinplace(f) ? f :
+    typeof(f._func_cache) == SciMLBase.PreallocationTools.LazyBufferCache) && isinplace(f) ? f :
     remake(f, _func_cache = zero(u0))
 end
 prepare_alg(alg, u0, p, f) = alg
