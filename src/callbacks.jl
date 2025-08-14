@@ -50,7 +50,7 @@ has_continuous_callback(cb::DiscreteCallback) = false
 has_continuous_callback(cb::ContinuousCallback) = true
 has_continuous_callback(cb::VectorContinuousCallback) = true
 has_continuous_callback(cb::CallbackSet) = !isempty(cb.continuous_callbacks)
-has_continuous_callback(cb::Nothing) = false#======================================================##======================================================#
+has_continuous_callback(cb::Nothing) = false
 
 # Callback handling
 
@@ -478,7 +478,7 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                 bottom_t = integrator.tprev
             end
             if callback.rootfind != SciMLBase.NoRootFind && !isdiscrete(integrator.alg)
-                min_t = nextfloat(top_t)
+                min_t = isone(integrator.tdir) ? nextfloat(top_t) : prevfloat(top_t)
                 min_event_idx = -1
                 for idx in 1:length(event_idx)
                     if ArrayInterface.allowed_getindex(event_idx, idx) != 0

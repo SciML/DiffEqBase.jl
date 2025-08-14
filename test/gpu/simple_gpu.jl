@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, CUDA, LinearAlgebra, Test, StaticArrays, ADTypes
+using OrdinaryDiffEq, DiffEqBase, CUDA, LinearAlgebra, Test, StaticArrays, ADTypes
 function f(u, p, t)
     A * u
 end
