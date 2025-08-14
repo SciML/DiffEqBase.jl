@@ -1,4 +1,5 @@
 using DiffEqBase, Test, RecursiveArrayTools
+import SciMLBase: AbstractSciMLFunction
 
 macro iop_def(funcdef::Expr)
     """Define in- and out-of-place functions simultaneously.
