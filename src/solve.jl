@@ -136,6 +136,44 @@ function Base.showerror(io::IO, e::CommonKwargError)
     println(io, TruncatedStacktraces.VERBOSE_MSG)
 end
 
+"""
+    KeywordArgError
+
+Enum value for handling unrecognized keyword arguments.
+
+When `kwargshandle=KeywordArgError` is passed to `solve` or `init`,
+unrecognized keyword arguments will throw an error.
+
+# See Also
+- [`KeywordArgWarn`](@ref)
+- [`KeywordArgSilent`](@ref)
+"""
+
+"""
+    KeywordArgWarn
+
+Enum value for handling unrecognized keyword arguments.
+
+When `kwargshandle=KeywordArgWarn` is passed to `solve` or `init`,
+unrecognized keyword arguments will trigger a warning message.
+
+# See Also
+- [`KeywordArgError`](@ref)
+- [`KeywordArgSilent`](@ref)
+"""
+
+"""
+    KeywordArgSilent
+
+Enum value for handling unrecognized keyword arguments.
+
+When `kwargshandle=KeywordArgSilent` is passed to `solve` or `init`,
+unrecognized keyword arguments will be silently ignored.
+
+# See Also
+- [`KeywordArgError`](@ref)
+- [`KeywordArgWarn`](@ref)
+"""
 @enum KeywordArgError KeywordArgWarn KeywordArgSilent
 
 const INCOMPATIBLE_U0_MESSAGE = """
@@ -1646,9 +1684,30 @@ end
 ################### Differentiation
 
 """
-Ignores all adjoint definitions (i.e. `sensealg`) and proceeds to do standard
-AD through the `solve` functions. Generally only used internally for implementing
-discrete sensitivity algorithms.
+    SensitivityADPassThrough <: AbstractDEAlgorithm
+
+Algorithm that bypasses specialized sensitivity/adjoint methods and uses standard automatic differentiation.
+
+This algorithm ignores all adjoint definitions (i.e., `sensealg` parameters) and proceeds to differentiate
+directly through the `solve` function calls using the chosen AD backend. This is primarily used internally
+for implementing discrete sensitivity algorithms where specialized continuous adjoint methods are not applicable.
+
+# Usage
+```julia
+sol = solve(prob, SensitivityADPassThrough())
+```
+
+# When to Use
+- When you need to differentiate through discrete callbacks or events
+- For debugging sensitivity computations
+- When specialized adjoint methods are not available for your problem type
+
+# Performance Note
+This method can be significantly slower and more memory-intensive than specialized adjoint methods
+for continuous problems. Use specialized sensitivity algorithms when available.
+
+# See Also
+- SciMLSensitivity.jl for specialized sensitivity algorithms
 """
 struct SensitivityADPassThrough <: AbstractDEAlgorithm end
 

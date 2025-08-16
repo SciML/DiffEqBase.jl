@@ -115,17 +115,50 @@ isdualtype(::Type{T}) where {T} = false
 ## Types
 
 """
-$(TYPEDEF)
+    Tableau
+
+Abstract type for Butcher tableaus used in Runge-Kutta methods.
+
+Tableaus define the coefficients for multi-stage integration methods,
+including the `a` (coupling), `b` (weights), and `c` (nodes) coefficients.
+
+# Subtypes
+- `ODERKTableau`: Tableaus specifically for explicit Runge-Kutta ODE methods
+
+# See Also
+- [`ODERKTableau`](@ref)
 """
 abstract type Tableau end
 
 """
-$(TYPEDEF)
+    ODERKTableau <: Tableau
+
+Abstract type for Butcher tableaus specific to explicit Runge-Kutta ODE methods.
+
+These tableaus are used to define the coefficients for explicit RK methods,
+where the coupling matrix `a` is strictly lower triangular.
+
+# Fields (typically implemented by concrete types)
+- `a`: Coupling coefficients matrix (lower triangular)
+- `b`: Weight coefficients for final step
+- `c`: Time nodes for intermediate stages
+
+# See Also
+- [`Tableau`](@ref)
 """
 abstract type ODERKTableau <: Tableau end
 
 """
-$(TYPEDEF)
+    DECostFunction
+
+Abstract type for cost/objective functions used in optimization-based
+differential equation solving methods.
+
+Cost functions define the objective to minimize when solving DEs using
+optimization approaches, such as in collocation methods or parameter estimation.
+
+# Implementation
+Concrete subtypes should define methods for evaluating the cost and its gradients.
 """
 abstract type DECostFunction end
 
@@ -151,13 +184,43 @@ if isdefined(SciMLBase, :AbstractParameterizedFunction)
     import SciMLBase: AbstractParameterizedFunction
 else
     """
-    $(TYPEDEF)
+        AbstractParameterizedFunction{iip} <: AbstractODEFunction{iip}
+
+    Abstract type for parameterized ODE functions that depend on additional parameters.
+
+    Parameterized functions allow for ODEs where the dynamics explicitly depend on
+    parameters that may be varied, fitted, or optimized.
+
+    # Type Parameters
+    - `iip`: Whether the function is in-place (true) or out-of-place (false)
+
+    # See Also
+    - [`AbstractODEFunction`](@ref)
     """
     abstract type AbstractParameterizedFunction{iip} <: AbstractODEFunction{iip} end
 end
 
 """
-$(TYPEDEF)
+    ConvergenceSetup{P, C}
+
+Configuration for convergence analysis of differential equation solvers.
+
+Used to test and verify the convergence properties of numerical methods by
+solving a set of problems with varying discretization parameters.
+
+# Fields
+- `probs::P`: Collection of test problems with different discretizations
+- `convergence_axis::C`: The axis along which convergence is measured (e.g., time step sizes)
+
+# Usage
+Typically used internally by convergence testing utilities to verify that
+a solver achieves its expected order of accuracy.
+
+# Example
+```julia
+probs = [ODEProblem(f, u0, tspan; dt=dt) for dt in [0.1, 0.05, 0.025, 0.0125]]
+setup = ConvergenceSetup(probs, [0.1, 0.05, 0.025, 0.0125])
+```
 """
 struct ConvergenceSetup{P, C}
     probs::P
