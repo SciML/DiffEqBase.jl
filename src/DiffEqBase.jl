@@ -19,7 +19,7 @@ using DocStringExtensions
 
 using FunctionWrappers: FunctionWrapper
 
-using MuladdMacro, Parameters
+using MuladdMacro
 
 using Statistics
 
@@ -32,7 +32,6 @@ import TruncatedStacktraces
 
 using Setfield
 
-using EnumX
 
 using Markdown
 
