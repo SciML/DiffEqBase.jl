@@ -94,7 +94,11 @@ using SciMLBase: @def, DEIntegrator, AbstractDEProblem,
 
 import SciMLBase: solve, init, step!, solve!, __init, __solve, update_coefficients!,
                   update_coefficients, isadaptive, wrapfun_oop, wrapfun_iip,
-                  unwrap_fw, promote_tspan, set_u!, set_t!, set_ut!
+                  unwrap_fw, promote_tspan, set_u!, set_t!, set_ut!,
+                  extract_alg, checkkwargs, has_kwargs,
+                  eltypedual, get_updated_symbolic_problem, get_concrete_p, get_concrete_u0, promote_u0,
+                  isconcreteu0, isconcretedu0, get_concrete_du0, _reshape, value, unitfulvalue, anyeltypedual, allowedkeywords,
+                  sse, totallength, __sum, DualEltypeChecker
 
 import SciMLStructures
 
@@ -106,10 +110,6 @@ SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 import SymbolicIndexingInterface as SII
 
 ## Extension Functions
-
-eltypedual(x) = false
-promote_u0(::Nothing, p, t0) = nothing
-isdualtype(::Type{T}) where {T} = false
 
 ## Types
 
@@ -166,7 +166,5 @@ end
 export initialize!, finalize!
 
 export SensitivityADPassThrough
-
-export KeywordArgError, KeywordArgWarn, KeywordArgSilent
 
 end # module
