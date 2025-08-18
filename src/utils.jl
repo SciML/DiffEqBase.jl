@@ -1,27 +1,7 @@
-# Handled in Extensions
-value(x) = x
-unitfulvalue(x) = x
-isdistribution(u0) = false
-sse(x::Number) = abs2(x)
-
-# Static Arrays don't support the `init` keyword argument for `sum`
-@inline __sum(f::F, args...; init, kwargs...) where {F} = sum(f, args...; init, kwargs...)
-@inline function __sum(
-        f::F, a::StaticArraysCore.StaticArray...; init, kwargs...) where {F}
-    return mapreduce(f, +, a...; init, kwargs...)
-end
-
-totallength(x::Number) = 1
-totallength(x::AbstractArray) = __sum(totallength, x; init = 0)
-
 _vec(v) = vec(v)
 _vec(v::Number) = v
 _vec(v::AbstractSciMLScalarOperator) = v
 _vec(v::AbstractVector) = v
-
-_reshape(v, siz) = reshape(v, siz)
-_reshape(v::Number, siz) = v
-_reshape(v::AbstractSciMLScalarOperator, siz) = v
 
 macro tight_loop_macros(ex)
     :($(esc(ex)))
@@ -129,64 +109,3 @@ end
 @inline __add_and_norm(::typeof(Base.Fix2(norm, Inf)), x, y) = __maximum_abs(+, x, y)
 @inline __add_and_norm(f::F, x, y) where {F} = __norm_op(f, +, x, y)
 
-struct DualEltypeChecker{T, T2}
-    x::T
-    counter::T2
-end
-
-anyeltypedual(x) = anyeltypedual(x, Val{0})
-anyeltypedual(x, counter) = Any
-
-function promote_u0(u0, p, t0)
-    if SciMLStructures.isscimlstructure(p)
-        _p = SciMLStructures.canonicalize(SciMLStructures.Tunable(), p)[1]
-        if !isequal(_p, p)
-            return promote_u0(u0, _p, t0)
-        end
-    end
-    Tu = eltype(u0)
-    if isdualtype(Tu)
-        return u0
-    end
-    Tp = anyeltypedual(p, Val{0})
-    if Tp == Any
-        Tp = Tu
-    end
-    Tt = anyeltypedual(t0, Val{0})
-    if Tt == Any
-        Tt = Tu
-    end
-    Tcommon = promote_type(Tu, Tp, Tt)
-    return if isdualtype(Tcommon)
-        Tcommon.(u0)
-    else
-        u0
-    end
-end
-
-function promote_u0(u0::AbstractArray{<:Complex}, p, t0)
-    if SciMLStructures.isscimlstructure(p)
-        _p = SciMLStructures.canonicalize(SciMLStructures.Tunable(), p)[1]
-        if !isequal(_p, p)
-            return promote_u0(u0, _p, t0)
-        end
-    end
-    Tu = real(eltype(u0))
-    if isdualtype(Tu)
-        return u0
-    end
-    Tp = anyeltypedual(p, Val{0})
-    if Tp == Any
-        Tp = Tu
-    end
-    Tt = anyeltypedual(t0, Val{0})
-    if Tt == Any
-        Tt = Tu
-    end
-    Tcommon = promote_type(eltype(u0), Tp, Tt)
-    return if isdualtype(real(Tcommon))
-        Tcommon.(u0)
-    else
-        u0
-    end
-end
