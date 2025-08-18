@@ -4,18 +4,6 @@ using DiffEqBase
 import DiffEqBase: value
 using Measurements
 
-function DiffEqBase.promote_u0(u0::AbstractArray{<:Measurements.Measurement},
-        p::AbstractArray{<:Measurements.Measurement}, t0)
-    u0
-end
-DiffEqBase.promote_u0(u0, p::AbstractArray{<:Measurements.Measurement}, t0) = eltype(p).(u0)
-
-value(x::Type{Measurements.Measurement{T}}) where {T} = T
-value(x::Measurements.Measurement) = Measurements.value(x)
-
-unitfulvalue(x::Type{Measurements.Measurement{T}}) where {T} = T
-unitfulvalue(x::Measurements.Measurement) = Measurements.value(x)
-
 # Support adaptive steps should be errorless
 @inline function DiffEqBase.ODE_DEFAULT_NORM(
         u::AbstractArray{

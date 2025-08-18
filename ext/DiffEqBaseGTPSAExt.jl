@@ -1,7 +1,8 @@
 module DiffEqBaseGTPSAExt
 
 using DiffEqBase
-import DiffEqBase: value, ODE_DEFAULT_NORM
+import DiffEqBase: ODE_DEFAULT_NORM
+import SciMLBase: value, unitfulvalue
 using GTPSA
 
 value(x::TPS) = scalar(x)
