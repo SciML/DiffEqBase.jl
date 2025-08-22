@@ -51,7 +51,6 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 [extensions]
 DiffEqBaseCUDAExt = "CUDA"
 DiffEqBaseChainRulesCoreExt = "ChainRulesCore"
-DiffEqBaseDistributionsExt = "Distributions"
 DiffEqBaseEnzymeExt = ["ChainRulesCore", "Enzyme"]
 DiffEqBaseForwardDiffExt = ["ForwardDiff"]
 DiffEqBaseGTPSAExt = "GTPSA"
@@ -95,7 +94,7 @@ Printf = "1.9"
 RecursiveArrayTools = "3.1"
 Reexport = "1.0"
 ReverseDiff = "1"
-SciMLBase = "2.94.0"
+SciMLBase = "2.112.0"
 SciMLOperators = "1"
 SciMLStructures = "1.5"
 Setfield = "1"
