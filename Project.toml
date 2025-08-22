@@ -131,3 +131,6 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [targets]
 test = ["Distributed", "Measurements", "Unitful", "LabelledArrays", "ForwardDiff", "SparseArrays", "InteractiveUtils", "Pkg", "Random", "ReverseDiff", "StaticArrays", "SafeTestsets", "Statistics", "Test", "Distributions", "Aqua"]
+
+[sources]
+SciMLBase = { url = "https://github.com/AayushSabharwal/SciMLBase.jl", rev = "as/callback-save" }
