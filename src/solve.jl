@@ -1221,17 +1221,6 @@ function solve_call(prob::SteadyStateProblem,
         kwargs...)
 end
 
-function solve(prob::EnsembleProblem, args...; kwargs...)
-    alg = extract_alg(args, kwargs, kwargs)
-    if length(args) > 1
-        __solve(prob, alg, Base.tail(args)...; kwargs...)
-    else
-        __solve(prob, alg; kwargs...)
-    end
-end
-function solve(prob::SciMLBase.WeightedEnsembleProblem, args...; kwargs...)
-    SciMLBase.WeightedEnsembleSolution(solve(prob.ensembleprob), prob.weights)
-end
 function solve(prob::AbstractNoiseProblem, args...; kwargs...)
     __solve(prob, args...; kwargs...)
 end
