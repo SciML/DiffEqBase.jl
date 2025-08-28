@@ -15,4 +15,4 @@ sol = solve(prob, Tsit5(), rel_tol = 1e-6, kwargshandle = SciMLBase.KeywordArgWa
 @test_throws SciMLBase.CommonKwargError sol=solve(prob, Tsit5(), rel_tol = 1e-6)
 
 prob = ODEProblem(lorenz, u0, tspan, test = 2.0, kwargshandle = SciMLBase.KeywordArgWarn)
-@test_logs (:warn, SciMLsBase.KWARGWARN_MESSAGE) sol=solve(prob, Tsit5(), reltol = 1e-6)
+@test_logs (:warn, SciMLBase.KWARGWARN_MESSAGE) sol=solve(prob, Tsit5(), reltol = 1e-6)
