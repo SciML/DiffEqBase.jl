@@ -101,7 +101,9 @@ const allowedkeywords = (:dense,
     # For AbstractAliasSpecifier
     :alias,
     # Parameter estimation with BVP
-    :fit_parameters)
+    :fit_parameters,
+    # Interface checks control
+    :interface_checks)
 
 const KWARGWARN_MESSAGE = """
                           Unrecognized keyword arguments found.
