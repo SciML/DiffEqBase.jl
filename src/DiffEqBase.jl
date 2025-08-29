@@ -104,7 +104,7 @@ import SciMLBase: solve, init, step!, solve!, __init, __solve, update_coefficien
                   ProblemSolverPairingError, compatible_problem_types, DIRECT_AUTODIFF_INCOMPATABILITY_MESSAGE, DirectAutodiffError, NONNUMBER_ELTYPE_MESSAGE, NonNumberEltypeError,
                   GENERIC_NUMBER_TYPE_ERROR_MESSAGE, GenericNumberTypeError, COMPLEX_SUPPORT_ERROR_MESSAGE, ComplexSupportError, COMPLEX_TSPAN_ERROR_MESSAGE, ComplexTspanError,
                   TUPLE_STATE_ERROR_MESSAGE, TupleStateError, MASS_MATRIX_ERROR_MESSAGE, IncompatibleMassMatrixError, LATE_BINDING_TSTOPS_ERROR_MESSAGE, LateBindingTstopsNotSupportedError,
-                  NONCONCRETE_ELTYPE_MESSAGE, NonConcreteEltypeError
+                  NONCONCRETE_ELTYPE_MESSAGE, NonConcreteEltypeError, _vec
 
 import SciMLStructures
 

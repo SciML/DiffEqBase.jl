@@ -1,8 +1,3 @@
-_vec(v) = vec(v)
-_vec(v::Number) = v
-_vec(v::AbstractSciMLScalarOperator) = v
-_vec(v::AbstractVector) = v
-
 macro tight_loop_macros(ex)
     :($(esc(ex)))
 end
