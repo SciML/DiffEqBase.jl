@@ -1,7 +1,7 @@
 module DiffEqBaseUnitfulExt
 
 using DiffEqBase
-import DiffEqBase: value
+import SciMLBase: unitfulvalue, value
 using Unitful
 
 # Support adaptive errors should be errorless for exponentiation

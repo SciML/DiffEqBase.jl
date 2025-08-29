@@ -94,7 +94,17 @@ using SciMLBase: @def, DEIntegrator, AbstractDEProblem,
 
 import SciMLBase: solve, init, step!, solve!, __init, __solve, update_coefficients!,
                   update_coefficients, isadaptive, wrapfun_oop, wrapfun_iip,
-                  unwrap_fw, promote_tspan, set_u!, set_t!, set_ut!
+                  unwrap_fw, promote_tspan, set_u!, set_t!, set_ut!,
+                  extract_alg, checkkwargs, has_kwargs, _concrete_solve_adjoint, _concrete_solve_forward,
+                  eltypedual, get_updated_symbolic_problem, get_concrete_p, get_concrete_u0, promote_u0,
+                  isconcreteu0, isconcretedu0, get_concrete_du0, _reshape, value, unitfulvalue, anyeltypedual, allowedkeywords,
+                  sse, totallength, __sum, DualEltypeChecker, KeywordArgError, KeywordArgWarn, KeywordArgSilent, KWARGWARN_MESSAGE, KWARGERROR_MESSAGE,
+                  CommonKwargError, IncompatibleInitialConditionError, NO_DEFAULT_ALGORITHM_MESSAGE, NoDefaultAlgorithmError, NO_TSPAN_MESSAGE, NoTspanError,
+                  NAN_TSPAN_MESSAGE, NaNTspanError, NON_SOLVER_MESSAGE, NonSolverError, NOISE_SIZE_MESSAGE, NoiseSizeIncompatabilityError, PROBSOLVER_PAIRING_MESSAGE,
+                  ProblemSolverPairingError, compatible_problem_types, DIRECT_AUTODIFF_INCOMPATABILITY_MESSAGE, DirectAutodiffError, NONNUMBER_ELTYPE_MESSAGE, NonNumberEltypeError,
+                  GENERIC_NUMBER_TYPE_ERROR_MESSAGE, GenericNumberTypeError, COMPLEX_SUPPORT_ERROR_MESSAGE, ComplexSupportError, COMPLEX_TSPAN_ERROR_MESSAGE, ComplexTspanError,
+                  TUPLE_STATE_ERROR_MESSAGE, TupleStateError, MASS_MATRIX_ERROR_MESSAGE, IncompatibleMassMatrixError, LATE_BINDING_TSTOPS_ERROR_MESSAGE, LateBindingTstopsNotSupportedError,
+                  NONCONCRETE_ELTYPE_MESSAGE, NonConcreteEltypeError, _vec
 
 import SciMLStructures
 
@@ -106,10 +116,6 @@ SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 import SymbolicIndexingInterface as SII
 
 ## Extension Functions
-
-eltypedual(x) = false
-promote_u0(::Nothing, p, t0) = nothing
-isdualtype(::Type{T}) where {T} = false
 
 ## Types
 
@@ -166,7 +172,5 @@ end
 export initialize!, finalize!
 
 export SensitivityADPassThrough
-
-export KeywordArgError, KeywordArgWarn, KeywordArgSilent
 
 end # module
