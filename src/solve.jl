@@ -489,6 +489,8 @@ explanations of the timestepping algorithms, see the
 ### Progress Monitoring
 
 These arguments control the usage of the progressbar in ProgressLogging.jl compatible environments.
+For information on setting up progress bars in VS Code and other environments, see the
+[progress bar documentation](https://docs.sciml.ai/DiffEqDocs/stable/features/progress_bar/#Using-Progress-Bars-with-VS-Code).
 
 * `progress`: Turns on/off the Juno progressbar. Default is false.
 * `progress_steps`: Numbers of steps between updates of the progress bar.
