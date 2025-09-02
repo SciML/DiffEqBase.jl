@@ -865,7 +865,14 @@ end
 
 hasdualpromote(u0, t) = true
 
-promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t) where {specialize} = f
+function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t) where {specialize}
+    if isnothing(f._func_cache)
+        f
+    else
+        # Copy the cache to ensure it's properly initialized
+        remake(f, _func_cache = copy(f._func_cache))
+    end
+end
 prepare_alg(alg, u0, p, f) = alg
 
 function get_concrete_tspan(prob, isadapt, kwargs, p)
