@@ -1,7 +1,7 @@
 module DiffEqBaseMonteCarloMeasurementsExt
 
 using DiffEqBase
-import DiffEqBase: value
+import SciMLBase: value
 using MonteCarloMeasurements
 
 # Support adaptive steps should be errorless

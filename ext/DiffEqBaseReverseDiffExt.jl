@@ -1,7 +1,7 @@
 module DiffEqBaseReverseDiffExt
 
 using DiffEqBase
-import DiffEqBase: value
+import SciMLBase: value
 import ReverseDiff
 import DiffEqBase.ArrayInterface
 

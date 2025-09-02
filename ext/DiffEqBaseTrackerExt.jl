@@ -1,7 +1,7 @@
 module DiffEqBaseTrackerExt
 
 using DiffEqBase
-import DiffEqBase: value
+import SciMLBase: value
 import Tracker
 
 # Support adaptive with non-tracked time

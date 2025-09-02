@@ -2,7 +2,7 @@ module DiffEqBaseEnzymeExt
 
 @static if isempty(VERSION.prerelease)
     using DiffEqBase
-    import DiffEqBase: value
+    import SciMLBase: value
     using Enzyme
     import Enzyme: Const
     using ChainRulesCore

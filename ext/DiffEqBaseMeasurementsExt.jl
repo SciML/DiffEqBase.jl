@@ -1,7 +1,7 @@
 module DiffEqBaseMeasurementsExt
 
 using DiffEqBase
-import DiffEqBase: value
+import SciMLBase: value
 using Measurements
 
 # Support adaptive steps should be errorless
