@@ -4,11 +4,11 @@ using DiffEqBase, ForwardDiff
 using DiffEqBase.ArrayInterface
 using DiffEqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag,
                   AbstractTimeseriesSolution,
-                  RecursiveArrayTools, reduce_tup, _promote_tspan, has_continuous_callback
+                  RecursiveArrayTools
 import DiffEqBase: hasdualpromote, wrapfun_oop, wrapfun_iip, prob2dtmin,
                    promote_tspan, ODE_DEFAULT_NORM,
                    InternalITP, nextfloat_tdir
-import SciMLBase: isdualtype, DualEltypeChecker, sse, __sum
+import SciMLBase: isdualtype, DualEltypeChecker, sse, __sum, promote_tspan, has_continuous_callback
 
 const dualT = ForwardDiff.Dual{ForwardDiff.Tag{OrdinaryDiffEqTag, Float64}, Float64, 1}
 dualgen(::Type{T}) where {T} = ForwardDiff.Dual{ForwardDiff.Tag{OrdinaryDiffEqTag, T}, T, 1}

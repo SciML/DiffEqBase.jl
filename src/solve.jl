@@ -828,17 +828,6 @@ function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
     remake(prob; u0 = u0, tspan = tspan, p = p, constant_lags = constant_lags)
 end
 
-# Most are extensions
-promote_tspan(u0, p, tspan, prob, kwargs) = _promote_tspan(tspan, kwargs)
-function _promote_tspan(tspan, kwargs)
-    if (dt = get(kwargs, :dt, nothing)) !== nothing
-        tspan1, tspan2, _ = promote(tspan..., dt)
-        return (tspan1, tspan2)
-    else
-        return tspan
-    end
-end
-
 function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
     # Ensure our jacobian will be of the same type as u0
     uElType = u0 === nothing ? Float64 : eltype(u0)
