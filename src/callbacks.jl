@@ -596,7 +596,7 @@ function apply_callback!(integrator,
 
         @inbounds if callback.save_positions[2]
             savevalues!(integrator, true)
-            if isdefined(integrator.opts, :save_discretes) && integrator.opts.save_discretes
+            if !isdefined(integrator.opts, :save_discretes) || integrator.opts.save_discretes
                 if callback isa VectorContinuousCallback
                     SciMLBase.save_discretes!(integrator, callback, event_idx)
                 else
@@ -629,7 +629,7 @@ end
         end
         @inbounds if callback.save_positions[2]
             savevalues!(integrator, true)
-            if isdefined(integrator.opts, :save_discretes) && integrator.opts.save_discretes
+            if !isdefined(integrator.opts, :save_discretes) || integrator.opts.save_discretes
                 SciMLBase.save_discretes!(integrator, callback)
             end
             saved_in_cb = true
