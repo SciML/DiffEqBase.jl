@@ -358,17 +358,17 @@ end
 # rough implementation, needs multiple type handling
 # always ensures that if r = bisection(f, (x0, x1))
 # then either f(nextfloat(r)) == 0 or f(nextfloat(r)) * f(r) < 0
-# note: not really using bisection - uses the ITP method
+# note: not really using bisection - uses the ITP method  
 function bisection(
         f, tup, t_forward::Bool, rootfind::SciMLBase.RootfindOpt, abstol, reltol;
         maxiters = 1000)
     if rootfind == SciMLBase.LeftRootFind
         solve(IntervalNonlinearProblem{false}(f, tup),
-            InternalITP(), abstol = abstol,
+            ITP(), abstol = abstol,
             reltol = reltol).left
     else
         solve(IntervalNonlinearProblem{false}(f, tup),
-            InternalITP(), abstol = abstol,
+            ITP(), abstol = abstol,
             reltol = reltol).right
     end
 end
