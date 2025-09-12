@@ -44,6 +44,8 @@ using SciMLBase
 
 using SciMLOperators: AbstractSciMLOperator, AbstractSciMLScalarOperator
 
+using SimpleNonlinearSolve: ITP
+
 using SciMLBase: @def, DEIntegrator, AbstractDEProblem,
                  AbstractDiffEqInterpolation,
                  DECallback, AbstractDEOptions, DECache, AbstractContinuousCallback,
@@ -140,7 +142,6 @@ include("utils.jl")
 include("stats.jl")
 include("calculate_residuals.jl")
 include("tableaus.jl")
-include("internal_itp.jl")
 
 include("callbacks.jl")
 include("common_defaults.jl")

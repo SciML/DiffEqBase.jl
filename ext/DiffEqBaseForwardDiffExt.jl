@@ -1,13 +1,13 @@
 module DiffEqBaseForwardDiffExt
 
 using DiffEqBase, ForwardDiff
+using SimpleNonlinearSolve: ITP
 using DiffEqBase.ArrayInterface
 using DiffEqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag,
                   AbstractTimeseriesSolution,
                   RecursiveArrayTools, reduce_tup, _promote_tspan, has_continuous_callback
 import DiffEqBase: hasdualpromote, wrapfun_oop, wrapfun_iip, prob2dtmin,
-                   promote_tspan, ODE_DEFAULT_NORM,
-                   InternalITP, nextfloat_tdir
+                   promote_tspan, ODE_DEFAULT_NORM
 import SciMLBase: isdualtype, DualEltypeChecker, sse, __sum
 
 const dualT = ForwardDiff.Dual{ForwardDiff.Tag{OrdinaryDiffEqTag, Float64}, Float64, 1}
@@ -153,7 +153,7 @@ end
 
 # Differentiation of internal solver
 
-function scalar_nlsolve_ad(prob, alg::InternalITP, args...; kwargs...)
+function scalar_nlsolve_ad(prob, alg::ITP, args...; kwargs...)
     f = prob.f
     p = value(prob.p)
 
@@ -186,7 +186,7 @@ end
 function SciMLBase.solve(
         prob::IntervalNonlinearProblem{uType, iip,
             <:ForwardDiff.Dual{T, V, P}},
-        alg::InternalITP, args...;
+        alg::ITP, args...;
         kwargs...) where {uType, iip, T, V, P}
     sol, partials = scalar_nlsolve_ad(prob, alg, args...; kwargs...)
     return SciMLBase.build_solution(prob, alg, ForwardDiff.Dual{T, V, P}(sol.u, partials),
@@ -202,7 +202,7 @@ function SciMLBase.solve(
                 V,
                 P},
             }},
-        alg::InternalITP, args...;
+        alg::ITP, args...;
         kwargs...) where {uType, iip, T, V, P}
     sol, partials = scalar_nlsolve_ad(prob, alg, args...; kwargs...)
 
