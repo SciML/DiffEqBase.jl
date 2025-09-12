@@ -567,18 +567,6 @@ function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
     get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
 end
 
-# function get_concrete_problem(prob::SteadyStateProblem, isadapt; kwargs...)
-#     oldprob = prob
-#     prob = get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
-#     if prob !== oldprob
-#         kwargs = (; kwargs..., u0 = SII.state_values(prob), p = SII.parameter_values(prob))
-#     end
-#     p = get_concrete_p(prob, kwargs)
-#     u0 = get_concrete_u0(prob, isadapt, Inf, kwargs)
-#     u0 = promote_u0(u0, p, nothing)
-#     remake(prob; u0 = u0, p = p)
-# end
-
 function get_concrete_problem(prob::AbstractEnsembleProblem, isadapt; kwargs...)
     prob
 end
