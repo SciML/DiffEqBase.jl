@@ -434,6 +434,16 @@ explanations of the timestepping algorithms, see the
 * `callback`: Specifies a callback. Defaults to a callback function which
   performs the saving routine. For more information, see the
   [Event Handling and Callback Functions manual page](https://docs.sciml.ai/DiffEqCallbacks/stable/).
+* `initializealg`: The initialization algorithm for DAEs and ODEs with constraints.
+  Available options include:
+  - `DefaultInit()` (default): Automatically chooses the best initialization algorithm
+  - `CheckInit()`: Only checks that initial conditions are consistent, errors if not
+  - `NoInit()`: Skip initialization completely (for when you know conditions are consistent)
+  - `OverrideInit()`: Use problem's initialization_data (typically from ModelingToolkit)
+  - `BrownBasicInit()`: Brown's basic initialization algorithm for index-1 DAEs
+  - `ShampineCollocationInit()`: Shampine's collocation initialization for general DAEs
+  See the [DAE initialization documentation](https://docs.sciml.ai/DiffEqDocs/stable/features/dae_initialization/)
+  for more details.
 * `isoutofdomain`: Specifies a function `isoutofdomain(u,p,t)` where, when it
   returns true, it will reject the timestep. Disabled by default.
 * `unstable_check`: Specifies a function `unstable_check(dt,u,p,t)` where, when
