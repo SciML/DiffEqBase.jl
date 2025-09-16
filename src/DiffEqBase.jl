@@ -141,6 +141,7 @@ include("stats.jl")
 include("calculate_residuals.jl")
 include("tableaus.jl")
 include("internal_itp.jl")
+include("dae_initialization.jl")
 
 include("callbacks.jl")
 include("common_defaults.jl")
