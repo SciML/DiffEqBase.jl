@@ -20,7 +20,7 @@ For Sundials, this will use:
 struct DefaultInit <: DAEInitializationAlgorithm end
 
 """
-    struct BrownBasicInit <: DAEInitializationAlgorithm
+    struct BrownBasicInit{T, F} <: DAEInitializationAlgorithm
 
 The Brown basic initialization algorithm for DAEs. This implementation
 is based on the algorithm described in:
@@ -37,11 +37,26 @@ fixed. It uses Newton's method to solve for consistent initial values.
 This is the default initialization for many DAE solvers when `differential_vars`
 is provided, allowing the solver to distinguish between differential and algebraic
 variables.
+
+## Parameters
+
+- `abstol`: Absolute tolerance for the nonlinear solver (default: 1e-10)
+- `nlsolve`: Custom nonlinear solver to use (optional)
 """
-struct BrownBasicInit <: DAEInitializationAlgorithm end
+struct BrownBasicInit{T, F} <: DAEInitializationAlgorithm
+    abstol::T
+    nlsolve::F
+end
+function BrownBasicInit(; abstol = 1e-10, nlsolve = nothing)
+    BrownBasicInit(abstol, nlsolve)
+end
+BrownBasicInit(abstol) = BrownBasicInit(; abstol = abstol, nlsolve = nothing)
+
+# Alias for consistency with OrdinaryDiffEq naming
+const BrownFullBasicInit = BrownBasicInit
 
 """
-    struct ShampineCollocationInit <: DAEInitializationAlgorithm
+    struct ShampineCollocationInit{T, F} <: DAEInitializationAlgorithm
 
 The Shampine collocation initialization algorithm for DAEs. This implementation
 is based on the algorithm described in:
@@ -57,7 +72,21 @@ expensive computationally.
 
 This method is useful when you need to modify all variables (both differential
 and algebraic) to achieve consistency, rather than just the algebraic ones.
-"""
-struct ShampineCollocationInit <: DAEInitializationAlgorithm end
 
-export DefaultInit, BrownBasicInit, ShampineCollocationInit
+## Parameters
+
+- `initdt`: Initial time step to use in the collocation method (optional)
+- `nlsolve`: Custom nonlinear solver to use (optional)
+"""
+struct ShampineCollocationInit{T, F} <: DAEInitializationAlgorithm
+    initdt::T
+    nlsolve::F
+end
+function ShampineCollocationInit(; initdt = nothing, nlsolve = nothing)
+    ShampineCollocationInit(initdt, nlsolve)
+end
+function ShampineCollocationInit(initdt)
+    ShampineCollocationInit(; initdt = initdt, nlsolve = nothing)
+end
+
+export DefaultInit, BrownBasicInit, BrownFullBasicInit, ShampineCollocationInit
