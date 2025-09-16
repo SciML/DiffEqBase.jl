@@ -1,7 +1,11 @@
 # DAE Initialization Algorithms
 # The base types are in SciMLBase, we just add the specific algorithms here
 
-import SciMLBase: DAEInitializationAlgorithm, initialize_dae!
+import SciMLBase: DAEInitializationAlgorithm, initialize_dae!, CheckInit, NoInit, OverrideInit
+
+# Re-export the SciMLBase initialization algorithms for convenience
+# Note: Docstrings for these types should be added in SciMLBase where they are defined
+export CheckInit, NoInit, OverrideInit
 
 """
     struct DefaultInit <: DAEInitializationAlgorithm
