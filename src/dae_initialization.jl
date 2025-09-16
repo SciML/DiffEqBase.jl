@@ -4,78 +4,8 @@
 import SciMLBase: DAEInitializationAlgorithm, initialize_dae!, CheckInit, NoInit, OverrideInit
 
 # Re-export the SciMLBase initialization algorithms for convenience
+# Note: Docstrings for these types should be added in SciMLBase where they are defined
 export CheckInit, NoInit, OverrideInit
-
-"""
-    struct CheckInit <: DAEInitializationAlgorithm
-
-An initialization algorithm that only checks if the initial conditions are consistent
-with the DAE constraints, without attempting to modify them. If the conditions are not
-consistent within the solver's tolerance, an error will be thrown.
-
-This is useful when:
-- You have already computed consistent initial conditions
-- You want to verify the consistency of your initial guess
-- You want to ensure no automatic modifications are made to your initial conditions
-
-## Example
-```julia
-prob = DAEProblem(f, du0, u0, tspan)
-sol = solve(prob, IDA(), initializealg = CheckInit())
-```
-"""
-CheckInit
-
-"""
-    struct NoInit <: DAEInitializationAlgorithm
-
-An initialization algorithm that completely skips the initialization phase. The solver
-will use the provided initial conditions directly without any consistency checks or
-modifications.
-
-⚠️ **Warning**: Using `NoInit()` with inconsistent initial conditions will likely cause
-solver failures or incorrect results. Only use this when you are absolutely certain
-your initial conditions satisfy all DAE constraints.
-
-This is useful when:
-- You know your initial conditions are already perfectly consistent
-- You want to avoid the computational cost of initialization
-- You are debugging solver issues and want to isolate initialization from integration
-
-## Example
-```julia
-prob = DAEProblem(f, du0_consistent, u0_consistent, tspan)
-sol = solve(prob, IDA(), initializealg = NoInit())
-```
-"""
-NoInit
-
-"""
-    struct OverrideInit <: DAEInitializationAlgorithm
-
-An initialization algorithm that uses a separate initialization problem to find
-consistent initial conditions. This is typically used with ModelingToolkit.jl
-which can generate specialized initialization problems based on the model structure.
-
-When using `OverrideInit`, the problem must have `initialization_data` that contains
-an `initializeprob` field with the initialization problem to solve.
-
-This algorithm is particularly useful for:
-- High-index DAEs that have been index-reduced
-- Systems with complex initialization requirements
-- ModelingToolkit models with custom initialization equations
-
-## Example
-```julia
-# Typically used automatically with ModelingToolkit
-@named sys = ODESystem(eqs, t, vars, params)
-sys = structural_simplify(dae_index_lowering(sys))
-prob = DAEProblem(sys, [], (0.0, 1.0), [])
-# Will automatically use OverrideInit if initialization_data exists
-sol = solve(prob, IDA())
-```
-"""
-OverrideInit
 
 """
     struct DefaultInit <: DAEInitializationAlgorithm
