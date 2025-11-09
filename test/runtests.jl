@@ -59,6 +59,7 @@ end
         @time @safetestset "Callback Merging Tests" include("downstream/callback_merging.jl")
         @time @safetestset "LabelledArrays Tests" include("downstream/labelledarrays.jl")
         @time @safetestset "GTPSA Tests" include("downstream/gtpsa.jl")
+        @time @safetestset "SubArray Support" include("downstream/subarray_support.jl")
     end
 
     if !is_APPVEYOR && GROUP == "Static"
