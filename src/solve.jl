@@ -688,6 +688,8 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
            f.mass_matrix isa UniformScaling &&
            # Jacobians don't wrap, so just ignore those cases
            f.jac === nothing &&
+           # Opt-out SubArrays since they would create type mismatches with the integrator's internal Arrays
+           !(u0 isa SubArray) &&
            ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
              RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
              one(t) === oneunit(t) && hasdualpromote(u0, t)) ||
