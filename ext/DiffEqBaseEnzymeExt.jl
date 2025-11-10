@@ -16,7 +16,8 @@ module DiffEqBaseEnzymeExt
         end
     end
 
-    @inline function arg_copy(config, i)
+    @inline function arg_copy(data, i)
+        config, args = data
         copy_or_reuse(config, args[i].val, i + 5)
     end
 
@@ -38,7 +39,7 @@ module DiffEqBaseEnzymeExt
         res = DiffEqBase._solve_adjoint(
             copy_or_reuse(config, prob.val, 2), copy_or_reuse(config, sensealg.val, 3),
             copy_or_reuse(config, u0.val, 4), copy_or_reuse(config, p.val, 5),
-            SciMLBase.EnzymeOriginator(), ntuple(Base.Fix1(arg_copy, config), Val(length(args)))...;
+            SciMLBase.EnzymeOriginator(), ntuple(Base.Fix1(arg_copy, (config, args)), Val(length(args)))...;
             kwargs...)
 
         primal = if Enzyme.EnzymeRules.needs_primal(config)
