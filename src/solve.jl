@@ -500,22 +500,22 @@ The following lines are examples of how one could use the configuration of
 the extension to other types is straightforward.
 
 1. `solve(prob, AlgorithmName())` : The "default" setting, with a user-specified
-  algorithm (given by `AlgorithmName()`). All parameters get their default values.
-  This means that the solution is saved at the steps the Algorithm stops internally
-  and dense output is enabled if the chosen algorithm allows for it.
+   algorithm (given by `AlgorithmName()`). All parameters get their default values.
+   This means that the solution is saved at the steps the Algorithm stops internally
+   and dense output is enabled if the chosen algorithm allows for it.
 
-  All other integration parameters (e.g. stepsize) are chosen automatically.
+   All other integration parameters (e.g. stepsize) are chosen automatically.
 2. `solve(prob, saveat = 0.01, abstol = 1e-9, reltol = 1e-9)` : Standard setting
-  for accurate output at specified (and equidistant) time intervals, used for
-  e.g. Fourier Transform. The solution is given every 0.01 time units,
-  starting from `tspan[1]`. The solver used is `Tsit5()` since no keyword
-  `alg_hits` is given.
+   for accurate output at specified (and equidistant) time intervals, used for
+   e.g. Fourier Transform. The solution is given every 0.01 time units,
+   starting from `tspan[1]`. The solver used is `Tsit5()` since no keyword
+   `alg_hits` is given.
 
 3. `solve(prob, maxiters = 1e7, progress = true, save_idxs = [1])` : Using longer
-  maximum number of solver iterations can be useful when a given `tspan` is very
-  long. This example only saves the first of the variables of the system, either
-  to save size or because the user does not care about the others. Finally, with
-  `progress = true` you are enabling the progress bar.
+   maximum number of solver iterations can be useful when a given `tspan` is very
+   long. This example only saves the first of the variables of the system, either
+   to save size or because the user does not care about the others. Finally, with
+   `progress = true` you are enabling the progress bar.
 """
 function solve(prob::AbstractDEProblem, args...; sensealg = nothing,
         u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
