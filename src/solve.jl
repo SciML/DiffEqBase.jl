@@ -17,7 +17,7 @@ DiffEq's standard merging rules:
 - If `merge_callbacks=true` and both prob and kwargs have callbacks, they are
   merged into a `CallbackSet` rather than one overriding the other
 
-Returns the merged kwargs as a NamedTuple.
+Returns the merged kwargs as a Base.pairs.
 
 This function is intended for use by problem types that override `__solve` or `__init`
 and need to manually handle kwargs merging that would normally be done by `solve_call`
