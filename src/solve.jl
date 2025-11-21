@@ -7,24 +7,49 @@ NO_TSPAN_PROBS = Union{AbstractLinearProblem, AbstractNonlinearProblem,
     AbstractIntegralProblem, AbstractSteadyStateProblem,
     AbstractJumpProblem}
 
+"""
+    merge_problem_kwargs(prob, kwargs; merge_callbacks=true)
+
+Merges kwargs stored in `prob.kwargs` with the provided `kwargs`, following
+DiffEq's standard merging rules:
+- Problem kwargs are merged first
+- Passed kwargs take precedence (i.e., they override problem kwargs)
+- If `merge_callbacks=true` and both prob and kwargs have callbacks, they are
+  merged into a `CallbackSet` rather than one overriding the other
+
+Returns the merged kwargs as a NamedTuple.
+
+This function is intended for use by problem types that override `__solve` or `__init`
+and need to manually handle kwargs merging that would normally be done by `solve_call`
+or `init_call`.
+"""
+function merge_problem_kwargs(prob, kwargs; merge_callbacks::Bool = true)
+    if !has_kwargs(prob) || isempty(prob.kwargs)
+        return kwargs
+    end
+
+    # Special handling for callback merging
+    if merge_callbacks && haskey(prob.kwargs, :callback) && haskey(kwargs, :callback)
+        kwargs_temp = NamedTuple{
+            Base.diff_names(Base._nt_names(values(kwargs)),
+            (:callback,))}(values(kwargs))
+        callbacks = NamedTuple{(:callback,)}((CallbackSet(
+            prob.kwargs[:callback],
+            values(kwargs).callback),))
+        return merge(values(prob.kwargs), kwargs_temp, callbacks)
+    else
+        return merge(values(prob.kwargs), kwargs)
+    end
+end
+
 function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
         kwargs...)
     kwargshandle = kwargshandle === nothing ? SciMLBase.KeywordArgError : kwargshandle
     kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ?
                    _prob.kwargs[:kwargshandle] : kwargshandle
 
-    if has_kwargs(_prob)
-        if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
-            kwargs_temp = NamedTuple{
-                Base.diff_names(Base._nt_names(values(kwargs)),
-                (:callback,))}(values(kwargs))
-            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(
-                _prob.kwargs[:callback],
-                values(kwargs).callback),))
-            kwargs = merge(kwargs_temp, callbacks)
-        end
-        kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
-    end
+    # Merge problem kwargs with passed kwargs
+    kwargs = merge_problem_kwargs(_prob, kwargs; merge_callbacks = merge_callbacks)
 
     checkkwargs(kwargshandle; kwargs...)
 
@@ -87,18 +112,8 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothi
     kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ?
                    _prob.kwargs[:kwargshandle] : kwargshandle
 
-    if has_kwargs(_prob)
-        if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
-            kwargs_temp = NamedTuple{
-                Base.diff_names(Base._nt_names(values(kwargs)),
-                (:callback,))}(values(kwargs))
-            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(
-                _prob.kwargs[:callback],
-                values(kwargs).callback),))
-            kwargs = merge(kwargs_temp, callbacks)
-        end
-        kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
-    end
+    # Merge problem kwargs with passed kwargs
+    kwargs = merge_problem_kwargs(_prob, kwargs; merge_callbacks = merge_callbacks)
 
     checkkwargs(kwargshandle; kwargs...)
     if isdefined(_prob, :u0)
