@@ -31,11 +31,11 @@ function merge_problem_kwargs(prob, kwargs; merge_callbacks::Bool = true)
     # Special handling for callback merging
     if merge_callbacks && haskey(prob.kwargs, :callback) && haskey(kwargs, :callback)
         kwargs_temp = NamedTuple{
-            Base.diff_names(Base._nt_names(values(kwargs)),
-            (:callback,))}(values(kwargs))
+            Base.diff_names(Base._nt_names(kwargs),
+            (:callback,))}(kwargs)
         callbacks = NamedTuple{(:callback,)}((CallbackSet(
             prob.kwargs[:callback],
-            values(kwargs).callback),))
+            kwargs.callback),))
         return merge(values(prob.kwargs), kwargs_temp, callbacks)
     else
         return merge(values(prob.kwargs), kwargs)
