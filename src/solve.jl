@@ -8,7 +8,7 @@ NO_TSPAN_PROBS = Union{AbstractLinearProblem, AbstractNonlinearProblem,
     AbstractJumpProblem}
 
 """
-    merge_problem_kwargs(prob, kwargs; merge_callbacks=true)
+    merge_problem_kwargs(prob; merge_callbacks=true, kwargs…)
 
 Merges kwargs stored in `prob.kwargs` with the provided `kwargs`, following
 DiffEq's standard merging rules:
