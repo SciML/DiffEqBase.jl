@@ -49,7 +49,7 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothin
                    _prob.kwargs[:kwargshandle] : kwargshandle
 
     # Merge problem kwargs with passed kwargs
-    kwargs = merge_problem_kwargs(_prob, kwargs; merge_callbacks = merge_callbacks)
+    kwargs = merge_problem_kwargs(_prob, kwargs; merge_callbacks)
 
     checkkwargs(kwargshandle; kwargs...)
 
@@ -113,7 +113,7 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothi
                    _prob.kwargs[:kwargshandle] : kwargshandle
 
     # Merge problem kwargs with passed kwargs
-    kwargs = merge_problem_kwargs(_prob, kwargs; merge_callbacks = merge_callbacks)
+    kwargs = merge_problem_kwargs(_prob, kwargs; merge_callbacks)
 
     checkkwargs(kwargshandle; kwargs...)
     if isdefined(_prob, :u0)
@@ -868,18 +868,8 @@ function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callba
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     end
 
-    if has_kwargs(_prob)
-        if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
-            kwargs_temp = NamedTuple{
-                Base.diff_names(Base._nt_names(values(kwargs)),
-                (:callback,))}(values(kwargs))
-            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(
-                _prob.kwargs[:callback],
-                values(kwargs).callback),))
-            kwargs = merge(kwargs_temp, callbacks)
-        end
-        kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
-    end
+    # Merge problem kwargs with passed kwargs
+    kwargs = merge_problem_kwargs(_prob, kwargs; merge_callbacks)
 
     if length(args) > 1
         _concrete_solve_adjoint(_prob, alg, sensealg, u0, p, originator,
@@ -899,18 +889,8 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     end
 
-    if has_kwargs(_prob)
-        if merge_callbacks && haskey(_prob.kwargs, :callback) && haskey(kwargs, :callback)
-            kwargs_temp = NamedTuple{
-                Base.diff_names(Base._nt_names(values(kwargs)),
-                (:callback,))}(values(kwargs))
-            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(
-                _prob.kwargs[:callback],
-                values(kwargs).callback),))
-            kwargs = merge(kwargs_temp, callbacks)
-        end
-        kwargs = isempty(_prob.kwargs) ? kwargs : merge(values(_prob.kwargs), kwargs)
-    end
+    # Merge problem kwargs with passed kwargs
+    kwargs = merge_problem_kwargs(_prob, kwargs; merge_callbacks)
 
     if length(args) > 1
         _concrete_solve_forward(_prob, alg, sensealg, u0, p, originator,
