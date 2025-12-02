@@ -192,9 +192,10 @@ end
     prev_sign = @view(integrator.callback_cache.prev_sign[1:(callback.len)])
     next_sign = @view(integrator.callback_cache.next_sign[1:(callback.len)])
 
-    if integrator.event_last_time == counter && minimum(minimum(idx -> ODE_DEFAULT_NORM(ArrayInterface.allowed_getindex(previous_condition, idx), integrator.t),
-                                                                ivec, init=typemax(typeof(integrator.t)))) <=
-                                                                    100ODE_DEFAULT_NORM(integrator.last_event_error, integrator.t)
+    if integrator.event_last_time == counter &&
+        minimum(minimum(idx -> ODE_DEFAULT_NORM(ArrayInterface.allowed_getindex(previous_condition, idx), integrator.t),
+                        ivec, init=typemax(typeof(integrator.t)))) <=
+                            100ODE_DEFAULT_NORM(integrator.last_event_error, integrator.t)
 
         # If there was a previous event, utilize the derivative at the start to
         # chose the previous sign. If the derivative is positive at tprev, then
