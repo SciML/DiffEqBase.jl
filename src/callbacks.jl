@@ -188,13 +188,13 @@ end
     end
     integrator.sol.stats.ncondition += 1
 
-    ivec = integrator.callback_cache.prev_simultaneous_events
+    ivec = enumerate(integrator.callback_cache.prev_simultaneous_events)
     prev_sign = @view(integrator.callback_cache.prev_sign[1:(callback.len)])
     next_sign = @view(integrator.callback_cache.next_sign[1:(callback.len)])
 
     if integrator.event_last_time == counter &&
         minimum(minimum(idx -> ODE_DEFAULT_NORM(ArrayInterface.allowed_getindex(previous_condition, idx), integrator.t),
-                        ivec, init=typemax(typeof(integrator.t)))) <=
+                        (idx for (idx, triggered) ∈ ivec if triggered), init=typemax(typeof(integrator.t)))) <=
                             100ODE_DEFAULT_NORM(integrator.last_event_error, integrator.t)
 
         # If there was a previous event, utilize the derivative at the start to
@@ -214,8 +214,10 @@ end
         abst = integrator.tprev + integrator.dt * callback.repeat_nudge
         tmp_condition = get_condition(integrator, callback, abst)
         @. prev_sign = sign(previous_condition)
-        for idx ∈ ivec
-            prev_sign[idx] = sign(tmp_condition[idx])
+        for (idx, triggered) ∈ ivec
+            if triggered
+                prev_sign[idx] = sign(tmp_condition[idx])
+            end
         end
     else
         @. prev_sign = sign(previous_condition)
@@ -467,11 +469,8 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
         counter)
     if event_occurred
         (; simultaneous_events, prev_simultaneous_events) = integrator.callback_cache
-        empty!(prev_simultaneous_events)
-        for idx ∈ simultaneous_events
-            push!(prev_simultaneous_events, idx)
-        end
-        empty!(simultaneous_events)
+        prev_simultaneous_events .= simultaneous_events
+        simultaneous_events .= false
         
         if callback.condition === nothing
             new_t = zero(typeof(integrator.t))
@@ -499,7 +498,7 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                             Θ = top_t
                         else
                             if integrator.event_last_time == counter &&
-                               idx ∈ prev_simultaneous_events &&
+                               prev_simultaneous_events[idx] &&
                                abs(zero_func(bottom_t)) <=
                                100abs(integrator.last_event_error) &&
                                prev_sign_index == 1
@@ -521,12 +520,12 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                             end
                         end
                         if integrator.tdir * Θ < integrator.tdir * min_t
-                            empty!(simultaneous_events)
+                            simultaneous_events .= false
                         end
                         if integrator.tdir * Θ <= integrator.tdir * min_t
                             min_event_idx = idx
                             min_t = Θ
-                            push!(simultaneous_events, idx)
+                            simultaneous_events[idx] = true
                         end
                     end
                 end
@@ -544,7 +543,7 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                 min_event_idx = findfirst(isequal(1), event_idx)
                 for (i, idx) ∈ enumerate(event_idx)
                     if idx == 1
-                        push!(simultaneous_events, i)
+                        simultaneous_events[i] = true
                     end
                 end
             else
@@ -552,7 +551,7 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                 new_t = integrator.dt
                 for (i, idx) ∈ enumerate(event_idx)
                     if idx == 1
-                        push!(simultaneous_events, i)
+                        simultaneous_events[i] = true
                     end
                 end
                 min_event_idx = findfirst(isequal(1), event_idx)
@@ -651,13 +650,15 @@ function apply_callback!(integrator,
     end
 
     u_modified = false
-    for i ∈ integrator.callback_cache.simultaneous_events
-        if prev_sign[i] < 0 callback.affect! !== nothing
-            callback.affect!(integrator, i)
-            u_modified = true
-        elseif prev_sign[i] > 0 && callback.affect_neg! !== nothing
-            callback.affect_neg!(integrator, i)
-            u_modified = true
+    for (i, triggered) ∈ enumerate(integrator.callback_cache.simultaneous_events)
+        if triggered
+            if prev_sign[i] < 0 callback.affect! !== nothing
+                callback.affect!(integrator, i)
+                u_modified = true
+            elseif prev_sign[i] > 0 && callback.affect_neg! !== nothing
+                callback.affect_neg!(integrator, i)
+                u_modified = true
+            end
         end
     end
     integrator.u_modified = u_modified
@@ -767,28 +768,28 @@ mutable struct CallbackCache{conditionType, signType}
     previous_condition::conditionType
     next_sign::signType
     prev_sign::signType
-    simultaneous_events::Vector{Int}
-    prev_simultaneous_events::Vector{Int}
+    simultaneous_events::Vector{Bool}
+    prev_simultaneous_events::Vector{Bool}
 end
 
 function CallbackCache(u, max_len, ::Type{conditionType},
-        ::Type{signType}) where {conditionType, signType}
+                       ::Type{signType}) where {conditionType, signType}
     tmp_condition = similar(u, conditionType, max_len)
     previous_condition = similar(u, conditionType, max_len)
     next_sign = similar(u, signType, max_len)
     prev_sign = similar(u, signType, max_len)
-    simultaneous_events = sizehint!(Int[], max_len)
-    prev_simultaneous_events = sizehint!(Int[], max_len)
+    simultaneous_events = zeros(Bool, max_len)
+    prev_simultaneous_events = zeros(Bool, max_len)
     CallbackCache(tmp_condition, previous_condition, next_sign, prev_sign, simultaneous_events, prev_simultaneous_events)
 end
 
 function CallbackCache(max_len, ::Type{conditionType},
-        ::Type{signType}) where {conditionType, signType}
+                       ::Type{signType}) where {conditionType, signType}
     tmp_condition = zeros(conditionType, max_len)
     previous_condition = zeros(conditionType, max_len)
     next_sign = zeros(signType, max_len)
     prev_sign = zeros(signType, max_len)
-    prev_simultaneous_events = sizehint!(Int[], max_len)
-    simultaneous_events = sizehint!(Int[], max_len)
+    simultaneous_events = zeros(Bool, max_len)
+    prev_simultaneous_events = zeros(Bool, max_len)
     CallbackCache(tmp_condition, previous_condition, next_sign, prev_sign, simultaneous_events, prev_simultaneous_events)
 end
