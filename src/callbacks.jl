@@ -140,7 +140,7 @@ end
                 integrator,
                 callbacks[$i],
                 $i)
-            if event_occurred2 && (tmin2 < tmin || !event_occurred)
+            if event_occurred2 && (!event_occurred || integrator.tdir * tmin2 < integrator.tdir * tmin)
                 tmin = tmin2
                 upcrossing = upcrossing2
                 event_occurred = true
