@@ -230,3 +230,34 @@ sol = solve(prob, DFBDF())
 # test that the callback flipping p caused u[2] to get flipped.
 first_t = findfirst(isequal(0.5), sol.t)
 @test sol.u[first_t][2] == -sol.u[first_t + 1][2]
+
+# https://github.com/SciML/DiffEqBase.jl/issues/1231
+@testset "Successive callbacks in same integration step" begin
+    cb = ContinuousCallback(
+        (u, t, integrator) -> t - 0e-8,
+        (integrator) -> push!(record, 0)
+    )
+
+    vcb = VectorContinuousCallback(
+        (out, u, t, integrator) -> out .= (t - 1e-8, t - 2e-8),
+        (integrator, event_index) -> push!(record, event_index),
+        2
+    )
+
+    f(u, p, t) = 1.0
+    u0 = 0.0
+
+    # Forward propagation with successive events
+    record = []
+    tspan = (-1.0, 1.0)
+    prob = ODEProblem(f, u0, tspan)
+    sol = solve(prob, Tsit5(), dt = 2.0, callback = CallbackSet(cb, vcb))
+    @test record == [0, 1, 2]
+
+    # Backward propagation with successive events
+    record = []
+    tspan = (1.0, -1.0)
+    prob = ODEProblem(f, u0, tspan)
+    sol = solve(prob, Tsit5(), dt = 2.0, callback = CallbackSet(cb, vcb))
+    @test record == [2, 1, 0]
+end
