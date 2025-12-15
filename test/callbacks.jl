@@ -102,3 +102,27 @@ function test_find_first_callback(callbacks, int)
 end
 test_find_first_callback(callbacks, find_first_integrator);
 @test test_find_first_callback(callbacks, find_first_integrator).bytes == 0
+
+# https://github.com/SciML/DiffEqBase.jl/issues/1233
+@testset "Inexact rootfinding" begin
+    # function with irrational root (sqrt(2))
+    irrational_f(x, p=0.0) = x^2 - 2
+
+    # Forward integration
+    is_forward = true
+    tspan = (1.0, 2.0)
+    before = DiffEqBase.bisection(irrational_f, tspan, is_forward, SciMLBase.LeftRootFind, 0.0, 1e-14)
+    after = DiffEqBase.bisection(irrational_f, tspan, is_forward, SciMLBase.RightRootFind, 0.0, 1e-14)
+    @test irrational_f(before) < 0.0
+    @test irrational_f(after) > 0.0
+    @test nextfloat(before) == after
+
+    # Backward integration
+    is_forward = false
+    tspan = (2.0, 1.0)
+    before = DiffEqBase.bisection(irrational_f, tspan, is_forward, SciMLBase.LeftRootFind, 0.0, 1e-14)
+    after = DiffEqBase.bisection(irrational_f, tspan, is_forward, SciMLBase.RightRootFind, 0.0, 1e-14)
+    @test irrational_f(before) > 0.0
+    @test irrational_f(after) < 0.0
+    @test nextfloat(after) == before
+end

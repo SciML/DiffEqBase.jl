@@ -362,7 +362,10 @@ end
 function bisection(
         f, tup, t_forward::Bool, rootfind::SciMLBase.RootfindOpt, abstol, reltol;
         maxiters = 1000)
-    if rootfind == SciMLBase.LeftRootFind
+    # ODE solver convention: right is toward integration direction
+    # ITP solver convention: right is toward increasing t
+    # Note: different non-linear solvers may have different convention
+    if xor(rootfind == SciMLBase.LeftRootFind, !t_forward)
         solve(IntervalNonlinearProblem{false}(f, tup),
             InternalITP(), abstol = abstol,
             reltol = reltol).left
