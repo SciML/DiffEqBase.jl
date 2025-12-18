@@ -20,9 +20,9 @@ end
 function ExplicitRKTableau(A::MType, c::VType, α::VType, order;
         adaptiveorder = 0, αEEst = similar(α, 0),
         fsal = false, stability_size = 0.0,
-        d = similar(α, 0), B_interp = nothing) where {MType, VType}
+        d = similar(α, 0), B_interp::IType = nothing) where {MType, VType, IType}
     S = typeof(stability_size)
-    ExplicitRKTableau{MType, VType, S}(A, c, α, αEEst, d, length(α), order, adaptiveorder,
+    ExplicitRKTableau{MType, VType, S, IType}(A, c, α, αEEst, d, length(α), order, adaptiveorder,
         fsal, stability_size, B_interp)
 end
 
