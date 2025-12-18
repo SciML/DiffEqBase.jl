@@ -3,7 +3,7 @@ $(TYPEDEF)
 
 Holds a tableau which defines an explicit Runge-Kutta method.
 """
-mutable struct ExplicitRKTableau{MType <: AbstractMatrix, VType <: AbstractVector, S} <:
+mutable struct ExplicitRKTableau{MType <: AbstractMatrix, VType <: AbstractVector, S, IType} <:
                ODERKTableau
     A::MType
     c::VType
@@ -15,7 +15,7 @@ mutable struct ExplicitRKTableau{MType <: AbstractMatrix, VType <: AbstractVecto
     adaptiveorder::Int #The lower order of the pair. Only used for adaptivity.
     fsal::Bool
     stability_size::S
-    B_interp::MType
+    B_interp::IType
 end
 function ExplicitRKTableau(A::MType, c::VType, α::VType, order;
         adaptiveorder = 0, αEEst = similar(α, 0),
