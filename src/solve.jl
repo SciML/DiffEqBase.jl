@@ -543,11 +543,11 @@ function solve(prob::AbstractDEProblem, args...; sensealg = nothing,
 
     if wrap isa Val{true}
         wrap_sol(solve_up(prob, sensealg, u0, p, args...;
-            originator = set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()),
+            originator = SciMLBase.set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()),
             kwargs...))
     else
         solve_up(prob, sensealg, u0, p, args...;
-            originator = set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()),
+            originator = SciMLBase.set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()),
             kwargs...)
     end
 end
