@@ -56,6 +56,7 @@ cbs5 = CallbackSet(cbs1, cbs2)
 # the find callback time aspect, just the inference failure
 struct EmptyIntegrator
     u::Vector{Float64}
+    tdir::Int64
 end
 function DiffEqBase.find_callback_time(integrator::EmptyIntegrator,
         callback::ContinuousCallback, counter)
@@ -65,7 +66,7 @@ function DiffEqBase.find_callback_time(integrator::EmptyIntegrator,
         callback::VectorContinuousCallback, counter)
     1.0 + counter, 0.9 + counter, true, counter
 end
-find_first_integrator = EmptyIntegrator([1.0, 2.0])
+find_first_integrator = EmptyIntegrator([1.0, 2.0], 1)
 vector_affect! = function (integrator, idx)
     integrator.u = integrator.u + idx
 end
@@ -111,8 +112,8 @@ test_find_first_callback(callbacks, find_first_integrator);
     # Forward integration
     is_forward = true
     tspan = (1.0, 2.0)
-    before = DiffEqBase.bisection(irrational_f, tspan, is_forward, SciMLBase.LeftRootFind, 0.0, 1e-14)
-    after = DiffEqBase.bisection(irrational_f, tspan, is_forward, SciMLBase.RightRootFind, 0.0, 1e-14)
+    before = DiffEqBase.find_root(irrational_f, tspan, is_forward, SciMLBase.LeftRootFind, 0.0, 1e-14)
+    after = DiffEqBase.find_root(irrational_f, tspan, is_forward, SciMLBase.RightRootFind, 0.0, 1e-14)
     @test irrational_f(before) < 0.0
     @test irrational_f(after) > 0.0
     @test nextfloat(before) == after
@@ -120,8 +121,8 @@ test_find_first_callback(callbacks, find_first_integrator);
     # Backward integration
     is_forward = false
     tspan = (2.0, 1.0)
-    before = DiffEqBase.bisection(irrational_f, tspan, is_forward, SciMLBase.LeftRootFind, 0.0, 1e-14)
-    after = DiffEqBase.bisection(irrational_f, tspan, is_forward, SciMLBase.RightRootFind, 0.0, 1e-14)
+    before = DiffEqBase.find_root(irrational_f, tspan, is_forward, SciMLBase.LeftRootFind, 0.0, 1e-14)
+    after = DiffEqBase.find_root(irrational_f, tspan, is_forward, SciMLBase.RightRootFind, 0.0, 1e-14)
     @test irrational_f(before) > 0.0
     @test irrational_f(after) < 0.0
     @test nextfloat(after) == before

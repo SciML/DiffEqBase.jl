@@ -52,6 +52,8 @@ has_continuous_callback(cb::VectorContinuousCallback) = true
 has_continuous_callback(cb::CallbackSet) = !isempty(cb.continuous_callbacks)
 has_continuous_callback(cb::Nothing) = false
 
+isforward(integrator::DEIntegrator) = isone(integrator.tdir)
+
 # Callback handling
 
 function get_tmp(integrator::DEIntegrator, callback)
@@ -359,20 +361,17 @@ end
 # always ensures that if r = bisection(f, (x0, x1))
 # then either f(nextfloat(r)) == 0 or f(nextfloat(r)) * f(r) < 0
 # note: not really using bisection - uses the ITP method
-function bisection(
-        f, tup, t_forward::Bool, rootfind::SciMLBase.RootfindOpt, abstol, reltol;
-        maxiters = 1000)
+function find_root(f, tup, t_forward::Bool,
+        rootfind::SciMLBase.RootfindOpt, abstol, reltol)
+    sol = solve(IntervalNonlinearProblem{false}(f, tup),
+        ITP(), abstol = 0.0, reltol = 0.0)
     # ODE solver convention: right is toward integration direction
     # ITP solver convention: right is toward increasing t
     # Note: different non-linear solvers may have different convention
     if xor(rootfind == SciMLBase.LeftRootFind, !t_forward)
-        solve(IntervalNonlinearProblem{false}(f, tup),
-            InternalITP(), abstol = abstol,
-            reltol = reltol).left
+        sol.left
     else
-        solve(IntervalNonlinearProblem{false}(f, tup),
-            InternalITP(), abstol = abstol,
-            reltol = reltol).right
+        sol.right
     end
 end
 
@@ -434,7 +433,7 @@ function find_callback_time(integrator, callback::ContinuousCallback, counter)
                         sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) &&
                             error("Double callback crossing floating pointer reducer errored. Report this issue.")
                     end
-                    Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir),
+                    Θ = find_root(zero_func, (bottom_t, top_t), isforward(integrator),
                         callback.rootfind, callback.abstol, callback.reltol)
                     integrator.last_event_error = DiffEqBase.value(ODE_DEFAULT_NORM(
                         zero_func(Θ), Θ))
@@ -481,7 +480,7 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                 bottom_t = integrator.tprev
             end
             if callback.rootfind != SciMLBase.NoRootFind && !isdiscrete(integrator.alg)
-                min_t = isone(integrator.tdir) ? nextfloat(top_t) : prevfloat(top_t)
+                min_t = isforward(integrator) ? nextfloat(top_t) : prevfloat(top_t)
                 min_event_idx = -1
                 for idx in 1:length(event_idx)
                     if ArrayInterface.allowed_getindex(event_idx, idx) != 0
@@ -509,8 +508,8 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                                     error("Double callback crossing floating pointer reducer errored. Report this issue.")
                             end
 
-                            Θ = bisection(zero_func, (bottom_t, top_t),
-                                isone(integrator.tdir), callback.rootfind,
+                            Θ = find_root(zero_func, (bottom_t, top_t),
+                                isforward(integrator), callback.rootfind,
                                 callback.abstol, callback.reltol)
                             if integrator.tdir * Θ < integrator.tdir * min_t
                                 integrator.last_event_error = DiffEqBase.value(ODE_DEFAULT_NORM(
