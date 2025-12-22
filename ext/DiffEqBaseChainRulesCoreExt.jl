@@ -2,8 +2,7 @@ module DiffEqBaseChainRulesCoreExt
 
 using DiffEqBase
 using DiffEqBase.SciMLBase
-import DiffEqBase: numargs, AbstractSensitivityAlgorithm, AbstractDEProblem,
-                   set_mooncakeoriginator_if_mooncake
+import DiffEqBase: numargs, AbstractSensitivityAlgorithm, AbstractDEProblem
 
 import ChainRulesCore
 import ChainRulesCore: NoTangent

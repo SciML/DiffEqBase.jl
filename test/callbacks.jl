@@ -56,7 +56,7 @@ cbs5 = CallbackSet(cbs1, cbs2)
 # the find callback time aspect, just the inference failure
 struct EmptyIntegrator
     u::Vector{Float64}
-    tdir::Int64
+    tdir::Int
 end
 function DiffEqBase.find_callback_time(integrator::EmptyIntegrator,
         callback::ContinuousCallback, counter)
