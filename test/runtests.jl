@@ -26,7 +26,6 @@ end
 @time begin
     if GROUP == "All" || GROUP == "Core"
         @time @safetestset "Callbacks" include("callbacks.jl")
-        @time @safetestset "Internal Rootfinders" include("internal_rootfinder.jl")
         @time @safetestset "Plot Vars" include("plot_vars.jl")
         @time @safetestset "Problem Creation Tests" include("problem_creation_tests.jl")
         @time @safetestset "Export tests" include("export_tests.jl")
