@@ -8,6 +8,18 @@ NO_TSPAN_PROBS = Union{AbstractLinearProblem, AbstractNonlinearProblem,
     AbstractJumpProblem}
 
 """
+    has_callbacks(kwargs)
+
+Check if there are any callbacks in the kwargs. Returns `true` if callbacks are present.
+"""
+function has_callbacks(kwargs)
+    cb = get(kwargs, :callback, nothing)
+    cb === nothing && return false
+    cb isa CallbackSet && return !isempty(cb)
+    return true
+end
+
+"""
     merge_problem_kwargs(prob; merge_callbacks=true, kwargs…)
 
 Merges kwargs stored in `prob.kwargs` with the provided `kwargs`, following
@@ -53,7 +65,8 @@ function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothin
 
     checkkwargs(kwargshandle; kwargs...)
 
-    if _prob isa Union{ODEProblem, DAEProblem} && isnothing(_prob.u0)
+    if _prob isa Union{ODEProblem, DAEProblem} && isnothing(_prob.u0) &&
+       !has_callbacks(kwargs)
         build_null_integrator(_prob, args...; kwargs...)
     elseif hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
            _prob.f.f isa EvalFunc
@@ -130,7 +143,7 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothi
             end
         end
 
-        if _prob.u0 === nothing
+        if _prob.u0 === nothing && !has_callbacks(kwargs)
             return build_null_solution(_prob, args...; kwargs...)
         end
     end
@@ -204,7 +217,7 @@ function build_null_solution(prob::AbstractDEProblem, args...;
         save_everystep = true,
         save_on = true,
         save_start = save_everystep || isempty(saveat) ||
-                         saveat isa Number || prob.tspan[1] in saveat,
+                     saveat isa Number || prob.tspan[1] in saveat,
         save_end = true,
         kwargs...)
     ts = if saveat === ()
