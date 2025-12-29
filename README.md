@@ -8,6 +8,6 @@ DiffEqBase.jl is a component package in the DiffEq ecosystem. It holds the
 common types and utility functions which are shared by other solver packages
 to promote code reuse in the differential equation solver code.
 Users interested in using this
-functionality in full should check out [DifferentialEquations.jl](https://github.com/JuliaDiffEq/DifferentialEquations.jl)
+functionality in full should check out [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl).
 
 The documentation for the interfaces here can be found in [DiffEqDocs.jl](https://docs.sciml.ai/DiffEqDocs/dev/) and [DiffEqDevDocs.jl](https://docs.sciml.ai/DiffEqDevDocs/dev/).

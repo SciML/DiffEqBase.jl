@@ -429,7 +429,7 @@ function find_callback_time(integrator, callback::ContinuousCallback, counter)
                         bottom_t += integrator.dt * callback.repeat_nudge
                         sign_top = sign(zero_func(top_t))
                         sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) &&
-                            error("Double callback crossing floating pointer reducer errored. Report this issue.")
+                            error("Double callback crossing floating point reducer errored. Report this issue.")
                     end
                     Θ = bisection(zero_func, (bottom_t, top_t), isone(integrator.tdir),
                         callback.rootfind, callback.abstol, callback.reltol)
@@ -437,7 +437,7 @@ function find_callback_time(integrator, callback::ContinuousCallback, counter)
                         zero_func(Θ), Θ))
                 end
                 #Θ = prevfloat(...)
-                # prevfloat guerentees that the new time is either 1 floating point
+                # prevfloat guarantees that the new time is either 1 floating point
                 # numbers just before the event or directly at zero, but not after.
                 # If there's a barrier which is never supposed to be crossed,
                 # then this will ensure that
@@ -503,7 +503,7 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                                 bottom_t += integrator.dt * callback.repeat_nudge
                                 sign_top = sign(zero_func(top_t))
                                 sign(zero_func(bottom_t)) * sign_top >= zero(sign_top) &&
-                                    error("Double callback crossing floating pointer reducer errored. Report this issue.")
+                                    error("Double callback crossing floating point reducer errored. Report this issue.")
                             end
 
                             Θ = bisection(zero_func, (bottom_t, top_t),
@@ -521,7 +521,7 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                     end
                 end
                 #Θ = prevfloat(...)
-                # prevfloat guerentees that the new time is either 1 floating point
+                # prevfloat guarantees that the new time is either 1 floating point
                 # numbers just before the event or directly at zero, but not after.
                 # If there's a barrier which is never supposed to be crossed,
                 # then this will ensure that

@@ -537,7 +537,7 @@ the extension to other types is straightforward.
    for accurate output at specified (and equidistant) time intervals, used for
    e.g. Fourier Transform. The solution is given every 0.01 time units,
    starting from `tspan[1]`. The solver used is `Tsit5()` since no keyword
-   `alg_hits` is given.
+   `alg_hints` is given.
 
 3. `solve(prob, maxiters = 1e7, progress = true, save_idxs = [1])` : Using longer
    maximum number of solver iterations can be useful when a given `tspan` is very

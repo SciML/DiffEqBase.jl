@@ -7,7 +7,7 @@ function prob2dtmin(prob; use_end_time = true)
     prob2dtmin(prob.tspan, oneunit(eltype(prob.tspan)), use_end_time)
 end
 
-# This functino requires `eps` to exist, which restricts below `<: Real`
+# This function requires `eps` to exist, which restricts below `<: Real`
 # Example of a failure is Rational
 function prob2dtmin(tspan, ::AbstractFloat, use_end_time)
     t1, t2 = tspan
