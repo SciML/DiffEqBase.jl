@@ -148,6 +148,7 @@ include("common_defaults.jl")
 include("solve.jl")
 include("internal_euler.jl")
 include("norecompile.jl")
+include("function_dual_call.jl")
 include("integrator_accessors.jl")
 
 # This is only used for oop stiff solvers

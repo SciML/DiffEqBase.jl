@@ -85,3 +85,139 @@ f_analytic(u, p, t) = u
 jac = (u, p, t) -> 1
 @inferred ODEFunction{false}(f_op, jac = jac)
 @inferred DiscreteFunction{false}(f_op, analytic = f_analytic)
+
+# =============================================================================
+# Test dual in-place/out-of-place call support (Issue #361)
+# Allows calling in-place functions with out-of-place syntax and vice versa
+# =============================================================================
+
+@testset "Dual in-place/out-of-place call support" begin
+    u = [1.0, 2.0, 3.0]
+    p = [2.0]
+    t = 0.0
+
+    @testset "ODEFunction" begin
+        f_oop(u, p, t) = p[1] .* u
+        f_iip(du, u, p, t) = (du .= p[1] .* u)
+
+        ode_oop = ODEFunction{false}(f_oop)
+        ode_iip = ODEFunction{true}(f_iip)
+
+        expected = p[1] .* u
+
+        # Standard calls
+        @test ode_oop(u, p, t) == expected
+        du = zeros(3)
+        ode_iip(du, u, p, t)
+        @test du == expected
+
+        # Cross calls: IIP function with OOP style
+        @test ode_iip(u, p, t) == expected
+
+        # Cross calls: OOP function with IIP style
+        du = zeros(3)
+        ode_oop(du, u, p, t)
+        @test du == expected
+    end
+
+    @testset "SplitFunction" begin
+        f1_oop(u, p, t) = u
+        f2_oop(u, p, t) = u .^ 2
+        f1_iip(du, u, p, t) = (du .= u)
+        f2_iip(du, u, p, t) = (du .= u .^ 2)
+
+        split_oop = SplitFunction{false}(f1_oop, f2_oop)
+        split_iip = SplitFunction{true}(f1_iip, f2_iip; _func_cache = similar(u))
+
+        expected = u + u .^ 2
+
+        # Standard calls
+        @test split_oop(u, p, t) == expected
+        du = zeros(3)
+        split_iip(du, u, p, t)
+        @test du == expected
+
+        # Cross calls: IIP function with OOP style
+        @test split_iip(u, p, t) == expected
+
+        # Cross calls: OOP function with IIP style
+        du = zeros(3)
+        split_oop(du, u, p, t)
+        @test du == expected
+    end
+
+    @testset "DiscreteFunction" begin
+        f_oop(u, p, t) = p[1] .* u
+        f_iip(du, u, p, t) = (du .= p[1] .* u)
+
+        disc_oop = DiscreteFunction{false}(f_oop)
+        disc_iip = DiscreteFunction{true}(f_iip)
+
+        expected = p[1] .* u
+
+        # Standard calls
+        @test disc_oop(u, p, t) == expected
+        du = zeros(3)
+        disc_iip(du, u, p, t)
+        @test du == expected
+
+        # Cross calls: IIP function with OOP style
+        @test disc_iip(u, p, t) == expected
+
+        # Cross calls: OOP function with IIP style
+        du = zeros(3)
+        disc_oop(du, u, p, t)
+        @test du == expected
+    end
+
+    @testset "NonlinearFunction" begin
+        f_oop(u, p) = p[1] .* u
+        f_iip(du, u, p) = (du .= p[1] .* u)
+
+        nl_oop = NonlinearFunction{false}(f_oop)
+        nl_iip = NonlinearFunction{true}(f_iip)
+
+        expected = p[1] .* u
+
+        # Standard calls
+        @test nl_oop(u, p) == expected
+        du = zeros(3)
+        nl_iip(du, u, p)
+        @test du == expected
+
+        # Cross calls: IIP function with OOP style
+        @test nl_iip(u, p) == expected
+
+        # Cross calls: OOP function with IIP style
+        du = zeros(3)
+        nl_oop(du, u, p)
+        @test du == expected
+    end
+
+    @testset "DynamicalODEFunction preserves standard behavior" begin
+        # DynamicalODEFunction has internal ODEFunctions with non-standard signatures
+        # (v, u, p, t) instead of (u, p, t). We need to ensure these still work correctly.
+        dode_f1_op(v, u, p, t) = -u
+        dode_f2_op(v, u, p, t) = p[1] .* v
+        dode_f1_ip(dv, v, u, p, t) = (dv .= -u)
+        dode_f2_ip(dv, v, u, p, t) = (dv .= p[1] .* v)
+
+        dodefun_oop = DynamicalODEFunction{false}(dode_f1_op, dode_f2_op)
+        dodefun_iip = DynamicalODEFunction{true}(dode_f1_ip, dode_f2_ip)
+
+        v = [4.0, 5.0, 6.0]
+        up = ArrayPartition(v, u)
+        expected = ArrayPartition(dode_f1_op(v, u, p, t), dode_f2_op(v, u, p, t))
+
+        # OOP call
+        result = dodefun_oop(up, p, t)
+        @test result.x[1] == expected.x[1]
+        @test result.x[2] == expected.x[2]
+
+        # IIP call
+        dup = ArrayPartition(zeros(3), zeros(3))
+        dodefun_iip(dup, up, p, t)
+        @test dup.x[1] == expected.x[1]
+        @test dup.x[2] == expected.x[2]
+    end
+end
