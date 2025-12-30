@@ -1,5 +1,5 @@
 using StochasticDiffEq, DiffEqBase, OrdinaryDiffEq
-using Test, Random, Statistics
+using Test, Random
 
 import SDEProblemLibrary: prob_sde_2Dlinear, prob_sde_additivesystem, prob_sde_lorenz
 import ODEProblemLibrary: prob_ode_linear
@@ -64,7 +64,9 @@ end
 Random.seed!(100)
 reduction = function (u, batch, I)
     u = append!(u, batch)
-    u, ((var(u) / sqrt(last(I))) / mean(u) < 0.5) ? true : false
+    μ = sum(u) / length(u)
+    σ² = sum((x - μ)^2 for x in u) / length(u)
+    u, ((σ² / sqrt(last(I))) / μ < 0.5) ? true : false
 end
 
 prob2 = EnsembleProblem(prob, prob_func = prob_func, output_func = output_func,
@@ -94,7 +96,7 @@ prob2 = EnsembleProblem(prob, prob_func = prob_func, output_func = output_func,
     reduction = reduction, u_init = 0.0)
 sim2 = solve(prob2, Tsit5(), trajectories = 100, batch_size = 20)
 @test sim2.converged == false
-@test mean(sim.u) ≈ sim2.u / 100
+@test sum(sim.u) / length(sim.u) ≈ sim2.u / 100
 
 struct SomeUserType end
 output_func = function (sol, i)
