@@ -21,7 +21,6 @@ using FunctionWrappers: FunctionWrapper
 
 using MuladdMacro
 
-using Statistics
 
 using FastBroadcast: @.., True, False
 
