@@ -112,8 +112,8 @@ test_find_first_callback(callbacks, find_first_integrator);
     # Forward integration
     is_forward = true
     tspan = (1.0, 2.0)
-    before = DiffEqBase.find_root(irrational_f, tspan, is_forward, SciMLBase.LeftRootFind, 0.0, 1e-14)
-    after = DiffEqBase.find_root(irrational_f, tspan, is_forward, SciMLBase.RightRootFind, 0.0, 1e-14)
+    before = DiffEqBase.find_root(irrational_f, tspan, SciMLBase.LeftRootFind)
+    after = DiffEqBase.find_root(irrational_f, tspan, SciMLBase.RightRootFind)
     @test irrational_f(before) < 0.0
     @test irrational_f(after) > 0.0
     @test nextfloat(before) == after
@@ -121,8 +121,8 @@ test_find_first_callback(callbacks, find_first_integrator);
     # Backward integration
     is_forward = false
     tspan = (2.0, 1.0)
-    before = DiffEqBase.find_root(irrational_f, tspan, is_forward, SciMLBase.LeftRootFind, 0.0, 1e-14)
-    after = DiffEqBase.find_root(irrational_f, tspan, is_forward, SciMLBase.RightRootFind, 0.0, 1e-14)
+    before = DiffEqBase.find_root(irrational_f, tspan, SciMLBase.LeftRootFind)
+    after = DiffEqBase.find_root(irrational_f, tspan, SciMLBase.RightRootFind)
     @test irrational_f(before) > 0.0
     @test irrational_f(after) < 0.0
     @test nextfloat(after) == before
