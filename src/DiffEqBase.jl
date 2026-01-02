@@ -112,6 +112,9 @@ Reexport.@reexport using SciMLBase
 
 SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
+# Rootfinder for callbacks
+using BracketingNonlinearSolve: ITP
+
 import SymbolicIndexingInterface as SII
 
 ## Extension Functions
@@ -139,7 +142,6 @@ include("utils.jl")
 include("stats.jl")
 include("calculate_residuals.jl")
 include("tableaus.jl")
-include("internal_itp.jl")
 include("dae_initialization.jl")
 
 include("callbacks.jl")

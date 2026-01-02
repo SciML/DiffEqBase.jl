@@ -5,6 +5,7 @@ version = "6.194.0"
 
 [deps]
 ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
+BracketingNonlinearSolve = "70df07ce-3d50-431d-a3e7-ca6ddb60ac1e"
 ConcreteStructs = "2569d6c7-a4a2-43d3-a901-331e8e4be471"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 EnzymeCore = "f151be2c-9106-41f4-ab19-57ee4f262869"
@@ -65,6 +66,7 @@ DiffEqBaseUnitfulExt = "Unitful"
 
 [compat]
 ArrayInterface = "7.8"
+BracketingNonlinearSolve = "1.6.2"
 CUDA = "5"
 ChainRulesCore = "1"
 ConcreteStructs = "0.2.3"
