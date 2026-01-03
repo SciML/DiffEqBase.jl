@@ -175,4 +175,6 @@ export initialize!, finalize!
 
 export SensitivityADPassThrough
 
+include("precompilation.jl")
+
 end # module
