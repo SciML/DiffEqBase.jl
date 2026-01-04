@@ -4,19 +4,25 @@
 Recursively apply `initialize!` and return whether any modified u
 """
 function initialize!(cb::CallbackSet, u, t, integrator::DEIntegrator)
-    initialize!(u, t, integrator, false, cb.continuous_callbacks...,
-        cb.discrete_callbacks...)
+    return initialize!(
+        u, t, integrator, false, cb.continuous_callbacks...,
+        cb.discrete_callbacks...
+    )
 end
 initialize!(cb::CallbackSet{Tuple{}, Tuple{}}, u, t, integrator::DEIntegrator) = false
-function initialize!(u, t, integrator::DEIntegrator, any_modified::Bool,
-        c::DECallback, cs::DECallback...)
+function initialize!(
+        u, t, integrator::DEIntegrator, any_modified::Bool,
+        c::DECallback, cs::DECallback...
+    )
     c.initialize(c, u, t, integrator)
-    initialize!(u, t, integrator, any_modified || integrator.u_modified, cs...)
+    return initialize!(u, t, integrator, any_modified || integrator.u_modified, cs...)
 end
-function initialize!(u, t, integrator::DEIntegrator, any_modified::Bool,
-        c::DECallback)
+function initialize!(
+        u, t, integrator::DEIntegrator, any_modified::Bool,
+        c::DECallback
+    )
     c.initialize(c, u, t, integrator)
-    any_modified || integrator.u_modified
+    return any_modified || integrator.u_modified
 end
 
 """
@@ -25,23 +31,27 @@ end
 Recursively apply `finalize!` and return whether any modified u
 """
 function finalize!(cb::CallbackSet, u, t, integrator::DEIntegrator)
-    finalize!(u, t, integrator, false, cb.continuous_callbacks..., cb.discrete_callbacks...)
+    return finalize!(u, t, integrator, false, cb.continuous_callbacks..., cb.discrete_callbacks...)
 end
 finalize!(cb::CallbackSet{Tuple{}, Tuple{}}, u, t, integrator::DEIntegrator) = false
-function finalize!(u, t, integrator::DEIntegrator, any_modified::Bool,
-        c::DECallback, cs::DECallback...)
+function finalize!(
+        u, t, integrator::DEIntegrator, any_modified::Bool,
+        c::DECallback, cs::DECallback...
+    )
     c.finalize(c, u, t, integrator)
-    finalize!(u, t, integrator, any_modified || integrator.u_modified, cs...)
+    return finalize!(u, t, integrator, any_modified || integrator.u_modified, cs...)
 end
-function finalize!(u, t, integrator::DEIntegrator, any_modified::Bool,
-        c::DECallback)
+function finalize!(
+        u, t, integrator::DEIntegrator, any_modified::Bool,
+        c::DECallback
+    )
     c.finalize(c, u, t, integrator)
-    any_modified || integrator.u_modified
+    return any_modified || integrator.u_modified
 end
 
 # Helpers
 function Base.isempty(cb::CallbackSet)
-    isempty(cb.continuous_callbacks) && isempty(cb.discrete_callbacks)
+    return isempty(cb.continuous_callbacks) && isempty(cb.discrete_callbacks)
 end
 Base.isempty(cb::AbstractContinuousCallback) = false
 Base.isempty(cb::AbstractDiscreteCallback) = false
@@ -110,7 +120,8 @@ function get_condition(integrator::DEIntegrator, callback, abst)
     if callback isa VectorContinuousCallback
         callback.condition(
             @view(integrator.callback_cache.tmp_condition[1:(callback.len)]),
-            tmp, abst, integrator)
+            tmp, abst, integrator
+        )
         return @view(integrator.callback_cache.tmp_condition[1:(callback.len)])
     else
         return callback.condition(tmp, abst, integrator)
@@ -118,30 +129,39 @@ function get_condition(integrator::DEIntegrator, callback, abst)
 end
 
 # Use a generated function for type stability even when many callbacks are given
-@inline function find_first_continuous_callback(integrator,
+@inline function find_first_continuous_callback(
+        integrator,
         callbacks::Vararg{
             AbstractContinuousCallback,
-            N}) where {N}
-    find_first_continuous_callback(integrator, tuple(callbacks...))
+            N,
+        }
+    ) where {N}
+    return find_first_continuous_callback(integrator, tuple(callbacks...))
 end
-@generated function find_first_continuous_callback(integrator,
-        callbacks::NTuple{N,
-            AbstractContinuousCallback
-        }) where {N}
+@generated function find_first_continuous_callback(
+        integrator,
+        callbacks::NTuple{
+            N,
+            AbstractContinuousCallback,
+        }
+    ) where {N}
     ex = quote
         tmin, upcrossing,
-        event_occurred, event_idx = find_callback_time(integrator,
-            callbacks[1], 1)
+            event_occurred, event_idx = find_callback_time(
+            integrator,
+            callbacks[1], 1
+        )
         identified_idx = 1
     end
     for i in 2:N
         ex = quote
             $ex
             tmin2, upcrossing2,
-            event_occurred2, event_idx2 = find_callback_time(
+                event_occurred2, event_idx2 = find_callback_time(
                 integrator,
                 callbacks[$i],
-                $i)
+                $i
+            )
             if event_occurred2 && (!event_occurred || integrator.tdir * tmin2 < integrator.tdir * tmin)
                 tmin = tmin2
                 upcrossing = upcrossing2
@@ -155,11 +175,13 @@ end
         $ex
         return tmin, upcrossing, event_occurred, event_idx, identified_idx, $N
     end
-    ex
+    return ex
 end
 
-@inline function determine_event_occurrence(integrator, callback::VectorContinuousCallback,
-        counter)
+@inline function determine_event_occurrence(
+        integrator, callback::VectorContinuousCallback,
+        counter
+    )
     event_occurred = false
     if callback.interp_points != 0
         addsteps!(integrator)
@@ -182,11 +204,15 @@ end
     previous_condition = @views(integrator.callback_cache.previous_condition[1:(callback.len)])
 
     if callback.idxs === nothing
-        callback.condition(previous_condition, integrator.uprev, integrator.tprev,
-            integrator)
+        callback.condition(
+            previous_condition, integrator.uprev, integrator.tprev,
+            integrator
+        )
     else
-        callback.condition(previous_condition, integrator.uprev[callback.idxs],
-            integrator.tprev, integrator)
+        callback.condition(
+            previous_condition, integrator.uprev[callback.idxs],
+            integrator.tprev, integrator
+        )
     end
     integrator.sol.stats.ncondition += 1
 
@@ -195,10 +221,15 @@ end
     next_sign = @view(integrator.callback_cache.next_sign[1:(callback.len)])
 
     if integrator.event_last_time == counter &&
-       minimum(ODE_DEFAULT_NORM(
-        ArrayInterface.allowed_getindex(previous_condition,
-            ivec), integrator.t)) <=
-       100ODE_DEFAULT_NORM(integrator.last_event_error, integrator.t)
+            minimum(
+            ODE_DEFAULT_NORM(
+                ArrayInterface.allowed_getindex(
+                    previous_condition,
+                    ivec
+                ), integrator.t
+            )
+        ) <=
+            100ODE_DEFAULT_NORM(integrator.last_event_error, integrator.t)
 
         # If there was a previous event, utilize the derivative at the start to
         # chose the previous sign. If the derivative is positive at tprev, then
@@ -227,21 +258,25 @@ end
     next_condition = get_condition(integrator, callback, abst)
     @. next_sign = sign(next_condition)
 
-    event_idx = findall_events!(next_sign, callback.affect!, callback.affect_neg!,
-        prev_sign)
+    event_idx = findall_events!(
+        next_sign, callback.affect!, callback.affect_neg!,
+        prev_sign
+    )
     if sum(event_idx) != 0
         event_occurred = true
         interp_index = callback.interp_points
     end
 
     if callback.interp_points != 0 && !isdiscrete(integrator.alg) &&
-       sum(event_idx) != length(event_idx) # Use the interpolants for safety checking
+            sum(event_idx) != length(event_idx) # Use the interpolants for safety checking
         fallback = true
         for i in 2:length(ts)
             abst = ts[i]
             copyto!(next_sign, get_condition(integrator, callback, abst))
-            _event_idx = findall_events!(next_sign, callback.affect!, callback.affect_neg!,
-                prev_sign)
+            _event_idx = findall_events!(
+                next_sign, callback.affect!, callback.affect_neg!,
+                prev_sign
+            )
             if sum(_event_idx) != 0
                 event_occurred = true
                 event_idx = _event_idx
@@ -260,17 +295,21 @@ end
             abst = integrator.t
             next_condition = get_condition(integrator, callback, abst)
             @. next_sign = sign(next_condition)
-            event_idx = findall_events!(next_sign, callback.affect!, callback.affect_neg!,
-                prev_sign)
+            event_idx = findall_events!(
+                next_sign, callback.affect!, callback.affect_neg!,
+                prev_sign
+            )
             interp_index = callback.interp_points
         end
     end
 
-    event_occurred, interp_index, ts, prev_sign, prev_sign_index, event_idx
+    return event_occurred, interp_index, ts, prev_sign, prev_sign_index, event_idx
 end
 
-@inline function determine_event_occurrence(integrator, callback::ContinuousCallback,
-        counter)
+@inline function determine_event_occurrence(
+        integrator, callback::ContinuousCallback,
+        counter
+    )
     event_occurred = false
     if callback.interp_points != 0
         addsteps!(integrator)
@@ -292,11 +331,15 @@ end
 
     # Check if the event occurred
     if callback.idxs === nothing
-        previous_condition = callback.condition(integrator.uprev, integrator.tprev,
-            integrator)
+        previous_condition = callback.condition(
+            integrator.uprev, integrator.tprev,
+            integrator
+        )
     else
-        @views previous_condition = callback.condition(integrator.uprev[callback.idxs],
-            integrator.tprev, integrator)
+        @views previous_condition = callback.condition(
+            integrator.uprev[callback.idxs],
+            integrator.tprev, integrator
+        )
     end
     integrator.sol.stats.ncondition += 1
 
@@ -304,8 +347,8 @@ end
     next_sign = 0.0
 
     if integrator.event_last_time == counter &&
-       minimum(ODE_DEFAULT_NORM(previous_condition, integrator.t)) <=
-       100ODE_DEFAULT_NORM(integrator.last_event_error, integrator.t)
+            minimum(ODE_DEFAULT_NORM(previous_condition, integrator.t)) <=
+            100ODE_DEFAULT_NORM(integrator.last_event_error, integrator.t)
 
         # If there was a previous event, utilize the derivative at the start to
         # chose the previous sign. If the derivative is positive at tprev, then
@@ -333,17 +376,21 @@ end
     next_condition = get_condition(integrator, callback, abst)
     next_sign = sign(next_condition)
 
-    if ((prev_sign < 0 && callback.affect! !== nothing) ||
-        (prev_sign > 0 && callback.affect_neg! !== nothing)) && prev_sign * next_sign <= 0
+    if (
+            (prev_sign < 0 && callback.affect! !== nothing) ||
+                (prev_sign > 0 && callback.affect_neg! !== nothing)
+        ) && prev_sign * next_sign <= 0
         event_occurred = true
         interp_index = callback.interp_points
     elseif callback.interp_points != 0 && !isdiscrete(integrator.alg) # Use the interpolants for safety checking
         for i in 2:length(ts)
             abst = ts[i]
             new_sign = get_condition(integrator, callback, abst)
-            if ((prev_sign < 0 && callback.affect! !== nothing) ||
-                (prev_sign > 0 && callback.affect_neg! !== nothing)) &&
-               prev_sign * new_sign < 0
+            if (
+                    (prev_sign < 0 && callback.affect! !== nothing) ||
+                        (prev_sign > 0 && callback.affect_neg! !== nothing)
+                ) &&
+                    prev_sign * new_sign < 0
                 event_occurred = true
                 interp_index = i
                 break
@@ -354,7 +401,7 @@ end
     end
     event_idx = 1
 
-    event_occurred, interp_index, ts, prev_sign, prev_sign_index, event_idx
+    return event_occurred, interp_index, ts, prev_sign, prev_sign_index, event_idx
 end
 
 
@@ -368,8 +415,10 @@ Assumes that:
  - The nonlinear solver return left/right roots in the same order as `tup[1]`/`tup[2]`
 """
 function find_root(f, tup, rootfind::SciMLBase.RootfindOpt)
-    sol = solve(IntervalNonlinearProblem{false}(f, tup),
-        ITP(), abstol = 0.0, reltol = 0.0)
+    sol = solve(
+        IntervalNonlinearProblem{false}(f, tup),
+        ITP(), abstol = 0.0, reltol = 0.0
+    )
     if rootfind == SciMLBase.LeftRootFind
         return sol.left
     else
@@ -383,14 +432,18 @@ findall_events!(next_sign,affect!,affect_neg!,prev_sign)
 Modifies `next_sign` to be an array of booleans for if there is a sign change
 in the interval between prev_sign and next_sign
 """
-function findall_events!(next_sign::Union{Array, SubArray}, affect!::F1, affect_neg!::F2,
-        prev_sign::Union{Array, SubArray}) where {F1, F2}
+function findall_events!(
+        next_sign::Union{Array, SubArray}, affect!::F1, affect_neg!::F2,
+        prev_sign::Union{Array, SubArray}
+    ) where {F1, F2}
     @inbounds for i in 1:length(prev_sign)
-        next_sign[i] = ((prev_sign[i] < 0 && affect! !== nothing) ||
-                        (prev_sign[i] > 0 && affect_neg! !== nothing)) &&
-                       prev_sign[i] * next_sign[i] <= 0
+        next_sign[i] = (
+            (prev_sign[i] < 0 && affect! !== nothing) ||
+                (prev_sign[i] > 0 && affect_neg! !== nothing)
+        ) &&
+            prev_sign[i] * next_sign[i] <= 0
     end
-    next_sign
+    return next_sign
 end
 
 function findall_events!(next_sign, affect!::F1, affect_neg!::F2, prev_sign) where {F1, F2}
@@ -398,15 +451,16 @@ function findall_events!(next_sign, affect!::F1, affect_neg!::F2, prev_sign) whe
     hasaffectneg::Bool = affect_neg! !== nothing
     f = (n, p) -> ((p < 0 && hasaffect) || (p > 0 && hasaffectneg)) && p * n <= 0
     A = map!(f, next_sign, next_sign, prev_sign)
-    next_sign
+    return next_sign
 end
 
 function find_callback_time(integrator, callback::ContinuousCallback, counter)
     event_occurred, interp_index, ts, prev_sign,
-    prev_sign_index, event_idx = determine_event_occurrence(
+        prev_sign_index, event_idx = determine_event_occurrence(
         integrator,
         callback,
-        counter)
+        counter
+    )
     if event_occurred
         if callback.condition === nothing
             new_t = zero(typeof(integrator.t))
@@ -424,8 +478,8 @@ function find_callback_time(integrator, callback::ContinuousCallback, counter)
                     Θ = top_t
                 else
                     if integrator.event_last_time == counter &&
-                       abs(zero_func(bottom_t)) <= 100abs(integrator.last_event_error) &&
-                       prev_sign_index == 1
+                            abs(zero_func(bottom_t)) <= 100abs(integrator.last_event_error) &&
+                            prev_sign_index == 1
 
                         # Determined that there is an event by derivative
                         # But floating point error may make the end point negative
@@ -436,8 +490,11 @@ function find_callback_time(integrator, callback::ContinuousCallback, counter)
                             error("Double callback crossing floating point reducer errored. Report this issue.")
                     end
                     Θ = find_root(zero_func, (bottom_t, top_t), callback.rootfind)
-                    integrator.last_event_error = DiffEqBase.value(ODE_DEFAULT_NORM(
-                        zero_func(Θ), Θ))
+                    integrator.last_event_error = DiffEqBase.value(
+                        ODE_DEFAULT_NORM(
+                            zero_func(Θ), Θ
+                        )
+                    )
                 end
                 #Θ = prevfloat(...)
                 # prevfloat guarantees that the new time is either 1 floating point
@@ -459,15 +516,16 @@ function find_callback_time(integrator, callback::ContinuousCallback, counter)
         new_t = zero(typeof(integrator.t))
     end
 
-    new_t, prev_sign, event_occurred, event_idx
+    return new_t, prev_sign, event_occurred, event_idx
 end
 
 function find_callback_time(integrator, callback::VectorContinuousCallback, counter)
     event_occurred, interp_index, ts, prev_sign,
-    prev_sign_index, event_idx = determine_event_occurrence(
+        prev_sign_index, event_idx = determine_event_occurrence(
         integrator,
         callback,
-        counter)
+        counter
+    )
     if event_occurred
         if callback.condition === nothing
             new_t = zero(typeof(integrator.t))
@@ -486,19 +544,22 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
                 for idx in 1:length(event_idx)
                     if ArrayInterface.allowed_getindex(event_idx, idx) != 0
                         function zero_func(abst, p = nothing)
-                            ArrayInterface.allowed_getindex(
-                                get_condition(integrator,
+                            return ArrayInterface.allowed_getindex(
+                                get_condition(
+                                    integrator,
                                     callback,
-                                    abst), idx)
+                                    abst
+                                ), idx
+                            )
                         end
                         if zero_func(top_t) == 0
                             Θ = top_t
                         else
                             if integrator.event_last_time == counter &&
-                               integrator.vector_event_last_time == idx &&
-                               abs(zero_func(bottom_t)) <=
-                               100abs(integrator.last_event_error) &&
-                               prev_sign_index == 1
+                                    integrator.vector_event_last_time == idx &&
+                                    abs(zero_func(bottom_t)) <=
+                                    100abs(integrator.last_event_error) &&
+                                    prev_sign_index == 1
 
                                 # Determined that there is an event by derivative
                                 # But floating point error may make the end point negative
@@ -511,8 +572,11 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
 
                             Θ = find_root(zero_func, (bottom_t, top_t), callback.rootfind)
                             if integrator.tdir * Θ < integrator.tdir * min_t
-                                integrator.last_event_error = DiffEqBase.value(ODE_DEFAULT_NORM(
-                                    zero_func(Θ), Θ))
+                                integrator.last_event_error = DiffEqBase.value(
+                                    ODE_DEFAULT_NORM(
+                                        zero_func(Θ), Θ
+                                    )
+                                )
                             end
                         end
                         if integrator.tdir * Θ < integrator.tdir * min_t
@@ -548,21 +612,28 @@ function find_callback_time(integrator, callback::VectorContinuousCallback, coun
         error("Callback handling failed. Please file an issue with code to reproduce.")
     end
 
-    new_t, ArrayInterface.allowed_getindex(prev_sign, min_event_idx),
-    event_occurred::Bool, min_event_idx::Int
+    return new_t, ArrayInterface.allowed_getindex(prev_sign, min_event_idx),
+        event_occurred::Bool, min_event_idx::Int
 end
 
-function apply_callback!(integrator,
+function apply_callback!(
+        integrator,
         callback::Union{ContinuousCallback, VectorContinuousCallback},
-        cb_time, prev_sign, event_idx)
+        cb_time, prev_sign, event_idx
+    )
     if isadaptive(integrator)
-        set_proposed_dt!(integrator,
-            integrator.tdir * max(nextfloat(integrator.opts.dtmin),
-                integrator.tdir * callback.dtrelax * integrator.dt))
+        set_proposed_dt!(
+            integrator,
+            integrator.tdir * max(
+                nextfloat(integrator.opts.dtmin),
+                integrator.tdir * callback.dtrelax * integrator.dt
+            )
+        )
     end
 
     change_t_via_interpolation!(
-        integrator, integrator.tprev + cb_time, Val{:false}, callback.initializealg)
+        integrator, integrator.tprev + cb_time, Val{:false}, callback.initializealg
+    )
 
     # handle saveat
     _, savedexactly = savevalues!(integrator)
@@ -580,20 +651,21 @@ function apply_callback!(integrator,
             integrator.u_modified = false
         else
             callback isa VectorContinuousCallback ?
-            callback.affect!(integrator, event_idx) : callback.affect!(integrator)
+                callback.affect!(integrator, event_idx) : callback.affect!(integrator)
         end
     elseif prev_sign > 0
         if callback.affect_neg! === nothing
             integrator.u_modified = false
         else
             callback isa VectorContinuousCallback ?
-            callback.affect_neg!(integrator, event_idx) : callback.affect_neg!(integrator)
+                callback.affect_neg!(integrator, event_idx) : callback.affect_neg!(integrator)
         end
     end
 
     if integrator.u_modified
         reeval_internals_due_to_modification!(
-            integrator, callback_initializealg = callback.initializealg)
+            integrator, callback_initializealg = callback.initializealg
+        )
 
         @inbounds if callback.save_positions[2]
             savevalues!(integrator, true)
@@ -608,7 +680,7 @@ function apply_callback!(integrator,
         end
         return true, saved_in_cb
     end
-    false, saved_in_cb
+    return false, saved_in_cb
 end
 
 #Base Case: Just one
@@ -626,7 +698,8 @@ end
         callback.affect!(integrator)
         if integrator.u_modified
             reeval_internals_due_to_modification!(
-                integrator, false, callback_initializealg = callback.initializealg)
+                integrator, false, callback_initializealg = callback.initializealg
+            )
         end
         @inbounds if callback.save_positions[2]
             savevalues!(integrator, true)
@@ -637,34 +710,44 @@ end
         end
     end
     integrator.sol.stats.ncondition += 1
-    integrator.u_modified, saved_in_cb
+    return integrator.u_modified, saved_in_cb
 end
 
 #Starting: Get bool from first and do next
 @inline function apply_discrete_callback!(integrator, callback::DiscreteCallback, args...)
-    apply_discrete_callback!(integrator, apply_discrete_callback!(integrator, callback)...,
-        args...)
+    return apply_discrete_callback!(
+        integrator, apply_discrete_callback!(integrator, callback)...,
+        args...
+    )
 end
 
-@inline function apply_discrete_callback!(integrator, discrete_modified::Bool,
+@inline function apply_discrete_callback!(
+        integrator, discrete_modified::Bool,
         saved_in_cb::Bool, callback::DiscreteCallback,
-        args...)
+        args...
+    )
     bool,
-    saved_in_cb2 = apply_discrete_callback!(integrator,
-        apply_discrete_callback!(integrator,
-            callback)...,
-        args...)
-    discrete_modified || bool, saved_in_cb || saved_in_cb2
+        saved_in_cb2 = apply_discrete_callback!(
+        integrator,
+        apply_discrete_callback!(
+            integrator,
+            callback
+        )...,
+        args...
+    )
+    return discrete_modified || bool, saved_in_cb || saved_in_cb2
 end
 
-@inline function apply_discrete_callback!(integrator, discrete_modified::Bool,
-        saved_in_cb::Bool, callback::DiscreteCallback)
+@inline function apply_discrete_callback!(
+        integrator, discrete_modified::Bool,
+        saved_in_cb::Bool, callback::DiscreteCallback
+    )
     bool, saved_in_cb2 = apply_discrete_callback!(integrator, callback)
-    discrete_modified || bool, saved_in_cb || saved_in_cb2
+    return discrete_modified || bool, saved_in_cb || saved_in_cb2
 end
 
 function max_vector_callback_length_int(cs::CallbackSet)
-    max_vector_callback_length_int(cs.continuous_callbacks...)
+    return max_vector_callback_length_int(cs.continuous_callbacks...)
 end
 max_vector_callback_length_int() = nothing
 function max_vector_callback_length_int(continuous_callbacks...)
@@ -675,7 +758,7 @@ function max_vector_callback_length_int(continuous_callbacks...)
             maxlen = cb.len
         end
     end
-    maxlen
+    return maxlen
 end
 
 function max_vector_callback_length(cs::CallbackSet)
@@ -688,7 +771,7 @@ function max_vector_callback_length(cs::CallbackSet)
             maxlen_cb = cb
         end
     end
-    maxlen_cb
+    return maxlen_cb
 end
 
 """
@@ -701,20 +784,24 @@ mutable struct CallbackCache{conditionType, signType}
     prev_sign::signType
 end
 
-function CallbackCache(u, max_len, ::Type{conditionType},
-        ::Type{signType}) where {conditionType, signType}
+function CallbackCache(
+        u, max_len, ::Type{conditionType},
+        ::Type{signType}
+    ) where {conditionType, signType}
     tmp_condition = similar(u, conditionType, max_len)
     previous_condition = similar(u, conditionType, max_len)
     next_sign = similar(u, signType, max_len)
     prev_sign = similar(u, signType, max_len)
-    CallbackCache(tmp_condition, previous_condition, next_sign, prev_sign)
+    return CallbackCache(tmp_condition, previous_condition, next_sign, prev_sign)
 end
 
-function CallbackCache(max_len, ::Type{conditionType},
-        ::Type{signType}) where {conditionType, signType}
+function CallbackCache(
+        max_len, ::Type{conditionType},
+        ::Type{signType}
+    ) where {conditionType, signType}
     tmp_condition = zeros(conditionType, max_len)
     previous_condition = zeros(conditionType, max_len)
     next_sign = zeros(signType, max_len)
     prev_sign = zeros(signType, max_len)
-    CallbackCache(tmp_condition, previous_condition, next_sign, prev_sign)
+    return CallbackCache(tmp_condition, previous_condition, next_sign, prev_sign)
 end

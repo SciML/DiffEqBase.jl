@@ -2,7 +2,7 @@ using OrdinaryDiffEq, Test
 function lorenz(du, u, p, t)
     du[1] = 10.0(u[2] - u[1])
     du[2] = u[1] * (28.0 - u[3]) - u[2]
-    du[3] = u[1] * u[2] - (8 / 3) * u[3]
+    return du[3] = u[1] * u[2] - (8 / 3) * u[3]
 end
 u0 = [1.0; 0.0; 0.0]
 tspan = (0.0, 1.0)
@@ -11,9 +11,9 @@ sol = solve(prob, Tsit5(), save_idxs = 1)
 @inferred solve(prob, Tsit5())
 @inferred solve(prob, Tsit5(), save_idxs = 1)
 @test_broken @inferred(remake(prob, u0 = Float32[1.0; 0.0; 0.0])) ==
-             remake(prob, u0 = Float32[1.0; 0.0; 0.0])
+    remake(prob, u0 = Float32[1.0; 0.0; 0.0])
 @test_broken @inferred(solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])) ==
-             solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])
+    solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])
 
 prob = ODEProblem{true, SciMLBase.FullSpecialize}(lorenz, u0, tspan)
 
@@ -21,25 +21,28 @@ prob = ODEProblem{true, SciMLBase.FullSpecialize}(lorenz, u0, tspan)
 @inferred remake(prob, u0 = [1.0; 0.0; 0.0])
 @inferred remake(prob, u0 = Float32[1.0; 0.0; 0.0])
 @test_broken @inferred(solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])) ==
-             solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])
+    solve(prob, Tsit5(), u0 = Float32[1.0; 0.0; 0.0])
 
 prob = ODEProblem(lorenz, Float32[1.0; 0.0; 0.0], tspan)
 @inferred solve(prob, Tsit5(), save_idxs = 1)
 @test_broken @inferred(solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])) ==
-             solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])
+    solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])
 remake(prob, u0 = [1.0; 0.0; 0.0])
 
 @inferred SciMLBase.wrapfun_iip(prob.f)
-@test_broken @inferred(ODEFunction{
-    isinplace(prob), SciMLBase.FunctionWrapperSpecialize}(prob.f)) ==
-             ODEFunction{isinplace(prob), SciMLBase.FunctionWrapperSpecialize}(prob.f)
+@test_broken @inferred(
+    ODEFunction{
+        isinplace(prob), SciMLBase.FunctionWrapperSpecialize,
+    }(prob.f)
+) ==
+    ODEFunction{isinplace(prob), SciMLBase.FunctionWrapperSpecialize}(prob.f)
 @inferred remake(prob, u0 = [1.0; 0.0; 0.0])
 @test_broken @inferred(solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])) ==
-             solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])
+    solve(prob, Tsit5(), u0 = [1.0; 0.0; 0.0])
 
 function f(du, u, p, t)
     du[1] = p.a
-    du[2] = p.b
+    return du[2] = p.b
 end
 
 const alg = Tsit5()
@@ -62,26 +65,34 @@ function solve_ode(f::F, p::P, ensemblealg; kwargs...) where {F, P}
     # ensemble problem
     odes = EnsembleProblem(prob, prob_func = prob_func)
 
-    sol = OrdinaryDiffEq.solve(odes, OrdinaryDiffEq.Tsit5(), ensemblealg,
+    sol = OrdinaryDiffEq.solve(
+        odes, OrdinaryDiffEq.Tsit5(), ensemblealg,
         trajectories = nodes - 1, saveat = -dt;
-        kwargs...)
+        kwargs...
+    )
 
     return sol
 end
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleSerial())
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleThreads())
 @test_broken @inferred(solve_ode(f, (a = 1, b = 1), EnsembleDistributed())) ==
-             solve_ode(f, (a = 1, b = 1), EnsembleDistributed())
+    solve_ode(f, (a = 1, b = 1), EnsembleDistributed())
 @test_broken @inferred(solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads())) ==
-             solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads())
+    solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads())
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleSerial(), save_idxs = 1)
 @inferred solve_ode(f, (a = 1, b = 1), EnsembleThreads(), save_idxs = 1)
-@test_broken @inferred(solve_ode(
-    f, (a = 1, b = 1), EnsembleDistributed(), save_idxs = 1)) ==
-             solve_ode(f, (a = 1, b = 1), EnsembleDistributed(), save_idxs = 1)
-@test_broken @inferred(solve_ode(
-    f, (a = 1, b = 1), EnsembleSplitThreads(), save_idxs = 1)) ==
-             solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads(), save_idxs = 1)
+@test_broken @inferred(
+    solve_ode(
+        f, (a = 1, b = 1), EnsembleDistributed(), save_idxs = 1
+    )
+) ==
+    solve_ode(f, (a = 1, b = 1), EnsembleDistributed(), save_idxs = 1)
+@test_broken @inferred(
+    solve_ode(
+        f, (a = 1, b = 1), EnsembleSplitThreads(), save_idxs = 1
+    )
+) ==
+    solve_ode(f, (a = 1, b = 1), EnsembleSplitThreads(), save_idxs = 1)
 
 using StochasticDiffEq, Test
 u0 = 1 / 2

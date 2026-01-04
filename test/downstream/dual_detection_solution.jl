@@ -10,10 +10,10 @@ end
 
 object = SomeObject(0, 1, nothing)
 
-# Current dynamics don't involve the object for the sake of MWE, but they could. 
+# Current dynamics don't involve the object for the sake of MWE, but they could.
 function dynamics(du, u, p, t)
     du[1] = u[2]
-    du[2] = -u[2]
+    return du[2] = -u[2]
 end
 
 for i in 1:2
@@ -30,7 +30,7 @@ f(u, p, t) = 1.01 * u
 u0 = 1 / 2
 tspan = (0.0, 1.0)
 prob = ODEProblem(f, u0, tspan)
-sol = solve(prob, Tsit5(), reltol = 1e-8, abstol = 1e-8)
+sol = solve(prob, Tsit5(), reltol = 1.0e-8, abstol = 1.0e-8)
 
 prob2 = ODEProblem((du, u, p, t) -> du[1] = 1, [0.0], (0, 10), (; x = sol))
 solve(prob2, Tsit5())

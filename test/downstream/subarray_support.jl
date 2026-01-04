@@ -23,7 +23,7 @@ using Test
     # Test 2: Simple pendulum with SubArray initial conditions
     @testset "Simple pendulum with SubArray" begin
         g = 9.81
-        L = 1.00
+        L = 1.0
 
         # Initial Conditions as SubArray
         u₀ = @view [0, π / 60][:]  # Initial speed and initial angle
@@ -39,12 +39,12 @@ using Test
 
         # This should not throw NoFunctionWrapperFoundError
         prob = ODEProblem(simplependulum, u₀, tspan)
-        integrator = init(prob, Tsit5(); reltol = 1e-6)
+        integrator = init(prob, Tsit5(); reltol = 1.0e-6)
 
         @test integrator !== nothing
 
         # Solve and verify the solution
-        sol = solve(prob, Tsit5(); reltol = 1e-6)
+        sol = solve(prob, Tsit5(); reltol = 1.0e-6)
         @test sol.retcode == ReturnCode.Success
         @test length(sol[end]) == 2
     end

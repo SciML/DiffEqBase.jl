@@ -1,21 +1,21 @@
 using OrdinaryDiffEq, DiffEqBase, CUDA, LinearAlgebra, Test, StaticArrays, ADTypes
 function f(u, p, t)
-    A * u
+    return A * u
 end
 function f(du, u, p, t)
-    mul!(du, A, u)
+    return mul!(du, A, u)
 end
 function jac(J, u, p, t)
-    J .= A
+    return J .= A
 end
 function jac(u, p, t)
-    A
+    return A
 end
 function tgrad(du, u, p, t)
-    du .= 0
+    return du .= 0
 end
 function tgrad(u, p, t)
-    zero(u)
+    return zero(u)
 end
 ff = ODEFunction(f, jac = jac, tgrad = tgrad)
 CUDA.allowscalar(false)
@@ -33,18 +33,22 @@ CUDA.allowscalar(false)
 sol = solve(prob_oop, Tsit5())
 @test solve(prob_oop, Rosenbrock23()).retcode == ReturnCode.Success
 @test solve(prob_oop, Rosenbrock23(autodiff = AutoFiniteDiff())).retcode ==
-      ReturnCode.Success
+    ReturnCode.Success
 
 prob_nojac = ODEProblem(f, u0, tspan)
 @test solve(prob_nojac, Rosenbrock23()).retcode == ReturnCode.Success
 @test solve(prob_nojac, Rosenbrock23(autodiff = AutoFiniteDiff())).retcode ==
-      ReturnCode.Success
-@test solve(prob_nojac,
-    Rosenbrock23(autodiff = AutoFiniteDiff(; fdtype = Val(:central)))).retcode ==
-      ReturnCode.Success
-@test solve(prob_nojac,
-    Rosenbrock23(autodiff = AutoFiniteDiff(; fdtype = Val(:complex)))).retcode ==
-      ReturnCode.Success
+    ReturnCode.Success
+@test solve(
+    prob_nojac,
+    Rosenbrock23(autodiff = AutoFiniteDiff(; fdtype = Val(:central)))
+).retcode ==
+    ReturnCode.Success
+@test solve(
+    prob_nojac,
+    Rosenbrock23(autodiff = AutoFiniteDiff(; fdtype = Val(:complex)))
+).retcode ==
+    ReturnCode.Success
 
 #=
 prob_nojac_oop = ODEProblem{false}(f,u0,tspan)

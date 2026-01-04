@@ -3,9 +3,11 @@ struct EvalFunc{F} <: Function
 end
 (f::EvalFunc)(args...) = f.f(args...)
 
-NO_TSPAN_PROBS = Union{AbstractLinearProblem, AbstractNonlinearProblem,
+NO_TSPAN_PROBS = Union{
+    AbstractLinearProblem, AbstractNonlinearProblem,
     AbstractIntegralProblem, AbstractSteadyStateProblem,
-    AbstractJumpProblem}
+    AbstractJumpProblem,
+}
 
 """
     has_callbacks(kwargs)
@@ -41,11 +43,19 @@ function merge_problem_kwargs(prob; merge_callbacks = true, kwargs...)
     if has_kwargs(prob)
         if merge_callbacks && haskey(prob.kwargs, :callback) && haskey(kwargs, :callback)
             kwargs_temp = NamedTuple{
-                Base.diff_names(Base._nt_names(values(kwargs)),
-                (:callback,))}(values(kwargs))
-            callbacks = NamedTuple{(:callback,)}((DiffEqBase.CallbackSet(
-                prob.kwargs[:callback],
-                values(kwargs).callback),))
+                Base.diff_names(
+                    Base._nt_names(values(kwargs)),
+                    (:callback,)
+                ),
+            }(values(kwargs))
+            callbacks = NamedTuple{(:callback,)}(
+                (
+                    DiffEqBase.CallbackSet(
+                        prob.kwargs[:callback],
+                        values(kwargs).callback
+                    ),
+                )
+            )
             kwargs = merge(kwargs_temp, callbacks)
         end
         kwargs = isempty(prob.kwargs) ? kwargs : merge(values(prob.kwargs), kwargs)
@@ -54,31 +64,34 @@ function merge_problem_kwargs(prob; merge_callbacks = true, kwargs...)
     return kwargs
 end
 
-function init_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
-        kwargs...)
+function init_call(
+        _prob, args...; merge_callbacks = true, kwargshandle = nothing,
+        kwargs...
+    )
     kwargshandle = kwargshandle === nothing ? SciMLBase.KeywordArgError : kwargshandle
     kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ?
-                   _prob.kwargs[:kwargshandle] : kwargshandle
+        _prob.kwargs[:kwargshandle] : kwargshandle
 
     # Merge problem kwargs with passed kwargs
     kwargs = merge_problem_kwargs(_prob; merge_callbacks, kwargs...)
 
     checkkwargs(kwargshandle; kwargs...)
 
-    if _prob isa Union{ODEProblem, DAEProblem} && isnothing(_prob.u0) &&
-       !has_callbacks(kwargs)
+    return if _prob isa Union{ODEProblem, DAEProblem} && isnothing(_prob.u0) &&
+            !has_callbacks(kwargs)
         build_null_integrator(_prob, args...; kwargs...)
     elseif hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
-           _prob.f.f isa EvalFunc
-        Base.invokelatest(__init, _prob, args...; kwargs...)#::T
+            _prob.f.f isa EvalFunc
+        Base.invokelatest(__init, _prob, args...; kwargs...) #::T
     else
-        __init(_prob, args...; kwargs...)#::T
+        __init(_prob, args...; kwargs...) #::T
     end
 end
 
 function init(
         prob::AbstractDEProblem, args...; sensealg = nothing,
-        u0 = nothing, p = nothing, kwargs...)
+        u0 = nothing, p = nothing, kwargs...
+    )
     if sensealg === nothing && has_kwargs(prob) && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
@@ -86,18 +99,20 @@ function init(
     u0 = u0 !== nothing ? u0 : prob.u0
     p = p !== nothing ? p : prob.p
 
-    init_up(prob, sensealg, u0, p, args...; kwargs...)
+    return init_up(prob, sensealg, u0, p, args...; kwargs...)
 end
 
 function init(prob::AbstractJumpProblem, args...; kwargs...)
-    init_call(prob, args...; kwargs...)
+    return init_call(prob, args...; kwargs...)
 end
 
 function init_up(prob::AbstractDEProblem, sensealg, u0, p, args...; kwargs...)
     alg = extract_alg(args, kwargs, has_kwargs(prob) ? prob.kwargs : kwargs)
-    if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
-        _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
-            p = p, kwargs...)
+    return if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
+        _prob = get_concrete_problem(
+            prob, !(prob isa DiscreteProblem); u0 = u0,
+            p = p, kwargs...
+        )
         init_call(_prob, args...; kwargs...)
     else
         tstops = get(kwargs, :tstops, nothing)
@@ -105,7 +120,7 @@ function init_up(prob::AbstractDEProblem, sensealg, u0, p, args...; kwargs...)
             tstops = get(prob.kwargs, :tstops, nothing)
         end
         if !(tstops isa Union{Nothing, AbstractArray, Tuple, Real}) &&
-           !SciMLBase.allows_late_binding_tstops(alg)
+                !SciMLBase.allows_late_binding_tstops(alg)
             throw(LateBindingTstopsNotSupportedError())
         end
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
@@ -119,11 +134,13 @@ function init_up(prob::AbstractDEProblem, sensealg, u0, p, args...; kwargs...)
     end
 end
 
-function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothing,
-        kwargs...)
+function solve_call(
+        _prob, args...; merge_callbacks = true, kwargshandle = nothing,
+        kwargs...
+    )
     kwargshandle = kwargshandle === nothing ? SciMLBase.KeywordArgError : kwargshandle
     kwargshandle = has_kwargs(_prob) && haskey(_prob.kwargs, :kwargshandle) ?
-                   _prob.kwargs[:kwargshandle] : kwargshandle
+        _prob.kwargs[:kwargshandle] : kwargshandle
 
     # Merge problem kwargs with passed kwargs
     kwargs = merge_problem_kwargs(_prob; merge_callbacks, kwargs...)
@@ -136,7 +153,7 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothi
             end
 
             if !(eltype(_prob.u0) <: Number) && !(eltype(_prob.u0) <: Enum) &&
-               !(_prob.u0 isa AbstractVector{<:AbstractArray} && _prob isa BVProblem)
+                    !(_prob.u0 isa AbstractVector{<:AbstractArray} && _prob isa BVProblem)
                 # Allow Enums for FunctionMaps, make into a trait in the future
                 # BVPs use Vector of Arrays for initial guesses
                 throw(NonNumberEltypeError(eltype(_prob.u0)))
@@ -148,16 +165,16 @@ function solve_call(_prob, args...; merge_callbacks = true, kwargshandle = nothi
         end
     end
 
-    if hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
-       _prob.f.f isa EvalFunc
-        Base.invokelatest(__solve, _prob, args...; kwargs...)#::T
+    return if hasfield(typeof(_prob), :f) && hasfield(typeof(_prob.f), :f) &&
+            _prob.f.f isa EvalFunc
+        Base.invokelatest(__solve, _prob, args...; kwargs...) #::T
     else
-        __solve(_prob, args...; kwargs...)#::T
+        __solve(_prob, args...; kwargs...) #::T
     end
 end
 
 mutable struct NullODEIntegrator{IIP, ProbType, T, SolType, F, P} <:
-               AbstractODEIntegrator{Nothing, IIP, Nothing, T}
+    AbstractODEIntegrator{Nothing, IIP, Nothing, T}
     du::Vector{Float64}
     u::Vector{Float64}
     t::T
@@ -166,22 +183,26 @@ mutable struct NullODEIntegrator{IIP, ProbType, T, SolType, F, P} <:
     f::F
     p::P
 end
-function build_null_integrator(prob::AbstractDEProblem, args...;
-        kwargs...)
+function build_null_integrator(
+        prob::AbstractDEProblem, args...;
+        kwargs...
+    )
     sol = solve(prob, args...; kwargs...)
     # The DAE initialization in `build_null_solution` may change the parameter
     # object `prob.p` via `@set!`, hence use the "new" prob instead of the "old" one.
     prob = sol.prob
     return NullODEIntegrator{
         isinplace(prob), typeof(prob), eltype(prob.tspan), typeof(sol),
-        typeof(prob.f), typeof(prob.p)
-    }(Float64[],
+        typeof(prob.f), typeof(prob.p),
+    }(
+        Float64[],
         Float64[],
         prob.tspan[1],
         prob,
         sol,
         prob.f,
-        prob.p)
+        prob.p
+    )
 end
 function solve!(integ::NullODEIntegrator)
     integ.t = integ.sol.t[end]
@@ -212,14 +233,16 @@ function hack_null_solution_init(prob)
     return prob, success
 end
 
-function build_null_solution(prob::AbstractDEProblem, args...;
+function build_null_solution(
+        prob::AbstractDEProblem, args...;
         saveat = (),
         save_everystep = true,
         save_on = true,
         save_start = save_everystep || isempty(saveat) ||
-                     saveat isa Number || prob.tspan[1] in saveat,
+            saveat isa Number || prob.tspan[1] in saveat,
         save_end = true,
-        kwargs...)
+        kwargs...
+    )
     ts = if saveat === ()
         if save_start && save_end
             [prob.tspan[1], prob.tspan[2]]
@@ -240,7 +263,7 @@ function build_null_solution(prob::AbstractDEProblem, args...;
 
     prob, success = hack_null_solution_init(prob)
     retcode = success ? ReturnCode.Success : ReturnCode.InitialFailure
-    build_solution(prob, nothing, ts, timeseries; dense = true, retcode)
+    return build_solution(prob, nothing, ts, timeseries; dense = true, retcode)
 end
 
 """
@@ -545,8 +568,10 @@ the extension to other types is straightforward.
    to save size or because the user does not care about the others. Finally, with
    `progress = true` you are enabling the progress bar.
 """
-function solve(prob::AbstractDEProblem, args...; sensealg = nothing,
-        u0 = nothing, p = nothing, wrap = Val(true), kwargs...)
+function solve(
+        prob::AbstractDEProblem, args...; sensealg = nothing,
+        u0 = nothing, p = nothing, wrap = Val(true), kwargs...
+    )
     if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
@@ -554,24 +579,34 @@ function solve(prob::AbstractDEProblem, args...; sensealg = nothing,
     u0 = u0 !== nothing ? u0 : prob.u0
     p = p !== nothing ? p : prob.p
 
-    if wrap isa Val{true}
-        wrap_sol(solve_up(prob, sensealg, u0, p, args...;
-            originator = SciMLBase.set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()),
-            kwargs...))
+    return if wrap isa Val{true}
+        wrap_sol(
+            solve_up(
+                prob, sensealg, u0, p, args...;
+                originator = SciMLBase.set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()),
+                kwargs...
+            )
+        )
     else
-        solve_up(prob, sensealg, u0, p, args...;
+        solve_up(
+            prob, sensealg, u0, p, args...;
             originator = SciMLBase.set_mooncakeoriginator_if_mooncake(SciMLBase.ChainRulesOriginator()),
-            kwargs...)
+            kwargs...
+        )
     end
 end
 
-function solve_up(prob::AbstractDEProblem, sensealg, u0, p,
+function solve_up(
+        prob::AbstractDEProblem, sensealg, u0, p,
         args...; originator = SciMLBase.ChainRulesOriginator(),
-        kwargs...)
+        kwargs...
+    )
     alg = extract_alg(args, kwargs, has_kwargs(prob) ? prob.kwargs : kwargs)
-    if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
-        _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
-            p = p, kwargs...)
+    return if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
+        _prob = get_concrete_problem(
+            prob, !(prob isa DiscreteProblem); u0 = u0,
+            p = p, kwargs...
+        )
         solve_call(_prob, args...; kwargs...)
     else
         tstops = get(kwargs, :tstops, nothing)
@@ -579,7 +614,7 @@ function solve_up(prob::AbstractDEProblem, sensealg, u0, p,
             tstops = get(prob.kwargs, :tstops, nothing)
         end
         if !(tstops isa Union{Nothing, AbstractArray, Tuple, Real}) &&
-           !SciMLBase.allows_late_binding_tstops(alg)
+                !SciMLBase.allows_late_binding_tstops(alg)
             throw(LateBindingTstopsNotSupportedError())
         end
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
@@ -594,29 +629,33 @@ function solve_up(prob::AbstractDEProblem, sensealg, u0, p,
 end
 
 function solve(prob::AbstractNoiseProblem, args...; kwargs...)
-    __solve(prob, args...; kwargs...)
+    return __solve(prob, args...; kwargs...)
 end
 
 function solve(prob::AbstractJumpProblem, args...; kwargs...)
-    __solve(prob, args...; kwargs...)
+    return __solve(prob, args...; kwargs...)
 end
 
 function get_concrete_problem(prob::AbstractJumpProblem, isadapt; kwargs...)
-    get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
+    return get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
 end
 
 function get_concrete_problem(prob::AbstractEnsembleProblem, isadapt; kwargs...)
-    prob
+    return prob
 end
 
-function solve(prob::PDEProblem, alg::AbstractDEAlgorithm, args...;
-        kwargs...)
-    solve(prob.prob, alg, args...; kwargs...)
+function solve(
+        prob::PDEProblem, alg::AbstractDEAlgorithm, args...;
+        kwargs...
+    )
+    return solve(prob.prob, alg, args...; kwargs...)
 end
 
-function init(prob::PDEProblem, alg::AbstractDEAlgorithm, args...;
-        kwargs...)
-    init(prob.prob, alg, args...; kwargs...)
+function init(
+        prob::PDEProblem, alg::AbstractDEAlgorithm, args...;
+        kwargs...
+    )
+    return init(prob.prob, alg, args...; kwargs...)
 end
 
 function get_concrete_problem(prob, isadapt; kwargs...)
@@ -630,12 +669,14 @@ function get_concrete_problem(prob, isadapt; kwargs...)
     u0 = get_concrete_u0(prob, isadapt, tspan[1], kwargs)
     u0_promote = promote_u0(u0, p, tspan[1])
     tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
-    f_promote = promote_f(prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
-        tspan_promote[1])
+    f_promote = promote_f(
+        prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
+        tspan_promote[1]
+    )
     if isconcreteu0(prob, tspan[1], kwargs) && prob.u0 === u0 &&
-       typeof(u0_promote) === typeof(prob.u0) &&
-       prob.tspan == tspan && typeof(prob.tspan) === typeof(tspan_promote) &&
-       p === prob.p && f_promote === prob.f
+            typeof(u0_promote) === typeof(prob.u0) &&
+            prob.tspan == tspan && typeof(prob.tspan) === typeof(tspan_promote) &&
+            p === prob.p && f_promote === prob.f
         return prob
     else
         return remake(prob; f = f_promote, u0 = u0_promote, p = p, tspan = tspan_promote)
@@ -657,16 +698,20 @@ function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
     du0_promote = promote_u0(du0, p, tspan[1])
     tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
 
-    f_promote = promote_f(prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
-        tspan_promote[1])
+    f_promote = promote_f(
+        prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
+        tspan_promote[1]
+    )
     if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
-       isconcretedu0(prob, tspan[1], kwargs) && typeof(du0_promote) === typeof(prob.du0) &&
-       prob.tspan == tspan && typeof(prob.tspan) === typeof(tspan_promote) &&
-       p === prob.p && f_promote === prob.f
+            isconcretedu0(prob, tspan[1], kwargs) && typeof(du0_promote) === typeof(prob.du0) &&
+            prob.tspan == tspan && typeof(prob.tspan) === typeof(tspan_promote) &&
+            p === prob.p && f_promote === prob.f
         return prob
     else
-        return remake(prob; f = f_promote, du0 = du0_promote, u0 = u0_promote, p = p,
-            tspan = tspan_promote)
+        return remake(
+            prob; f = f_promote, du0 = du0_promote, u0 = u0_promote, p = p,
+            tspan = tspan_promote
+        )
     end
 end
 
@@ -689,7 +734,7 @@ function get_concrete_problem(prob::DDEProblem, isadapt; kwargs...)
     u0 = promote_u0(u0, p, tspan[1])
     tspan = promote_tspan(u0, p, tspan, prob, kwargs)
 
-    remake(prob; u0 = u0, tspan = tspan, p = p, constant_lags = constant_lags)
+    return remake(prob; u0 = u0, tspan = tspan, p = p, constant_lags = constant_lags)
 end
 
 # Most are extensions
@@ -710,19 +755,25 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
         f = @set f.jac_prototype = similar(f.jac_prototype, uElType)
     end
 
-    f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractSciMLOperator) &&
-           # Some reinitialization code still uses NLSolvers stuff which doesn't
-           # properly tag, so opt-out if potentially a mass matrix DAE
-           f.mass_matrix isa UniformScaling &&
-           # Jacobians don't wrap, so just ignore those cases
-           f.jac === nothing &&
-           # Opt-out SubArrays since they would create type mismatches with the integrator's internal Arrays
-           !(u0 isa SubArray) &&
-           ((specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
-             RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
-             one(t) === oneunit(t) && hasdualpromote(u0, t)) ||
-            (specialize === SciMLBase.FunctionWrapperSpecialize &&
-             !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)))
+    return f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractSciMLOperator) &&
+            # Some reinitialization code still uses NLSolvers stuff which doesn't
+            # properly tag, so opt-out if potentially a mass matrix DAE
+            f.mass_matrix isa UniformScaling &&
+            # Jacobians don't wrap, so just ignore those cases
+            f.jac === nothing &&
+            # Opt-out SubArrays since they would create type mismatches with the integrator's internal Arrays
+            !(u0 isa SubArray) &&
+            (
+            (
+                specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
+                    RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
+                    one(t) === oneunit(t) && hasdualpromote(u0, t)
+            ) ||
+                (
+                specialize === SciMLBase.FunctionWrapperSpecialize &&
+                    !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)
+            )
+        )
         return unwrapped_f(f, wrapfun_iip(f.f, (u0, u0, p, t)))
     else
         return f
@@ -732,7 +783,7 @@ end
 hasdualpromote(u0, t) = true
 
 function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t) where {specialize}
-    if isnothing(f._func_cache)
+    return if isnothing(f._func_cache)
         f
     else
         # Copy the cache to ensure it's properly initialized
@@ -756,28 +807,35 @@ function get_concrete_tspan(prob, isadapt, kwargs, p)
 
     any(isnan, tspan) && throw(NaNTspanError())
 
-    tspan
+    return tspan
 end
 
 function __solve(
         prob::AbstractDEProblem, args...; default_set = false, second_time = false,
-        kwargs...)
-    if second_time
+        kwargs...
+    )
+    return if second_time
         throw(NoDefaultAlgorithmError())
-    elseif length(args) > 0 && !(first(args) isa
-             Union{Nothing, AbstractDEAlgorithm, AbstractNonlinearAlgorithm})
+    elseif length(args) > 0 && !(
+            first(args) isa
+                Union{Nothing, AbstractDEAlgorithm, AbstractNonlinearAlgorithm}
+        )
         throw(NonSolverError())
     else
         __solve(prob, nothing, args...; default_set = false, second_time = true, kwargs...)
     end
 end
 
-function __init(prob::AbstractDEProblem, args...; default_set = false, second_time = false,
-        kwargs...)
-    if second_time
+function __init(
+        prob::AbstractDEProblem, args...; default_set = false, second_time = false,
+        kwargs...
+    )
+    return if second_time
         throw(NoDefaultAlgorithmError())
-    elseif length(args) > 0 && !(first(args) isa
-             Union{Nothing, AbstractDEAlgorithm, AbstractNonlinearAlgorithm})
+    elseif length(args) > 0 && !(
+            first(args) isa
+                Union{Nothing, AbstractDEAlgorithm, AbstractNonlinearAlgorithm}
+        )
         throw(NonSolverError())
     else
         __init(prob, nothing, args...; default_set = false, second_time = true, kwargs...)
@@ -786,32 +844,36 @@ end
 
 function check_prob_alg_pairing(prob, alg)
     if prob isa ODEProblem && !(alg isa AbstractODEAlgorithm) ||
-       prob isa SDEProblem && !(alg isa AbstractSDEAlgorithm) ||
-       prob isa SDDEProblem && !(alg isa AbstractSDEAlgorithm) ||
-       prob isa DDEProblem && !(alg isa AbstractDDEAlgorithm) ||
-       prob isa DAEProblem && !(alg isa AbstractDAEAlgorithm) ||
-       prob isa BVProblem && !(alg isa AbstractBVPAlgorithm) ||
-       prob isa SteadyStateProblem && !(alg isa AbstractSteadyStateAlgorithm)
+            prob isa SDEProblem && !(alg isa AbstractSDEAlgorithm) ||
+            prob isa SDDEProblem && !(alg isa AbstractSDEAlgorithm) ||
+            prob isa DDEProblem && !(alg isa AbstractDDEAlgorithm) ||
+            prob isa DAEProblem && !(alg isa AbstractDAEAlgorithm) ||
+            prob isa BVProblem && !(alg isa AbstractBVPAlgorithm) ||
+            prob isa SteadyStateProblem && !(alg isa AbstractSteadyStateAlgorithm)
         throw(ProblemSolverPairingError(prob, alg))
     end
 
     if isdefined(prob, :u0) && eltypedual(prob.u0) &&
-       !SciMLBase.isautodifferentiable(alg)
+            !SciMLBase.isautodifferentiable(alg)
         throw(DirectAutodiffError())
     end
 
     if prob isa SDEProblem && prob.noise_rate_prototype !== nothing &&
-       prob.noise !== nothing &&
-       size(prob.noise_rate_prototype, 2) != length(prob.noise.W[1])
-        throw(NoiseSizeIncompatabilityError(size(prob.noise_rate_prototype, 2),
-            length(prob.noise.W[1])))
+            prob.noise !== nothing &&
+            size(prob.noise_rate_prototype, 2) != length(prob.noise.W[1])
+        throw(
+            NoiseSizeIncompatabilityError(
+                size(prob.noise_rate_prototype, 2),
+                length(prob.noise.W[1])
+            )
+        )
     end
 
     # Complex number support comes before arbitrary number support for a more direct
     # error message.
     if !SciMLBase.allowscomplex(alg)
         if isdefined(prob, :u0) &&
-           RecursiveArrayTools.recursive_unitless_eltype(prob.u0) <: Complex
+                RecursiveArrayTools.recursive_unitless_eltype(prob.u0) <: Complex
             throw(ComplexSupportError(alg))
         end
     end
@@ -821,30 +883,38 @@ function check_prob_alg_pairing(prob, alg)
     end
 
     # Check for concrete element type so that the non-concrete case throws a better error
-    if !SciMLBase.allows_arbitrary_number_types(alg)
+    return if !SciMLBase.allows_arbitrary_number_types(alg)
         if isdefined(prob, :u0)
             uType = RecursiveArrayTools.recursive_unitless_eltype(prob.u0)
             u0_as_initial_guess = (prob isa BVProblem) && (uType <: Vector)
             if Base.isconcretetype(uType) &&
-               !(uType <: Union{Float32, Float64, ComplexF32, ComplexF64}) &&
-               !u0_as_initial_guess
-                throw(GenericNumberTypeError(alg,
-                    isdefined(prob, :u0) ? typeof(prob.u0) :
-                    nothing,
-                    isdefined(prob, :tspan) ? typeof(prob.tspan) :
-                    nothing))
+                    !(uType <: Union{Float32, Float64, ComplexF32, ComplexF64}) &&
+                    !u0_as_initial_guess
+                throw(
+                    GenericNumberTypeError(
+                        alg,
+                        isdefined(prob, :u0) ? typeof(prob.u0) :
+                            nothing,
+                        isdefined(prob, :tspan) ? typeof(prob.tspan) :
+                            nothing
+                    )
+                )
             end
         end
 
         if isdefined(prob, :tspan)
             tType = eltype(prob.tspan)
             if Base.isconcretetype(tType) &&
-               !(tType <: Union{Float32, Float64, ComplexF32, ComplexF64})
-                throw(GenericNumberTypeError(alg,
-                    isdefined(prob, :u0) ? typeof(prob.u0) :
-                    nothing,
-                    isdefined(prob, :tspan) ? typeof(prob.tspan) :
-                    nothing))
+                    !(tType <: Union{Float32, Float64, ComplexF32, ComplexF64})
+                throw(
+                    GenericNumberTypeError(
+                        alg,
+                        isdefined(prob, :u0) ? typeof(prob.u0) :
+                            nothing,
+                        isdefined(prob, :tspan) ? typeof(prob.tspan) :
+                            nothing
+                    )
+                )
             end
         end
     end
@@ -863,20 +933,28 @@ struct SensitivityADPassThrough <: AbstractDEAlgorithm end
 ### Legacy Dispatches to be Non-Breaking
 ###
 
-@deprecate concrete_solve(prob::AbstractDEProblem,
+@deprecate concrete_solve(
+    prob::AbstractDEProblem,
     alg::Union{AbstractDEAlgorithm, Nothing},
-    u0 = prob.u0, p = prob.p, args...; kwargs...) solve(prob, alg,
+    u0 = prob.u0, p = prob.p, args...; kwargs...
+) solve(
+    prob, alg,
     args...;
     u0 = u0,
     p = p,
-    kwargs...)
+    kwargs...
+)
 
-function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
-        kwargs...)
+function _solve_adjoint(
+        prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
+        kwargs...
+    )
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
-        _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
-            p = p, kwargs...)
+        _prob = get_concrete_problem(
+            prob, !(prob isa DiscreteProblem); u0 = u0,
+            p = p, kwargs...
+        )
     else
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     end
@@ -884,20 +962,26 @@ function _solve_adjoint(prob, sensealg, u0, p, originator, args...; merge_callba
     # Merge problem kwargs with passed kwargs
     kwargs = merge_problem_kwargs(_prob; merge_callbacks, kwargs...)
 
-    if length(args) > 1
-        _concrete_solve_adjoint(_prob, alg, sensealg, u0, p, originator,
-            Base.tail(args)...; kwargs...)
+    return if length(args) > 1
+        _concrete_solve_adjoint(
+            _prob, alg, sensealg, u0, p, originator,
+            Base.tail(args)...; kwargs...
+        )
     else
         _concrete_solve_adjoint(_prob, alg, sensealg, u0, p, originator; kwargs...)
     end
 end
 
-function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
-        kwargs...)
+function _solve_forward(
+        prob, sensealg, u0, p, originator, args...; merge_callbacks = true,
+        kwargs...
+    )
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
-        _prob = get_concrete_problem(prob, !(prob isa DiscreteProblem); u0 = u0,
-            p = p, kwargs...)
+        _prob = get_concrete_problem(
+            prob, !(prob isa DiscreteProblem); u0 = u0,
+            p = p, kwargs...
+        )
     else
         _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
     end
@@ -905,9 +989,11 @@ function _solve_forward(prob, sensealg, u0, p, originator, args...; merge_callba
     # Merge problem kwargs with passed kwargs
     kwargs = merge_problem_kwargs(_prob; merge_callbacks, kwargs...)
 
-    if length(args) > 1
-        _concrete_solve_forward(_prob, alg, sensealg, u0, p, originator,
-            Base.tail(args)...; kwargs...)
+    return if length(args) > 1
+        _concrete_solve_forward(
+            _prob, alg, sensealg, u0, p, originator,
+            Base.tail(args)...; kwargs...
+        )
     else
         _concrete_solve_forward(_prob, alg, sensealg, u0, p, originator; kwargs...)
     end

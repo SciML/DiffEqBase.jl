@@ -12,11 +12,13 @@ struct FwdEulerAlg <: EulerAlgs end
 
 struct BwdEulerAlg <: EulerAlgs end
 
-function DiffEqBase.solve(prob::DiffEqBase.AbstractODEProblem{uType, tType, isinplace},
+function DiffEqBase.solve(
+        prob::DiffEqBase.AbstractODEProblem{uType, tType, isinplace},
         Alg::FwdEulerAlg;
         dt = (prob.tspan[2] - prob.tspan[1]) / 100,
         tstops = tType[],
-        kwargs...) where {uType, tType, isinplace}
+        kwargs...
+    ) where {uType, tType, isinplace}
     u0 = prob.u0
     f = prob.f
     tspan = prob.tspan
@@ -42,16 +44,18 @@ function DiffEqBase.solve(prob::DiffEqBase.AbstractODEProblem{uType, tType, isin
         end
     end
     # make solution type
-    DiffEqBase.build_solution(prob, Alg, tstops, out)
+    return DiffEqBase.build_solution(prob, Alg, tstops, out)
 end
 
-function DiffEqBase.solve(prob::DiffEqBase.AbstractODEProblem{uType, tType, isinplace},
+function DiffEqBase.solve(
+        prob::DiffEqBase.AbstractODEProblem{uType, tType, isinplace},
         Alg::BwdEulerAlg;
         dt = (prob.tspan[2] - prob.tspan[1]) / 100,
         tstops = tType[],
-        tol = 1e-5,
+        tol = 1.0e-5,
         maxiter = 100,
-        kwargs...) where {uType, tType, isinplace}
+        kwargs...
+    ) where {uType, tType, isinplace}
     u0 = prob.u0
     f = prob.f
     tspan = prob.tspan
@@ -74,7 +78,7 @@ function DiffEqBase.solve(prob::DiffEqBase.AbstractODEProblem{uType, tType, isin
         out[i] = newton(t, dt, out[i - 1], p, f, f.jac, tol, maxiter)
     end
     # make solution type
-    DiffEqBase.build_solution(prob, Alg, tstops, out)
+    return DiffEqBase.build_solution(prob, Alg, tstops, out)
 end
 
 function newton(t, dt, u_last, p, f, jac, tol, maxiter)

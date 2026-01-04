@@ -21,9 +21,11 @@ tspan = (0.0, 1.0)
 u0 = hcat(normalize(rand(ComplexF64, pd)), normalize(rand(pd)))
 
 ## ode problem
-prob0 = ODEProblem(f!, u0, tspan, rand(3); saveat = range(tspan..., length = 3),
-    reltol = 1e-6,
-    alg = Tsit5())
+prob0 = ODEProblem(
+    f!, u0, tspan, rand(3); saveat = range(tspan..., length = 3),
+    reltol = 1.0e-6,
+    alg = Tsit5()
+)
 ## final state cost
 cost(u) = abs2(tr(first(u)'u[2])) - abs2(tr(first(u)'last(u)))
 
@@ -31,7 +33,7 @@ cost(u) = abs2(tr(first(u)'u[2])) - abs2(tr(first(u)'last(u)))
 function loss(p)
     prob = remake(prob0; p)
     sol = solve(prob)
-    cost(sol.u) + sum(p) / 10
+    return cost(sol.u) + sum(p) / 10
 end
 
 ## same problem via reals
@@ -50,7 +52,7 @@ function loss_via_real(p)
     prob = remake(prob0_real; p)
     sol = solve(prob)
     u = [complex.(selectdim(u, 3, 1), selectdim(u, 3, 2)) for u in sol.u]
-    cost(u) + sum(p) / 10
+    return cost(u) + sum(p) / 10
 end
 
 # assert
@@ -58,9 +60,9 @@ end
 @assert eltype(last(solve(prob0_real).u)) <: Real
 function assert_fun()
     p0 = rand(3)
-    isapprox(loss(p0), loss_via_real(p0); rtol = 1e-4)
+    return isapprox(loss(p0), loss_via_real(p0); rtol = 1.0e-4)
 end
-@assert all([assert_fun() for _ in 1:(2 ^ 6)])
+@assert all([assert_fun() for _ in 1:(2^6)])
 
 # test ad with ForwardDiff
 function test_ad()
@@ -71,7 +73,7 @@ function test_ad()
         @warn "NaN detected in gradient using ode with complex numbers !!"
     any(isnan.(grad_real)) && @warn "NaN detected in gradient using realified ode !!"
     rel_err = norm(grad_complex - grad_real) / max(norm(grad_complex), norm(grad_real))
-    isapprox(grad_complex, grad_real; rtol = 1e-6) ? true : (@show rel_err; false)
+    return isapprox(grad_complex, grad_real; rtol = 1.0e-6) ? true : (@show rel_err; false)
 end
 
-@time @test all([test_ad() for _ in 1:(2 ^ 6)])
+@time @test all([test_ad() for _ in 1:(2^6)])

@@ -8,19 +8,19 @@ const is_APPVEYOR = (Sys.iswindows() && haskey(ENV, "APPVEYOR"))
 function activate_downstream_env()
     Pkg.activate("downstream")
     Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
-    Pkg.instantiate()
+    return Pkg.instantiate()
 end
 
 function activate_static_env()
     Pkg.activate("static")
     Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
-    Pkg.instantiate()
+    return Pkg.instantiate()
 end
 
 function activate_gpu_env()
     Pkg.activate("gpu")
     Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
-    Pkg.instantiate()
+    return Pkg.instantiate()
 end
 
 @time begin
