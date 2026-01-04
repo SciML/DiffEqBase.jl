@@ -4,8 +4,10 @@ using ModelingToolkit: t_nounits as t, D_nounits as D
 using ForwardDiff
 
 @variables x(t) y(t)
-eqs = [0 ~ x - y
-       0 ~ y - x]
+eqs = [
+    0 ~ x - y
+    0 ~ y - x
+]
 
 @named sys = ODESystem(eqs, t)
 sys = structural_simplify(sys)
@@ -18,10 +20,10 @@ sol = solve(prob, Tsit5())
 @test sol[y] == [0.0, 0.0]
 
 for kwargs in [
-    Dict(:saveat => 0:0.1:1),
-    Dict(:save_start => false),
-    Dict(:save_end => false)
-]
+        Dict(:saveat => 0:0.1:1),
+        Dict(:save_start => false),
+        Dict(:save_end => false),
+    ]
     sol = solve(prob, kwargs...)
     init_integ = init(prob, kwargs...)
     solve!(init_integ)
@@ -34,8 +36,10 @@ for kwargs in [
 end
 
 @variables x y
-eqs = [0 ~ x - y
-       0 ~ y - x]
+eqs = [
+    0 ~ x - y
+    0 ~ y - x
+]
 
 @named sys = NonlinearSystem(eqs, [x, y], [])
 sys = structural_simplify(sys)
@@ -50,7 +54,7 @@ sol = solve(prob, DynamicSS(Tsit5()))
 
 using NonlinearSolve
 function unsat(du, u, p)
-    du[1] = 1
+    return du[1] = 1
 end
 unsat_f = NonlinearFunction(unsat; resid_prototype = zeros(1))
 unsatprob = NonlinearLeastSquaresProblem(unsat_f, nothing)
@@ -66,13 +70,15 @@ sol = solve(unsatprob) # Success
     sys_num = structural_simplify(ODESystem([D(x) ~ P], t, [x], [P]; name = :sys))
     prob_num_uninit = ODEProblem(sys_num, [x => 0.0], (0.0, 1.0), [P => NaN]) # uninitialized problem
     x_at_1_num(P) = solve(remake(prob_num_uninit; p = [sys_num.P => P]), Tsit5())(
-        1.0, idxs = x)
+        1.0, idxs = x
+    )
 
     # analytical solution: x(t) = P*t
     sys_anal = structural_simplify(ODESystem([x ~ P * t], t, [x], [P]; name = :sys))
     prob_anal_uninit = ODEProblem(sys_anal, [], (0.0, 1.0), [P => NaN])
     x_at_1_anal(P) = solve(remake(prob_anal_uninit; p = [sys_anal.P => P]), Tsit5())(
-        1.0, idxs = x)
+        1.0, idxs = x
+    )
 
     @test_nowarn x_at_1_num(1.0)
     @test_nowarn x_at_1_anal(1.0)

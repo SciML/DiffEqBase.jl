@@ -7,9 +7,11 @@ df = DataFrame(sol1)
 
 prob = ODEProblem(
     ODEFunction(
-        f_2dlinear, sys = SymbolicIndexingInterface.SymbolCache([:a, :b, :c, :d], [], :t)),
+        f_2dlinear, sys = SymbolicIndexingInterface.SymbolCache([:a, :b, :c, :d], [], :t)
+    ),
     rand(2, 2),
-    (0.0, 1.0));
+    (0.0, 1.0)
+);
 sol2 = solve(prob, Euler(); dt = 1 // 2^(4));
 df = DataFrame(sol2)
 @test names(df) == ["timestamp", "a", "b", "c", "d"]

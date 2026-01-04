@@ -7,8 +7,8 @@ PrecompileTools.@setup_workload begin
     u1 = [1.1, 0.1, 0.1]
     p = [1.0, 2.0, 3.0]
     t = 0.0
-    α = 1e-6
-    ρ = 1e-3
+    α = 1.0e-6
+    ρ = 1.0e-3
 
     PrecompileTools.@compile_workload begin
         # Precompile ODE_DEFAULT_NORM for Vector{Float64} (most common case)

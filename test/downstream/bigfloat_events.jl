@@ -3,7 +3,7 @@ using OrdinaryDiffEq
 function lorenz!(du, u, p, t)
     du[1] = 10.0 * (u[2] - u[1])
     du[2] = u[1] * (28.0 - u[3]) - u[2]
-    du[3] = u[1] * u[2] - (8 / 3) * u[3]
+    return du[3] = u[1] * u[2] - (8 / 3) * u[3]
 end
 
 u0 = BigFloat[1.0; 0.0; 0.0]
@@ -15,7 +15,7 @@ x = sol.u[end]
 
 import LinearAlgebra.norm
 function condition(u, t, integrator)
-    norm(u - x) - 0.1
+    return norm(u - x) - 0.1
 end
 
 affect!(integrator) = terminate!(integrator)

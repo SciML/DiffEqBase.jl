@@ -33,14 +33,17 @@ module DiffEqBaseEnzymeExt
             config::Enzyme.EnzymeRules.RevConfigWidth{1},
             func::Const{typeof(DiffEqBase.solve_up)}, RTA::Type{Duplicated{RT}}, prob,
             sensealg::Union{
-                Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm}},
-            u0, p, args...; kwargs...) where {RT}
+                Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm},
+            },
+            u0, p, args...; kwargs...
+        ) where {RT}
 
         res = DiffEqBase._solve_adjoint(
             copy_or_reuse(config, prob.val, 2), copy_or_reuse(config, sensealg.val, 3),
             copy_or_reuse(config, u0.val, 4), copy_or_reuse(config, p.val, 5),
             SciMLBase.EnzymeOriginator(), ntuple(Base.Fix1(arg_copy, (config, args)), Val(length(args)))...;
-            kwargs...)
+            kwargs...
+        )
 
         primal = if Enzyme.EnzymeRules.needs_primal(config)
             res[1]
@@ -61,11 +64,14 @@ module DiffEqBaseEnzymeExt
         return Enzyme.EnzymeRules.augmented_rule_return_type(config, RTA)(primal, shadow, tup)
     end
 
-    function Enzyme.EnzymeRules.reverse(config::Enzyme.EnzymeRules.RevConfigWidth{1},
+    function Enzyme.EnzymeRules.reverse(
+            config::Enzyme.EnzymeRules.RevConfigWidth{1},
             func::Const{typeof(DiffEqBase.solve_up)}, ::Type{Duplicated{RT}}, tape, prob,
             sensealg::Union{
-                Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm}},
-            u0, p, args...; kwargs...) where {RT}
+                Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm},
+            },
+            u0, p, args...; kwargs...
+        ) where {RT}
 
         if Enzyme.EnzymeRules.needs_shadow(config)
             dres, clos = tape

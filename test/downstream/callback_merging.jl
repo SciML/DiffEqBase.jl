@@ -1,14 +1,20 @@
 using OrdinaryDiffEq, DiffEqBase, Test
 
 # Basic auto callback merging test
-do_nothing = DiscreteCallback((u, t, integrator) -> true,
-    integrator -> nothing)
-problem = ODEProblem((u, p, t) -> -u,
+do_nothing = DiscreteCallback(
+    (u, t, integrator) -> true,
+    integrator -> nothing
+)
+problem = ODEProblem(
+    (u, p, t) -> -u,
     1.0, (0.0, 1.0),
-    callback = do_nothing)
-solve(problem, Euler(),
+    callback = do_nothing
+)
+solve(
+    problem, Euler(),
     dt = 0.1,
-    callback = do_nothing)
+    callback = do_nothing
+)
 
 @testset "Callback merging through solve" begin
     # Test that callbacks passed to problem constructor are properly merged
@@ -105,7 +111,7 @@ end
     tspan = (0.0, 1.0)
 
     # Test that problem kwargs are preserved and solve kwargs override
-    prob = ODEProblem(simple!, u0, tspan; abstol = 1e-10, saveat = 0.1)
+    prob = ODEProblem(simple!, u0, tspan; abstol = 1.0e-10, saveat = 0.1)
 
     # Both abstol and saveat should be used
     sol = solve(prob, Tsit5())
@@ -135,15 +141,19 @@ end
     tspan = (0.0, 1.0)
 
     # Problem with KeywordArgSilent should not warn on invalid kwargs
-    prob = ODEProblem(simple!, u0, tspan;
-                     kwargshandle = SciMLBase.KeywordArgSilent,
-                     invalid_kwarg = "should be ignored")
+    prob = ODEProblem(
+        simple!, u0, tspan;
+        kwargshandle = SciMLBase.KeywordArgSilent,
+        invalid_kwarg = "should be ignored"
+    )
     @test_nowarn sol = solve(prob, Tsit5())
 
     # Problem with KeywordArgWarn and invalid kwarg should warn
-    prob = ODEProblem(simple!, u0, tspan;
-                     kwargshandle = SciMLBase.KeywordArgWarn,
-                     invalid_kwarg = "should warn")
+    prob = ODEProblem(
+        simple!, u0, tspan;
+        kwargshandle = SciMLBase.KeywordArgWarn,
+        invalid_kwarg = "should warn"
+    )
     @test_logs (:warn, SciMLBase.KWARGWARN_MESSAGE) sol = solve(prob, Tsit5())
 
     # Default should error on invalid kwargs

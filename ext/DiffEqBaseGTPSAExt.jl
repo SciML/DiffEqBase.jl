@@ -19,7 +19,7 @@ function ODE_DEFAULT_NORM(u::AbstractArray{<:TPS}, t)
     @inbounds @fastmath for ui in u
         x += normTPS(ui)^2
     end
-    Base.FastMath.sqrt_fast(x / max(length(u), 1))
+    return Base.FastMath.sqrt_fast(x / max(length(u), 1))
 end
 
 function ODE_DEFAULT_NORM(f::F, u::AbstractArray{<:TPS}, t) where {F}
@@ -27,7 +27,7 @@ function ODE_DEFAULT_NORM(f::F, u::AbstractArray{<:TPS}, t) where {F}
     @inbounds @fastmath for ui in u
         x += normTPS(f(ui))^2
     end
-    Base.FastMath.sqrt_fast(x / max(length(u), 1))
+    return Base.FastMath.sqrt_fast(x / max(length(u), 1))
 end
 
 end

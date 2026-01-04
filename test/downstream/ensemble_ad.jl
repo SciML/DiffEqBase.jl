@@ -6,7 +6,7 @@ function dt!(du, u, p, t)
     x, y = u
     α, β, δ, γ = p
     du[1] = dx = α * x - β * x * y
-    du[2] = dy = -δ * y + γ * x * y
+    return du[2] = dy = -δ * y + γ * x * y
 end
 
 n_par = 3
@@ -20,16 +20,20 @@ prob_ode = ODEProblem(dt!, u0[:, 1], tspan)
 function test_loss(p1, prob)
     function prob_func(prob, i, repeat)
         @show i
-        remake(prob, u0 = u0[:, i])
+        return remake(prob, u0 = u0[:, i])
     end
 
     #define ensemble problem
     ensembleprob = EnsembleProblem(prob, prob_func = prob_func)
 
-    u = Array(solve(ensembleprob, Tsit5(), EnsembleThreads(), trajectories = n_par,
-        p = p1,
-        sensealg = ForwardDiffSensitivity(),
-        saveat = 0.1, dt = 0.001))[:, end, :]
+    u = Array(
+        solve(
+            ensembleprob, Tsit5(), EnsembleThreads(), trajectories = n_par,
+            p = p1,
+            sensealg = ForwardDiffSensitivity(),
+            saveat = 0.1, dt = 0.001
+        )
+    )[:, end, :]
     loss = sum(u)
     return loss
 end
@@ -45,7 +49,7 @@ end
 
 function fiip(du, u, p, t)
     du[1] = dx = p[1] * u[1] - p[2] * u[1] * u[2]
-    du[2] = dy = -p[3] * u[2] + p[4] * u[1] * u[2]
+    return du[2] = dy = -p[3] * u[2] + p[4] * u[1] * u[2]
 end
 
 p = [1.5, 1.0, 3.0, 1.0];
@@ -55,7 +59,7 @@ sol = solve(prob, Tsit5())
 
 function sum_of_solution(x)
     _prob = remake(prob, u0 = x[1:2], p = x[3:end])
-    sum(solve(_prob, Tsit5(), saveat = 0.1))
+    return sum(solve(_prob, Tsit5(), saveat = 0.1))
 end
 Zygote.gradient(sum_of_solution, [u0; p])
 
@@ -64,28 +68,40 @@ N = 3
 eu0 = rand(N, 2)
 ep = rand(N, 4)
 
-ensemble_prob = EnsembleProblem(prob,
+ensemble_prob = EnsembleProblem(
+    prob,
     prob_func = (
-        prob, i, repeat) -> remake(prob,
+        prob, i, repeat,
+    ) -> remake(
+        prob,
         u0 = eu0[i, :],
         p = ep[i, :],
-        saveat = 0.1))
+        saveat = 0.1
+    )
+)
 esol = solve(ensemble_prob, Tsit5(), trajectories = N)
 
 cache = Ref{Any}()
 
 function sum_of_e_solution(p)
-    ensemble_prob = EnsembleProblem(prob,
+    ensemble_prob = EnsembleProblem(
+        prob,
         prob_func = (
-            prob, i, repeat) -> remake(prob,
+            prob, i, repeat,
+        ) -> remake(
+            prob,
             u0 = eu0[i, :],
             p = p[i, :],
-            saveat = 0.1))
-    sol = solve(ensemble_prob, Tsit5(), EnsembleSerial(), trajectories = N, abstol = 1e-12,
-        reltol = 1e-12)
+            saveat = 0.1
+        )
+    )
+    sol = solve(
+        ensemble_prob, Tsit5(), EnsembleSerial(), trajectories = N, abstol = 1.0e-12,
+        reltol = 1.0e-12
+    )
     z = Array(sol.u[1])
     cache[] = sol.u[1].t
-    sum(z) # just test for the first solutions, gradients should be zero for others
+    return sum(z) # just test for the first solutions, gradients should be zero for others
 end
 
 sum_of_e_solution(ep)

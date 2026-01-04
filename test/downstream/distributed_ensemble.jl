@@ -43,7 +43,7 @@ println("Running EnsembleThreads()")
 @test length(solve(ensemble_prob, Tsit5(), EnsembleThreads(), trajectories = 100)) == 100
 println("Running EnsembleDistributed()")
 @test length(solve(ensemble_prob, Tsit5(), EnsembleDistributed(), trajectories = 100)) ==
-      100
+    100
 println("Running EnsembleSplitThreads()")
 @test length(solve(ensemble_prob, Tsit5(), EnsembleSplitThreads(), trajectories = 100)) ==
-      100
+    100

@@ -8,22 +8,35 @@ using MonteCarloMeasurements
 @inline function DiffEqBase.ODE_DEFAULT_NORM(
         u::AbstractArray{
             <:MonteCarloMeasurements.AbstractParticles,
-            N}, t) where {N}
-    sqrt(mean(x -> DiffEqBase.ODE_DEFAULT_NORM(x[1], x[2]),
-        zip((value(x) for x in u), Iterators.repeated(t))))
+            N,
+        }, t
+    ) where {N}
+    return sqrt(
+        mean(
+            x -> DiffEqBase.ODE_DEFAULT_NORM(x[1], x[2]),
+            zip((value(x) for x in u), Iterators.repeated(t))
+        )
+    )
 end
 @inline function DiffEqBase.ODE_DEFAULT_NORM(
         u::AbstractArray{
             <:MonteCarloMeasurements.AbstractParticles,
-            N},
+            N,
+        },
         t::AbstractArray{
             <:MonteCarloMeasurements.AbstractParticles,
-            N}) where {N}
-    sqrt(mean(x -> DiffEqBase.ODE_DEFAULT_NORM(x[1], x[2]),
-        zip((value(x) for x in u), Iterators.repeated(value.(t)))))
+            N,
+        }
+    ) where {N}
+    return sqrt(
+        mean(
+            x -> DiffEqBase.ODE_DEFAULT_NORM(x[1], x[2]),
+            zip((value(x) for x in u), Iterators.repeated(value.(t)))
+        )
+    )
 end
 @inline function DiffEqBase.ODE_DEFAULT_NORM(u::MonteCarloMeasurements.AbstractParticles, t)
-    abs(value(u))
+    return abs(value(u))
 end
 
 end
