@@ -65,6 +65,7 @@ DiffEqBaseTrackerExt = "Tracker"
 DiffEqBaseUnitfulExt = "Unitful"
 
 [compat]
+AllocCheck = "0.2"
 ArrayInterface = "7.8"
 BracketingNonlinearSolve = "1.6.2"
 CUDA = "5"
@@ -109,6 +110,7 @@ Unitful = "1"
 julia = "1.10"
 
 [extras]
+AllocCheck = "9b6a8646-10ed-4001-bbdc-1d2f46dfbb1a"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
@@ -128,4 +130,4 @@ Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [targets]
-test = ["Distributed", "Measurements", "Unitful", "LabelledArrays", "ForwardDiff", "SparseArrays", "InteractiveUtils", "Pkg", "Random", "ReverseDiff", "StaticArrays", "SafeTestsets", "Test", "Distributions", "Aqua"]
+test = ["AllocCheck", "Distributed", "Measurements", "Unitful", "LabelledArrays", "ForwardDiff", "SparseArrays", "InteractiveUtils", "Pkg", "Random", "ReverseDiff", "StaticArrays", "SafeTestsets", "Test", "Distributions", "Aqua"]
