@@ -251,14 +251,14 @@ first_t = findfirst(isequal(0.5), sol.t)
 # https://github.com/SciML/DiffEqBase.jl/issues/1231
 @testset "Successive callbacks in same integration step" begin
     cb = ContinuousCallback(
-        (u, t, integrator) -> t - 0.0e-8,
+        (u, t, integrator) -> t - 0.0,
         (integrator) -> push!(record, 0)
     )
 
     vcb = VectorContinuousCallback(
-        (out, u, t, integrator) -> out .= (t - 1.0e-8, t - 2.0e-8),
+        (out, u, t, integrator) -> out .= (t - 1.0e-8, t - 2.0e-8, t - 2.0e-7),
         (integrator, event_index) -> push!(record, event_index),
-        2
+        3
     )
 
     f(u, p, t) = 1.0
@@ -269,12 +269,12 @@ first_t = findfirst(isequal(0.5), sol.t)
     tspan = (-1.0, 1.0)
     prob = ODEProblem(f, u0, tspan)
     sol = solve(prob, Tsit5(), dt = 2.0, callback = CallbackSet(cb, vcb))
-    @test record == [0, 1, 2]
+    @test record == [0, 1, 2, 3]
 
     # Backward propagation with successive events
     record = []
     tspan = (1.0, -1.0)
     prob = ODEProblem(f, u0, tspan)
     sol = solve(prob, Tsit5(), dt = 2.0, callback = CallbackSet(cb, vcb))
-    @test record == [2, 1, 0]
+    @test record == [3, 2, 1, 0]
 end
