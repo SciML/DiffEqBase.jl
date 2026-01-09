@@ -41,7 +41,7 @@ import FunctionWrappersWrappers
 
 using SciMLBase
 
-using SciMLOperators: AbstractSciMLOperator, AbstractSciMLScalarOperator
+using SciMLOperators: AbstractSciMLOperator, AbstractSciMLScalarOperator, DEFAULT_UPDATE_FUNC
 
 using SciMLBase: @def, DEIntegrator, AbstractDEProblem,
     AbstractDiffEqInterpolation,
@@ -86,7 +86,7 @@ using SciMLBase: @def, DEIntegrator, AbstractDEProblem,
     interp_summary, AbstractHistoryFunction, LinearInterpolation,
     ConstantInterpolation, HermiteInterpolation, SensitivityInterpolation,
     NoAD, @add_kwonly,
-    calculate_ensemble_errors, DEFAULT_UPDATE_FUNC, isconstant,
+    calculate_ensemble_errors, isconstant,
     DEFAULT_REDUCTION, isautodifferentiable,
     isadaptive, isdiscrete, has_syms, AbstractAnalyticalSolution,
     RECOMPILE_BY_DEFAULT, wrap_sol, has_destats
