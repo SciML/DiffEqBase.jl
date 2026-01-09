@@ -41,6 +41,10 @@ end
         @time @safetestset "Problem Kwargs Merging" include("problem_kwargs_merging.jl")
     end
 
+    if GROUP == "All" || GROUP == "AllocCheck"
+        @time @safetestset "Allocation Tests" include("alloc_tests.jl")
+    end
+
     if !is_APPVEYOR && GROUP == "Downstream"
         activate_downstream_env()
         @time @safetestset "Kwarg Warnings" include("downstream/kwarg_warn.jl")
