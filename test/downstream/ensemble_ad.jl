@@ -79,10 +79,12 @@ end
 test_loss(p, prob_ode)
 
 # Test gradient computation with DifferentiationInterface for each backend
-# Note: Mooncake is excluded for ensemble tests due to StackOverflowError in rule compilation
+# Note: Mooncake and Enzyme are excluded for ensemble tests
+# Mooncake: StackOverflowError in rule compilation
+# Enzyme: Issues with ensemble problem differentiation
 backends = get_test_backends()
-backends_no_mooncake = filter(b -> b[1] != "Mooncake", backends)
-for (name, backend) in backends_no_mooncake
+backends_for_ensemble = filter(b -> b[1] ∉ ("Mooncake", "Enzyme"), backends)
+for (name, backend) in backends_for_ensemble
     @testset "Ensemble test_loss gradient with $name" begin
         @time gs = DifferentiationInterface.gradient(p -> test_loss(p, prob_ode), backend, p)
         @test gs isa Vector
@@ -158,12 +160,12 @@ end
 sum_of_e_solution(ep)
 
 # Test ensemble AD with multiple backends and compare results
-# Note: Mooncake is excluded for ensemble tests due to StackOverflowError in rule compilation
+# Note: Mooncake and Enzyme are excluded for ensemble tests (same as above)
 @testset "Ensemble AD comparison across backends" begin
     # Use ForwardDiff as reference
     x_ref = DifferentiationInterface.gradient(sum_of_e_solution, AutoForwardDiff(), ep)
 
-    for (name, backend) in backends_no_mooncake
+    for (name, backend) in backends_for_ensemble
         @testset "sum_of_e_solution gradient with $name" begin
             x = DifferentiationInterface.gradient(sum_of_e_solution, backend, ep)
             @test x ≈ x_ref

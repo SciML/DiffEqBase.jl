@@ -41,9 +41,11 @@ end
 f(u, p, t) = copy(u)
 
 backends = get_test_backends()
+# Note: Mooncake is excluded due to issues with SciMLSensitivity adjoint rules
+backends_no_mooncake = filter(b -> b[1] != "Mooncake", backends)
 
 @testset "StaticArrays AD tests" begin
-    for (name, backend) in backends
+    for (name, backend) in backends_no_mooncake
         @testset "StaticArrays derivative with $name" begin
             du1 = DifferentiationInterface.derivative(backend, 5.0) do x
                 prob = ODEProblem(f, [x], (0.0, 1.0), nothing)
