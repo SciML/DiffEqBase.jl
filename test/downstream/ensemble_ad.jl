@@ -1,6 +1,40 @@
-using OrdinaryDiffEq, ForwardDiff, Zygote, Test
+using OrdinaryDiffEq, Test
 using SciMLSensitivity
 using Random
+using DifferentiationInterface
+using ADTypes: AutoForwardDiff, AutoMooncake
+
+# Version-dependent imports
+if VERSION <= v"1.11"
+    using Zygote
+    using ADTypes: AutoZygote
+end
+if VERSION <= v"1.11"
+    using Enzyme
+    using ADTypes: AutoEnzyme
+end
+
+# Define backends based on Julia version
+# ForwardDiff: All versions
+# Mooncake: All versions
+# Zygote: Julia <= 1.11
+# Enzyme: Julia <= 1.11
+function get_test_backends()
+    backends = Pair{String, Any}[]
+    # ForwardDiff on all versions
+    push!(backends, "ForwardDiff" => AutoForwardDiff())
+    # Mooncake on all versions
+    push!(backends, "Mooncake" => AutoMooncake(; config = nothing))
+    # Zygote only on Julia <= 1.11
+    if VERSION <= v"1.11"
+        push!(backends, "Zygote" => AutoZygote())
+    end
+    # Enzyme only on Julia <= 1.11
+    if VERSION <= v"1.11"
+        push!(backends, "Enzyme" => AutoEnzyme())
+    end
+    return backends
+end
 
 function dt!(du, u, p, t)
     x, y = u
@@ -40,10 +74,14 @@ end
 
 test_loss(p, prob_ode)
 
-@time gs = Zygote.gradient(p) do p
-    test_loss(p, prob_ode)
+# Test gradient computation with DifferentiationInterface for each backend
+backends = get_test_backends()
+for (name, backend) in backends
+    @testset "Ensemble test_loss gradient with $name" begin
+        @time gs = DifferentiationInterface.gradient(p -> test_loss(p, prob_ode), backend, p)
+        @test gs isa Vector
+    end
 end
-@test gs[1] isa Vector
 
 ### https://github.com/SciML/DiffEqFlux.jl/issues/595
 
@@ -61,9 +99,16 @@ function sum_of_solution(x)
     _prob = remake(prob, u0 = x[1:2], p = x[3:end])
     return sum(solve(_prob, Tsit5(), saveat = 0.1))
 end
-Zygote.gradient(sum_of_solution, [u0; p])
 
-# Testing ensemble problem. Works with ForwardDiff. Does not work with Zygote.
+# Test sum_of_solution gradient with all backends
+for (name, backend) in backends
+    @testset "sum_of_solution gradient with $name" begin
+        gs = DifferentiationInterface.gradient(sum_of_solution, backend, [u0; p])
+        @test gs isa Vector
+    end
+end
+
+# Testing ensemble problem with ForwardDiff
 N = 3
 eu0 = rand(N, 2)
 ep = rand(N, 4)
@@ -106,7 +151,16 @@ end
 
 sum_of_e_solution(ep)
 
-x = ForwardDiff.gradient(sum_of_e_solution, ep)
-y = Zygote.gradient(sum_of_e_solution, ep)[1] # Zygote second to test cache of forward pass
-@test x ≈ y
-@test cache[] == 0:0.1:10.0 # test prob.kwargs is forwarded
+# Test ensemble AD with multiple backends and compare results
+@testset "Ensemble AD comparison across backends" begin
+    # Use ForwardDiff as reference
+    x_ref = DifferentiationInterface.gradient(sum_of_e_solution, AutoForwardDiff(), ep)
+
+    for (name, backend) in backends
+        @testset "sum_of_e_solution gradient with $name" begin
+            x = DifferentiationInterface.gradient(sum_of_e_solution, backend, ep)
+            @test x ≈ x_ref
+        end
+    end
+    @test cache[] == 0:0.1:10.0 # test prob.kwargs is forwarded
+end

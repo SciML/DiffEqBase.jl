@@ -1,5 +1,38 @@
 using LinearAlgebra, OrdinaryDiffEq, Test
-import ForwardDiff
+using DifferentiationInterface
+using ADTypes: AutoForwardDiff, AutoMooncake
+
+# Version-dependent imports
+if VERSION <= v"1.11"
+    using Zygote
+    using ADTypes: AutoZygote
+end
+if VERSION <= v"1.11"
+    using Enzyme
+    using ADTypes: AutoEnzyme
+end
+
+# Define backends based on Julia version
+# ForwardDiff: All versions
+# Mooncake: All versions
+# Zygote: Julia <= 1.11
+# Enzyme: Julia <= 1.11
+function get_test_backends()
+    backends = Pair{String, Any}[]
+    # ForwardDiff on all versions
+    push!(backends, "ForwardDiff" => AutoForwardDiff())
+    # Mooncake on all versions
+    push!(backends, "Mooncake" => AutoMooncake(; config = nothing))
+    # Zygote only on Julia <= 1.11
+    if VERSION <= v"1.11"
+        push!(backends, "Zygote" => AutoZygote())
+    end
+    # Enzyme only on Julia <= 1.11
+    if VERSION <= v"1.11"
+        push!(backends, "Enzyme" => AutoEnzyme())
+    end
+    return backends
+end
 
 # setup
 pd = 3
@@ -64,16 +97,24 @@ function assert_fun()
 end
 @assert all([assert_fun() for _ in 1:(2^6)])
 
-# test ad with ForwardDiff
-function test_ad()
+# test ad with DifferentiationInterface using multiple backends
+backends = get_test_backends()
+
+function test_ad_with_backend(backend, name)
     p0 = rand(3)
-    grad_real = ForwardDiff.gradient(loss_via_real, p0)
-    grad_complex = ForwardDiff.gradient(loss, p0)
+    grad_real = DifferentiationInterface.gradient(loss_via_real, backend, p0)
+    grad_complex = DifferentiationInterface.gradient(loss, backend, p0)
     any(isnan.(grad_complex)) &&
-        @warn "NaN detected in gradient using ode with complex numbers !!"
-    any(isnan.(grad_real)) && @warn "NaN detected in gradient using realified ode !!"
+        @warn "NaN detected in gradient using ode with complex numbers with $name !!"
+    any(isnan.(grad_real)) && @warn "NaN detected in gradient using realified ode with $name !!"
     rel_err = norm(grad_complex - grad_real) / max(norm(grad_complex), norm(grad_real))
-    return isapprox(grad_complex, grad_real; rtol = 1.0e-6) ? true : (@show rel_err; false)
+    return isapprox(grad_complex, grad_real; rtol = 1.0e-6) ? true : (@show name, rel_err; false)
 end
 
-@time @test all([test_ad() for _ in 1:(2^6)])
+@testset "Complex number AD tests" begin
+    for (name, backend) in backends
+        @testset "AD via ode with complex numbers ($name)" begin
+            @time @test all([test_ad_with_backend(backend, name) for _ in 1:(2^6)])
+        end
+    end
+end
