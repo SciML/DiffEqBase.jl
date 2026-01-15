@@ -27,6 +27,10 @@ jobs:
           - Downstream
           - Downstream2
           - Static
+        exclude:
+          # Downstream tests use AD backends that have issues on Julia pre-release
+          - version: "pre"
+            group: Downstream
     uses: "SciML/.github/.github/workflows/tests.yml@v1"
     with:
       julia-version: "${{ matrix.version }}"

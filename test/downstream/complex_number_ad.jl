@@ -103,8 +103,8 @@ end
 
 # test ad with DifferentiationInterface using multiple backends
 backends = get_test_backends()
-# Note: Mooncake is excluded due to issues with complex number ODE differentiation
-backends_no_mooncake = filter(b -> b[1] != "Mooncake", backends)
+# Note: Mooncake and Enzyme are excluded due to issues with complex number ODE differentiation
+backends_for_complex = filter(b -> b[1] ∉ ("Mooncake", "Enzyme"), backends)
 
 function test_ad_with_backend(backend, name)
     p0 = rand(3)
@@ -118,7 +118,7 @@ function test_ad_with_backend(backend, name)
 end
 
 @testset "Complex number AD tests" begin
-    for (name, backend) in backends_no_mooncake
+    for (name, backend) in backends_for_complex
         @testset "AD via ode with complex numbers ($name)" begin
             @time @test all([test_ad_with_backend(backend, name) for _ in 1:(2^6)])
         end
