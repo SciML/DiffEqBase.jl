@@ -4,6 +4,10 @@ using ModelingToolkit: t_nounits as t, D_nounits as D
 using DifferentiationInterface
 using ADTypes: AutoForwardDiff, AutoMooncake
 
+# Load backends for all versions (required for DifferentiationInterface extensions)
+using ForwardDiff
+using Mooncake
+
 # Version-dependent imports
 if VERSION <= v"1.11"
     using Zygote

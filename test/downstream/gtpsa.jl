@@ -2,6 +2,10 @@ using OrdinaryDiffEq, GTPSA, Test
 using DifferentiationInterface
 using ADTypes: AutoForwardDiff, AutoMooncake
 
+# Load backends for all versions (required for DifferentiationInterface extensions)
+using ForwardDiff
+using Mooncake
+
 # Version-dependent imports
 if VERSION <= v"1.11"
     using Zygote
