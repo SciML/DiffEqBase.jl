@@ -112,11 +112,11 @@ sol = solve(unsatprob) # Success
     @test_nowarn x_at_1_num(1.0)
     @test_nowarn x_at_1_anal(1.0)
     # Test derivative with multiple AD backends
-    # Note: Mooncake, Zygote, and Enzyme are excluded because they cannot handle complex MTK types
+    # Note: Mooncake and Enzyme are excluded because they cannot handle complex MTK types
     # Mooncake: MooncakeRuleCompilationError
-    # Zygote: BoundsError in AtomicArrayDict iteration
     # Enzyme: StackOverflowError in EnzymeInterpreter
-    backends = filter(b -> b[1] ∉ ("Mooncake", "Zygote", "Enzyme"), get_test_backends())
+    # Zygote: Fixed in ModelingToolkit v11.7 (PR #4175)
+    backends = filter(b -> b[1] ∉ ("Mooncake", "Enzyme"), get_test_backends())
     for (name, backend) in backends
         @test_nowarn DifferentiationInterface.derivative(x_at_1_num, backend, 1.0)
         @test_nowarn DifferentiationInterface.derivative(x_at_1_anal, backend, 1.0)
