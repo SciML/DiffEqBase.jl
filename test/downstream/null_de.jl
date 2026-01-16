@@ -1,7 +1,36 @@
 using ModelingToolkit, OrdinaryDiffEq, SteadyStateDiffEq, Test
 using StaticArrays
 using ModelingToolkit: t_nounits as t, D_nounits as D
+using DifferentiationInterface
+using ADTypes: AutoForwardDiff, AutoMooncake
+
+# Load backends for all versions (required for DifferentiationInterface extensions)
 using ForwardDiff
+using Mooncake
+
+# Version-dependent imports
+if VERSION <= v"1.11"
+    using Zygote
+    using ADTypes: AutoZygote
+end
+if VERSION <= v"1.11"
+    using Enzyme
+    using ADTypes: AutoEnzyme
+end
+
+# Define backends based on Julia version
+function get_test_backends()
+    backends = Pair{String, Any}[]
+    push!(backends, "ForwardDiff" => AutoForwardDiff())
+    push!(backends, "Mooncake" => AutoMooncake(; config = nothing))
+    if VERSION <= v"1.11"
+        push!(backends, "Zygote" => AutoZygote())
+    end
+    if VERSION <= v"1.11"
+        push!(backends, "Enzyme" => AutoEnzyme())
+    end
+    return backends
+end
 
 @variables x(t) y(t)
 eqs = [
@@ -82,8 +111,16 @@ sol = solve(unsatprob) # Success
 
     @test_nowarn x_at_1_num(1.0)
     @test_nowarn x_at_1_anal(1.0)
-    @test_nowarn ForwardDiff.derivative(x_at_1_num, 1.0)
-    @test_nowarn ForwardDiff.derivative(x_at_1_anal, 1.0)
+    # Test derivative with multiple AD backends
+    # Note: Mooncake, Zygote, and Enzyme are excluded because they cannot handle complex MTK types
+    # Mooncake: MooncakeRuleCompilationError
+    # Zygote: BoundsError in AtomicArrayDict iteration
+    # Enzyme: StackOverflowError in EnzymeInterpreter
+    backends = filter(b -> b[1] ∉ ("Mooncake", "Zygote", "Enzyme"), get_test_backends())
+    for (name, backend) in backends
+        @test_nowarn DifferentiationInterface.derivative(x_at_1_num, backend, 1.0)
+        @test_nowarn DifferentiationInterface.derivative(x_at_1_anal, backend, 1.0)
+    end
 end
 
 @testset "Null OOP NonlinearLeastSquaresProblem" begin
