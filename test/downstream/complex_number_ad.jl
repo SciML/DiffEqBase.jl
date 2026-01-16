@@ -1,4 +1,5 @@
 using LinearAlgebra, OrdinaryDiffEq, Test
+using SciMLSensitivity  # Required for reverse-mode AD
 using DifferentiationInterface
 using ADTypes: AutoForwardDiff, AutoMooncake
 
