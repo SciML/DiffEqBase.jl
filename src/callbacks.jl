@@ -211,39 +211,9 @@ end
         nudged_t = bottom_t
     end
 
-    # compute next sign
-    # top_condition and event_idx share the same memory
-    event_idx = top_condition = @views(integrator.callback_cache.next_condition[1:(callback.len)])
-    top_sign = @view(integrator.callback_cache.next_sign[1:(callback.len)])
-    top_t = integrator.t
-    copyto!(top_condition, get_condition(integrator, callback, top_t))
-    @. top_sign = sign(top_condition)
-
-    # Determine event occurence
-    event_occurred = false
-    if findall_events!(
-        top_condition, callback.affect!, callback.affect_neg!,
-        bottom_sign
-    )
-        event_occurred = true
-    end
-
-    if callback.interp_points != 0 && !isdiscrete(integrator.alg) &&
-       sum(event_idx) != length(event_idx) # Use the interpolants for safety checking
-        ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
-        for i in 2:length(ts)
-            top_t = ts[i]
-            copyto!(top_condition, get_condition(integrator, callback, top_t))
-            @. top_sign = sign(top_condition)
-            if findall_events!(
-                top_condition, callback.affect!, callback.affect_neg!,
-                bottom_sign
-            )
-                event_occurred = true
-                break
-            end
-        end
-    end
+    # Check if an event occured
+    event_occurred, event_idx, top_t, top_sign =
+        check_event_occurence(integrator, callback, bottom_sign)
 
     # Find callback time if occurence
     if !event_occurred
@@ -316,28 +286,9 @@ end
     end
     bottom_sign = sign(bottom_condition)
 
-    # compute next sign
-    top_t = integrator.t
-    top_sign = sign(get_condition(integrator, callback, top_t))
-
-    # Determine event occurence
-    event_occurred = false
-    if is_event_occurence(bottom_sign, top_sign, callback.affect!, callback.affect_neg!)
-        event_occurred = true
-    elseif callback.interp_points != 0 && !isdiscrete(integrator.alg)
-        # Use the interpolants for safety checking
-        ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
-        for i in 2:length(ts)
-            top_t = ts[i]
-            top_sign = sign(get_condition(integrator, callback, top_t))
-            if is_event_occurence(bottom_sign, top_sign, callback.affect!, callback.affect_neg!)
-                event_occurred = true
-                break
-            end
-        end
-    end
-    event_idx = 1
-
+    # Check if an event occured
+    event_occurred, event_idx, top_t, top_sign =
+        check_event_occurence(integrator, callback, bottom_sign)
 
     if !event_occurred
         callback_t = integrator.t
@@ -370,6 +321,54 @@ function nudge_tprev(integrator, callback, condition_tprev)
     end
 end
 
+"""
+Determine if an event occured in the integration time step
+"""
+function check_event_occurence(integrator, callback, bottom_sign)
+    top_t = integrator.t
+    event_occurred, event_idx, top_sign =
+        check_event_occurence_upto(integrator, callback, bottom_sign, top_t)
+
+    if callback.interp_points != 0 && !isdiscrete(integrator.alg) &&
+       sum(event_idx) != length(event_idx)
+        # Use the interpolants for safety checking
+        ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
+        for i in 2:length(ts)
+            top_t = ts[i]
+            event_occurred, event_idx, top_sign =
+                check_event_occurence_upto(integrator, callback, bottom_sign, top_t)
+            if event_occurred
+                break
+            end
+        end
+    end
+
+    return event_occurred, event_idx, top_t, top_sign
+end
+
+"""
+Determine if an event occured before `top_t``
+"""
+function check_event_occurence_upto(integrator, callback::ContinuousCallback, bottom_sign, top_t)
+    top_sign = sign(get_condition(integrator, callback, top_t))
+    event_occurred = is_event_occurence(bottom_sign, top_sign, callback.affect!, callback.affect_neg!)
+    event_idx = event_occurred ? 1.0 : 0.0
+    return event_occurred, event_idx, top_sign
+end
+
+function check_event_occurence_upto(integrator, callback::VectorContinuousCallback, bottom_sign, top_t)
+    event_idx = top_condition = @views(integrator.callback_cache.next_condition[1:(callback.len)])
+    top_sign = @view(integrator.callback_cache.next_sign[1:(callback.len)])
+    copyto!(top_condition, get_condition(integrator, callback, top_t))
+    @. top_sign = sign(top_condition)
+
+    # Determine event occurence
+    event_occurred = findall_events!(
+        top_condition, callback.affect!, callback.affect_neg!,
+        bottom_sign
+    )
+    return event_occurred, event_idx, top_sign
+end
 
 """
 Find either exact or floating point precision root of `f`.
