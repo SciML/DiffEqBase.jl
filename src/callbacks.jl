@@ -305,7 +305,7 @@ end
 end
 
 """
-Return a nudged (if neccessary) value of `integrator.tprev` to avoid repeat event detaction
+Return a nudged (if neccessary) value of `integrator.tprev` to avoid repeat event detection
 - `integrator`
 - `callback`: Last occuring callback
 - `condition_tprev`: Condition of last occuring callback evaluated at `integrator.tprev`
@@ -330,7 +330,7 @@ function check_event_occurence(integrator, callback, bottom_sign)
         check_event_occurence_upto(integrator, callback, bottom_sign, top_t)
 
     if callback.interp_points != 0 && !isdiscrete(integrator.alg) &&
-       sum(event_idx) != length(event_idx)
+        any(iszero, event_idx)
         # Use the interpolants for safety checking
         ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
         for i in 2:length(ts)
@@ -409,7 +409,7 @@ function findall_events!(
         ) &&
             prev_sign[i] * next_sign[i] <= 0
     end
-    return sum(next_sign) != 0
+    return any(isone, next_sign)
 end
 
 function findall_events!(next_sign, affect!::F1, affect_neg!::F2, prev_sign) where {F1, F2}
@@ -417,7 +417,7 @@ function findall_events!(next_sign, affect!::F1, affect_neg!::F2, prev_sign) whe
     hasaffectneg::Bool = affect_neg! !== nothing
     f = (n, p) -> ((p < 0 && hasaffect) || (p > 0 && hasaffectneg)) && p * n <= 0
     A = map!(f, next_sign, next_sign, prev_sign)
-    return sum(next_sign) != 0
+    return any(isone, next_sign)
 end
 
 """
