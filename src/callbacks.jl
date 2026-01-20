@@ -203,7 +203,7 @@ end
 
         # Evaluate condition slightly in future
         nudged_t = nudge_tprev(integrator, callback, prev_condition[nudged_idx])
-        tmp_condition = get_condition(integrator, callback, bottom_t)
+        tmp_condition = get_condition(integrator, callback, nudged_t)
 
         bottom_sign[nudged_idx] = sign(tmp_condition[nudged_idx])
     else
