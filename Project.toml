@@ -1,14 +1,13 @@
 name = "DiffEqBase"
 uuid = "2b5f629d-d688-5b77-993f-72d75c75574e"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "6.199.0"
+version = "6.200.0"
 
 [deps]
 ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
 BracketingNonlinearSolve = "70df07ce-3d50-431d-a3e7-ca6ddb60ac1e"
 ConcreteStructs = "2569d6c7-a4a2-43d3-a901-331e8e4be471"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-EnzymeCore = "f151be2c-9106-41f4-ab19-57ee4f262869"
 FastBroadcast = "7034ab61-46d4-4ed7-9d0f-46aef9175898"
 FastClosures = "9aa1b823-49e4-5ca5-8b0f-3971ec8bab6a"
 FastPower = "a4df4552-cc26-4903-aec0-212e50a0e84b"
@@ -75,7 +74,6 @@ DifferentiationInterface = "0.7"
 Distributions = "0.25"
 DocStringExtensions = "0.9"
 Enzyme = "0.13.100"
-EnzymeCore = "0.7, 0.8"
 FastBroadcast = "0.3.5"
 FastClosures = "0.3.2"
 FastPower = "1.1"
