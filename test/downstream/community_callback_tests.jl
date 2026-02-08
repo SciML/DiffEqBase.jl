@@ -153,7 +153,7 @@ function condition(out, u, t, integrator)
     return
 end
 
-function affect!(integrator, idx)
+function collision_affect!(integrator, idx)
     i = 0
     u = integrator.u
     n = length(u.nodes)
@@ -191,7 +191,7 @@ end
 
 cback = VectorContinuousCallback(
     condition,
-    affect!,
+    collision_affect!,
     (x -> Int(((x - 1) * x) / 2))(length(Newton.nodes))
 )
 
@@ -217,10 +217,10 @@ function cond!(out, u, t, i)
     out[1] = u[3]
     return nothing
 end
-function affect!(int, idx)
+function terminate_affect!(int, idx)
     return terminate!(int)
 end
-cb = VectorContinuousCallback(cond!, affect!, nothing, 1)
+cb = VectorContinuousCallback(cond!, terminate_affect!, nothing, 1)
 
 u0 = [0.0, 0.0, 1.0]
 prob = ODEProblem(f!, u0, (0.0, 10.0); callback = cb)
