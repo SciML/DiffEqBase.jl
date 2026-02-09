@@ -38,8 +38,8 @@ eqs = [
     0 ~ y - x
 ]
 
-@named sys = ODESystem(eqs, t)
-sys = structural_simplify(sys)
+@named sys = System(eqs, t)
+sys = mtkcompile(sys)
 
 prob = ODEProblem(sys, Pair[], (0, 10.0))
 sol = solve(prob, Tsit5())
@@ -53,10 +53,10 @@ for kwargs in [
         Dict(:save_start => false),
         Dict(:save_end => false),
     ]
-    sol = solve(prob, kwargs...)
-    init_integ = init(prob, kwargs...)
+    local sol = solve(prob, kwargs...)
+    local init_integ = init(prob, kwargs...)
     solve!(init_integ)
-    step_integ = init(prob, kwargs...)
+    local step_integ = init(prob, kwargs...)
     step!(step_integ, prob.tspan[end] - prob.tspan[begin])
     @test sol.u[end] == init_integ.u
     @test sol.t[end] == init_integ.t
@@ -70,8 +70,8 @@ eqs = [
     0 ~ y - x
 ]
 
-@named sys = NonlinearSystem(eqs, [x, y], [])
-sys = structural_simplify(sys)
+@named sys = System(eqs, [x, y], [])
+sys = mtkcompile(sys)
 prob = NonlinearProblem(sys, [])
 
 sol = solve(prob, DynamicSS(Tsit5()))
@@ -96,14 +96,14 @@ sol = solve(unsatprob) # Success
     @parameters P
     @variables x(t)
     # numerical ODE: x′(t) = P with x(0) = 0
-    sys_num = structural_simplify(ODESystem([D(x) ~ P], t, [x], [P]; name = :sys))
+    sys_num = mtkcompile(System([D(x) ~ P], t, [x], [P]; name = :sys))
     prob_num_uninit = ODEProblem(sys_num, [x => 0.0], (0.0, 1.0), [P => NaN]) # uninitialized problem
     x_at_1_num(P) = solve(remake(prob_num_uninit; p = [sys_num.P => P]), Tsit5())(
         1.0, idxs = x
     )
 
     # analytical solution: x(t) = P*t
-    sys_anal = structural_simplify(ODESystem([x ~ P * t], t, [x], [P]; name = :sys))
+    sys_anal = mtkcompile(System([x ~ P * t], t, [x], [P]; name = :sys))
     prob_anal_uninit = ODEProblem(sys_anal, [], (0.0, 1.0), [P => NaN])
     x_at_1_anal(P) = solve(remake(prob_anal_uninit; p = [sys_anal.P => P]), Tsit5())(
         1.0, idxs = x

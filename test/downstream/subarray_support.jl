@@ -17,7 +17,7 @@ using Test
         sol = solve(prob, Tsit5())
 
         @test sol.retcode == ReturnCode.Success
-        @test length(sol[end]) == 5
+        @test length(sol.u[end]) == 5
     end
 
     # Test 2: Simple pendulum with SubArray initial conditions
@@ -46,7 +46,7 @@ using Test
         # Solve and verify the solution
         sol = solve(prob, Tsit5(); reltol = 1.0e-6)
         @test sol.retcode == ReturnCode.Success
-        @test length(sol[end]) == 2
+        @test length(sol.u[end]) == 2
     end
 
     # Test 3: Various SubArray slicing patterns

@@ -13,7 +13,7 @@ sol = solve(prob, Tsit5(), rel_tol = 1.0e-6, kwargshandle = SciMLBase.KeywordArg
 @test_logs (:warn, SciMLBase.KWARGWARN_MESSAGE) sol = solve(
     prob, Tsit5(), rel_tol = 1.0e-6, kwargshandle = SciMLBase.KeywordArgWarn
 )
-@test_throws SciMLBase.CommonKwargError sol = solve(prob, Tsit5(), rel_tol = 1.0e-6)
+@test_throws SciMLBase.CommonKwargError solve(prob, Tsit5(), rel_tol = 1.0e-6)
 
 prob = ODEProblem(lorenz, u0, tspan, test = 2.0, kwargshandle = SciMLBase.KeywordArgWarn)
 @test_logs (:warn, SciMLBase.KWARGWARN_MESSAGE) sol = solve(prob, Tsit5(), reltol = 1.0e-6)

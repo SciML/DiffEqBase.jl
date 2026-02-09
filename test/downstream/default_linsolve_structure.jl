@@ -39,19 +39,19 @@ sol = solve(prob,Rosenbrock23())
 # LoadError: ArgumentError: broadcasted assignment breaks symmetry between locations (1, 2) and (2, 1)
 
 @test_broken begin
-    jp = Hermitian(jp_diag)
-    fun = ODEFunction(f; jac = jac, jac_prototype = jp)
-    prob = ODEProblem(fun, ones(2), (1.0, 10.0))
-    sol = solve(prob, Rosenbrock23(autodiff = AutoFiniteDiff()))
+    local jp = Hermitian(jp_diag)
+    local fun = ODEFunction(f; jac = jac, jac_prototype = jp)
+    local prob = ODEProblem(fun, ones(2), (1.0, 10.0))
+    local sol = solve(prob, Rosenbrock23(autodiff = AutoFiniteDiff()))
     @test sol.u[end] ≈ [10.0, 10.0]
     @test length(sol) < 60
 end
 
 @test_broken begin
-    jp = Symmetric(jp_diag)
-    fun = ODEFunction(f; jac = jac, jac_prototype = jp)
-    prob = ODEProblem(fun, ones(2), (1.0, 10.0))
-    sol = solve(prob, Rosenbrock23(autodiff = AutoFiniteDiff()))
+    local jp = Symmetric(jp_diag)
+    local fun = ODEFunction(f; jac = jac, jac_prototype = jp)
+    local prob = ODEProblem(fun, ones(2), (1.0, 10.0))
+    local sol = solve(prob, Rosenbrock23(autodiff = AutoFiniteDiff()))
     @test sol.u[end] ≈ [10.0, 10.0]
     @test length(sol) < 60
 end

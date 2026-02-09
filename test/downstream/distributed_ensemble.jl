@@ -10,13 +10,13 @@ println("There are $(nprocs()) processes")
     using OrdinaryDiffEq
     prob = ODEProblem((u, p, t) -> 1.01u, 0.5, (0.0, 1.0))
     u0s = [rand() * prob.u0 for i in 1:2]
-    function prob_func(prob, i, repeat)
+    function simple_prob_func(prob, i, repeat)
         println("Running trajectory $i")
         ODEProblem(prob.f, u0s[i], prob.tspan)
     end
 end
 
-ensemble_prob = EnsembleProblem(prob, prob_func = prob_func)
+ensemble_prob = EnsembleProblem(prob, prob_func = simple_prob_func)
 sim = solve(ensemble_prob, Tsit5(), EnsembleSplitThreads(), trajectories = 2)
 
 @everywhere function lorenz!(du, u, p, t)
@@ -30,12 +30,12 @@ tspan = (0.0, 100.0)
 p = [1, 2.0, 3]
 prob = ODEProblem(lorenz!, u0, tspan, p)
 
-@everywhere function prob_func(prob, i, repeat)
+@everywhere function lorenz_prob_func(prob, i, repeat)
     prob = remake(prob, tspan = (rand(), 100.0), p = rand(3))
     return prob
 end
 
-ensemble_prob = EnsembleProblem(prob, prob_func = prob_func, safetycopy = true)
+ensemble_prob = EnsembleProblem(prob, prob_func = lorenz_prob_func, safetycopy = true)
 
 println("Running EnsembleSerial()")
 @test length(solve(ensemble_prob, Tsit5(), EnsembleSerial(), trajectories = 100)) == 100
