@@ -48,6 +48,7 @@ end
         @time @safetestset "Null DE Handling" include("downstream/null_de.jl")
         @time @safetestset "StaticArrays + AD" include("downstream/static_arrays_ad.jl")
         @time @safetestset "Unitful" include("downstream/unitful.jl")
+        @time @safetestset "FlexUnits" include("downstream/flexunits.jl")
         @time @safetestset "Dual Detection Solution" include("downstream/dual_detection_solution.jl")
         @time @safetestset "Null Parameters" include("downstream/null_params_test.jl")
         @time @safetestset "Ensemble Simulations" include("downstream/ensemble.jl")
