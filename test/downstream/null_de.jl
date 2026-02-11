@@ -156,6 +156,14 @@ end
     @test sol_no_cb.retcode == SciMLBase.ReturnCode.Success
     @test sol_no_cb.t == [0.0, 1.0]
 
+    # Test 2: has_callbacks detection - null problem WITH callbacks should NOT take fast path
+    # This will error because OrdinaryDiffEq can't handle null u0 with callbacks yet,
+    # but the error proves we're not silently skipping callbacks
+    callback_called = Ref(false)
+    cb = DiscreteCallback((u, t, integrator) -> t >= 0.5, integrator -> callback_called[] = true)
+    prob_with_cb = ODEProblem(Returns(nothing), nothing, (0.0, 1.0))
+    @test_throws Exception solve(prob_with_cb, Tsit5(); callback = cb)
+
     # Test 3: ODE with state + DiscreteCallback - callbacks should trigger
     # Using raw ODE (not MTK) to avoid API changes
     callback_triggered = Ref(false)
@@ -168,4 +176,7 @@ end
 
     @test sol_with_state.retcode == SciMLBase.ReturnCode.Success
     @test callback_triggered[]
+
+    # Test 4: init with null problem + callback should also not take fast path
+    @test_throws Exception init(prob_with_cb, Tsit5(); callback = cb)
 end
