@@ -866,7 +866,7 @@ function check_prob_alg_pairing(prob, alg)
             prob.noise !== nothing &&
             size(prob.noise_rate_prototype, 2) != length(prob.noise.W[1])
         throw(
-            NoiseSizeIncompatabilityError(
+            NoiseSizeIncompatibilityError(
                 size(prob.noise_rate_prototype, 2),
                 length(prob.noise.W[1])
             )
