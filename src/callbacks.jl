@@ -183,9 +183,9 @@ end
 end
 
 @inline function find_callback_time(
-    integrator, callback::VectorContinuousCallback,
-    callback_idx
-)
+        integrator, callback::VectorContinuousCallback,
+        callback_idx
+    )
     if callback.interp_points != 0
         addsteps!(integrator)
     end
@@ -198,7 +198,7 @@ end
 
     if integrator.event_last_time == callback_idx
         nudged_idx = integrator.vector_event_last_time
-        # If there was a previous event, nudge tprev on the right 
+        # If there was a previous event, nudge tprev on the right
         # side of the root (if necessary) to avoid repeat detection
 
         if callback.interp_points == 0
@@ -233,7 +233,7 @@ end
         min_event_idx = -1
         for idx in 1:length(event_idx)
             if ArrayInterface.allowed_getindex(event_idx, idx) != 0
-                function zero_func(abst, p=nothing)
+                function zero_func(abst, p = nothing)
                     return ArrayInterface.allowed_getindex(
                         get_condition(
                             integrator,
@@ -265,13 +265,13 @@ end
     end
 
     return callback_t, ArrayInterface.allowed_getindex(bottom_sign, min_event_idx),
-    event_occurred::Bool, min_event_idx::Int, residual
+        event_occurred::Bool, min_event_idx::Int, residual
 end
 
 @inline function find_callback_time(
-    integrator, callback::ContinuousCallback,
-    callback_idx
-)
+        integrator, callback::ContinuousCallback,
+        callback_idx
+    )
     if callback.interp_points != 0
         addsteps!(integrator)
     end
@@ -280,7 +280,7 @@ end
     bottom_t = integrator.tprev
     bottom_condition = get_condition(integrator, callback, bottom_t)
     if integrator.event_last_time == callback_idx
-        # If there was a previous event, nudge tprev on the right 
+        # If there was a previous event, nudge tprev on the right
         # side of the root (if necessary) to avoid repeat detection
 
         if callback.interp_points == 0
@@ -304,7 +304,7 @@ end
         residual = zero(bottom_condition)
     else
         # Find callback time
-        zero_func(abst, p=nothing) = get_condition(integrator, callback, abst)
+        zero_func(abst, p = nothing) = get_condition(integrator, callback, abst)
         callback_t = find_root(zero_func, (bottom_t, top_t), callback.rootfind)
         residual = zero_func(callback_t)
     end
@@ -320,7 +320,7 @@ Return a nudged (if neccessary) value of `integrator.tprev` to avoid repeat even
 """
 function nudge_tprev(integrator, callback, condition_tprev)
     # Assume the previous event might affect the condition/root
-    if abs(condition_tprev - integrator.last_event_error) <= callback.abstol
+    return if abs(condition_tprev - integrator.last_event_error) <= callback.abstol
         # We are still close to the root
         right_t = integrator.tprev + integrator.dt * callback.repeat_nudge
     else
@@ -338,9 +338,9 @@ function check_event_occurence(integrator, callback, bottom_sign)
         check_event_occurence_upto(integrator, callback, bottom_sign, top_t)
 
     if callback.interp_points != 0 && !isdiscrete(integrator.alg) &&
-        any(iszero, event_idx)
+            any(iszero, event_idx)
         # Use the interpolants for safety checking
-        ts = range(integrator.tprev, stop=integrator.t, length=callback.interp_points)
+        ts = range(integrator.tprev, stop = integrator.t, length = callback.interp_points)
         for i in 2:length(ts)
             top_t = ts[i]
             event_occurred, event_idx, top_sign =
@@ -433,9 +433,9 @@ Return `true` if an event occured.
 """
 function is_event_occurence(prev_sign::Number, next_sign::Number, affect!::F1, affect_neg!::F2) where {F1, F2}
     return (
-            (prev_sign < 0 && affect! !== nothing) ||
-                (prev_sign > 0 && affect_neg! !== nothing)
-        ) && prev_sign * next_sign <= 0
+        (prev_sign < 0 && affect! !== nothing) ||
+            (prev_sign > 0 && affect_neg! !== nothing)
+    ) && prev_sign * next_sign <= 0
 end
 
 function apply_callback!(
