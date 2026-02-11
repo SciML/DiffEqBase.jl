@@ -147,7 +147,7 @@ end
     ) where {N}
     ex = quote
         tmin, upcrossing,
-            event_occurred, event_idx = find_callback_time(
+            event_occurred, event_idx, residual = find_callback_time(
             integrator,
             callbacks[1], 1
         )
@@ -157,7 +157,7 @@ end
         ex = quote
             $ex
             tmin2, upcrossing2,
-                event_occurred2, event_idx2 = find_callback_time(
+                event_occurred2, event_idx2, residual2 = find_callback_time(
                 integrator,
                 callbacks[$i],
                 $i
@@ -168,11 +168,15 @@ end
                 event_occurred = true
                 event_idx = event_idx2
                 identified_idx = $i
+                residual = residual2
             end
         end
     end
     ex = quote
         $ex
+        if event_occurred
+            integrator.last_event_error = residual
+        end
         return tmin, upcrossing, event_occurred, event_idx, identified_idx, $N
     end
     return ex
@@ -189,8 +193,8 @@ end
     # Compute previous sign
     bottom_sign = @view(integrator.callback_cache.prev_sign[1:(callback.len)])
     bottom_t = integrator.tprev
-    prev_condition = get_condition(integrator, callback, integrator.tprev)
-    @. bottom_sign = sign(prev_condition)
+    bottom_condition = get_condition(integrator, callback, integrator.tprev)
+    @. bottom_sign = sign(bottom_condition)
 
     if integrator.event_last_time == callback_idx
         nudged_idx = integrator.vector_event_last_time
@@ -202,7 +206,7 @@ end
         end
 
         # Evaluate condition slightly in future
-        nudged_t = nudge_tprev(integrator, callback, prev_condition[nudged_idx])
+        nudged_t = nudge_tprev(integrator, callback, bottom_condition[nudged_idx])
         tmp_condition = get_condition(integrator, callback, nudged_t)
 
         bottom_sign[nudged_idx] = sign(tmp_condition[nudged_idx])
@@ -219,9 +223,11 @@ end
     if !event_occurred
         callback_t = integrator.t
         min_event_idx = 1
+        residual = zero(eltype(bottom_condition))
     elseif isdiscrete(integrator.alg) || callback.rootfind == SciMLBase.NoRootFind
         callback_t = top_t
         min_event_idx = findfirst(isequal(1), event_idx)
+        residual = zero(eltype(bottom_condition))
     else
         callback_t = rightfloat(top_t, integrator.tdir)
         min_event_idx = -1
@@ -248,7 +254,7 @@ end
                 if integrator.tdir * cbi_t < integrator.tdir * callback_t
                     min_event_idx = idx
                     callback_t = cbi_t
-                    integrator.last_event_error = zero_func(cbi_t)
+                    residual = zero_func(cbi_t)
                 end
             end
         end
@@ -259,7 +265,7 @@ end
     end
 
     return callback_t, ArrayInterface.allowed_getindex(bottom_sign, min_event_idx),
-    event_occurred::Bool, min_event_idx::Int
+    event_occurred::Bool, min_event_idx::Int, residual
 end
 
 @inline function find_callback_time(
@@ -292,16 +298,18 @@ end
 
     if !event_occurred
         callback_t = integrator.t
+        residual = zero(bottom_condition)
     elseif isdiscrete(integrator.alg) || callback.rootfind == SciMLBase.NoRootFind || iszero(top_sign)
         callback_t = top_t
+        residual = zero(bottom_condition)
     else
         # Find callback time
         zero_func(abst, p=nothing) = get_condition(integrator, callback, abst)
         callback_t = find_root(zero_func, (bottom_t, top_t), callback.rootfind)
-        integrator.last_event_error = zero_func(callback_t)
+        residual = zero_func(callback_t)
     end
 
-    return callback_t, bottom_sign, event_occurred, event_idx
+    return callback_t, bottom_sign, event_occurred, event_idx, residual
 end
 
 """
