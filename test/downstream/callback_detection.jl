@@ -31,6 +31,27 @@ using OrdinaryDiffEq
     prob = ODEProblem(f, u0, tspan)
     sol = solve(prob, Tsit5(), dt=2.0, callback=CallbackSet(cb, vcb))
     @test record == [3, 2, 1, 0]
+
+    # https://github.com/SciML/DiffEqBase.jl/issues/1268
+    # Test that callback order does not affect event detection
+    function rhs!(du, u, p, t)
+        du[1] = -3sin(3t)
+        du[2] = -sin(t)
+    end
+    affect1 = (integ,) -> push!(record, 1)
+    affect2 = (integ,) -> push!(record, 2)
+    cb1 = ContinuousCallback((u, i, integ) -> u[2], affect1, affect1; rootfind=SciMLBase.LeftRootFind, abstol=0.0)
+    cb2 = ContinuousCallback((u, i, integ) -> u[1], affect2, affect2; rootfind=SciMLBase.RightRootFind, abstol=0.0)
+
+    record = []
+    prob = ODEProblem(rhs!, ones(2), (0.0, 2π); callback=CallbackSet(cb2, cb1))
+    sol = solve(prob, Tsit5())
+    @test record == [2,2,1,2,2,1,2,2]
+
+    record = []
+    prob = ODEProblem(rhs!, ones(2), (0.0, 2π); callback=CallbackSet(cb1, cb2))
+    sol = solve(prob, Tsit5())
+    @test record == [2,2,1,2,2,1,2,2]
 end
 
 @testset "Successive same event detection" begin
