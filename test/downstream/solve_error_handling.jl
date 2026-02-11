@@ -73,7 +73,7 @@ prob = SDEProblem(
     noise_rate_prototype = complex(zeros(2, 4)),
     noise = StochasticDiffEq.RealWienerProcess(0.0, zeros(3))
 )
-@test_throws SciMLBase.NoiseSizeIncompatabilityError solve(prob, LambaEM())
+@test_throws SciMLBase.NoiseSizeIncompatibilityError solve(prob, LambaEM())
 
 function g!(du, u, p, t)
     du[1] .= u[1] + ones(3, 3)

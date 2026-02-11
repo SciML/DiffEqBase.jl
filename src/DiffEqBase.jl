@@ -99,8 +99,8 @@ import SciMLBase: solve, init, step!, solve!, __init, __solve, update_coefficien
     isconcreteu0, isconcretedu0, get_concrete_du0, _reshape, value, unitfulvalue, anyeltypedual, allowedkeywords,
     sse, totallength, __sum, DualEltypeChecker, KeywordArgError, KeywordArgWarn, KeywordArgSilent, KWARGWARN_MESSAGE, KWARGERROR_MESSAGE,
     CommonKwargError, IncompatibleInitialConditionError, NO_DEFAULT_ALGORITHM_MESSAGE, NoDefaultAlgorithmError, NO_TSPAN_MESSAGE, NoTspanError,
-    NAN_TSPAN_MESSAGE, NaNTspanError, NON_SOLVER_MESSAGE, NonSolverError, NOISE_SIZE_MESSAGE, NoiseSizeIncompatabilityError, PROBSOLVER_PAIRING_MESSAGE,
-    ProblemSolverPairingError, compatible_problem_types, DIRECT_AUTODIFF_INCOMPATABILITY_MESSAGE, DirectAutodiffError, NONNUMBER_ELTYPE_MESSAGE, NonNumberEltypeError,
+    NAN_TSPAN_MESSAGE, NaNTspanError, NON_SOLVER_MESSAGE, NonSolverError, NOISE_SIZE_MESSAGE, NoiseSizeIncompatibilityError, PROBSOLVER_PAIRING_MESSAGE,
+    ProblemSolverPairingError, compatible_problem_types, DIRECT_AUTODIFF_INCOMPATIBILITY_MESSAGE, DirectAutodiffError, NONNUMBER_ELTYPE_MESSAGE, NonNumberEltypeError,
     GENERIC_NUMBER_TYPE_ERROR_MESSAGE, GenericNumberTypeError, COMPLEX_SUPPORT_ERROR_MESSAGE, ComplexSupportError, COMPLEX_TSPAN_ERROR_MESSAGE, ComplexTspanError,
     TUPLE_STATE_ERROR_MESSAGE, TupleStateError, MASS_MATRIX_ERROR_MESSAGE, IncompatibleMassMatrixError, LATE_BINDING_TSTOPS_ERROR_MESSAGE, LateBindingTstopsNotSupportedError,
     NONCONCRETE_ELTYPE_MESSAGE, NonConcreteEltypeError, _vec
