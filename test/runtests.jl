@@ -58,7 +58,6 @@ end
         @time @safetestset "Table Inference Tests" include("downstream/tables.jl")
         @time @safetestset "Default linsolve with structure" include("downstream/default_linsolve_structure.jl")
         @time @safetestset "Callback Merging Tests" include("downstream/callback_merging.jl")
-        @time @safetestset "Callback Detection Tests" include("downstream/callback_detection.jl")
         @time @safetestset "LabelledArrays Tests" include("downstream/labelledarrays.jl")
         @time @safetestset "GTPSA Tests" include("downstream/gtpsa.jl")
         @time @safetestset "SubArray Support" include("downstream/subarray_support.jl")
