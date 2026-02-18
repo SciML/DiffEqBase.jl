@@ -35,7 +35,7 @@ end
 @variables x(t) y(t)
 eqs = [
     0 ~ x - y
-    0 ~ y - x
+    0 ~ 2y - x
 ]
 
 @named sys = System(eqs, t)
@@ -67,7 +67,7 @@ end
 @variables x y
 eqs = [
     0 ~ x - y
-    0 ~ y - x
+    0 ~ 2y - x
 ]
 
 @named sys = System(eqs, [x, y], [])
