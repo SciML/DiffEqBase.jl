@@ -113,7 +113,7 @@ Reexport.@reexport using SciMLBase
 SciMLBase.isfunctionwrapper(x::FunctionWrapper) = true
 
 # Rootfinder for callbacks
-using BracketingNonlinearSolve: ModAB
+using BracketingNonlinearSolve: ITP
 
 import SymbolicIndexingInterface as SII
 
