@@ -79,6 +79,7 @@ end
             @time @safetestset "Ensemble AD Tests" include("downstream/ensemble_ad.jl")
         @time @safetestset "Community Callback Tests" include("downstream/community_callback_tests.jl")
         @time @safetestset "AD via ode with complex numbers" include("downstream/complex_number_ad.jl")
+        @time @safetestset "Callback AD Tests" include("downstream/callback_ad.jl")
         @time @testset "Distributed Ensemble Tests" include("downstream/distributed_ensemble.jl")
     end
 
