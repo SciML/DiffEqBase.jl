@@ -54,23 +54,24 @@ cbs5 = CallbackSet(cbs1, cbs2)
 # For the purposes of this test, create a empty integrator type and
 # override find_callback_time, since we don't actually care about testing
 # the find callback time aspect, just the inference failure
-struct EmptyIntegrator
+mutable struct EmptyIntegrator
     u::Vector{Float64}
     tdir::Int
+    last_event_error::Float64
 end
 function DiffEqBase.find_callback_time(
         integrator::EmptyIntegrator,
         callback::ContinuousCallback, counter
     )
-    return 1.0 + counter, 0.9 + counter, true, counter
+    return 1.0 + counter, 0.9 + counter, true, counter, 0.0
 end
 function DiffEqBase.find_callback_time(
         integrator::EmptyIntegrator,
         callback::VectorContinuousCallback, counter
     )
-    return 1.0 + counter, 0.9 + counter, true, counter
+    return 1.0 + counter, 0.9 + counter, true, counter, 0.0
 end
-find_first_integrator = EmptyIntegrator([1.0, 2.0], 1)
+find_first_integrator = EmptyIntegrator([1.0, 2.0], 1, 0.0)
 vector_affect! = function (integrator, idx)
     return integrator.u = integrator.u + idx
 end
