@@ -68,7 +68,7 @@ DiffEqBaseUnitfulExt = "Unitful"
 [compat]
 ADTypes = "1"
 ArrayInterface = "7.8"
-BracketingNonlinearSolve = "1.6.2"
+BracketingNonlinearSolve = "1.7.1"
 CUDA = "5"
 ChainRulesCore = "1"
 ConcreteStructs = "0.2.3"
