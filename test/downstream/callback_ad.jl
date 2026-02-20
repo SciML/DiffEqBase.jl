@@ -27,7 +27,7 @@ using OrdinaryDiffEq, ForwardDiff, FiniteDiff, Test
         u0 = [1.0, 0.0]
         tspan = (0.0, 3.0)
         prob = ODEProblem(f, u0, tspan, p)
-        sol = solve(prob, Tsit5(), callback = cb, abstol = 1e-12, reltol = 1e-12)
+        sol = solve(prob, Tsit5(), callback = cb, abstol = 1.0e-12, reltol = 1.0e-12)
         return [sol.u[end][1], sol.u[end][2]]
     end
 
@@ -37,7 +37,7 @@ using OrdinaryDiffEq, ForwardDiff, FiniteDiff, Test
         dijac = ForwardDiff.jacobian(solve_and_extract, p)
         findiff = FiniteDiff.finite_difference_jacobian(solve_and_extract, p)
         @test all(isfinite, dijac)
-        @test dijac ≈ findiff rtol = 1e-5
+        @test dijac ≈ findiff rtol = 1.0e-5
     end
 end
 
@@ -66,7 +66,7 @@ end
         u0 = [1.0, 0.0]
         tspan = (0.0, 5.0)
         prob = ODEProblem(f2, u0, tspan, copy(x))
-        sol = solve(prob, Tsit5(), callback = cb2, abstol = 1e-12, reltol = 1e-12)
+        sol = solve(prob, Tsit5(), callback = cb2, abstol = 1.0e-12, reltol = 1.0e-12)
         return [sol.u[end][1], sol.u[end][2]]
     end
 
@@ -75,6 +75,6 @@ end
         dijac = ForwardDiff.jacobian(solve_with_closure, p)
         findiff = FiniteDiff.finite_difference_jacobian(solve_with_closure, p)
         @test all(isfinite, dijac)
-        @test dijac ≈ findiff rtol = 1e-5
+        @test dijac ≈ findiff rtol = 1.0e-5
     end
 end

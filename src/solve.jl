@@ -755,7 +755,19 @@ end
 # Helper to determine if we need ForwardDiff-aware function wrapping.
 # Default to true (full wrapping) when algorithm is not known.
 _uses_forwarddiff(::Nothing) = true
-_uses_forwarddiff(alg) = SciMLBase.forwarddiffs_model(alg)
+function _uses_forwarddiff(alg)
+    fd = SciMLBase.forwarddiffs_model(alg)
+    # forwarddiffs_model returns Bool for OrdinaryDiffEq algorithms, but may return
+    # an AD type (e.g. AutoFiniteDiff()) for StochasticDiffEq algorithms.
+    # Only use simple path when it explicitly returns false.
+    fd !== false && return true
+    # For composite algorithms that contain sub-algorithms (e.g. AutoTsit5(Rosenbrock23())),
+    # check if any sub-algorithm uses ForwardDiff.
+    if hasfield(typeof(alg), :algs)
+        return any(_uses_forwarddiff, alg.algs)
+    end
+    return false
+end
 
 # Full path for algorithms that use ForwardDiff internally (e.g. Rosenbrock).
 # These algorithms precompile AFTER the ForwardDiff extension loads, so
@@ -830,11 +842,18 @@ end
 
 hasdualpromote(u0, t) = true
 
-function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t, ::Val = Val(true)) where {specialize}
+function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t, ::Val{true}) where {specialize}
     return if isnothing(f._func_cache)
         f
     else
         # Copy the cache to ensure it's properly initialized
+        remake(f, _func_cache = copy(f._func_cache))
+    end
+end
+function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t, ::Val{false}) where {specialize}
+    return if isnothing(f._func_cache)
+        f
+    else
         remake(f, _func_cache = copy(f._func_cache))
     end
 end
