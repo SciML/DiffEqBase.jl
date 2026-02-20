@@ -97,14 +97,14 @@ sol = solve(unsatprob) # Success
     @variables x(t)
     # numerical ODE: x′(t) = P with x(0) = 0
     sys_num = mtkcompile(System([D(x) ~ P], t, [x], [P]; name = :sys))
-    prob_num_uninit = ODEProblem(sys_num, [x => 0.0], (0.0, 1.0), [P => NaN]) # uninitialized problem
+    prob_num_uninit = ODEProblem(sys_num, [x => 0.0, P => NaN], (0.0, 1.0)) # uninitialized problem
     x_at_1_num(P) = solve(remake(prob_num_uninit; p = [sys_num.P => P]), Tsit5())(
         1.0, idxs = x
     )
 
     # analytical solution: x(t) = P*t
     sys_anal = mtkcompile(System([x ~ P * t], t, [x], [P]; name = :sys))
-    prob_anal_uninit = ODEProblem(sys_anal, [], (0.0, 1.0), [P => NaN])
+    prob_anal_uninit = ODEProblem(sys_anal, [P => NaN], (0.0, 1.0))
     x_at_1_anal(P) = solve(remake(prob_anal_uninit; p = [sys_anal.P => P]), Tsit5())(
         1.0, idxs = x
     )
