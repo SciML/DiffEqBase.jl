@@ -67,7 +67,7 @@ end
 @variables x y
 eqs = [
     0 ~ x - y
-    0 ~ y - x
+    0 ~ y
 ]
 
 @named sys = System(eqs, [x, y], [])
