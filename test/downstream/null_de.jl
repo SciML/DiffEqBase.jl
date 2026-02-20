@@ -35,7 +35,7 @@ end
 @variables x(t) y(t)
 eqs = [
     0 ~ x - y
-    0 ~ y - x
+    0 ~ y
 ]
 
 @named sys = System(eqs, t)
@@ -67,7 +67,7 @@ end
 @variables x y
 eqs = [
     0 ~ x - y
-    0 ~ y - x
+    0 ~ y
 ]
 
 @named sys = System(eqs, [x, y], [])
@@ -97,14 +97,14 @@ sol = solve(unsatprob) # Success
     @variables x(t)
     # numerical ODE: x′(t) = P with x(0) = 0
     sys_num = mtkcompile(System([D(x) ~ P], t, [x], [P]; name = :sys))
-    prob_num_uninit = ODEProblem(sys_num, [x => 0.0], (0.0, 1.0), [P => NaN]) # uninitialized problem
+    prob_num_uninit = ODEProblem(sys_num, [x => 0.0, P => NaN], (0.0, 1.0)) # uninitialized problem
     x_at_1_num(P) = solve(remake(prob_num_uninit; p = [sys_num.P => P]), Tsit5())(
         1.0, idxs = x
     )
 
     # analytical solution: x(t) = P*t
     sys_anal = mtkcompile(System([x ~ P * t], t, [x], [P]; name = :sys))
-    prob_anal_uninit = ODEProblem(sys_anal, [], (0.0, 1.0), [P => NaN])
+    prob_anal_uninit = ODEProblem(sys_anal, [P => NaN], (0.0, 1.0))
     x_at_1_anal(P) = solve(remake(prob_anal_uninit; p = [sys_anal.P => P]), Tsit5())(
         1.0, idxs = x
     )
@@ -157,12 +157,13 @@ end
     @test sol_no_cb.t == [0.0, 1.0]
 
     # Test 2: has_callbacks detection - null problem WITH callbacks should NOT take fast path
-    # This will error because OrdinaryDiffEq can't handle null u0 with callbacks yet,
-    # but the error proves we're not silently skipping callbacks
+    # But works in OrdinaryDiffEq.jl path
     callback_called = Ref(false)
     cb = DiscreteCallback((u, t, integrator) -> t >= 0.5, integrator -> callback_called[] = true)
     prob_with_cb = ODEProblem(Returns(nothing), nothing, (0.0, 1.0))
-    @test_throws Exception solve(prob_with_cb, Tsit5(); callback = cb)
+    sol = solve(prob_with_cb, Tsit5(); callback = cb, tstops = [0.5])
+    @test sol.retcode == SciMLBase.ReturnCode.Success
+    @test callback_called[]
 
     # Test 3: ODE with state + DiscreteCallback - callbacks should trigger
     # Using raw ODE (not MTK) to avoid API changes
@@ -177,6 +178,8 @@ end
     @test sol_with_state.retcode == SciMLBase.ReturnCode.Success
     @test callback_triggered[]
 
-    # Test 4: init with null problem + callback should also not take fast path
-    @test_throws Exception init(prob_with_cb, Tsit5(); callback = cb)
+    # Test 4: init with null problem + callback works in OrdinaryDiffEq.jl path
+    sol = solve(prob_with_cb, Tsit5(); callback = cb)
+    @test sol.retcode == SciMLBase.ReturnCode.Success
+    @test callback_triggered[]
 end

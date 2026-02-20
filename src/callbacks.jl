@@ -396,7 +396,7 @@ Assumes that:
 function find_root(f, tup, rootfind::SciMLBase.RootfindOpt)
     sol = solve(
         IntervalNonlinearProblem{false}(f, tup),
-        ITP(), abstol = 0.0, reltol = 0.0
+        ModAB(), abstol = 0.0, reltol = 0.0
     )
     if rootfind == SciMLBase.LeftRootFind
         return sol.left
