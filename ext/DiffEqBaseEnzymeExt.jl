@@ -4,7 +4,7 @@ module DiffEqBaseEnzymeExt
     using DiffEqBase
     import DiffEqBase: value
     using Enzyme
-    import Enzyme: Const
+    import Enzyme: Const, MixedDuplicated
     using ChainRulesCore
 
 
@@ -31,7 +31,7 @@ module DiffEqBaseEnzymeExt
 
     function Enzyme.EnzymeRules.augmented_primal(
             config::Enzyme.EnzymeRules.RevConfigWidth{1},
-            func::Const{typeof(DiffEqBase.solve_up)}, RTA::Type{Duplicated{RT}}, prob,
+            func::Const{typeof(DiffEqBase.solve_up)}, RTA::Union{Type{Duplicated{RT}}, Type{MixedDuplicated{RT}}}, prob,
             sensealg::Union{
                 Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm},
             },
@@ -66,7 +66,7 @@ module DiffEqBaseEnzymeExt
 
     function Enzyme.EnzymeRules.reverse(
             config::Enzyme.EnzymeRules.RevConfigWidth{1},
-            func::Const{typeof(DiffEqBase.solve_up)}, ::Type{Duplicated{RT}}, tape, prob,
+            func::Const{typeof(DiffEqBase.solve_up)}, ::Union{Type{Duplicated{RT}}, Type{MixedDuplicated{RT}}}, tape, prob,
             sensealg::Union{
                 Const{Nothing}, Const{<:DiffEqBase.AbstractSensitivityAlgorithm},
             },
@@ -84,7 +84,11 @@ module DiffEqBaseEnzymeExt
                 if darg == ChainRulesCore.NoTangent()
                     continue
                 end
-                ptr.dval .+= darg
+                if ptr isa MixedDuplicated
+                    ptr.dval[] .+= darg
+                else
+                    ptr.dval .+= darg
+                end
             end
             Enzyme.make_zero!(dres.u)
         end
