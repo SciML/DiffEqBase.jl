@@ -206,10 +206,10 @@ end
         end
 
         # Evaluate condition slightly in future
-        nudged_t = nudge_tprev(integrator, callback, bottom_condition[nudged_idx])
+        nudged_t = nudge_tprev(integrator, callback, ArrayInterface.allowed_getindex(bottom_condition, nudged_idx))
         tmp_condition = get_condition(integrator, callback, nudged_t)
 
-        bottom_sign[nudged_idx] = sign(tmp_condition[nudged_idx])
+        ArrayInterface.allowed_setindex!(bottom_sign, sign(ArrayInterface.allowed_getindex(tmp_condition, nudged_idx)), nudged_idx)
     else
         nudged_idx = -1
         nudged_t = bottom_t
@@ -226,7 +226,13 @@ end
         residual = zero(eltype(bottom_condition))
     elseif isdiscrete(integrator.alg) || callback.rootfind == SciMLBase.NoRootFind
         callback_t = top_t
-        min_event_idx = findfirst(isequal(1), event_idx)
+        min_event_idx = 1
+        for i in 1:length(event_idx)
+            if ArrayInterface.allowed_getindex(event_idx, i) == 1
+                min_event_idx = i
+                break
+            end
+        end
         residual = zero(eltype(bottom_condition))
     else
         callback_t = rightfloat(top_t, integrator.tdir)
