@@ -175,7 +175,7 @@ end
     ex = quote
         $ex
         if event_occurred
-            integrator.last_event_error = residual
+            integrator.last_event_error = value(residual)
         end
         return tmin, upcrossing, event_occurred, event_idx, identified_idx, $N
     end

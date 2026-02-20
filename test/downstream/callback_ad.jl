@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, ForwardDiff, FiniteDiff, Test
+using OrdinaryDiffEq, ForwardDiff, FiniteDiff, SciMLSensitivity, Zygote, Test
 
 # Regression test for ForwardDiff AD through ContinuousCallback root-finding.
 # This catches issues like https://github.com/SciML/DiffEqBase.jl/issues/1275
@@ -77,4 +77,38 @@ end
         @test all(isfinite, dijac)
         @test dijac ≈ findiff rtol = 1e-5
     end
+end
+
+# Regression test for Zygote/ReverseDiff AD through ContinuousCallback.
+# ReverseDiff.TrackedReal cannot be converted to Float64, so storing the
+# callback residual in integrator.last_event_error requires unwrapping
+# via `value()`.
+@testset "Zygote AD through ContinuousCallback" begin
+    function f_zyg(du, u, p, t)
+        du[1] = u[2]
+        du[2] = -p[1]
+    end
+
+    function condition_zyg(u, t, integrator)
+        u[1]
+    end
+
+    function affect_zyg!(integrator)
+        integrator.u[2] = -integrator.p[2] * integrator.u[2]
+    end
+
+    cb_zyg = ContinuousCallback(condition_zyg, affect_zyg!)
+
+    function loss_zyg(p)
+        prob = ODEProblem(f_zyg, [1.0, 0.0], (0.0, 1.0), p)
+        sol = solve(prob, Tsit5(), callback = cb_zyg,
+            abstol = 1e-14, reltol = 1e-14, save_everystep = false)
+        return sum(sol.u[end])
+    end
+
+    p = [9.8, 0.8]
+    grad = Zygote.gradient(loss_zyg, p)[1]
+    findiff_grad = FiniteDiff.finite_difference_gradient(loss_zyg, p)
+    @test all(isfinite, grad)
+    @test grad ≈ findiff_grad rtol = 1e-3
 end
