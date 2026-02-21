@@ -760,8 +760,6 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
     end
 
     return f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractSciMLOperator) &&
-            # Jacobians don't wrap, so just ignore those cases
-            f.jac === nothing &&
             # Opt-out SubArrays since they would create type mismatches with the integrator's internal Arrays
             !(u0 isa SubArray) &&
             (
@@ -775,6 +773,13 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
                     !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)
             )
         )
+        # Wrap the Jacobian if present, so its type is also erased
+        if f.jac !== nothing && !(f.jac isa FunctionWrappersWrappers.FunctionWrappersWrapper)
+            n = length(u0)
+            J_proto = f.jac_prototype !== nothing ? similar(f.jac_prototype, uElType) :
+                      zeros(uElType, n, n)
+            f = @set f.jac = wrapfun_jac_iip(f.jac, (J_proto, u0, p, t))
+        end
         return unwrapped_f(f, wrapfun_iip(f.f, (u0, u0, p, t)))
     else
         return f
