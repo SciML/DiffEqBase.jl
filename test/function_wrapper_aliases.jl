@@ -17,7 +17,8 @@ const FDExt = Base.get_extension(DiffEqBase, :DiffEqBaseForwardDiffExt)
     wrapped = wrapfun_iip_simple(ff, du, u, p, t)
     @test wrapped isa DiffEqBase.DEIIPFunctionWrapper
     @test wrapped isa DiffEqBase.DEIIPFunctionWrapper{
-        Vector{Float64}, Vector{Float64}, Vector{Float64}, Float64}
+        Vector{Float64}, Vector{Float64}, Vector{Float64}, Float64,
+    }
 
     # VF64 alias should match
     @test wrapped isa DiffEqBase.DEIIPFunctionWrapperVF64{Vector{Float64}}
@@ -54,7 +55,8 @@ end
 @testset "ODEDualTag and ODEDualType (ForwardDiff extension)" begin
     @test FDExt.ODEDualTag === ForwardDiff.Tag{OrdinaryDiffEqTag, Float64}
     @test FDExt.ODEDualType === ForwardDiff.Dual{
-        ForwardDiff.Tag{OrdinaryDiffEqTag, Float64}, Float64, 1}
+        ForwardDiff.Tag{OrdinaryDiffEqTag, Float64}, Float64, 1,
+    }
 end
 
 @testset "DEIIPFunctionWrapperForwardDiff struct" begin
