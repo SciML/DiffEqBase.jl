@@ -64,9 +64,9 @@ ext.DEIIPFunctionWrapperForwardDiffVF64
 """
 const DEIIPFunctionWrapperForwardDiffVF64{pType} =
     DEIIPFunctionWrapperForwardDiff{
-        Vector{Float64}, Vector{Float64}, pType, Float64,
-        Vector{dualT}, Vector{dualT}, dualT,
-    }
+    Vector{Float64}, Vector{Float64}, pType, Float64,
+    Vector{dualT}, Vector{dualT}, dualT,
+}
 
 const NORECOMPILE_IIP_SUPPORTED_ARGS = (
     Tuple{

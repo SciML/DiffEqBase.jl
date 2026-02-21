@@ -802,7 +802,7 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t, ::Val{true}) where {F, spe
         if f.jac !== nothing && !(f.jac isa AnyFunctionWrapper)
             n = length(u0)
             J_proto = f.jac_prototype !== nothing ? similar(f.jac_prototype, uElType) :
-                      zeros(uElType, n, n)
+                zeros(uElType, n, n)
             f = @set f.jac = wrapfun_jac_iip(f.jac, (J_proto, u0, p, t))
         end
         return unwrapped_f(f, wrapfun_iip(f.f, (u0, u0, p, t)))
