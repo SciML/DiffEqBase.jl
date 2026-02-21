@@ -3,14 +3,70 @@ module DiffEqBaseForwardDiffExt
 using DiffEqBase, ForwardDiff
 using DiffEqBase.ArrayInterface
 using DiffEqBase: Void, FunctionWrappersWrappers, OrdinaryDiffEqTag,
+    DEIIPFunctionWrapperForwardDiff,
     AbstractTimeseriesSolution,
     RecursiveArrayTools, reduce_tup, _promote_tspan, has_continuous_callback
+using FunctionWrappers: FunctionWrapper
 import DiffEqBase: hasdualpromote, wrapfun_oop, wrapfun_iip, prob2dtmin,
     promote_tspan, ODE_DEFAULT_NORM
 import SciMLBase: isdualtype, DualEltypeChecker, sse, __sum
 
 const dualT = ForwardDiff.Dual{ForwardDiff.Tag{OrdinaryDiffEqTag, Float64}, Float64, 1}
 dualgen(::Type{T}) where {T} = ForwardDiff.Dual{ForwardDiff.Tag{OrdinaryDiffEqTag, T}, T, 1}
+
+"""
+    ODEDualTag
+
+Type alias for the ForwardDiff tag used by ODE solvers:
+`ForwardDiff.Tag{OrdinaryDiffEqTag, Float64}`.
+
+Access from downstream packages via:
+```julia
+ext = Base.get_extension(DiffEqBase, :DiffEqBaseForwardDiffExt)
+ext.ODEDualTag
+```
+"""
+const ODEDualTag = ForwardDiff.Tag{OrdinaryDiffEqTag, Float64}
+
+"""
+    ODEDualType
+
+Type alias for the ForwardDiff dual number used by ODE solvers:
+`ForwardDiff.Dual{ODEDualTag, Float64, 1}`.
+
+Access from downstream packages via:
+```julia
+ext = Base.get_extension(DiffEqBase, :DiffEqBaseForwardDiffExt)
+ext.ODEDualType
+```
+"""
+const ODEDualType = ForwardDiff.Dual{ODEDualTag, Float64, 1}
+
+"""
+    DEIIPFunctionWrapperForwardDiffVF64{pType}
+
+VF64-specialized alias for `DEIIPFunctionWrapperForwardDiff` matching the common
+in-place `Vector{Float64}` ODE case with ForwardDiff support.
+
+Equivalent to:
+```julia
+DEIIPFunctionWrapperForwardDiff{
+    Vector{Float64}, Vector{Float64}, pType, Float64,
+    Vector{ODEDualType}, Vector{ODEDualType}, ODEDualType,
+}
+```
+
+Access from downstream packages via:
+```julia
+ext = Base.get_extension(DiffEqBase, :DiffEqBaseForwardDiffExt)
+ext.DEIIPFunctionWrapperForwardDiffVF64
+```
+"""
+const DEIIPFunctionWrapperForwardDiffVF64{pType} =
+    DEIIPFunctionWrapperForwardDiff{
+        Vector{Float64}, Vector{Float64}, pType, Float64,
+        Vector{dualT}, Vector{dualT}, dualT,
+    }
 
 const NORECOMPILE_IIP_SUPPORTED_ARGS = (
     Tuple{
@@ -82,7 +138,8 @@ function wrapfun_iip(
     fwt = map(iip_arglists, iip_returnlists) do A, R
         FunctionWrappersWrappers.FunctionWrappers.FunctionWrapper{R, A}(Void(ff))
     end
-    return FunctionWrappersWrappers.FunctionWrappersWrapper{typeof(fwt), false}(fwt)
+    inner = FunctionWrappersWrappers.FunctionWrappersWrapper{typeof(fwt), false}(fwt)
+    return DEIIPFunctionWrapperForwardDiff(inner)
 end
 
 const iip_arglists_default = (
