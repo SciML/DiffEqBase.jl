@@ -101,8 +101,10 @@ end
 
     function loss_zyg(p)
         prob = ODEProblem(f_zyg, [1.0, 0.0], (0.0, 1.0), p)
-        sol = solve(prob, Tsit5(), callback = cb_zyg,
-            abstol = 1e-14, reltol = 1e-14, save_everystep = false)
+        sol = solve(
+            prob, Tsit5(), callback = cb_zyg,
+            abstol = 1.0e-14, reltol = 1.0e-14, save_everystep = false
+        )
         return sum(sol.u[end])
     end
 
@@ -110,5 +112,5 @@ end
     grad = Zygote.gradient(loss_zyg, p)[1]
     findiff_grad = FiniteDiff.finite_difference_gradient(loss_zyg, p)
     @test all(isfinite, grad)
-    @test grad ≈ findiff_grad rtol = 1e-3
+    @test grad ≈ findiff_grad rtol = 1.0e-3
 end

@@ -149,6 +149,9 @@ include("common_defaults.jl")
 include("solve.jl")
 include("internal_euler.jl")
 include("norecompile.jl")
+# unwrapped_f support for DE wrapper structs (delegates to inner FunctionWrappersWrapper)
+unwrapped_f(f::DEIIPFunctionWrapper) = unwrapped_f(f.fw)
+unwrapped_f(f::DEIIPFunctionWrapperForwardDiff) = unwrapped_f(f.fw)
 include("integrator_accessors.jl")
 
 # This is only used for oop stiff solvers
@@ -174,6 +177,10 @@ end
 export initialize!, finalize!
 
 export SensitivityADPassThrough
+
+# FunctionWrapper structs and aliases for the VF64 pattern
+export DEIIPFunctionWrapper, DEIIPFunctionWrapperVF64,
+    DEIIPFunctionWrapperForwardDiff, AnyFunctionWrapper, wrapfun_iip_simple
 
 include("precompilation.jl")
 
