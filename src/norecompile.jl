@@ -33,3 +33,13 @@ function wrapfun_oop(ff, inputs)
         ff, (typeof(inputs),), (typeof(inputs[1]),)
     )
 end
+
+# Wrap an in-place Jacobian function jac!(J, u, p, t) -> Nothing.
+# Unlike the RHS, the Jacobian is not called with Dual numbers
+# (the analytical Jacobian IS the derivative), so we only need
+# a single FunctionWrapper variant.
+function wrapfun_jac_iip(jac_f, inputs)
+    return FunctionWrappersWrappers.FunctionWrappersWrapper(
+        Void(jac_f), (typeof(inputs),), (Nothing,)
+    )
+end

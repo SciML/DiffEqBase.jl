@@ -779,11 +779,6 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t, ::Val{true}) where {F, spe
     end
 
     return f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractSciMLOperator) &&
-            # Some reinitialization code still uses NLSolvers stuff which doesn't
-            # properly tag, so opt-out if potentially a mass matrix DAE
-            f.mass_matrix isa UniformScaling &&
-            # Jacobians don't wrap, so just ignore those cases
-            f.jac === nothing &&
             # Opt-out SubArrays since they would create type mismatches with the integrator's internal Arrays
             !(u0 isa SubArray) &&
             (
@@ -798,6 +793,18 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t, ::Val{true}) where {F, spe
                     !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)
             )
         )
+        # Wrap tgrad if present, so its type is also erased.
+        # tgrad!(dT, u, p, t) -> Nothing has the same shape as the RHS.
+        if f.tgrad !== nothing && !(f.tgrad isa FunctionWrappersWrappers.FunctionWrappersWrapper)
+            f = @set f.tgrad = wrapfun_jac_iip(f.tgrad, (u0, u0, p, t))
+        end
+        # Wrap the Jacobian if present, so its type is also erased
+        if f.jac !== nothing && !(f.jac isa FunctionWrappersWrappers.FunctionWrappersWrapper)
+            n = length(u0)
+            J_proto = f.jac_prototype !== nothing ? similar(f.jac_prototype, uElType) :
+                      zeros(uElType, n, n)
+            f = @set f.jac = wrapfun_jac_iip(f.jac, (J_proto, u0, p, t))
+        end
         return unwrapped_f(f, wrapfun_iip(f.f, (u0, u0, p, t)))
     else
         return f
