@@ -760,9 +760,6 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
     end
 
     return f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractSciMLOperator) &&
-            # Some reinitialization code still uses NLSolvers stuff which doesn't
-            # properly tag, so opt-out if potentially a mass matrix DAE
-            f.mass_matrix isa UniformScaling &&
             # Jacobians don't wrap, so just ignore those cases
             f.jac === nothing &&
             # Opt-out SubArrays since they would create type mismatches with the integrator's internal Arrays
