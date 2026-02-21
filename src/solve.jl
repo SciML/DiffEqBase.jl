@@ -773,6 +773,11 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
                     !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)
             )
         )
+        # Wrap tgrad if present, so its type is also erased.
+        # tgrad!(dT, u, p, t) -> Nothing has the same shape as the RHS.
+        if f.tgrad !== nothing && !(f.tgrad isa FunctionWrappersWrappers.FunctionWrappersWrapper)
+            f = @set f.tgrad = wrapfun_jac_iip(f.tgrad, (u0, u0, p, t))
+        end
         # Wrap the Jacobian if present, so its type is also erased
         if f.jac !== nothing && !(f.jac isa FunctionWrappersWrappers.FunctionWrappersWrapper)
             n = length(u0)
