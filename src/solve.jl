@@ -110,7 +110,7 @@ function init_up(prob::AbstractDEProblem, sensealg, u0, p, args...; kwargs...)
     alg = extract_alg(args, kwargs, has_kwargs(prob) ? prob.kwargs : kwargs)
     return if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(
-            prob, !(prob isa DiscreteProblem); u0 = u0,
+            prob, !(prob isa DiscreteProblem); alg = alg, u0 = u0,
             p = p, kwargs...
         )
         init_call(_prob, args...; kwargs...)
@@ -123,7 +123,7 @@ function init_up(prob::AbstractDEProblem, sensealg, u0, p, args...; kwargs...)
                 !SciMLBase.allows_late_binding_tstops(alg)
             throw(LateBindingTstopsNotSupportedError())
         end
-        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
+        _prob = get_concrete_problem(prob, isadaptive(alg); alg = alg, u0 = u0, p = p, kwargs...)
         _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
         check_prob_alg_pairing(_prob, alg) # alg for improved inference
         if length(args) > 1
@@ -608,7 +608,7 @@ function solve_up(
     alg = extract_alg(args, kwargs, has_kwargs(prob) ? prob.kwargs : kwargs)
     return if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(
-            prob, !(prob isa DiscreteProblem); u0 = u0,
+            prob, !(prob isa DiscreteProblem); alg = alg, u0 = u0,
             p = p, kwargs...
         )
         solve_call(_prob, args...; kwargs...)
@@ -621,7 +621,7 @@ function solve_up(
                 !SciMLBase.allows_late_binding_tstops(alg)
             throw(LateBindingTstopsNotSupportedError())
         end
-        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
+        _prob = get_concrete_problem(prob, isadaptive(alg); alg = alg, u0 = u0, p = p, kwargs...)
         _alg = prepare_alg(alg, _prob.u0, _prob.p, _prob)
         check_prob_alg_pairing(_prob, alg) # use alg for improved inference
         if length(args) > 1
@@ -662,7 +662,7 @@ function init(
     return init(prob.prob, alg, args...; kwargs...)
 end
 
-function get_concrete_problem(prob, isadapt; kwargs...)
+function get_concrete_problem(prob, isadapt; alg = nothing, kwargs...)
     oldprob = prob
     prob = get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
     if prob !== oldprob
@@ -675,7 +675,7 @@ function get_concrete_problem(prob, isadapt; kwargs...)
     tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
     f_promote = promote_f(
         prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
-        tspan_promote[1]
+        tspan_promote[1], Val(_uses_forwarddiff(alg))
     )
     if isconcreteu0(prob, tspan[1], kwargs) && prob.u0 === u0 &&
             typeof(u0_promote) === typeof(prob.u0) &&
@@ -687,7 +687,7 @@ function get_concrete_problem(prob, isadapt; kwargs...)
     end
 end
 
-function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
+function get_concrete_problem(prob::DAEProblem, isadapt; alg = nothing, kwargs...)
     oldprob = prob
     prob = get_updated_symbolic_problem(SciMLBase.get_root_indp(prob), prob; kwargs...)
     if prob !== oldprob
@@ -704,7 +704,7 @@ function get_concrete_problem(prob::DAEProblem, isadapt; kwargs...)
 
     f_promote = promote_f(
         prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
-        tspan_promote[1]
+        tspan_promote[1], Val(_uses_forwarddiff(alg))
     )
     if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
             isconcretedu0(prob, tspan[1], kwargs) && typeof(du0_promote) === typeof(prob.du0) &&
@@ -752,8 +752,27 @@ function _promote_tspan(tspan, kwargs)
     end
 end
 
-function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
-    # Ensure our jacobian will be of the same type as u0
+# Helper to determine if we need ForwardDiff-aware function wrapping.
+# Default to true (full wrapping) when algorithm is not known.
+_uses_forwarddiff(::Nothing) = true
+function _uses_forwarddiff(alg)
+    fd = SciMLBase.forwarddiffs_model(alg)
+    # forwarddiffs_model returns Bool for OrdinaryDiffEq algorithms, but may return
+    # an AD type (e.g. AutoFiniteDiff()) for StochasticDiffEq algorithms.
+    # Only use simple path when it explicitly returns false.
+    fd !== false && return true
+    # For composite algorithms that contain sub-algorithms (e.g. AutoTsit5(Rosenbrock23())),
+    # check if any sub-algorithm uses ForwardDiff.
+    if hasfield(typeof(alg), :algs)
+        return any(_uses_forwarddiff, alg.algs)
+    end
+    return false
+end
+
+# Full path for algorithms that use ForwardDiff internally (e.g. Rosenbrock).
+# These algorithms precompile AFTER the ForwardDiff extension loads, so
+# backedges to hasdualpromote/wrapfun_iip don't cause invalidation issues.
+function promote_f(f::F, ::Val{specialize}, u0, p, t, ::Val{true}) where {F, specialize}
     uElType = u0 === nothing ? Float64 : eltype(u0)
     if isdefined(f, :jac_prototype) && f.jac_prototype isa AbstractArray
         f = @set f.jac_prototype = similar(f.jac_prototype, uElType)
@@ -771,7 +790,8 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
             (
                 specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
                     RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
-                    one(t) === oneunit(t) && hasdualpromote(u0, t)
+                    one(t) === oneunit(t) &&
+                    hasdualpromote(u0, t)
             ) ||
                 (
                 specialize === SciMLBase.FunctionWrapperSpecialize &&
@@ -784,13 +804,56 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t) where {F, specialize}
     end
 end
 
+# Simple path for algorithms that do NOT use ForwardDiff internally (e.g. Tsit5, Verner).
+# Avoids calling hasdualpromote/wrapfun_iip which have extension overrides in
+# DiffEqBaseForwardDiffExt that would create invalidating method table backedges.
+# Uses a simple single-signature FunctionWrapper instead.
+function promote_f(f::F, ::Val{specialize}, u0, p, t, ::Val{false}) where {F, specialize}
+    uElType = u0 === nothing ? Float64 : eltype(u0)
+    if isdefined(f, :jac_prototype) && f.jac_prototype isa AbstractArray
+        f = @set f.jac_prototype = similar(f.jac_prototype, uElType)
+    end
+
+    return f = if f isa ODEFunction && isinplace(f) && !(f.f isa AbstractSciMLOperator) &&
+            f.mass_matrix isa UniformScaling &&
+            f.jac === nothing &&
+            !(u0 isa SubArray) &&
+            (
+            (
+                specialize === SciMLBase.AutoSpecialize && eltype(u0) !== Any &&
+                    RecursiveArrayTools.recursive_unitless_eltype(u0) === eltype(u0) &&
+                    one(t) === oneunit(t)
+            ) ||
+                (
+                specialize === SciMLBase.FunctionWrapperSpecialize &&
+                    !(f.f isa FunctionWrappersWrappers.FunctionWrappersWrapper)
+            )
+        )
+        return unwrapped_f(
+            f,
+            FunctionWrappersWrappers.FunctionWrappersWrapper(
+                Void(f.f), (typeof((u0, u0, p, t)),), (Nothing,)
+            )
+        )
+    else
+        return f
+    end
+end
+
 hasdualpromote(u0, t) = true
 
-function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t) where {specialize}
+function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t, ::Val{true}) where {specialize}
     return if isnothing(f._func_cache)
         f
     else
         # Copy the cache to ensure it's properly initialized
+        remake(f, _func_cache = copy(f._func_cache))
+    end
+end
+function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t, ::Val{false}) where {specialize}
+    return if isnothing(f._func_cache)
+        f
+    else
         remake(f, _func_cache = copy(f._func_cache))
     end
 end
@@ -956,11 +1019,11 @@ function _solve_adjoint(
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(
-            prob, !(prob isa DiscreteProblem); u0 = u0,
+            prob, !(prob isa DiscreteProblem); alg = alg, u0 = u0,
             p = p, kwargs...
         )
     else
-        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
+        _prob = get_concrete_problem(prob, isadaptive(alg); alg = alg, u0 = u0, p = p, kwargs...)
     end
 
     # Merge problem kwargs with passed kwargs
@@ -983,11 +1046,11 @@ function _solve_forward(
     alg = extract_alg(args, kwargs, prob.kwargs)
     if isnothing(alg) || !(alg isa AbstractDEAlgorithm) # Default algorithm handling
         _prob = get_concrete_problem(
-            prob, !(prob isa DiscreteProblem); u0 = u0,
+            prob, !(prob isa DiscreteProblem); alg = alg, u0 = u0,
             p = p, kwargs...
         )
     else
-        _prob = get_concrete_problem(prob, isadaptive(alg); u0 = u0, p = p, kwargs...)
+        _prob = get_concrete_problem(prob, isadaptive(alg); alg = alg, u0 = u0, p = p, kwargs...)
     end
 
     # Merge problem kwargs with passed kwargs
