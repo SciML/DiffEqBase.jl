@@ -676,7 +676,7 @@ function get_concrete_problem(prob, isadapt; alg = nothing, kwargs...)
     f_promote = promote_f(
         prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
         tspan_promote[1], Val(_uses_forwarddiff(alg)),
-        Val(_forwarddiff_chunksize(alg))
+        _forwarddiff_chunksize(alg)
     )
     if isconcreteu0(prob, tspan[1], kwargs) && prob.u0 === u0 &&
             typeof(u0_promote) === typeof(prob.u0) &&
@@ -706,7 +706,7 @@ function get_concrete_problem(prob::DAEProblem, isadapt; alg = nothing, kwargs..
     f_promote = promote_f(
         prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
         tspan_promote[1], Val(_uses_forwarddiff(alg)),
-        Val(_forwarddiff_chunksize(alg))
+        _forwarddiff_chunksize(alg)
     )
     if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
             isconcretedu0(prob, tspan[1], kwargs) && typeof(du0_promote) === typeof(prob.du0) &&
@@ -755,12 +755,11 @@ function _promote_tspan(tspan, kwargs)
 end
 
 # Helper to get the effective ForwardDiff chunk size from the algorithm.
-# Defaults to 1 when algorithm is not known or doesn't specify.
-_forwarddiff_chunksize(::Nothing) = 1
-function _forwarddiff_chunksize(alg)
-    cs = SciMLBase.forwarddiff_chunksize(alg)
-    return (cs === nothing || cs <= 0) ? 1 : cs
-end
+# Returns Val{CS}(). Defaults to Val(1) when algorithm is not known or unspecified.
+_forwarddiff_chunksize(::Nothing) = Val(1)
+_forwarddiff_chunksize(alg) = _resolve_chunksize(SciMLBase.forwarddiff_chunksize(alg))
+_resolve_chunksize(::Val{0}) = Val(1)
+_resolve_chunksize(v::Val) = v
 
 # Helper to determine if we need ForwardDiff-aware function wrapping.
 # Default to true (full wrapping) when algorithm is not known.
