@@ -675,7 +675,8 @@ function get_concrete_problem(prob, isadapt; alg = nothing, kwargs...)
     tspan_promote = promote_tspan(u0_promote, p, tspan, prob, kwargs)
     f_promote = promote_f(
         prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
-        tspan_promote[1], Val(_uses_forwarddiff(alg))
+        tspan_promote[1], Val(_uses_forwarddiff(alg)),
+        _forwarddiff_chunksize(alg)
     )
     if isconcreteu0(prob, tspan[1], kwargs) && prob.u0 === u0 &&
             typeof(u0_promote) === typeof(prob.u0) &&
@@ -704,7 +705,8 @@ function get_concrete_problem(prob::DAEProblem, isadapt; alg = nothing, kwargs..
 
     f_promote = promote_f(
         prob.f, Val(SciMLBase.specialization(prob.f)), u0_promote, p,
-        tspan_promote[1], Val(_uses_forwarddiff(alg))
+        tspan_promote[1], Val(_uses_forwarddiff(alg)),
+        _forwarddiff_chunksize(alg)
     )
     if isconcreteu0(prob, tspan[1], kwargs) && typeof(u0_promote) === typeof(prob.u0) &&
             isconcretedu0(prob, tspan[1], kwargs) && typeof(du0_promote) === typeof(prob.du0) &&
@@ -752,6 +754,13 @@ function _promote_tspan(tspan, kwargs)
     end
 end
 
+# Helper to get the effective ForwardDiff chunk size from the algorithm.
+# Returns Val{CS}(). Defaults to Val(1) when algorithm is not known or unspecified.
+_forwarddiff_chunksize(::Nothing) = Val(1)
+_forwarddiff_chunksize(alg) = _resolve_chunksize(SciMLBase.forwarddiff_chunksize(alg))
+_resolve_chunksize(::Val{0}) = Val(1)
+_resolve_chunksize(v::Val) = v
+
 # Helper to determine if we need ForwardDiff-aware function wrapping.
 # Default to true (full wrapping) when algorithm is not known.
 _uses_forwarddiff(::Nothing) = true
@@ -772,7 +781,10 @@ end
 # Full path for algorithms that use ForwardDiff internally (e.g. Rosenbrock).
 # These algorithms precompile AFTER the ForwardDiff extension loads, so
 # backedges to hasdualpromote/wrapfun_iip don't cause invalidation issues.
-function promote_f(f::F, ::Val{specialize}, u0, p, t, ::Val{true}) where {F, specialize}
+function promote_f(
+        f::F, ::Val{specialize}, u0, p, t, ::Val{true},
+        ::Val{CS} = Val(1)
+    ) where {F, specialize, CS}
     uElType = u0 === nothing ? Float64 : eltype(u0)
     if isdefined(f, :jac_prototype) && f.jac_prototype isa AbstractArray
         f = @set f.jac_prototype = similar(f.jac_prototype, uElType)
@@ -802,10 +814,10 @@ function promote_f(f::F, ::Val{specialize}, u0, p, t, ::Val{true}) where {F, spe
         if f.jac !== nothing && !(f.jac isa FunctionWrappersWrappers.FunctionWrappersWrapper)
             n = length(u0)
             J_proto = f.jac_prototype !== nothing ? similar(f.jac_prototype, uElType) :
-                      zeros(uElType, n, n)
+                zeros(uElType, n, n)
             f = @set f.jac = wrapfun_jac_iip(f.jac, (J_proto, u0, p, t))
         end
-        return unwrapped_f(f, wrapfun_iip(f.f, (u0, u0, p, t)))
+        return unwrapped_f(f, wrapfun_iip(f.f, (u0, u0, p, t), Val(CS)))
     else
         return f
     end
@@ -815,7 +827,10 @@ end
 # Avoids calling hasdualpromote/wrapfun_iip which have extension overrides in
 # DiffEqBaseForwardDiffExt that would create invalidating method table backedges.
 # Uses a simple single-signature FunctionWrapper instead.
-function promote_f(f::F, ::Val{specialize}, u0, p, t, ::Val{false}) where {F, specialize}
+function promote_f(
+        f::F, ::Val{specialize}, u0, p, t, ::Val{false},
+        ::Val{CS} = Val(1)
+    ) where {F, specialize, CS}
     uElType = u0 === nothing ? Float64 : eltype(u0)
     if isdefined(f, :jac_prototype) && f.jac_prototype isa AbstractArray
         f = @set f.jac_prototype = similar(f.jac_prototype, uElType)
@@ -849,7 +864,10 @@ end
 
 hasdualpromote(u0, t) = true
 
-function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t, ::Val{true}) where {specialize}
+function promote_f(
+        f::SplitFunction, ::Val{specialize}, u0, p, t, ::Val{true},
+        ::Val{CS} = Val(1)
+    ) where {specialize, CS}
     return if isnothing(f._func_cache)
         f
     else
@@ -857,7 +875,10 @@ function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t, ::Val{true}) w
         remake(f, _func_cache = copy(f._func_cache))
     end
 end
-function promote_f(f::SplitFunction, ::Val{specialize}, u0, p, t, ::Val{false}) where {specialize}
+function promote_f(
+        f::SplitFunction, ::Val{specialize}, u0, p, t, ::Val{false},
+        ::Val{CS} = Val(1)
+    ) where {specialize, CS}
     return if isnothing(f._func_cache)
         f
     else
