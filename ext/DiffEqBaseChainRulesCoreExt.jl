@@ -1,14 +1,10 @@
 module DiffEqBaseChainRulesCoreExt
 
 using DiffEqBase
-using DiffEqBase.SciMLBase
 import DiffEqBase: numargs, AbstractSensitivityAlgorithm, AbstractDEProblem
 
 import ChainRulesCore
 import ChainRulesCore: NoTangent
-
-ChainRulesCore.rrule(::typeof(numargs), f) = (numargs(f), df -> (NoTangent(), NoTangent()))
-ChainRulesCore.@non_differentiable DiffEqBase.checkkwargs(kwargshandle)
 
 function ChainRulesCore.frule(
         ::typeof(DiffEqBase.solve_up), prob,
