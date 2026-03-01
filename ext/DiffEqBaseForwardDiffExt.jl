@@ -332,41 +332,26 @@ PrecompileTools.@compile_workload begin
     copy(v1)
     fill!(out, zero(dualT))
 
-    # SubArray broadcast operations for Float64 and Dual types.
-    # ODE functions that use @view with broadcast (e.g. `dy .= k .* y1 .+ k .* y2 .* y3`)
-    # trigger compilation of deeply-nested Broadcasted types for SubArray at runtime.
-    # Exercising common patterns here moves ~2.5s of compilation from first-solve to precompile time.
+    # SubArray primitive broadcast operations for Float64 and Dual types.
+    # These are generic building blocks used by any ODE function with views.
+    # Note: fused multi-operand broadcast expressions (e.g. `dy .= k .* y1 .+ k .* y2 .* y3`)
+    # create unique nested Broadcasted types per expression and cannot be generically precompiled.
     for T in (Float64, dualT)
-        x = zeros(T, 6)
-        dx = zeros(T, 6)
+        x = zeros(T, 4)
+        dx = zeros(T, 4)
         sv1 = @view x[1:2]
         sv2 = @view x[3:4]
-        sv3 = @view x[5:6]
         dsv1 = @view dx[1:2]
-        dsv2 = @view dx[3:4]
-        dsv3 = @view dx[5:6]
         k = 0.04
 
-        # Common broadcast patterns from ODE right-hand-side functions
-        # Pattern 1a: dst .= -k .* src1 .+ k .* src2 .* src3 (negated first term)
-        dsv1 .= .-k .* sv1 .+ k .* sv2 .* sv3
-        # Pattern 1b: dst .= k .* src1 .+ k .* src2 .* src3 (positive first term)
-        dsv1 .= k .* sv1 .+ k .* sv2 .* sv3
-        # Pattern 2: dst .= k .* src1 .- k .* src2 .^ 2 .- k .* src2 .* src3
-        dsv2 .= k .* sv1 .- k .* sv2 .^ 2 .- k .* sv2 .* sv3
-        # Pattern 3: dst .= k .* src .^ 2
-        dsv3 .= k .* sv2 .^ 2
-
-        # Additional SubArray patterns
-        # Simple assignment and scaling
+        # Primitive SubArray broadcast operations
         dsv1 .= sv1
         dsv1 .= k .* sv1
+        dsv1 .= sv1 .* sv2
         dsv1 .= sv1 .+ sv2
         dsv1 .= sv1 .- sv2
-        dsv1 .= sv1 .* sv2
-        # Negation patterns
+        dsv1 .= sv1 .^ 2
         dsv1 .= .-sv1
-        dsv1 .= .-sv1 .+ sv2
     end
 end
 
