@@ -348,8 +348,10 @@ PrecompileTools.@compile_workload begin
         k = 0.04
 
         # Common broadcast patterns from ODE right-hand-side functions
-        # Pattern 1: dst .= -k .* src1 .+ k .* src2 .* src3
+        # Pattern 1a: dst .= -k .* src1 .+ k .* src2 .* src3 (negated first term)
         dsv1 .= .-k .* sv1 .+ k .* sv2 .* sv3
+        # Pattern 1b: dst .= k .* src1 .+ k .* src2 .* src3 (positive first term)
+        dsv1 .= k .* sv1 .+ k .* sv2 .* sv3
         # Pattern 2: dst .= k .* src1 .- k .* src2 .^ 2 .- k .* src2 .* src3
         dsv2 .= k .* sv1 .- k .* sv2 .^ 2 .- k .* sv2 .* sv3
         # Pattern 3: dst .= k .* src .^ 2
