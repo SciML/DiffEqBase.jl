@@ -384,15 +384,6 @@ function check_event_occurence_upto(integrator, callback::VectorContinuousCallba
     return event_occurred, event_idx, top_sign
 end
 
-_shift(τ, i) =
-if iszero(i)
-    τ
-elseif i > 0
-    _shift(nextfloat(τ), i - 1)
-else
-    _shift(prevfloat(τ), i + 1)
-end
-
 """
 Find either exact or floating point precision root of `f`.
 If the exact root cannot be represented, return closest floating point number depending on `rootfind`
@@ -405,7 +396,7 @@ Assumes that:
 function find_root(f, tup, rootfind::SciMLBase.RootfindOpt)
     sol = solve(
         IntervalNonlinearProblem{false}(f, tup),
-        ModAB2(), abstol = 0.0, reltol = 0.0
+        ModAB(), abstol = 0.0, reltol = 0.0
     )
     if is_inverted_root_pair(sol, f, tup)
         # "Inverted" root pair (#1290); direction of integration flips the bracket side
