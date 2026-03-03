@@ -411,7 +411,8 @@ function find_root(f, tup, rootfind::SciMLBase.RootfindOpt)
     
     if is_inverted_root_pair(sol, f, tup)
         # "Inverted" root pair (#1290)
-
+        if sol.resid > 0 && rootfind == SciMLBase.LeftRootFind
+            return find_root()
         
 
     if rootfind == SciMLBase.LeftRootFind
