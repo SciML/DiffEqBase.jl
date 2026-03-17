@@ -398,12 +398,44 @@ function find_root(f, tup, rootfind::SciMLBase.RootfindOpt)
         IntervalNonlinearProblem{false}(f, tup),
         ModAB(), abstol = 0.0, reltol = 0.0
     )
+    if is_inverted_root_pair(sol, f, tup)
+        # "Inverted" root pair (#1290); direction of integration flips the bracket side
+        return if (sol.resid > 0) ⊻ (tup[1] > tup[2])
+            find_root(f, (tup[1], sol.left), rootfind)
+        else
+            find_root(f, (sol.right, tup[2]), rootfind)
+        end
+    end
+
     if rootfind == SciMLBase.LeftRootFind
         return sol.left
     else
         return sol.right
     end
 end
+
+"""
+Determine if the root pair is "inverted" — i.e. if the final root bracket, when evaluated on
+the condition function, has the opposite signs as the initial bracket. This can occur due to
+numerical floating point noise.
+"""
+function is_inverted_root_pair(sol, f, tup)
+
+    # Fast path (f(t) == 0). Alternative implementation: check if
+    # sol.retcode ∈ (ReturnCode.ExactSolutionLeft, ReturnCode.ExactSolutionRight)
+    iszero(sol.resid) && return false
+
+    # Should be equal to sol.resid under current implementation of ModAB, but this is
+    # more robust against implementation changes and it also works around ModAB#860
+    most_positive_residual = f(max(sol.left, sol.right))
+
+    # Under current implementation of ModAB, sol.resid = f(max(sol.left, sol.right))
+    # Therefore, the residual should have the same sign as the condition function evaluated
+    # at maximum(tup); otherwise, the root pair is inverted.
+    # @show sol.resid, f(maximum(tup))
+    return sign(most_positive_residual) != sign(f(maximum(tup)))
+end
+
 
 """
 findall_events!(next_sign,affect!,affect_neg!,prev_sign)

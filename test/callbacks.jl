@@ -1,4 +1,5 @@
-using DiffEqBase, Test
+using DiffEqBase, SciMLBase, Test
+using BracketingNonlinearSolve: ModAB
 
 condition = function (u, t, integrator) # Event when event_f(u,t,k) == 0
     return t - 2.95
@@ -133,4 +134,36 @@ test_find_first_callback(callbacks, find_first_integrator);
     @test irrational_f(before) > 0.0
     @test irrational_f(after) < 0.0
     @test nextfloat(after) == before
+end
+
+# https://github.com/SciML/DiffEqBase.jl/issues/1290
+@testset "Inverted root pair detection and correction" begin
+    # Discovered via random search
+    coeffs = [
+        -0.7270388932299022, -0.6929210470992349, -0.7343652899957108,
+        0.8310017775620168, 0.6030921975763498, 0.46703506019208685,
+        -2.3581581735824186, 2.0556608750360628, -0.8183123724103458,
+        -2.5113469878793513, 0.10406374497692948, 0.0701494558467343,
+    ]
+    a1, b1, c1, a2, b2, c2, a3, b3, c3, a4, b4, c4 = coeffs
+    f(t) =
+        (a1 * t^2 + b1 * t + c1) * (a3 * t^2 + b3 * t + c3) +
+        (a2 * t^2 + b2 * t + c2) * (a4 * t^2 + b4 * t + c4)
+    f(t, _) = f(t)
+    tspan = (0.4294759977027207, 0.5371755582641773)
+
+    # Verify that ModAB directly produces an inverted root pair for this input
+    raw_sol = solve(
+        IntervalNonlinearProblem{false}(f, tspan),
+        ModAB(), abstol = 0.0, reltol = 0.0
+    )
+    @test DiffEqBase.is_inverted_root_pair(raw_sol, f, tspan)
+
+    # find_root must detect and correct the inversion: the returned roots must bracket
+    # a root with matching condition signs
+    left = DiffEqBase.find_root(f, tspan, SciMLBase.LeftRootFind)
+    right = DiffEqBase.find_root(f, tspan, SciMLBase.RightRootFind)
+    @test f(left) > 0.0
+    @test f(right) < 0.0
+    @test nextfloat(left) == right
 end
