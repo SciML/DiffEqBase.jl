@@ -4,6 +4,13 @@
 [![Build Status](https://github.com/SciML/DiffEqBase.jl/workflows/Tests/badge.svg)](https://github.com/SciML/DiffEqBase.jl/actions?query=workflow%3ATests)
 [![Build status](https://badge.buildkite.com/99cbd352c336779c3117e4da61255a1ed8e7e7c084c3c2516c.svg)](https://buildkite.com/julialang/diffeqbase-dot-jl)
 
+## Update
+
+This package was moved to be a sublibrary in [OrdinaryDiffEq.jl](https://github.com/SciML/OrdinaryDiffEq.jl). The migration is a maintanance change but should have no functional
+change to the library.
+
+## Previous Stuff
+
 DiffEqBase.jl is a component package in the DiffEq ecosystem. It holds the
 common types and utility functions which are shared by other solver packages
 to promote code reuse in the differential equation solver code.
